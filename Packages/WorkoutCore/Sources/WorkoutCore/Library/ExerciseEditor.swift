@@ -60,28 +60,45 @@ public struct ExerciseEditor: Sendable {
     /// - Returns: The number of workout entries moved.
     @discardableResult
     public func merge(_ sourceID: Int64, into targetID: Int64) throws -> Int {
-        guard sourceID != targetID else { throw ExerciseEditError.mergeIntoItself }
+        try mergeAll([sourceID: targetID])
+    }
+
+    /// Several merges (source ID → target ID) with one snapshot and one transaction:
+    /// either all succeed or none does. See ``merge(_:into:)``.
+    /// - Returns: The total number of workout entries moved.
+    @discardableResult
+    public func mergeAll(_ targetsBySource: [Int64: Int64]) throws -> Int {
+        if targetsBySource.contains(where: { $0.key == $0.value }) { throw ExerciseEditError.mergeIntoItself }
+        guard !targetsBySource.isEmpty else { return 0 }
         if let snapshotDirectory {
             let url = try AppDatabase.writeSnapshot(of: database.writer, into: snapshotDirectory)
             Log.database.notice("Pre-merge snapshot: \(url.lastPathComponent, privacy: .public)")
         }
         return try database.writer.write { db in
-            guard let source = try Exercise.fetchOne(db, key: sourceID),
-                  var target = try Exercise.fetchOne(db, key: targetID) else { throw ExerciseEditError.notFound }
-
-            let targetHasHistory = try WorkoutExercise.filter(Column("exerciseId") == targetID).fetchCount(db) > 0
-            if !targetHasHistory {
-                target.defaultEntryUnit = source.defaultEntryUnit
-                try target.update(db)
+            var moved = 0
+            for (sourceID, targetID) in targetsBySource.sorted(by: { $0.key < $1.key }) {
+                moved += try Self.merge(sourceID, into: targetID, db)
             }
-            try db.execute(sql: "UPDATE workoutExercise SET exerciseId = ? WHERE exerciseId = ?", arguments: [targetID, sourceID])
-            let moved = db.changesCount
-            try db.execute(sql: "UPDATE exerciseAlias SET exerciseId = ? WHERE exerciseId = ?", arguments: [targetID, sourceID])
-            try ExerciseAlias(alias: source.name, exerciseId: targetID).insert(db, onConflict: .replace)
-            try Exercise.deleteOne(db, key: sourceID)
-            Log.database.notice("Merged \(source.name, privacy: .public) into \(target.name, privacy: .public): \(moved) entries")
             return moved
         }
+    }
+
+    private static func merge(_ sourceID: Int64, into targetID: Int64, _ db: Database) throws -> Int {
+        guard let source = try Exercise.fetchOne(db, key: sourceID),
+              var target = try Exercise.fetchOne(db, key: targetID) else { throw ExerciseEditError.notFound }
+
+        let targetHasHistory = try WorkoutExercise.filter(Column("exerciseId") == targetID).fetchCount(db) > 0
+        if !targetHasHistory {
+            target.defaultEntryUnit = source.defaultEntryUnit
+            try target.update(db)
+        }
+        try db.execute(sql: "UPDATE workoutExercise SET exerciseId = ? WHERE exerciseId = ?", arguments: [targetID, sourceID])
+        let moved = db.changesCount
+        try db.execute(sql: "UPDATE exerciseAlias SET exerciseId = ? WHERE exerciseId = ?", arguments: [targetID, sourceID])
+        try ExerciseAlias(alias: source.name, exerciseId: targetID).insert(db, onConflict: .replace)
+        try Exercise.deleteOne(db, key: sourceID)
+        Log.database.notice("Merged \(source.name, privacy: .public) into \(target.name, privacy: .public): \(moved) entries")
+        return moved
     }
 
     // MARK: - Private

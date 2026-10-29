@@ -86,4 +86,24 @@ struct ExerciseEditorTests {
         let result = try importer.importPlan(StrongImportPlan.make(rows: rows, measurements: []))
         #expect(result.exercisesCreated == 0)
     }
+
+    @Test("Batch merge writes one snapshot and is all-or-nothing")
+    func mergeAll() throws {
+        let editor = try makeEditor()
+        try editor.database.writer.write { db in
+            try db.execute(sql: """
+                INSERT INTO exercise (id, name, source, createdAt) VALUES
+                  (1, 'A', 'strong', '2026-01-01'), (2, 'B', 'strong', '2026-01-01'), (3, 'Target', 'custom', '2026-01-01');
+                """)
+        }
+        try editor.mergeAll([1: 3, 2: 3])
+        try editor.database.writer.read { db throws in
+            #expect(try Exercise.fetchCount(db) == 1)
+            #expect(try ExerciseAlias.fetchCount(db) == 2)
+        }
+        let snapshots = try FileManager.default.contentsOfDirectory(atPath: try #require(editor.snapshotDirectory).path)
+        #expect(snapshots.count == 1)
+        #expect(throws: ExerciseEditError.notFound) { try editor.mergeAll([3: 99]) }
+        #expect(try editor.database.writer.read(Exercise.fetchCount) == 1)
+    }
 }

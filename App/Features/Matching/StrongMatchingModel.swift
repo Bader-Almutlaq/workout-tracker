@@ -132,7 +132,7 @@ final class StrongMatchingModel {
         }
         guard !pairs.isEmpty else { return }
         perform(failureContext: "Couldn’t match all suggestions") { editor in
-            for pair in pairs { try editor.merge(pair.source, into: pair.target) }
+            try editor.mergeAll(Dictionary(pairs.map { ($0.source, $0.target) }, uniquingKeysWith: { first, _ in first }))
         }
     }
 

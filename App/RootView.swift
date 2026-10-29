@@ -20,7 +20,11 @@ struct RootView: View {
                 EmptyStateView(title: "Analytics", message: "Charts arrive in milestones M5–M6.")
             }
             Tab("Settings", systemImage: "gearshape") {
-                SettingsView(backup: environment.backupSettings, makeImportModel: environment.makeImportModel)
+                SettingsView(
+                    backup: environment.backupSettings,
+                    makeImportModel: environment.makeImportModel,
+                    makeMatchingModel: environment.makeStrongMatchingModel
+                )
             }
         }
         .tint(AppColor.accent)
