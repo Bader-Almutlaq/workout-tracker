@@ -179,7 +179,11 @@ public struct WorkoutLogger: Sendable {
     }
 
     /// Changes a set's numbers. `weight` is stored in kg exactly; `entryUnit` is the unit it was typed in.
-    public func updateSet(_ setID: Int64, weight: Weight, entryUnit: WeightUnit, reps: Int, rpe: Double?, kind: SetKind) throws {
+    /// `durationSeconds` is for timed exercises (``ExerciseTracking/duration``); leave `nil` otherwise.
+    public func updateSet(
+        _ setID: Int64, weight: Weight, entryUnit: WeightUnit, reps: Int, rpe: Double?, kind: SetKind,
+        durationSeconds: Double? = nil
+    ) throws {
         guard (0...Limits.maximumKilograms).contains(weight.kilograms) else { throw WorkoutLoggerError.invalidWeight(weight.kilograms) }
         guard (0...Limits.maximumReps).contains(reps) else { throw WorkoutLoggerError.invalidReps(reps) }
         if let rpe, !Limits.rpeRange.contains(rpe) { throw WorkoutLoggerError.invalidRPE(rpe) }
@@ -190,7 +194,23 @@ public struct WorkoutLogger: Sendable {
             set.reps = reps
             set.rpe = rpe
             set.kind = kind
+            set.durationSeconds = durationSeconds
             try set.update(db)
+        }
+    }
+
+    /// Switches the unit an exercise is logged in, from now on and for this entry's planned sets.
+    ///
+    /// Stored weights never change (they are kg); only the unit they are shown and typed in.
+    /// Completed sets keep the unit they were typed in.
+    public func setEntryUnit(_ unit: WeightUnit, for entryID: Int64) throws {
+        try database.writer.write { db in
+            guard let entry = try WorkoutExercise.fetchOne(db, key: entryID) else { throw WorkoutLoggerError.exerciseNotFound }
+            try db.execute(sql: "UPDATE exercise SET defaultEntryUnit = ? WHERE id = ?", arguments: [unit.rawValue, entry.exerciseId])
+            try db.execute(
+                sql: "UPDATE workoutSet SET entryUnit = ? WHERE workoutExerciseId = ? AND isCompleted = 0",
+                arguments: [unit.rawValue, entryID]
+            )
         }
     }
 

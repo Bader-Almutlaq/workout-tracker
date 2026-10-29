@@ -175,4 +175,20 @@ struct WorkoutLoggerTests {
         let previous = try logger.database.writer.read { db in try PreviousPerformance.sets(exerciseID: bench, db) }
         #expect(previous.count == 3)
     }
+
+    @Test("Switching unit changes the exercise default and planned sets only; weights stay in kg")
+    func switchUnit() throws {
+        let (logger, bench) = try makeLogger()
+        let workout = try logger.start(name: "Push")
+        let entry = try logger.addExercise(bench, to: workout)
+        let first = try #require(try sets(logger, entry: entry)[0].id)
+        try logger.setCompleted(first, true)
+        try logger.setEntryUnit(.kilograms, for: entry)
+        let all = try sets(logger, entry: entry)
+        #expect(all[0].entryUnit == .pounds)
+        #expect(all[1].entryUnit == .kilograms)
+        #expect(all[1].weightKilograms == 61.23497)
+        let unit = try logger.database.writer.read { db in try Exercise.fetchOne(db, key: bench)?.defaultEntryUnit }
+        #expect(unit == .kilograms)
+    }
 }

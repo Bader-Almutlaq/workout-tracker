@@ -18,6 +18,8 @@ final class AppEnvironment {
     let library: ExerciseLibrary
     /// Creates, edits, archives and merges exercises.
     let exerciseEditor: ExerciseEditor
+    /// Writes the workout being logged.
+    let workoutLogger: WorkoutLogger
 
     /// Seeds the library into `database` (a no-op when already at this version), then builds the services.
     init(database: AppDatabase, snapshotDirectory: URL, bookmark: BackupFolderBookmark) throws {
@@ -26,6 +28,7 @@ final class AppEnvironment {
         self.library = library
         let exerciseEditor = ExerciseEditor(database: database, snapshotDirectory: snapshotDirectory)
         self.exerciseEditor = exerciseEditor
+        self.workoutLogger = WorkoutLogger(database: database)
         self.database = database
         self.snapshotDirectory = snapshotDirectory
         self.backupSettings = BackupSettingsModel(
