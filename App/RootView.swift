@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The tab bar. Tabs other than Settings are placeholders until their milestone
+/// The tab bar. Workout, Exercises and Analytics are placeholders until their milestone
 /// (see `.claude/PLAN.md`).
 struct RootView: View {
     let environment: AppEnvironment
@@ -11,7 +11,7 @@ struct RootView: View {
                 EmptyStateView(title: "Workout", message: "Logging arrives in milestone M3.")
             }
             Tab("History", systemImage: "calendar") {
-                EmptyStateView(title: "History", message: "Your Strong history appears here after the import (M1).")
+                HistoryView(model: environment.history)
             }
             Tab("Exercises", systemImage: "list.bullet") {
                 EmptyStateView(title: "Exercises", message: "The exercise library arrives in milestone M2.")
@@ -20,7 +20,7 @@ struct RootView: View {
                 EmptyStateView(title: "Analytics", message: "Charts arrive in milestones M5–M6.")
             }
             Tab("Settings", systemImage: "gearshape") {
-                SettingsView(backup: environment.backupSettings)
+                SettingsView(backup: environment.backupSettings, makeImportModel: environment.makeImportModel)
             }
         }
         .tint(AppColor.accent)

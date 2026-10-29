@@ -74,5 +74,14 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | iCloud-safe file copy/delete | `Support/CoordinatedFile.swift` |
 | kg ↔ lb conversion, display rounding, original-unit inference | `Units/WeightUnit.swift`, `Units/Weight.swift` |
 | Logging categories | `Support/Log.swift` |
+| Stored record types (one per table) | `Models/` |
+| CSV reading | `Import/CSVTable.swift` |
+| Strong file formats and timestamps | `Import/StrongWorkoutsFile.swift`, `Import/StrongMeasurementsFile.swift`, `Import/StrongTimestamp.swift` |
+| Which unit an exported exercise is in | `Import/ExportUnitResolver.swift` |
+| Import review (plan, decisions) and writing it | `Import/StrongImportPlan.swift`, `Import/StrongImportOptions.swift`, `Import/StrongImporter.swift` |
+| Typo / outlier detection (import review and, later, live logging) | `Validation/SetPlausibility.swift` |
+| History list and workout detail queries | `Queries/WorkoutHistory.swift` |
 
-App-side owners: color, type, spacing and radius tokens in `App/DesignSystem/`; the backup screen and automatic background backup in `App/Features/Settings/BackupSettingsModel.swift`.
+App-side owners: color, type, spacing and radius tokens in `App/DesignSystem/`; weight-to-text formatting in `App/DesignSystem/WeightFormatting.swift`; the backup screen and automatic background backup in `App/Features/Settings/BackupSettingsModel.swift`; the import flow in `App/Features/Import/`; history in `App/Features/History/`.
+
+Developer tool: `Packages/WorkoutCore/Sources/StrongImportReport` (`make import-report`) dry-runs the importer on `export_data/` and prints totals, unit verdicts and flagged sets. It's the only code allowed to read the owner's real export.

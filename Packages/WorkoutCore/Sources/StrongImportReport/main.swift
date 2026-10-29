@@ -57,15 +57,10 @@ for exercise in plan.exercises where exercise.columnUnit == .kilograms && exerci
     print("  \(exercise.name): \(exercise.verdict.kilogramVotes)/\(exercise.verdict.poundVotes)")
 }
 
-let setsByLine = Dictionary(
-    plan.workouts.flatMap { workout in
-        workout.exercises.flatMap { exercise in exercise.sets.map { ($0.line, (workout, exercise.name, $0)) } }
-    },
-    uniquingKeysWith: { first, _ in first }
-)
 print("\nSuspicious sets: \(plan.findings.count)")
 for finding in plan.findings {
-    guard let (workout, exercise, set) = setsByLine[finding.id] else { continue }
+    guard let context = plan.setsByLine[finding.id] else { continue }
+    let set = context.set
     let suggestion = finding.suggestion.map { " → maybe \(kg($0))" } ?? ""
-    print("  line \(finding.id) \(workout.startedAt.formatted(dateStyle)) \(exercise): \(kg(set.weightKilograms)) kg × \(set.reps) — \(finding.issue.rawValue), typical \(kg(finding.typical))\(suggestion)")
+    print("  line \(finding.id) \(context.workoutStartedAt.formatted(dateStyle)) \(context.exerciseName): \(kg(set.weightKilograms)) kg × \(set.reps) — \(finding.issue.rawValue), typical \(kg(finding.typical))\(suggestion)")
 }

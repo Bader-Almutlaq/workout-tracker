@@ -30,5 +30,12 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 ## 2026-10-29: Backup files are single-file rollback-journal databases
 - **Why:** a copy of the live WAL-mode database needs `-wal`/`-shm` side files to open, which breaks read-only validation and can sync out of step in iCloud. Each snapshot is switched to `journal_mode = DELETE` and only the main file is moved into place. Found by the restore test.
 
+## 2026-10-29: Strong exercise names import as-is; library matching moves to M2
+- **Why:** the library (M2) doesn't exist yet, and blocking the import on it would delay seeing four years of data. Each Strong name becomes an exercise (source `strong`) whose default entry unit is Strong's current unit for it. M2 adds a "match to library exercise" step that re-points history to library entries, and the owner's choices are saved.
+- **Alternatives:** fuzzy-matching against a library during import (needs M2 first).
+
+## 2026-10-29: Typos are reviewed, not auto-corrected
+- **Why:** a flagged set may be real (a different machine, a light day). The importer suggests a correction (decimal shift or kg↔lb) but changes nothing unless the owner accepts. Findings are grouped by session so a whole odd session takes one tap.
+
 ## 2026-10-29: The app measures; it does not prescribe
 - **Why:** the owner chooses training approaches from the literature. Progression rules are opt-in and user-defined; analytics are descriptive.

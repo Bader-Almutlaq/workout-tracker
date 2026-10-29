@@ -9,10 +9,23 @@ import WorkoutCore
 final class AppEnvironment {
     let database: AppDatabase
     let backupSettings: BackupSettingsModel
+    let history: HistoryModel
+    /// Local folder for safety snapshots (before migrations, restores and imports).
+    let snapshotDirectory: URL
 
-    init(database: AppDatabase, backupService: BackupService, bookmark: BackupFolderBookmark) {
+    init(database: AppDatabase, snapshotDirectory: URL, bookmark: BackupFolderBookmark) {
         self.database = database
-        self.backupSettings = BackupSettingsModel(service: backupService, bookmark: bookmark)
+        self.snapshotDirectory = snapshotDirectory
+        self.backupSettings = BackupSettingsModel(
+            service: BackupService(database: database, safetySnapshotDirectory: snapshotDirectory),
+            bookmark: bookmark
+        )
+        self.history = HistoryModel(database: database)
+    }
+
+    /// A fresh import flow. Each import starts from scratch.
+    func makeImportModel() -> StrongImportModel {
+        StrongImportModel(importer: StrongImporter(database: database, snapshotDirectory: snapshotDirectory))
     }
 
     /// Opens the on-device database and wires up backups.
@@ -25,21 +38,15 @@ final class AppEnvironment {
         let database = try AppDatabase.openOnDisk(
             at: root.appending(path: "workouts.sqlite"), snapshotDirectory: snapshots
         )
-        return AppEnvironment(
-            database: database,
-            backupService: BackupService(database: database, safetySnapshotDirectory: snapshots),
-            bookmark: BackupFolderBookmark()
-        )
+        return AppEnvironment(database: database, snapshotDirectory: snapshots, bookmark: BackupFolderBookmark())
     }
 
     /// An in-memory environment for SwiftUI previews.
     static func preview() -> AppEnvironment {
         do {
-            let database = try AppDatabase.inMemory()
-            let snapshots = FileManager.default.temporaryDirectory.appending(path: "PreviewSnapshots")
             return AppEnvironment(
-                database: database,
-                backupService: BackupService(database: database, safetySnapshotDirectory: snapshots),
+                database: try AppDatabase.inMemory(),
+                snapshotDirectory: FileManager.default.temporaryDirectory.appending(path: "PreviewSnapshots"),
                 bookmark: BackupFolderBookmark(suiteName: "preview")
             )
         } catch {

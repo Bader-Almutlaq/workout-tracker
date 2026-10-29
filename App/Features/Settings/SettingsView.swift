@@ -1,9 +1,13 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Settings screen. M0 contains only backups and restore.
+/// Settings: Strong import, backups and restore.
 struct SettingsView: View {
     @Bindable var backup: BackupSettingsModel
+    /// Creates a fresh import flow each time the sheet opens.
+    let makeImportModel: () -> StrongImportModel
+
+    @State private var importModel: StrongImportModel?
 
     @State private var isPickingFolder = false
     @State private var isPickingRestoreFile = false
@@ -13,6 +17,7 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.xl) {
+                    importSection
                     backupSection
                     restoreSection
                 }
@@ -22,6 +27,10 @@ struct SettingsView: View {
             .navigationTitle("Settings")
         }
         .task { backup.refresh() }
+        .sheet(item: $importModel) { model in
+            StrongImportView(model: model)
+                .interactiveDismissDisabled()
+        }
         .fileImporter(isPresented: $isPickingFolder, allowedContentTypes: [.folder]) { result in
             if case .success(let url) = result { backup.chooseFolder(url) }
         }
@@ -44,6 +53,19 @@ struct SettingsView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(backup.errorMessage ?? "")
+        }
+    }
+
+    private var importSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            SectionLabel("Import")
+            Card {
+                Button("Import from Strong…") { importModel = makeImportModel() }
+                    .padding(Spacing.m)
+            }
+            Text("Safe to repeat: workouts already imported are skipped.")
+                .font(AppFont.callout)
+                .foregroundStyle(AppColor.textTertiary)
         }
     }
 
@@ -110,5 +132,6 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView(backup: AppEnvironment.preview().backupSettings)
+    let environment = AppEnvironment.preview()
+    SettingsView(backup: environment.backupSettings, makeImportModel: environment.makeImportModel)
 }

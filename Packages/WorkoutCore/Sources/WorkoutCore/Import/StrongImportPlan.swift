@@ -21,6 +21,9 @@ public struct StrongImportPlan: Sendable {
         public var notes: String?
         /// Whether the owner corrected this set in the review.
         public var isCorrected: Bool
+
+        /// The load as a ``Weight``.
+        public var weight: Weight { Weight(kilograms: weightKilograms) }
     }
 
     /// One exercise entry within a workout.
@@ -69,8 +72,18 @@ public struct StrongImportPlan: Sendable {
         public var skippedRestTimerRows = 0
     }
 
+    /// Where a set sits, for showing a finding in context.
+    public struct SetContext: Sendable, Equatable {
+        public var workoutStartedAt: Date
+        public var workoutName: String
+        public var exerciseName: String
+        public var set: PlannedSet
+    }
+
     public var workouts: [PlannedWorkout]
     public var exercises: [ExerciseOverview]
+    /// Every set keyed by its export line number.
+    public var setsByLine: [Int: SetContext]
     /// Suspicious sets, minus those the owner confirmed or corrected.
     public var findings: [SetPlausibility.Finding]
     public var measurements: [BodyMeasurement]
@@ -106,9 +119,22 @@ public struct StrongImportPlan: Sendable {
         totals.firstDate = workouts.map(\.startedAt).min()
         totals.lastDate = workouts.map(\.startedAt).max()
 
+        var setsByLine: [Int: SetContext] = [:]
+        for workout in workouts {
+            for exercise in workout.exercises {
+                for set in exercise.sets {
+                    setsByLine[set.line] = SetContext(
+                        workoutStartedAt: workout.startedAt, workoutName: workout.name,
+                        exerciseName: exercise.name, set: set
+                    )
+                }
+            }
+        }
+
         return StrongImportPlan(
             workouts: workouts,
             exercises: makeOverviews(setRows: setRows, units: units, overrides: options.unitOverrides),
+            setsByLine: setsByLine,
             findings: findings(in: workouts, excluding: options.confirmedLines),
             measurements: measurements,
             totals: totals

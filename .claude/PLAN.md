@@ -122,4 +122,7 @@ Each milestone ends with unit tests passing, the app running in the simulator, a
 - 2026-10-29: **M0 code complete.** WorkoutCore: schema v1, snapshot-before-migrate, units (kg/lb, display snapping, entry-unit inference), backups (iCloud folder bookmark, coordinated writes, 15-min throttle, daily/monthly retention, validated restore with safety snapshot). 23 tests pass (`make test`). App: Linear-style tokens, tab shell, Settings → Backups/Restore; `make build` passes with no warnings.
   - Not yet verified: running on a simulator (no iOS simulator runtime downloaded) or on the iPhone (needs `Config/Local.xcconfig` with the team ID). The iCloud folder flow can only be checked on a real device or simulator.
   - Export profiled: per-exercise unit switching explains the odd weights (see `docs/DATA.md`). Owner's unit preference recorded: log in each exercise's unit, analytics in kg.
-- Next: M1 (Strong import).
+- 2026-10-29: **M1 code complete** (branch `m1-strong-import`). Parsers for both Strong layouts and measurement files, per-exercise unit detection, typo detection with suggestions, a reviewable import plan, an idempotent importer (snapshot first, one transaction), and history queries. App: Settings → Import from Strong (pick files → review units and flagged sets → import → result) and a live History tab with a workout detail screen. 58 tests pass; app builds with no warnings. Dry run on the real export matches it exactly (see `docs/DATA.md`).
+  - Not yet verified: the import and History screens running on a device or simulator.
+  - Deferred to M2: matching Strong names to library exercises (see `docs/DECISIONS.md`).
+- Next: M2 (exercise library and search).
