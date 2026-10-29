@@ -22,7 +22,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
 | T-008 | Logging core: migration v3, `WorkoutLogger`, `PreviousPerformance`, `LiveWorkout` | done | Claude Opus (lead) | `m2-exercise-library` |
-| [T-009](T-009-live-set-check.md) | Live typo check for a single set (reuse `SetPlausibility`) | doing | Claude Sonnet (subagent) | `task/T-009-live-set-check` |
+| [T-009](T-009-live-set-check.md) | Live typo check for a single set (reuse `SetPlausibility`) | done (UI hook-up pending) | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-010](T-010-logging-screen.md) | Workout tab: logging screen, set rows, number pad with kg/lb toggle | doing | Claude Sonnet (subagent) | `task/T-010-logging-screen` |
 | T-011 | Rest timer with lock-screen notification | todo, brief to write | | |
 
