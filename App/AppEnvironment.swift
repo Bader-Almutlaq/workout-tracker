@@ -10,10 +10,19 @@ final class AppEnvironment {
     let database: AppDatabase
     let backupSettings: BackupSettingsModel
     let history: HistoryModel
-    /// Local folder for safety snapshots (before migrations, restores and imports).
+    /// Local folder for safety snapshots (before migrations, restores, imports and merges).
     let snapshotDirectory: URL
+    /// The built-in exercise library, already seeded into `database`. Supplies search aliases.
+    let library: ExerciseLibrary
+    /// Creates, edits, archives and merges exercises.
+    let exerciseEditor: ExerciseEditor
 
-    init(database: AppDatabase, snapshotDirectory: URL, bookmark: BackupFolderBookmark) {
+    /// Seeds the library into `database` (a no-op when already at this version), then builds the services.
+    init(database: AppDatabase, snapshotDirectory: URL, bookmark: BackupFolderBookmark) throws {
+        let library = try ExerciseLibrary.bundled()
+        try ExerciseLibrarySeeder.seed(library, into: database)
+        self.library = library
+        self.exerciseEditor = ExerciseEditor(database: database, snapshotDirectory: snapshotDirectory)
         self.database = database
         self.snapshotDirectory = snapshotDirectory
         self.backupSettings = BackupSettingsModel(
@@ -38,20 +47,20 @@ final class AppEnvironment {
         let database = try AppDatabase.openOnDisk(
             at: root.appending(path: "workouts.sqlite"), snapshotDirectory: snapshots
         )
-        return AppEnvironment(database: database, snapshotDirectory: snapshots, bookmark: BackupFolderBookmark())
+        return try AppEnvironment(database: database, snapshotDirectory: snapshots, bookmark: BackupFolderBookmark())
     }
 
     /// An in-memory environment for SwiftUI previews.
     static func preview() -> AppEnvironment {
         do {
-            return AppEnvironment(
+            return try AppEnvironment(
                 database: try AppDatabase.inMemory(),
                 snapshotDirectory: FileManager.default.temporaryDirectory.appending(path: "PreviewSnapshots"),
                 bookmark: BackupFolderBookmark(suiteName: "preview")
             )
         } catch {
-            // Previews only: an in-memory SQLite database can't fail to open in practice.
-            preconditionFailure("Preview database failed to open: \(error)")
+            // Previews only: an in-memory database and the bundled library can't fail to load in practice.
+            preconditionFailure("Preview environment failed to load: \(error)")
         }
     }
 }

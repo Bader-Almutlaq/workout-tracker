@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The tab bar. Workout, Exercises and Analytics are placeholders until their milestone
-/// (see `.claude/PLAN.md`).
+/// (see `docs/PLAN.md`).
 struct RootView: View {
     let environment: AppEnvironment
 

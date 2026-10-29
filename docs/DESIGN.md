@@ -55,6 +55,30 @@ Charts follow the data-viz method used for this project. Its rules: pick the for
 
 - **Single-series trends** (e1RM, bodyweight): the smoothed trend is a 2 pt `accent` line. Raw session values are 6–8 pt dots at 35% opacity, so the noise is visible but quiet. The title names the series, so there's no legend.
 - **Interaction:** touch-and-drag shows a vertical rule with a value readout (Swift Charts `chartXSelection`). This replaces hover on a phone.
+
+### Signature chart: recent vs baseline
+
+The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10-29). Its pattern is reused for every "how am I doing lately" chart: weekly hard sets per muscle, weekly tonnage, e1RM trend and bodyweight.
+
+- **Two lines, one axis.**
+  - The recent line is a short window, such as the 7-day sum or the latest session. It is a 3 pt smooth line (`catmullRom`) with a dot on every data point.
+  - The baseline line is a long window, such as the 28-day average or the EWMA trend. It is a 1.5 pt line in `textPrimary`, with no dots.
+  - Both lines share the y-axis. They describe the same quantity, so this never becomes a dual-axis chart.
+- **Dots colored by distance from the baseline.** This is a diverging encoding:
+  - **Neutral** (`textSecondary`): within ±10% of the baseline.
+  - **Cool** (slot 1 blue): further below.
+  - **Warm** (slot 5 magenta): further above.
+  - The intensity grows with the distance.
+  - The headline always states the number, so color is never the only cue.
+- **Latest point** gets an 8 pt ring with a soft glow. This is the only decoration on the chart.
+- **Headline above the chart** is descriptive, never a verdict: **"+12%"** followed by "7-day vs 28-day hard sets" in caption style. There are no "Steady", "Overreaching" or "Detraining" labels: the app measures, it doesn't judge.
+- **Grid:** vertical dashed hairlines at week starts, with date labels inside the plot at the bottom. There are no horizontal gridlines or y-axis labels on this card; exact values come from touch. The card background fades to `accentSubtle` at the bottom.
+- **Scope chips** go above the headline, one row that scrolls horizontally. Each chip shows its own % change, e.g. "All · −3%" and "Chest · +72%".
+- **Touch:**
+  - **One finger, press and drag:** a vertical rule snaps to the nearest point and the headline area becomes a readout. It shows the date, the recent and baseline values, and for weights both units.
+  - **Two fingers, or press then drag the second edge:** selects a range (`chartXSelection(range:)`). The readout shows the range statistics: start → end change, mean, min, max, number of sessions and total hard sets.
+  - Releasing returns to the headline.
+- Built with Swift Charts only (`LineMark`, `PointMark`, `RuleMark`, `chartXSelection`), with no third-party chart library. Chart math (windows, baselines, % change, range statistics) lives in `WorkoutCore/Analytics`; the view only draws.
 - **Axes:** gridlines in `border`, horizontal only. Axis labels in `textTertiary`, using monospaced digits. The y-axis does not start at zero for e1RM trends (a trend chart, not a magnitude chart). Bars always start at zero.
 - **Volume per muscle:** horizontal bars sorted by value, with direct and indirect sets stacked and a 2 pt gap between segments. Evidence zones are drawn as faint background bands with text labels.
 - **Categorical palette** (fixed order, never cycled; at most 3 series on scatter-type charts, at most 8 on lines and bars, and anything beyond folds into "Other"):
