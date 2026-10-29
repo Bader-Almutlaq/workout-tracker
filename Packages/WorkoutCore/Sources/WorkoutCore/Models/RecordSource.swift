@@ -6,4 +6,6 @@ public enum RecordSource: String, Codable, Sendable {
     case strong
     /// Created by the owner (exercises only).
     case custom
+    /// The built-in exercise library (exercises only). See ``ExerciseLibrary``.
+    case library
 }

@@ -4,8 +4,10 @@
 
 ```
 workout-tracker/
-├── .claude/                 Agent instructions (CLAUDE.md) and the build plan (PLAN.md)
-├── docs/                    Architecture, data, design, decisions
+├── AGENTS.md                Rules and start-of-session routine for every agent (CLAUDE.md imports it)
+├── docs/                    PLAN, architecture, data, design, decisions
+│   ├── agents/WORKFLOW.md   How agents claim tasks, work in parallel, review and hand off
+│   └── tasks/               Task board (BOARD.md) and one brief per task
 ├── Makefile                 The only build/test entry point (`make help`)
 ├── project.yml              XcodeGen spec for the iOS app (source of truth for the .xcodeproj)
 ├── Config/                  Build settings (.xcconfig); Local.xcconfig is git-ignored
@@ -21,8 +23,11 @@ workout-tracker/
 │   │   ├── Models/          Persisted record types (one per file)
 │   │   ├── Backup/          Snapshot writing, retention, restore
 │   │   ├── Units/           kg/lb conversion and original-unit inference
-│   │   ├── Import/          Strong CSV parsing and mapping           (M1)
-│   │   ├── Library/         Exercise library, muscles, search        (M2)
+│   │   ├── Import/          Strong CSV parsing and planning          (M1)
+│   │   ├── Library/         Exercise library, muscles, search, edits (M2)
+│   │   │   └── Resources/library.json   The curated library (edit this to add exercises)
+│   │   ├── Queries/         Read-only queries behind screens
+│   │   ├── Validation/      Typo / outlier checks
 │   │   ├── Analytics/       e1RM, trend, volume, intensity…          (M5)
 │   │   └── Support/         Logging and other shared plumbing
 │   └── Tests/WorkoutCoreTests/   Mirrors Sources/ folder by folder
@@ -81,6 +86,17 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Import review (plan, decisions) and writing it | `Import/StrongImportPlan.swift`, `Import/StrongImportOptions.swift`, `Import/StrongImporter.swift` |
 | Typo / outlier detection (import review and, later, live logging) | `Validation/SetPlausibility.swift` |
 | History list and workout detail queries | `Queries/WorkoutHistory.swift` |
+| Muscle taxonomy (23 muscles, delts split) and regions | `Library/Muscle.swift`, `Library/MuscleRegion.swift`; DB rows frozen in migration v2 |
+| Equipment, movement patterns, mechanic, set tracking kinds | `Library/Equipment.swift`, `Library/MovementPattern.swift`, `Library/Mechanic.swift`, `Library/ExerciseTracking.swift` |
+| The built-in exercise list (names, muscles, aliases) | `Library/Resources/library.json`, loaded and validated by `Library/ExerciseLibrary.swift` |
+| Exercise naming ("Movement (Equipment)") and stable keys | `ExerciseLibrary.name(movement:equipment:)`, `ExerciseLibrary.key(forName:)` |
+| Copying the library into the database on launch | `Library/ExerciseLibrarySeeder.swift` |
+| Name or alias → exercise | `Library/ExerciseNameResolver.swift` |
+| Creating, editing, archiving and merging exercises | `Library/ExerciseEditor.swift` |
+| Search text normalisation, slang, typo distance | `Library/SearchText.swift`, `Library/GymSlang.swift` |
+| Exercise search and import-name suggestions | `Library/ExerciseSearch.swift` |
+| Exercise list, detail and unmatched-import queries | `Queries/ExerciseCatalog.swift` |
+| Key–value app settings | `Database/AppSetting.swift` |
 
 App-side owners: color, type, spacing and radius tokens in `App/DesignSystem/`; weight-to-text formatting in `App/DesignSystem/WeightFormatting.swift`; the backup screen and automatic background backup in `App/Features/Settings/BackupSettingsModel.swift`; the import flow in `App/Features/Import/`; history in `App/Features/History/`.
 

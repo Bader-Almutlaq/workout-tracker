@@ -2,7 +2,7 @@ import GRDB
 
 /// The database schema, as an ordered list of migrations.
 ///
-/// Rules (see `.claude/CLAUDE.md`):
+/// Rules (see `AGENTS.md`):
 /// - Append-only. Never edit a migration that has run on the phone; add a new one.
 /// - Column names are camelCase so GRDB maps them to Swift properties directly.
 /// - Weights are kilograms (`REAL`); timestamps are UTC `DATETIME`.
@@ -15,6 +15,7 @@ enum Migrations {
     static func makeMigrator() -> DatabaseMigrator {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("v1-core-logging", migrate: createCoreLoggingTables)
+        migrator.registerMigration("v2-exercise-library", migrate: addExerciseLibrary)
         return migrator
     }
 
@@ -95,6 +96,55 @@ enum Migrations {
             t.column("value", .double).notNull()         // cm for circumferences, kg for bodyweight
             t.column("source", .text).notNull()          // app | strong
             t.uniqueKey(["takenAt", "site"])
+        }
+    }
+
+    /// v2: ties exercises to the built-in library and records what a set tracks.
+    ///
+    /// - `exercise.libraryKey`: the ``LibraryExercise/key`` this row mirrors; `NULL` for custom and
+    ///   unmatched Strong exercises. Unique, so a library entry maps to exactly one row.
+    /// - `exerciseAlias`: other names that resolve to an exercise. Merging a Strong exercise into a
+    ///   library one stores the Strong name here, so later imports and searches land on the same row.
+    /// - `appSetting`: small key–value settings (for example the seeded library version).
+    /// - `muscle` rows for every ``Muscle``. The list is written out here, frozen, because a migration
+    ///   must produce the same result forever; a muscle added later gets its own migration.
+    ///   `MigrationsTests` checks every ``Muscle`` case has a row.
+    private static func addExerciseLibrary(_ db: Database) throws {
+        let muscles: [(id: String, name: String, region: String)] = [
+            ("chest", "Chest", "chest"),
+            ("front-delt", "Front delts", "shoulders"), ("side-delt", "Side delts", "shoulders"),
+            ("rear-delt", "Rear delts", "shoulders"), ("rotator-cuff", "Rotator cuff", "shoulders"),
+            ("lats", "Lats", "back"), ("upper-back", "Upper back", "back"),
+            ("upper-traps", "Upper traps", "back"), ("lower-back", "Lower back", "back"),
+            ("biceps", "Biceps", "arms"), ("triceps", "Triceps", "arms"),
+            ("forearm-flexors", "Forearm flexors", "arms"), ("forearm-extensors", "Forearm extensors", "arms"),
+            ("abs", "Abs", "core"), ("obliques", "Obliques", "core"), ("hip-flexors", "Hip flexors", "core"),
+            ("glutes", "Glutes", "legs"), ("hip-abductors", "Hip abductors", "legs"), ("adductors", "Adductors", "legs"),
+            ("quads", "Quads", "legs"), ("hamstrings", "Hamstrings", "legs"), ("calves", "Calves", "legs"),
+            ("neck", "Neck", "neck"),
+        ]
+        for muscle in muscles {
+            try db.execute(
+                sql: "INSERT OR IGNORE INTO muscle (id, name, region) VALUES (?, ?, ?)",
+                arguments: [muscle.id, muscle.name, muscle.region]
+            )
+        }
+
+        try db.alter(table: "exercise") { t in
+            t.add(column: "libraryKey", .text)
+            t.add(column: "isLengthenedBiased", .boolean).notNull().defaults(to: false)
+            t.add(column: "tracking", .text).notNull().defaults(to: ExerciseTracking.weightAndReps.rawValue)
+        }
+        try db.create(index: "exercise_on_libraryKey", on: "exercise", columns: ["libraryKey"], unique: true)
+
+        try db.create(table: "exerciseAlias") { t in
+            t.primaryKey("alias", .text).collate(.nocase)
+            t.belongsTo("exercise", onDelete: .cascade).notNull()
+        }
+
+        try db.create(table: "appSetting") { t in
+            t.primaryKey("key", .text)
+            t.column("value", .text).notNull()
         }
     }
 }

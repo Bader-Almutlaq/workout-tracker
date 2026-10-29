@@ -9,10 +9,22 @@ struct AppDatabaseTests {
     func createsCoreTables() throws {
         let database = try AppDatabase.inMemory()
         let tables = try database.writer.read { db in
-            try ["muscle", "exercise", "exerciseMuscle", "workout", "workoutExercise", "workoutSet", "bodyMeasurement"]
+            try ["muscle", "exercise", "exerciseMuscle", "exerciseAlias", "appSetting", "workout", "workoutExercise",
+                 "workoutSet", "bodyMeasurement"]
                 .filter { try db.tableExists($0) }
         }
-        #expect(tables.count == 7)
+        #expect(tables.count == 9)
+    }
+
+    @Test("Every muscle in the taxonomy has a row, with the same name and region")
+    func musclesMatchTaxonomy() throws {
+        let database = try AppDatabase.inMemory()
+        let rows = try database.writer.read { db in
+            try Row.fetchAll(db, sql: "SELECT id, name, region FROM muscle")
+        }
+        let stored = Set(rows.map { "\($0["id"] as String)|\($0["name"] as String)|\($0["region"] as String)" })
+        let expected = Set(Muscle.allCases.map { "\($0.rawValue)|\($0.displayName)|\($0.region.rawValue)" })
+        #expect(stored == expected)
     }
 
     @Test("Deleting a workout deletes its exercises and sets")

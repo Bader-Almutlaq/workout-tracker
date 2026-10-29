@@ -19,7 +19,8 @@ let package = Package(
     targets: [
         .target(
             name: "WorkoutCore",
-            dependencies: [.product(name: "GRDB", package: "GRDB.swift")]
+            dependencies: [.product(name: "GRDB", package: "GRDB.swift")],
+            resources: [.process("Library/Resources")]
         ),
         .testTarget(
             name: "WorkoutCoreTests",

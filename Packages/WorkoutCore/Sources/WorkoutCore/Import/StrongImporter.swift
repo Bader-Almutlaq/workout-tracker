@@ -26,9 +26,10 @@ public struct StrongImporter: Sendable {
         self.snapshotDirectory = snapshotDirectory
     }
 
-    /// Imports `plan`. Exercises are matched to existing ones by name
-    /// (case-insensitive); unknown names become new exercises whose default
-    /// entry unit is the unit Strong currently uses for them.
+    /// Imports `plan`. Exercises are matched to existing ones by name or saved
+    /// alias (case-insensitive, see ``ExerciseNameResolver``); unknown names
+    /// become new exercises. An exercise without history takes the unit Strong
+    /// currently uses for it as its default entry unit.
     public func importPlan(_ plan: StrongImportPlan) throws -> Result {
         let snapshot = try AppDatabase.writeSnapshot(of: database.writer, into: snapshotDirectory)
         Log.importer.notice("Pre-import snapshot: \(snapshot.lastPathComponent, privacy: .public)")
@@ -40,12 +41,20 @@ public struct StrongImporter: Sendable {
 
             func exerciseID(named name: String) throws -> Int64 {
                 if let id = exerciseIDs[name] { return id }
+                let unit = columnUnits[name] ?? .kilograms
                 let id: Int64
-                if let existing = try Exercise.filter(Column("name").collating(.nocase) == name).fetchOne(db),
-                   let existingID = existing.id {
+                if let existingID = try ExerciseNameResolver.exerciseID(named: name, db) {
                     id = existingID
+                    // An exercise with no history yet (a fresh library entry) adopts Strong's unit for it.
+                    let hasHistory = try WorkoutExercise.filter(Column("exerciseId") == existingID).fetchCount(db) > 0
+                    if !hasHistory {
+                        try db.execute(
+                            sql: "UPDATE exercise SET defaultEntryUnit = ? WHERE id = ?",
+                            arguments: [unit.rawValue, existingID]
+                        )
+                    }
                 } else {
-                    var exercise = Exercise(name: name, source: .strong, defaultEntryUnit: columnUnits[name] ?? .kilograms)
+                    var exercise = Exercise(name: name, source: .strong, defaultEntryUnit: unit)
                     try exercise.insert(db)
                     result.exercisesCreated += 1
                     id = try exercise.id.orThrow()

@@ -39,3 +39,22 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 
 ## 2026-10-29: The app measures; it does not prescribe
 - **Why:** the owner chooses training approaches from the literature. Progression rules are opt-in and user-defined; analytics are descriptive.
+
+## 2026-10-30: A hand-curated exercise library instead of merging wger and free-exercise-db
+- **Why:** both datasets use inconsistent names ("Side Lateral Raise", "Barbell Shoulder Press"), and free-exercise-db is heavy with kettlebell, strongman and stretching entries. Merging would give a cluttered, duplicate-heavy list that still needs every muscle re-tagged for the delt split. The owner wants a good selection, not a big one. The library is therefore one reviewed file (`Library/Resources/library.json`): about 420 exercises in 165 movement families, in Strong's naming style, with the modern movements the report lists (Bayesian curl, pendulum and belt squat, JM press, Kelso shrug, Meadows row, Larsen press, Spoto press, seal row, Jefferson curl, Nordic curl, cross-body Y-raise). free-exercise-db was used only as a cross-check. There's no licence obligation and no credits screen.
+- **Alternatives:** the merge in the original plan (rejected for quality); importing wger at runtime (needs network, CC-BY-SA attribution).
+
+## 2026-10-30: In-memory search instead of SQLite FTS5
+- **Why:** about 600 exercises fit in memory trivially. Typo tolerance, slang expansion and usage ranking are easier to get right, and to test, in Swift than with FTS5 plus trigram tables. One implementation (`ExerciseSearch`) serves both the search box and the import-name suggestions.
+
+## 2026-10-30: Library exercises are read-only; the seeder owns their fields
+- **Why:** the seeder rewrites names, muscles and tags whenever `library.json` changes version, so owner edits would be lost. The owner duplicates a built-in exercise to customise it. Owner-owned fields (default entry unit, archived) are never touched by the seeder.
+
+## 2026-10-30: Merging an exercise keeps its old name as an alias
+- **Why:** after the owner matches "Bayesian Cable Curl" to "Bayesian Curl (Cable)", re-importing a Strong export must land on the same exercise, and search should still find the old name. The `exerciseAlias` table stores it; `ExerciseNameResolver` checks names then aliases.
+
+## 2026-10-30: Muscle rows are written inside migration v2, frozen
+- **Why:** a migration must give the same result forever. Reading the Swift `Muscle` enum from a migration would make old migrations change when the enum grows. A test checks that the rows and the enum agree; a new muscle needs a new migration.
+
+## 2026-10-30: Agent rules live in AGENTS.md; work is handed out through a task board
+- **Why:** the owner doesn't read code and uses several agents and providers across many chats. `AGENTS.md` is read by Codex and other tools, and imported by `CLAUDE.md`. `docs/tasks/` holds one self-contained brief per task, and `docs/agents/WORKFLOW.md` defines claiming, parallel work, review and handoff, so no chat's context is needed to continue.

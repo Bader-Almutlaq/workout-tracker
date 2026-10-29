@@ -2,7 +2,7 @@
 // Usage: swift run StrongImportReport <export folder or strong_workouts.csv>
 //
 // For checking the importer against the owner's real file, which tests must
-// never read (see .claude/CLAUDE.md).
+// never read (see AGENTS.md).
 
 import Foundation
 import WorkoutCore
