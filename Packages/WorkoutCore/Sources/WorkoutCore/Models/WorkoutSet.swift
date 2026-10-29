@@ -22,14 +22,18 @@ public struct WorkoutSet: Codable, Sendable, Identifiable, Hashable, FetchableRe
     /// Rest taken before this set, from the rest timer. `nil` when unknown (all imported sets).
     public var restBeforeSeconds: Double?
     public var completedAt: Date?
+    /// `false` while the set is only planned (pre-filled from last session) in a workout in progress.
+    /// Finishing the workout deletes sets that are still not completed.
+    public var isCompleted: Bool
     public var notes: String?
 
     public init(
         id: Int64? = nil, workoutExerciseId: Int64, position: Int, kind: SetKind, weightKilograms: Double,
         entryUnit: WeightUnit, reps: Int, rpe: Double? = nil, durationSeconds: Double? = nil,
         distanceMeters: Double? = nil, side: SetSide = .both, restBeforeSeconds: Double? = nil,
-        completedAt: Date? = nil, notes: String? = nil
+        completedAt: Date? = nil, isCompleted: Bool = true, notes: String? = nil
     ) {
+        self.isCompleted = isCompleted
         self.id = id
         self.workoutExerciseId = workoutExerciseId
         self.position = position

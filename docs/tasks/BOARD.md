@@ -17,9 +17,17 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | T-006 | App icon (SVG source → PNG asset, `make icon`) | done | Claude Opus (lead) | `m2-exercise-library` |
 | T-007 | Run M1 + M2 screens in the simulator; fix what looks wrong | blocked: iOS simulator runtime still downloading | lead | |
 
+## M3: Logging (started early, in parallel with the M2 UI)
+
+| ID | Task | Status | Agent | Branch |
+|---|---|---|---|---|
+| T-008 | Logging core: migration v3, `WorkoutLogger`, `PreviousPerformance`, `LiveWorkout` | done | Claude Opus (lead) | `m2-exercise-library` |
+| T-009 | Live typo check for a single set (reuse `SetPlausibility`) | todo, brief to write | | |
+| T-010 | Workout tab: logging screen, set rows, number pad with kg/lb toggle | todo, brief to write | | |
+| T-011 | Rest timer with lock-screen notification | todo, brief to write | | |
+
 ## Next milestones (tasks are written when the milestone starts)
 
-- **M3: Logging.** The active-workout screen, per-exercise unit toggle, live typo check and rest timer.
 - **M5/M6: Analytics.** The "recent vs baseline" signature chart (spec in `docs/DESIGN.md` → *Signature chart*), muscles, intensity × volume.
 
 ## Done milestones

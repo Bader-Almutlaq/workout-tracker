@@ -58,3 +58,7 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 
 ## 2026-10-30: Agent rules live in AGENTS.md; work is handed out through a task board
 - **Why:** the owner doesn't read code and uses several agents and providers across many chats. `AGENTS.md` is read by Codex and other tools, and imported by `CLAUDE.md`. `docs/tasks/` holds one self-contained brief per task, and `docs/agents/WORKFLOW.md` defines claiming, parallel work, review and handoff, so no chat's context is needed to continue.
+
+## 2026-10-30: Planned sets are real rows, pre-filled from last session
+- **Why:** logging must take 2–3 taps per set. Adding an exercise copies last session's sets (kind, weight, reps, RPE) as planned rows in the exercise's entry unit, so a set done the same as last time is one tap (complete). Explicit `isInProgress` and `isCompleted` columns (migration v3) keep "planned" separate from "done" without inferring it from timestamps. Imported Strong sets have no completion time but are done. Finishing removes what was never completed.
+- **Alternatives:** empty rows with greyed placeholders, as in Strong (an extra tap per set to copy); deriving state from `completedAt`/`endedAt` (ambiguous for imports).

@@ -12,11 +12,14 @@ public struct Workout: Codable, Sendable, Identifiable, Hashable, FetchableRecor
     /// Identifies the workout in its source, e.g. "strong:2021-11-20 20:53:38".
     /// Unique, so importing the same file twice adds nothing.
     public var sourceKey: String?
+    /// `true` while the workout is being logged. At most one workout is in progress.
+    public var isInProgress: Bool
 
     public init(
         id: Int64? = nil, startedAt: Date, endedAt: Date? = nil, name: String, notes: String? = nil,
-        source: RecordSource, sourceKey: String? = nil
+        source: RecordSource, sourceKey: String? = nil, isInProgress: Bool = false
     ) {
+        self.isInProgress = isInProgress
         self.id = id
         self.startedAt = startedAt
         self.endedAt = endedAt

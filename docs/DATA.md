@@ -29,6 +29,13 @@ The live database stays on the phone, not in iCloud Drive. SQLite files that syn
 | App deleted / phone lost | Restore from the newest iCloud backup. |
 | Bad migration or bug | Restore from the pre-migration snapshot or a cloud backup. |
 
+## Logging state
+
+- At most one workout has `isInProgress = 1`: the one being logged. History and analytics ignore it until it is finished.
+- While logging, sets exist as **planned** (`isCompleted = 0`), pre-filled from the last session, or **completed** (`isCompleted = 1`, with `completedAt` and `restBeforeSeconds`, the time since the previous completed set in the workout).
+- Finishing deletes planned sets that were never completed, and exercises left with no sets. So **every set of a finished workout was performed**, and imported sets count as completed. A workout finished with nothing completed is deleted.
+- Every tap is its own transaction, so a crash loses nothing already shown on screen.
+
 ## Units
 
 All weights are stored in **kilograms, exactly as entered** (`Double`). Each set also records the unit it was entered in (`kg` or `lb`), so it can be displayed the way it was typed. Conversion uses 1 lb = 0.45359237 kg (exact, by definition).

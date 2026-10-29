@@ -28,7 +28,7 @@ public enum WorkoutHistory {
         public var entries: [Entry]
     }
 
-    /// All workouts, newest first.
+    /// All finished workouts, newest first. The workout in progress is excluded (see ``LiveWorkout``).
     public static func summaries(_ db: Database) throws -> [Summary] {
         try Summary.fetchAll(db, sql: """
             SELECT w.id, w.startedAt, w.name,
@@ -38,6 +38,7 @@ public enum WorkoutHistory {
             FROM workout w
             LEFT JOIN workoutExercise we ON we.workoutId = w.id
             LEFT JOIN workoutSet s ON s.workoutExerciseId = we.id
+            WHERE w.isInProgress = 0
             GROUP BY w.id
             ORDER BY w.startedAt DESC
             """)

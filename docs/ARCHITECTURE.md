@@ -28,6 +28,7 @@ workout-tracker/
 │   │   ├── Import/          Strong CSV parsing and planning          (M1)
 │   │   ├── Library/         Exercise library, muscles, search, edits (M2)
 │   │   │   └── Resources/library.json   The curated library (edit this to add exercises)
+│   │   ├── Logging/         Writing a workout as it happens          (M3)
 │   │   ├── Queries/         Read-only queries behind screens
 │   │   ├── Validation/      Typo / outlier checks
 │   │   ├── Analytics/       e1RM, trend, volume, intensity…          (M5)
@@ -99,6 +100,9 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Exercise search and import-name suggestions | `Library/ExerciseSearch.swift` |
 | Exercise list, detail and unmatched-import queries | `Queries/ExerciseCatalog.swift` |
 | Key–value app settings | `Database/AppSetting.swift` |
+| Logging a workout live: start, add exercises and sets, complete, reorder, finish, discard | `Logging/WorkoutLogger.swift` |
+| What was done last time for an exercise (inline values, pre-fill) | `Queries/PreviousPerformance.swift` |
+| The workout in progress as the logging screen shows it | `Queries/LiveWorkout.swift` |
 
 App-side owners: color, type, spacing and radius tokens in `App/DesignSystem/`; weight-to-text formatting in `App/DesignSystem/WeightFormatting.swift`; the backup screen and automatic background backup in `App/Features/Settings/BackupSettingsModel.swift`; the import flow in `App/Features/Import/`; history in `App/Features/History/`.
 

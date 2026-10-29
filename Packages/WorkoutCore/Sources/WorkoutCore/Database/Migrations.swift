@@ -16,6 +16,7 @@ enum Migrations {
         var migrator = DatabaseMigrator()
         migrator.registerMigration("v1-core-logging", migrate: createCoreLoggingTables)
         migrator.registerMigration("v2-exercise-library", migrate: addExerciseLibrary)
+        migrator.registerMigration("v3-live-logging", migrate: addLiveLogging)
         return migrator
     }
 
@@ -145,6 +146,21 @@ enum Migrations {
         try db.create(table: "appSetting") { t in
             t.primaryKey("key", .text)
             t.column("value", .text).notNull()
+        }
+    }
+
+    /// v3: state for logging a workout live.
+    ///
+    /// - `workout.isInProgress`: the session currently being logged (at most one). Existing rows are finished.
+    /// - `workoutSet.isCompleted`: whether the set was done or is still only planned (pre-filled from last
+    ///   time). Existing rows were all done. Finishing a workout deletes sets that were never completed,
+    ///   so analytics can treat every set of a finished workout as performed.
+    private static func addLiveLogging(_ db: Database) throws {
+        try db.alter(table: "workout") { t in
+            t.add(column: "isInProgress", .boolean).notNull().defaults(to: false)
+        }
+        try db.alter(table: "workoutSet") { t in
+            t.add(column: "isCompleted", .boolean).notNull().defaults(to: true)
         }
     }
 }
