@@ -125,7 +125,8 @@ public struct WorkoutLogger: Sendable {
                 ? [WorkoutSet(workoutExerciseId: entryID, position: 0, kind: .working, weightKilograms: 0, entryUnit: exercise.defaultEntryUnit, reps: 0)]
                 : previous.map {
                     WorkoutSet(workoutExerciseId: entryID, position: $0.position, kind: $0.kind, weightKilograms: $0.weightKilograms,
-                               entryUnit: exercise.defaultEntryUnit, reps: $0.reps, rpe: $0.rpe, side: $0.side)
+                               entryUnit: exercise.defaultEntryUnit, reps: $0.reps, rpe: $0.rpe,
+                               durationSeconds: $0.durationSeconds, side: $0.side)
                 }
             for (index, template) in templates.enumerated() {
                 var planned = template
@@ -170,7 +171,7 @@ public struct WorkoutLogger: Sendable {
             var set = WorkoutSet(
                 workoutExerciseId: entryID, position: (last?.position ?? -1) + 1, kind: last?.kind == .warmup ? .working : (last?.kind ?? .working),
                 weightKilograms: last?.weightKilograms ?? 0, entryUnit: last?.entryUnit ?? exercise.defaultEntryUnit,
-                reps: last?.reps ?? 0, side: last?.side ?? .both, isCompleted: false
+                reps: last?.reps ?? 0, durationSeconds: last?.durationSeconds, side: last?.side ?? .both, isCompleted: false
             )
             try set.insert(db)
             guard let id = set.id else { throw WorkoutLoggerError.setNotFound }

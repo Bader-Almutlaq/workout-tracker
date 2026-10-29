@@ -191,4 +191,27 @@ struct WorkoutLoggerTests {
         let unit = try logger.database.writer.read { db in try Exercise.fetchOne(db, key: bench)?.defaultEntryUnit }
         #expect(unit == .kilograms)
     }
+
+    @Test("Pre-filled and added sets keep last session's duration; a finished workout has a summary")
+    func durationsAndSummary() throws {
+        let (logger, _) = try makeLogger()
+        try logger.database.writer.write { db in
+            try db.execute(sql: """
+                INSERT INTO exercise (id, name, source, tracking, createdAt) VALUES (3, 'Plank', 'custom', 'duration', '2026-01-01');
+                INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (9, 1, 3, 1);
+                INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, durationSeconds)
+                  VALUES (9, 0, 'working', 0, 'kg', 0, 75);
+                """)
+        }
+        let workout = try logger.start(name: "Core")
+        let entry = try logger.addExercise(3, to: workout)
+        try logger.addSet(to: entry)
+        #expect(try sets(logger, entry: entry).map(\.durationSeconds) == [75, 75])
+        let ids = try sets(logger, entry: entry).compactMap(\.id)
+        try logger.setCompleted(ids[0], true)
+        try logger.finish(workout)
+        let summary = try logger.database.writer.read { db in try WorkoutHistory.summary(workoutID: workout, db) }
+        #expect(summary?.setCount == 1)
+        #expect(try logger.database.writer.read { db in try WorkoutHistory.summary(workoutID: 999, db) } == nil)
+    }
 }

@@ -22,12 +22,12 @@ struct FinishSummary: Identifiable, Equatable {
 
     /// Reads the finished workout. `nil` if it no longer exists.
     ///
-    /// The totals come from ``WorkoutHistory/summaries(_:)`` so volume load has one definition.
+    /// The totals come from ``WorkoutHistory/summary(workoutID:_:)`` so volume load has one definition.
     static func load(workoutID: Int64, from database: AppDatabase) throws -> FinishSummary? {
-        let (detail, summaries) = try database.writer.read { db in
-            (try WorkoutHistory.detail(workoutID: workoutID, db), try WorkoutHistory.summaries(db))
+        let (detail, summary) = try database.writer.read { db in
+            (try WorkoutHistory.detail(workoutID: workoutID, db), try WorkoutHistory.summary(workoutID: workoutID, db))
         }
-        guard let detail, let summary = summaries.first(where: { $0.id == workoutID }) else { return nil }
+        guard let detail, let summary else { return nil }
         return FinishSummary(
             id: workoutID,
             name: detail.workout.name,

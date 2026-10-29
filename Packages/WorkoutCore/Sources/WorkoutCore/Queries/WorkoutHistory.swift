@@ -30,18 +30,28 @@ public enum WorkoutHistory {
 
     /// All finished workouts, newest first. The workout in progress is excluded (see ``LiveWorkout``).
     public static func summaries(_ db: Database) throws -> [Summary] {
-        try Summary.fetchAll(db, sql: """
-            SELECT w.id, w.startedAt, w.name,
-                   COUNT(DISTINCT we.id) AS exerciseCount,
-                   COUNT(s.id) AS setCount,
-                   COALESCE(SUM(CASE WHEN s.kind <> 'warmup' THEN s.weightKilograms * s.reps END), 0) AS volumeKilograms
-            FROM workout w
-            LEFT JOIN workoutExercise we ON we.workoutId = w.id
-            LEFT JOIN workoutSet s ON s.workoutExerciseId = we.id
-            WHERE w.isInProgress = 0
-            GROUP BY w.id
-            ORDER BY w.startedAt DESC
-            """)
+        try Summary.fetchAll(db, sql: summarySQL(where: "w.isInProgress = 0"))
+    }
+
+    /// The summary of one finished workout, or `nil` if it doesn't exist or is still in progress.
+    public static func summary(workoutID: Int64, _ db: Database) throws -> Summary? {
+        try Summary.fetchOne(db, sql: summarySQL(where: "w.isInProgress = 0 AND w.id = ?"), arguments: [workoutID])
+    }
+
+    /// The one definition of a workout summary (counts and volume load), filtered by `condition`.
+    private static func summarySQL(where condition: String) -> String {
+        """
+        SELECT w.id, w.startedAt, w.name,
+               COUNT(DISTINCT we.id) AS exerciseCount,
+               COUNT(s.id) AS setCount,
+               COALESCE(SUM(CASE WHEN s.kind <> 'warmup' THEN s.weightKilograms * s.reps END), 0) AS volumeKilograms
+        FROM workout w
+        LEFT JOIN workoutExercise we ON we.workoutId = w.id
+        LEFT JOIN workoutSet s ON s.workoutExerciseId = we.id
+        WHERE \(condition)
+        GROUP BY w.id
+        ORDER BY w.startedAt DESC
+        """
     }
 
     /// ``summaries(_:)``, re-delivered whenever workouts or sets change.
