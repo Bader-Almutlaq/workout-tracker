@@ -9,4 +9,14 @@ public enum ExerciseTracking: String, CaseIterable, Codable, Sendable {
     case duration
     /// A loaded hold or carry: weight and time.
     case weightAndDuration = "weight-duration"
+
+    /// Name shown in the UI.
+    public var displayName: String {
+        switch self {
+        case .weightAndReps: "Weight and reps"
+        case .bodyweightReps: "Bodyweight reps"
+        case .duration: "Duration"
+        case .weightAndDuration: "Weight and duration"
+        }
+    }
 }

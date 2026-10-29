@@ -25,6 +25,10 @@ enum AppColor {
 
     /// The one accent: primary actions, selection, single-series chart lines.
     static let accent = Color(light: 0x5E6AD2, dark: 0x7C85E8)
+    /// Selected chip fill, completed-set row tint: the accent at 12% (light) or 16% (dark).
+    static let accentSubtle = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark ? UIColor(hex: 0x7C85E8, opacity: 0.16) : UIColor(hex: 0x5E6AD2, opacity: 0.12)
+    })
 
     /// Status colors. Always pair with an icon and a label.
     enum Status {

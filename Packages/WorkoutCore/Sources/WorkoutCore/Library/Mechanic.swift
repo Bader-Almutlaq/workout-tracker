@@ -4,4 +4,12 @@ public enum Mechanic: String, CaseIterable, Codable, Sendable {
     case compound
     /// One joint moves (curl, leg extension, lateral raise).
     case isolation
+
+    /// Name shown in the UI.
+    public var displayName: String {
+        switch self {
+        case .compound: "Compound"
+        case .isolation: "Isolation"
+        }
+    }
 }

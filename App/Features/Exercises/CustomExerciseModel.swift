@@ -85,25 +85,3 @@ final class CustomExerciseModel: Identifiable {
 
 // WorkoutCore gives `Muscle`, `Equipment` and `MovementPattern` a `displayName` but not these two
 // (gap noted in the T-004 handoff). Move these into WorkoutCore when it adds them.
-
-extension Mechanic {
-    /// Name shown in the UI.
-    var displayName: String {
-        switch self {
-        case .compound: "Compound"
-        case .isolation: "Isolation"
-        }
-    }
-}
-
-extension ExerciseTracking {
-    /// Name shown in the UI.
-    var displayName: String {
-        switch self {
-        case .weightAndReps: "Weight and reps"
-        case .bodyweightReps: "Bodyweight reps"
-        case .duration: "Duration"
-        case .weightAndDuration: "Weight and duration"
-        }
-    }
-}
