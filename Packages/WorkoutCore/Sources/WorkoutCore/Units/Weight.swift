@@ -40,23 +40,40 @@ public struct Weight: Hashable, Sendable, Codable, Comparable {
         return (exact * 100).rounded() / 100
     }
 
-    /// Guesses the unit a stored kilogram value was originally typed in.
+    /// Guesses the unit a number was originally typed in, given the unit it is
+    /// now expressed in.
     ///
-    /// - Returns: `.kilograms` for zero or any multiple of 0.25 kg;
-    ///   `.pounds` when the value is a whole number of pounds that Strong
-    ///   converted and rounded to 0.01 kg (61.23 kg → 135 lb);
-    ///   `nil` when neither pattern fits.
-    /// - Note: Heuristic, checked against the owner's export (see `docs/DATA.md`).
-    ///   A random value hits the pound grid by chance only ~2.6% of the time.
-    public static func inferredEntryUnit(storedKilograms kilograms: Double) -> WeightUnit? {
-        let quarterKilograms = (kilograms * 4).rounded() / 4
-        if abs(kilograms - quarterKilograms) < Tolerance.floatingPoint { return .kilograms }
+    /// Strong converts an exercise's history when its unit is switched and
+    /// rounds the result to 0.01, so a value typed in the *other* unit shows up
+    /// as a round number plus a small rounding error (see `docs/DATA.md`).
+    ///
+    /// - Parameters:
+    ///   - value: The number as stored or exported.
+    ///   - columnUnit: The unit `value` is expressed in.
+    /// - Returns: `columnUnit` when `value` is a multiple of 0.25 in that unit
+    ///   (or zero); the other unit when the converted value lands on that unit's
+    ///   typing grid (whole pounds, or 0.25 kg) within Strong's rounding error;
+    ///   `nil` when neither fits.
+    /// - Note: Heuristic, checked against the owner's export. A random value hits
+    ///   the whole-pound grid by chance ~2.6% of the time, the 0.25 kg grid ~4.8%.
+    public static func inferredEntryUnit(value: Double, columnUnit: WeightUnit) -> WeightUnit? {
+        if isMultiple(value, of: 0.25, within: Tolerance.floatingPoint) { return columnUnit }
 
-        let pounds = kilograms / WeightUnit.kilogramsPerPound
-        let wholePoundsInKilograms = pounds.rounded() * WeightUnit.kilogramsPerPound
-        if abs(kilograms - wholePoundsInKilograms) <= Tolerance.strongPoundRounding { return .pounds }
-
+        switch columnUnit {
+        case .kilograms:
+            let pounds = value / WeightUnit.kilogramsPerPound
+            let wholePoundsInKilograms = pounds.rounded() * WeightUnit.kilogramsPerPound
+            if abs(value - wholePoundsInKilograms) <= Tolerance.strongRounding { return .pounds }
+        case .pounds:
+            let kilograms = value * WeightUnit.kilogramsPerPound
+            if isMultiple(kilograms, of: 0.25, within: Tolerance.strongRounding) { return .kilograms }
+        }
         return nil
+    }
+
+    /// Whether `value` is within `tolerance` of a multiple of `step`.
+    static func isMultiple(_ value: Double, of step: Double, within tolerance: Double) -> Bool {
+        abs(value - (value / step).rounded() * step) <= tolerance
     }
 
     public static func < (lhs: Weight, rhs: Weight) -> Bool {
@@ -67,9 +84,9 @@ public struct Weight: Hashable, Sendable, Codable, Comparable {
     enum Tolerance {
         /// Absorbs binary floating-point error in values such as 102.5.
         static let floatingPoint = 1e-9
-        /// Strong rounds converted pound entries to 0.01 kg (max error 0.005 kg),
-        /// plus a small margin for its occasional 0.1 kg rounding of whole pounds.
-        static let strongPoundRounding = 0.006
+        /// Strong rounds converted values to 0.01 (max error 0.005), plus a small
+        /// margin for its occasional 0.1 rounding of whole pounds (110 lb → 49.9 kg).
+        static let strongRounding = 0.006
         /// How close a converted value must be to a 0.25 step to display as that step.
         static let displaySnap = 0.02
     }

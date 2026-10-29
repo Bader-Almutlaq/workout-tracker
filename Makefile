@@ -9,7 +9,7 @@ CORE_DIR  := Packages/WorkoutCore
 SIM_DEST  := generic/platform=iOS Simulator
 DERIVED   := build/DerivedData
 
-.PHONY: help project test build build-device format clean
+.PHONY: help project test build build-device import-report format clean
 
 help: ## List available commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-14s %s\n", $$1, $$2}'
@@ -27,6 +27,9 @@ build: project ## Build the app for the iOS Simulator (no signing)
 build-device: project ## Build signed for a connected iPhone (needs Config/Local.xcconfig)
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -destination 'generic/platform=iOS' \
 		-derivedDataPath $(DERIVED) -allowProvisioningUpdates build -quiet
+
+import-report: ## Dry-run the Strong importer on export_data/ and print a report
+	cd $(CORE_DIR) && swift run --quiet StrongImportReport "$(CURDIR)/export_data"
 
 format: ## Format all Swift files in place
 	swift format --in-place --recursive App $(CORE_DIR)/Sources $(CORE_DIR)/Tests

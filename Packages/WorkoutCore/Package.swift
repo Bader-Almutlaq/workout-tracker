@@ -25,6 +25,11 @@ let package = Package(
             name: "WorkoutCoreTests",
             dependencies: ["WorkoutCore"]
         ),
+        // Developer tool: `make import-report` prints what an import of a real export would do.
+        .executableTarget(
+            name: "StrongImportReport",
+            dependencies: ["WorkoutCore"]
+        ),
     ],
     swiftLanguageModes: [.v6]
 )

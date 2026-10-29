@@ -26,22 +26,29 @@ struct WeightTests {
         #expect(Weight(kilograms: 20.4).displayValue(in: .pounds) == 44.97)
     }
 
-    @Test("Round kilogram values are inferred as typed in kg",
-          arguments: [0.0, 20.0, 102.5, 61.25, 1.25])
-    func infersKilograms(kilograms: Double) {
-        #expect(Weight.inferredEntryUnit(storedKilograms: kilograms) == .kilograms)
+    @Test("Round values are inferred as typed in the column's unit",
+          arguments: [(0.0, WeightUnit.kilograms), (102.5, .kilograms), (61.25, .kilograms), (140.0, .pounds), (121.25, .pounds)])
+    func infersColumnUnit(value: Double, column: WeightUnit) {
+        #expect(Weight.inferredEntryUnit(value: value, columnUnit: column) == column)
     }
 
-    @Test("Strong-converted whole pounds are inferred as typed in lb",
+    @Test("In a kg column, Strong-converted whole pounds are inferred as typed in lb",
           arguments: [61.23, 49.9, 47.17, 27.22, 54.43])
-    func infersPounds(kilograms: Double) {
-        #expect(Weight.inferredEntryUnit(storedKilograms: kilograms) == .pounds)
+    func infersPoundsInKilogramColumn(value: Double) {
+        #expect(Weight.inferredEntryUnit(value: value, columnUnit: .kilograms) == .pounds)
     }
 
-    @Test("Values that fit neither grid are not guessed",
-          arguments: [99.21, 63.93, 35.27, 41.3])
-    func refusesToGuess(kilograms: Double) {
-        #expect(Weight.inferredEntryUnit(storedKilograms: kilograms) == nil)
+    @Test("In a lb column, Strong-converted kilograms are inferred as typed in kg",
+          arguments: [99.21, 63.93, 35.27, 70.55, 119.05])
+    func infersKilogramsInPoundColumn(value: Double) {
+        #expect(Weight.inferredEntryUnit(value: value, columnUnit: .pounds) == .kilograms)
+    }
+
+    @Test("Values that fit neither grid are not guessed")
+    func refusesToGuess() {
+        #expect(Weight.inferredEntryUnit(value: 99.21, columnUnit: .kilograms) == nil)
+        #expect(Weight.inferredEntryUnit(value: 41.3, columnUnit: .kilograms) == nil)
+        #expect(Weight.inferredEntryUnit(value: 61.23, columnUnit: .pounds) == nil)
     }
 
     @Test("Toggle flips the unit")
