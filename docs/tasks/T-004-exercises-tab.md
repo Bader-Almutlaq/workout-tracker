@@ -93,9 +93,23 @@ The Exercises tab lets the owner find any exercise in about two keystrokes, see 
 
 ## Handoff
 
-- **Status:**
-- **What was done:**
+- **Status:** review (code complete; simulator checks not done, see below).
+- **What was done:** Exercises tab built to the spec: search + muscle/equipment/Mine chips, Recent and alphabetical All lists, flat ranked results, no-match state with a "Create" button, detail screen (muscles, usage, recent sessions, aliases, Duplicate/Edit/Archive menu), create/edit sheet with muscle pickers. `AppEnvironment.exercises` holds the `ExercisesModel` so query and filters survive tab switches.
 - **Files touched:**
+  - Created `App/Features/Exercises/` (ExercisesModel, ExercisesView, ExerciseDetailModel, ExerciseDetailView, CustomExerciseModel, CustomExerciseView, MusclePickerView) and `App/DesignSystem/Components/FilterChip.swift`.
+  - Edited `App/RootView.swift` and `App/AppEnvironment.swift`.
 - **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+  - Choosing a primary muscle removes it from the secondary list; in the secondary picker, primary muscles are dimmed and disabled.
+  - `ExerciseDetailView` owns its model in `@State` so the list rebuilding its navigation destination can't orphan the observation.
+  - A private `FlowLayout` in ExerciseDetailView wraps the muscle chips.
+  - Archived exercises stay openable from detail (with an "Archived" note) so they can be unarchived.
+  - No section index on the ALL list (plain letter sections).
+  - No-match with only a filter active (empty query) shows "No exercise fits these filters." and no Create button.
+  - Bodyweight top sets read "Bodyweight × 8", mirroring the workout detail screen; warm-up-only sessions read "Warm-ups only".
+- **API / design-system gaps (for the lead):**
+  - `Mechanic` and `ExerciseTracking` have no `displayName`; the brief says all do. App-side extensions are in `CustomExerciseModel.swift`; move them into WorkoutCore.
+  - `AppColor` has no `accentSubtle` token (DESIGN.md defines it); `FilterChip` derives it from the accent. Add the token and simplify FilterChip.
+  - The "Bodyweight" label logic for top sets is duplicated from `WorkoutDetailView` (view-level); worth a single shared formatter.
+  - `ExerciseCatalog.Detail.Session.topSet` is only a weight × reps set; duration/carry exercises show reps 0.
+- **Open questions / left over:** Simulator acceptance checks ("rdl", Side delts, Zottman Curl under Mine, dark/light screenshots) not run.
+- **How it was verified:** `make verify` passes (112 core tests; app builds for the iOS Simulator with no warnings after a clean rebuild of the app target). No iOS simulator runtime is installed on this machine (`xcrun simctl list runtimes` is empty), so the UI was not run; the lead should check on `make sim`. Previews exist for ExercisesView, ExerciseDetailView (exercise id 1), CustomExerciseView, MusclePickerView and FilterChip.
