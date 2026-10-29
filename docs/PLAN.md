@@ -9,7 +9,7 @@ A personal iPhone app to replace Strong. It keeps 4 years of Strong history, has
 - **Excluded:** AI features, exercise videos/animations, social, streaks, celebrations, accounts, cloud.
 - **Not cluttered.** Logging needs 2–3 taps per set, with last session's numbers always visible inline.
 - **Data is irreplaceable.** Never lose a set. Automatic backups to a folder in iCloud Drive (see `docs/DATA.md`). Keep the original Strong CSV forever.
-- **Engineering standards** are in `.claude/CLAUDE.md`; structure in `docs/ARCHITECTURE.md`; visual system in `docs/DESIGN.md` (Linear-inspired).
+- **Engineering standards** are in `AGENTS.md`; agent workflow in `docs/agents/WORKFLOW.md`; tasks in `docs/tasks/BOARD.md`; structure in `docs/ARCHITECTURE.md`; visual system in `docs/DESIGN.md` (Linear-inspired).
 
 ## Platform and install
 
@@ -36,7 +36,7 @@ A personal iPhone app to replace Strong. It keeps 4 years of Strong history, has
 | `muscle` | id, name, group, region. About 20 muscles, with front/side/rear delts split |
 | `exercise` | id, name ("Movement (Equipment)"), equipment, pattern (h-push, v-pull, knee, hip…), mechanic (compound/isolation), e1RM category (k), lengthened_bias flag, source (wger / fedb / curated / custom), archived |
 | `exercise_muscle` | exercise_id, muscle_id, role (primary 1.0 / secondary 0.5) |
-| `exercise_alias` | exercise_id, alias (RDL, OHP, SSB, BSS…) + FTS5 index |
+| `exercise_alias` | exercise_id, alias: names merged from Strong (built-in slang lives in `library.json`) |
 | `workout` | id, start, end, name, notes, template_id, block_id, source (strong / app) |
 | `workout_exercise` | id, workout_id, exercise_id, position, superset_group, notes |
 | `set` | id, workout_exercise_id, order, type (warmup / working / drop / failure), weight_kg, entry_unit (kg / lb), reps, rpe, rir, duration_s, distance_m, side (both / L / R), rest_before_s, completed_at, notes |
@@ -68,11 +68,11 @@ Each milestone ends with unit tests passing, the app running in the simulator, a
 - Verify: workout, set and exercise counts and total kg match the file exactly. Re-import is idempotent.
 
 ### M2: Exercise library and search
-- Merge wger (CC-BY-SA, ~939) and free-exercise-db (Unlicense, ~876), de-duplicate, re-tag muscles with delts split, rename to Strong style.
-- Curated additions file (Jefferson curl, SSB squat, Spoto press, seal row, …): 50–150 modern movements.
-- Search: FTS5 prefix + trigram for typos, slang dictionary, ranking boosted by your usage frequency and recency.
-- Filter chips: muscle, equipment, pattern, compound/isolation, custom. Unlimited custom exercises, clone-and-edit.
-- Credits screen for wger attribution.
+- One curated library file in Strong's naming style (about 420 exercises in 165 movement families), 23 muscles with delts split, modern movements included. Not merged from wger or free-exercise-db (see `docs/DECISIONS.md`).
+- Seeded into the database on launch; Strong names that match exactly link automatically.
+- In-memory search: slang dictionary, prefixes, typo tolerance, ranking by your usage and recency.
+- Filters: muscle, equipment, custom. Unlimited custom exercises; duplicate a built-in one to make your own.
+- Match screen for the Strong names that didn't link: suggestions, merge history, keep as your own.
 
 ### M3: Logging
 - Active workout screen: previous values inline per set, swipe to copy, large custom number pad.
@@ -125,4 +125,5 @@ Each milestone ends with unit tests passing, the app running in the simulator, a
 - 2026-10-29: **M1 code complete** (branch `m1-strong-import`). Parsers for both Strong layouts and measurement files, per-exercise unit detection, typo detection with suggestions, a reviewable import plan, an idempotent importer (snapshot first, one transaction), and history queries. App: Settings → Import from Strong (pick files → review units and flagged sets → import → result) and a live History tab with a workout detail screen. 58 tests pass; app builds with no warnings. Dry run on the real export matches it exactly (see `docs/DATA.md`).
   - Not yet verified: the import and History screens running on a device or simulator.
   - Deferred to M2: matching Strong names to library exercises (see `docs/DECISIONS.md`).
-- Next: M2 (exercise library and search).
+- 2026-10-30: **M2 core done** (branch `m2-exercise-library`): curated library (421 exercises), muscle taxonomy, schema v2, seeding at launch, name/alias resolution, custom exercises and merge (snapshot first), search, catalog queries. 112 tests pass; app builds. Agent workflow added (`AGENTS.md`, `docs/agents/WORKFLOW.md`, `docs/tasks/`).
+  - Remaining M2 work is on the task board: Exercises tab, Strong matching screen, app icon.

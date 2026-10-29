@@ -2,8 +2,9 @@
 
 A personal iPhone workout tracker that replaces Strong. It keeps the full Strong history, has a large exercise library and gives literature-based analytics. No AI, no social, no subscriptions.
 
-- **Plan and status:** `.claude/PLAN.md`
-- **Rules for anyone (or any agent) changing the code:** `.claude/CLAUDE.md`
+- **Agents start here:** `AGENTS.md` (rules, start-of-session routine), then `docs/tasks/BOARD.md`
+- **Plan and status:** `docs/PLAN.md`
+- **How agents share work (tasks, review, handoff):** `docs/agents/WORKFLOW.md`
 - **How the code is organised:** `docs/ARCHITECTURE.md`
 - **Where data lives, backups, Strong import format:** `docs/DATA.md`
 - **Visual design and charts:** `docs/DESIGN.md`
@@ -16,6 +17,8 @@ A personal iPhone workout tracker that replaces Strong. It keeps the full Strong
 make help     # list commands
 make test     # run the logic tests on the Mac
 make build    # build the app for the simulator
+make verify   # tests + build (required before any task is done)
+make sim      # run the app in the iPhone simulator
 ```
 
 ## Installing on the iPhone (free Apple ID)
