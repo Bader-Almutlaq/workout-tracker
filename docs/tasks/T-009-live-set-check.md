@@ -59,9 +59,9 @@ public enum LiveSetCheck {
 
 ## Handoff
 
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** review
+- **What was done:** Added `LiveSetCheck.finding(exerciseID:weightKilograms:reps:kind:excludingWorkout:_:)`. It loads the newest 4 finished workouts containing the exercise (completed sets only, in-progress workout and `excludingWorkout` left out), reduces them with `SetPlausibility.SessionSummary.make`, and judges the candidate with the existing `SetPlausibility.check`. `SetPlausibility` is unchanged, so the import and live logging share one definition of "suspicious".
+- **Files touched:** `Packages/WorkoutCore/Sources/WorkoutCore/Validation/LiveSetCheck.swift` (new); `Packages/WorkoutCore/Tests/WorkoutCoreTests/Validation/LiveSetCheckTests.swift` (new, 11 tests); `docs/ARCHITECTURE.md` (one concept-table row).
+- **Decisions taken:** No change to `SetPlausibility` was needed (`check` and `SessionSummary` were already reusable). A working set with 0 reps returns a `.zeroReps` finding even with no history, because `check` does that for the import; the brief's "nil when too little history" otherwise holds. The caller (T-010) may skip the check when reps are 0 if it doesn't want that prompt.
+- **Open questions / left over:** A past session with only warm-ups for the exercise counts as a neighbour with median reps 0 (same behaviour as the import); it is rare, and fixing it would change the import, so it is left alone. Nothing for DECISIONS.md.
+- **How it was verified:** `make test` passes (136 tests, all existing SetPlausibility tests unchanged). `make build` not run (no App files touched).
