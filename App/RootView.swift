@@ -1,14 +1,13 @@
 import SwiftUI
 
-/// The tab bar. Workout and Analytics are placeholders until their milestone
-/// (see `docs/PLAN.md`).
+/// The tab bar. Analytics is a placeholder until its milestone (see `docs/PLAN.md`).
 struct RootView: View {
     let environment: AppEnvironment
 
     var body: some View {
         TabView {
             Tab("Workout", systemImage: "figure.strengthtraining.traditional") {
-                EmptyStateView(title: "Workout", message: "Logging arrives in milestone M3.")
+                WorkoutTabView(model: environment.workoutTab)
             }
             Tab("History", systemImage: "calendar") {
                 HistoryView(model: environment.history)

@@ -91,9 +91,32 @@ The owner logs a gym session on the iPhone, replacing Strong. Logging a set take
 
 ## Handoff
 
-- **Status:**
-- **What was done:**
+- **Status:** Implemented; ready for review. `make verify` passes (125 WorkoutCore tests, app builds for the simulator with no warnings). Not run in a simulator (see below).
+- **What was done:** The Workout tab. With no workout: "Start empty workout" (named Morning/Afternoon/Evening workout) and the last 6 finished workouts to repeat. With a workout: top bar (rename on tap, ticking timer, Finish, "…" > Discard), a card per exercise (unit chip, move/remove menu, column header, set rows with swipe-to-delete, "Add set"), "Add exercise" sheet (search, muscle/equipment chips, multi-select, "Add (n)"), a custom number pad (digits, ".", backspace, − / +, Next, Done), finish confirmation, and a finish sheet (duration, sets, volume load, exercises) or "Nothing was logged, so the workout was discarded." All writes go through `WorkoutLogger`; the screen only changes through `LiveWorkout.observe`.
 - **Files touched:**
+  - New, `App/Features/Workout/`: `WorkoutTabModel`, `WorkoutTabView`, `ActiveWorkoutModel`, `ActiveWorkoutView`, `ExerciseLogCard`, `SetRowView`, `NumberPad`, `ExercisePickerView`, `FinishSummaryView`, plus helpers `LoggingActionQueue`, `NumberDraft`, `NumberPadSteps`, `SetFormatting`, `FinishSummary`, `FinishOutcome`, `ExercisePickerModel`, `ExerciseFilterRow`, `WorkoutPreviewData` (DEBUG only).
+  - New, `App/DesignSystem/`: `DurationFormatting.swift` (`clockText`), `Motion.swift`, `Components/ErrorBanner`, `Components/PrimaryButtonStyle`, `Components/SwipeToDelete`.
+  - Edited: `App/AppEnvironment.swift` (stored `workoutTab`), `App/RootView.swift` (Workout tab only).
 - **Decisions taken:**
+  - **Writes are serialised.** `LoggingActionQueue` runs every logger call off the main thread, strictly in tap order, so "save weight" can't overtake "complete set". Errors land in one banner (above the pad while it is open).
+  - **Cell edits read the saved set when the write runs** (`ActiveWorkoutModel.editSet`), because `updateSet` replaces every field; building it from the on-screen set could undo a queued edit. Needed `WorkoutHistory.detail` inside the queued action, since the App can't import GRDB.
+  - **Set numbering** counts working sets only (as `WorkoutDetailView` does); W/D/F rows show their letter and aren't counted.
+  - **Timed exercises:** `duration` hides the weight cell and unit chip; reps/seconds accept whole numbers only (seconds, shown as m:ss).
+  - **RPE** typed off the half-step grid (7.3) is refused with a message before reaching the core.
+  - **Previous column** is shown in the row's own entry unit (so it matches the weight cell). A completed set typed in the other unit shows its unit next to the number.
+  - **Tab bar is hidden while the pad is open**, so the pad takes its place.
+  - **Swipe to delete** is a custom drag (`SwipeToDelete`), because `swipeActions` only works in a `List` and the spec asks for `Card`s.
+  - Finish summary reads volume load from `WorkoutHistory.summaries` so it keeps one definition.
+  - `ExerciseFilterRow` duplicates the chips in `ExercisesView` (out of scope to touch). `ExercisesView` can adopt it later.
+  - `ExercisePickerModel` was added though not listed in Scope (the picker needs its own query, filter and selection; `ExercisesModel`'s are shared with the Exercises tab).
 - **Open questions / left over:**
-- **How it was verified:**
+  - **Not seen on a screen.** No simulator runtime is installed, so no screenshots (dark/light), no tap-through, and no preview was rendered. Previews are written and compile. The swipe gesture, scroll-to-edited-row and pad layout in particular need a look in T-007.
+  - **WorkoutCore gaps (not touched):**
+    1. `addExercise` and `addSet` don't copy `durationSeconds`, so planned sets of timed exercises start at 0:00 instead of last session's time.
+    2. A `WorkoutHistory.summary(workoutID:)` (one workout's totals) would avoid fetching every summary for the finish sheet.
+    3. A way to update one field of a set (or fetch one set) would remove the "read the whole workout inside the queued action" workaround.
+    4. `SetPlausibility` isn't wired into the live pad (that is T-009; the pad shows core errors only).
+  - After a cell is saved it shows the old value for the few milliseconds until the observation delivers (by design: no optimistic UI).
+  - Lead: `docs/ARCHITECTURE.md` concept table could gain rows for "Elapsed/clock text" (`DurationFormatting`), "Serialised logging writes" (`LoggingActionQueue`), and "Number pad draft" (`NumberDraft`).
+  - The App has no test target, so `NumberDraft` was checked with a throwaway script only (typing replaces the old value, "." once, steps, clamping). A test target needs a `project.yml` change (lead only).
+- **How it was verified:** `make verify` (tests pass; build succeeded with no warnings from the app target after a forced full recompile). No simulator runtime (`simctl list runtimes` is empty), so UI checks were skipped.
