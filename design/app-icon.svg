@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- App icon source. Render with `make icon`; never edit the PNG by hand.
+       Concept: the end of a loaded barbell seen from the side. Plates grow left to right,
+       so the mark also reads as a rising bar chart: lifting, measured. -->
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1A1B2E"/>
+      <stop offset="1" stop-color="#08090A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.66" cy="0.36" r="0.55">
+      <stop offset="0" stop-color="#5E6AD2" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#5E6AD2" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Solid plates, darker when smaller, so the bar never shows through. -->
+    <linearGradient id="plateSmall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4A5199"/>
+      <stop offset="1" stop-color="#363C78"/>
+    </linearGradient>
+    <linearGradient id="plateMedium" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7179D6"/>
+      <stop offset="1" stop-color="#4B55AE"/>
+    </linearGradient>
+    <linearGradient id="plateLarge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#AEB4F8"/>
+      <stop offset="1" stop-color="#5E6AD2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#background)"/>
+  <rect width="1024" height="1024" fill="url(#glow)"/>
+  <!-- The bar: one thin line through the plates' centres. -->
+  <rect x="176" y="490" width="676" height="44" rx="22" fill="#F7F8F8" fill-opacity="0.88"/>
+  <!-- Plates: small to large. -->
+  <rect x="420" y="362" width="96" height="300" rx="30" fill="url(#plateSmall)"/>
+  <rect x="552" y="292" width="96" height="440" rx="30" fill="url(#plateMedium)"/>
+  <rect x="684" y="222" width="96" height="580" rx="30" fill="url(#plateLarge)"/>
+</svg>

@@ -105,3 +105,9 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
 - One primary action per screen, in `accent`. Everything else is quiet.
 - Prefer lists and tables over cards when comparing numbers.
 - Empty states say what to do next in one line, with no illustrations.
+
+## App icon
+
+- Source: `design/app-icon.svg`. Render with `make icon` (AppKit, no extra tools) into `App/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png`. Never edit the PNG by hand.
+- Concept: the end of a loaded barbell from the side. The plates grow left to right, so the mark also reads as a rising bar chart. It is the indigo accent on the near-black background, with no text.
+- Graphics are drawn as SVG by agents. A design tool such as Figma isn't needed for marks this simple.

@@ -9,7 +9,7 @@ CORE_DIR  := Packages/WorkoutCore
 SIM_DEST  := generic/platform=iOS Simulator
 DERIVED   := build/DerivedData
 
-.PHONY: help project test build verify sim screenshot build-device import-report format clean
+.PHONY: help project test build verify sim screenshot build-device import-report icon format clean
 
 help: ## List available commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-14s %s\n", $$1, $$2}'
@@ -47,6 +47,11 @@ build-device: project ## Build signed for a connected iPhone (needs Config/Local
 
 import-report: ## Dry-run the Strong importer on export_data/ and print a report
 	cd $(CORE_DIR) && swift run --quiet StrongImportReport "$(CURDIR)/export_data"
+
+ICON_SET := App/Resources/Assets.xcassets/AppIcon.appiconset
+
+icon: ## Render design/app-icon.svg into the app icon PNG
+	swift tools/render-svg.swift design/app-icon.svg $(ICON_SET)/AppIcon.png 1024
 
 format: ## Format all Swift files in place
 	swift format --in-place --recursive App $(CORE_DIR)/Sources $(CORE_DIR)/Tests

@@ -8,6 +8,8 @@ workout-tracker/
 ├── docs/                    PLAN, architecture, data, design, decisions
 │   ├── agents/WORKFLOW.md   How agents claim tasks, work in parallel, review and hand off
 │   └── tasks/               Task board (BOARD.md) and one brief per task
+├── design/                SVG sources for graphics (app icon); `make icon` renders them
+├── tools/                 Small developer scripts used by the Makefile
 ├── Makefile                 The only build/test entry point (`make help`)
 ├── project.yml              XcodeGen spec for the iOS app (source of truth for the .xcodeproj)
 ├── Config/                  Build settings (.xcconfig); Local.xcconfig is git-ignored

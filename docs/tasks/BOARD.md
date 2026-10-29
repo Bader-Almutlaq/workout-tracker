@@ -14,7 +14,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | T-003 | Exercise catalog queries (entries, detail, unmatched imports) | done | Claude Opus (lead) | `m2-exercise-library` |
 | [T-004](T-004-exercises-tab.md) | Exercises tab: browse, search, filters, detail, custom exercises | todo | | |
 | [T-005](T-005-strong-matching.md) | Strong matching screen | todo | | |
-| T-006 | App icon (SVG source → PNG asset) | todo | lead | |
+| T-006 | App icon (SVG source → PNG asset, `make icon`) | done | Claude Opus (lead) | `m2-exercise-library` |
 | T-007 | Run M1 + M2 screens in the simulator; fix what looks wrong | blocked: iOS simulator runtime still downloading | lead | |
 
 ## Next milestones (tasks are written when the milestone starts)
