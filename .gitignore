@@ -17,3 +17,6 @@ Config/Local.xcconfig
 
 # The owner's real training data: never commit it
 export_data/
+
+# Agent worktrees (one per parallel task)
+.claude/worktrees/
