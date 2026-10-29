@@ -10,6 +10,8 @@ final class AppEnvironment {
     let database: AppDatabase
     let backupSettings: BackupSettingsModel
     let history: HistoryModel
+    /// The Exercises tab's state (search text and filters survive switching tabs).
+    let exercises: ExercisesModel
     /// Local folder for safety snapshots (before migrations, restores, imports and merges).
     let snapshotDirectory: URL
     /// The built-in exercise library, already seeded into `database`. Supplies search aliases.
@@ -22,7 +24,8 @@ final class AppEnvironment {
         let library = try ExerciseLibrary.bundled()
         try ExerciseLibrarySeeder.seed(library, into: database)
         self.library = library
-        self.exerciseEditor = ExerciseEditor(database: database, snapshotDirectory: snapshotDirectory)
+        let exerciseEditor = ExerciseEditor(database: database, snapshotDirectory: snapshotDirectory)
+        self.exerciseEditor = exerciseEditor
         self.database = database
         self.snapshotDirectory = snapshotDirectory
         self.backupSettings = BackupSettingsModel(
@@ -30,6 +33,7 @@ final class AppEnvironment {
             bookmark: bookmark
         )
         self.history = HistoryModel(database: database)
+        self.exercises = ExercisesModel(database: database, library: library, editor: exerciseEditor)
     }
 
     /// A fresh import flow. Each import starts from scratch.

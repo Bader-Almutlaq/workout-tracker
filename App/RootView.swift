@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The tab bar. Workout, Exercises and Analytics are placeholders until their milestone
+/// The tab bar. Workout and Analytics are placeholders until their milestone
 /// (see `docs/PLAN.md`).
 struct RootView: View {
     let environment: AppEnvironment
@@ -14,7 +14,7 @@ struct RootView: View {
                 HistoryView(model: environment.history)
             }
             Tab("Exercises", systemImage: "list.bullet") {
-                EmptyStateView(title: "Exercises", message: "The exercise library arrives in milestone M2.")
+                ExercisesView(model: environment.exercises)
             }
             Tab("Analytics", systemImage: "chart.xyaxis.line") {
                 EmptyStateView(title: "Analytics", message: "Charts arrive in milestones M5–M6.")
