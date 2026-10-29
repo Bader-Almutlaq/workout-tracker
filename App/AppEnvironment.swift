@@ -20,6 +20,8 @@ final class AppEnvironment {
     let exerciseEditor: ExerciseEditor
     /// Writes the workout being logged.
     let workoutLogger: WorkoutLogger
+    /// The Workout tab's state (the workout in progress, the half-typed cell, the finish sheet).
+    let workoutTab: WorkoutTabModel
 
     /// Seeds the library into `database` (a no-op when already at this version), then builds the services.
     init(database: AppDatabase, snapshotDirectory: URL, bookmark: BackupFolderBookmark) throws {
@@ -28,7 +30,9 @@ final class AppEnvironment {
         self.library = library
         let exerciseEditor = ExerciseEditor(database: database, snapshotDirectory: snapshotDirectory)
         self.exerciseEditor = exerciseEditor
-        self.workoutLogger = WorkoutLogger(database: database)
+        let workoutLogger = WorkoutLogger(database: database)
+        self.workoutLogger = workoutLogger
+        self.workoutTab = WorkoutTabModel(database: database, library: library, logger: workoutLogger)
         self.database = database
         self.snapshotDirectory = snapshotDirectory
         self.backupSettings = BackupSettingsModel(
