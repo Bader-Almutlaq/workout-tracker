@@ -88,6 +88,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Which unit an exported exercise is in | `Import/ExportUnitResolver.swift` |
 | Import review (plan, decisions) and writing it | `Import/StrongImportPlan.swift`, `Import/StrongImportOptions.swift`, `Import/StrongImporter.swift` |
 | Typo / outlier detection (import review and, later, live logging) | `Validation/SetPlausibility.swift` |
+| Live typo check for one set | `Validation/LiveSetCheck.swift` |
 | History list and workout detail queries | `Queries/WorkoutHistory.swift` |
 | Muscle taxonomy (23 muscles, delts split) and regions | `Library/Muscle.swift`, `Library/MuscleRegion.swift`; DB rows frozen in migration v2 |
 | Equipment, movement patterns, mechanic, set tracking kinds | `Library/Equipment.swift`, `Library/MovementPattern.swift`, `Library/Mechanic.swift`, `Library/ExerciseTracking.swift` |
