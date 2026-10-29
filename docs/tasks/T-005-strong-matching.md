@@ -64,9 +64,16 @@ After an import, some Strong exercise names don't exactly match a library exerci
 
 ## Handoff
 
-- **Status:**
-- **What was done:**
-- **Files touched:**
+- **Status:** review. `make verify` passes (112 core tests, iOS simulator build, no warnings). Not run on a simulator (see below).
+- **What was done:** "Match Strong exercises" screen. `StrongMatchingModel` observes `ExerciseCatalog.observeUnmatchedImports` and `observeEntries` (library entries only), caches up to 3 suggestions per exercise, and offers `merge`, `keepAsOwn` and `acceptAllTopSuggestions`. Merges and edits run off the main thread; errors show in an alert and go to `Log.ui`. The view has one card per exercise (suggestions with "Match", "Search library…", "Keep as my own"), a merge confirmation dialog, a "Match all suggested" toolbar button that opens a sheet listing every pair, and the "All matched" empty state. `keepAsOwn` keeps the exercise's equipment, pattern, mechanic and tracking, and takes the name and muscles from a simple form. Settings gets a "Match Strong exercises" row with the unmatched count under Import, hidden at 0. The preview imports a small synthetic CSV through the real importer to create three Strong exercises.
+- **Files touched:** created `App/Features/Matching/StrongMatchingModel.swift`, `StrongMatchingView.swift` (also holds the private `OwnExerciseForm` and `MatchAllConfirmation`), `LibraryExercisePicker.swift` (also holds `MatchingCandidateRow`). Edited `App/Features/Settings/SettingsView.swift` and `App/AppEnvironment.swift` (`makeStrongMatchingModel()` at the end of the class).
 - **Decisions taken:**
+  - The row is a `Button` that sets a flag used by `.navigationDestination(isPresented:)`, not a `NavigationLink`. Matching the last exercise hides the row, and a link would pop the screen from under the owner.
+  - "Match all" uses a sheet, not a dialog: 30 pairs don't fit in a dialog message.
+  - `keepAsOwn` has an optional `named:` because the form lets the owner rename.
 - **Open questions / left over:**
-- **How it was verified:**
+  - **RootView must pass the factory.** `SettingsView` has a new `makeMatchingModel: (() -> StrongMatchingModel)?` parameter defaulting to `nil` (RootView was out of scope), and with `nil` the row never shows. The lead needs to change RootView to `SettingsView(backup: environment.backupSettings, makeImportModel: environment.makeImportModel, makeMatchingModel: environment.makeStrongMatchingModel)`.
+  - "Match all" takes one snapshot per merge (core behavior of `ExerciseEditor.merge`). With ~30 exercises that is ~30 snapshots; the lead may want a batch merge or snapshot pruning in WorkoutCore.
+  - The muscle form is deliberately plain; unify with T-004's picker later.
+  - No view-level tests: the App has no test target. The matching logic is already covered by `ExerciseSearchTests` and `ExerciseEditorTests`.
+- **How it was verified:** `make verify` (tests plus the unsigned simulator build). `xcrun simctl list runtimes` shows no iOS runtime installed, so I did not run `make sim`, check dark and light mode, or take screenshots. The `#Preview("Unmatched exercises")` is untested for the same reason.

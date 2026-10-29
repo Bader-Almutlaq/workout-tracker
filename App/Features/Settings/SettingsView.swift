@@ -6,8 +6,13 @@ struct SettingsView: View {
     @Bindable var backup: BackupSettingsModel
     /// Creates a fresh import flow each time the sheet opens.
     let makeImportModel: () -> StrongImportModel
+    /// Creates the model behind "Match Strong exercises". `nil` hides that row.
+    var makeMatchingModel: (() -> StrongMatchingModel)?
 
     @State private var importModel: StrongImportModel?
+    /// Created once and kept observing so the row's count stays current.
+    @State private var matchingModel: StrongMatchingModel?
+    @State private var isShowingMatching = false
 
     @State private var isPickingFolder = false
     @State private var isPickingRestoreFile = false
@@ -25,8 +30,17 @@ struct SettingsView: View {
             }
             .background(AppColor.background)
             .navigationTitle("Settings")
+            .navigationDestination(isPresented: $isShowingMatching) {
+                if let matchingModel { StrongMatchingView(model: matchingModel) }
+            }
         }
         .task { backup.refresh() }
+        .task {
+            guard let makeMatchingModel else { return }
+            let model = matchingModel ?? makeMatchingModel()
+            matchingModel = model
+            await model.observe()
+        }
         .sheet(item: $importModel) { model in
             StrongImportView(model: model)
                 .interactiveDismissDisabled()
@@ -62,11 +76,37 @@ struct SettingsView: View {
             Card {
                 Button("Import from Strong…") { importModel = makeImportModel() }
                     .padding(Spacing.m)
+                if let unmatchedCount = matchingModel?.unmatched.count, unmatchedCount > 0 {
+                    HairlineDivider()
+                    matchingRow(unmatchedCount: unmatchedCount)
+                }
             }
             Text("Safe to repeat: workouts already imported are skipped.")
                 .font(AppFont.callout)
                 .foregroundStyle(AppColor.textTertiary)
         }
+    }
+
+    /// Opens the matching screen. It is a button rather than a link so that matching the last
+    /// exercise (which hides this row) doesn't pop the screen from under the owner.
+    private func matchingRow(unmatchedCount: Int) -> some View {
+        Button { isShowingMatching = true } label: {
+            HStack {
+                Text("Match Strong exercises")
+                    .font(AppFont.body)
+                    .foregroundStyle(AppColor.textPrimary)
+                Spacer()
+                Text(unmatchedCount.formatted())
+                    .font(AppFont.body.monospacedDigit())
+                    .foregroundStyle(AppColor.textTertiary)
+                Image(systemName: "chevron.right")
+                    .font(AppFont.callout)
+                    .foregroundStyle(AppColor.textTertiary)
+            }
+            .padding(Spacing.m)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
     }
 
     private var backupSection: some View {
@@ -133,5 +173,8 @@ struct SettingsView: View {
 
 #Preview {
     let environment = AppEnvironment.preview()
-    SettingsView(backup: environment.backupSettings, makeImportModel: environment.makeImportModel)
+    SettingsView(
+        backup: environment.backupSettings, makeImportModel: environment.makeImportModel,
+        makeMatchingModel: environment.makeStrongMatchingModel
+    )
 }

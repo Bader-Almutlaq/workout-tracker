@@ -67,4 +67,9 @@ final class AppEnvironment {
             preconditionFailure("Preview environment failed to load: \(error)")
         }
     }
+
+    /// The "Match Strong exercises" screen's model: links imported names to library exercises.
+    func makeStrongMatchingModel() -> StrongMatchingModel {
+        StrongMatchingModel(database: database, library: library, editor: exerciseEditor)
+    }
 }
