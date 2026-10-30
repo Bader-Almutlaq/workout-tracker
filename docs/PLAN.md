@@ -1,6 +1,6 @@
 # Workout Tracker: build plan
 
-A personal iPhone app to replace Strong. It keeps 4 years of Strong history, has a much larger exercise library, makes building workouts easy, and gives deep, science-based analytics. Research behind every decision: `reports/Workout tracker app research.md` (details in `research_notes/`).
+A personal iPhone workout tracker (an offline web app on the Home Screen) to replace Strong. It keeps 4 years of Strong history, has a much larger exercise library, makes building workouts easy, and gives deep, science-based analytics. Research behind every decision: `reports/Workout tracker app research.md` (details in `research_notes/`).
 
 ## Principles
 
@@ -8,33 +8,30 @@ A personal iPhone app to replace Strong. It keeps 4 years of Strong history, has
 - **Literature, not hype.** Every metric must trace to a cited source in the report, or be labelled as a descriptive heuristic.
 - **Excluded:** AI features, exercise videos/animations, social, streaks, celebrations, accounts, cloud.
 - **Not cluttered.** Logging needs 2–3 taps per set, with last session's numbers always visible inline.
-- **Data is irreplaceable.** Never lose a set. Automatic backups to a folder in iCloud Drive (see `docs/DATA.md`). Keep the original Strong CSV forever.
+- **Data is irreplaceable.** Never lose a set. One-tap backups to iCloud Drive, with the last-backup date always visible (see `docs/DATA.md`). Keep the original Strong CSV forever.
 - **Engineering standards** are in `AGENTS.md`; agent workflow in `docs/agents/WORKFLOW.md`; tasks in `docs/tasks/BOARD.md`; structure in `docs/ARCHITECTURE.md`; visual system in `docs/DESIGN.md` (Linear-inspired).
 
 ## Platform and install
 
-- Native Swift 6 + SwiftUI, Swift Charts. Xcode 27.1 is at `/Applications/Xcode.app`.
-- Signed with a free Apple ID (Personal Team). Apps expire after 7 days, so re-run from Xcode weekly. Reinstalling over the app keeps its data; **deleting it deletes the data**.
-- Always sign with the same Apple ID and the same bundle ID.
-- Free tier limits: 3 apps per device, 10 App IDs per 7 days, no iCloud, no push. So: one app target, no widget or watch extension at first. Local notifications for the rest timer are fine.
-- One-time setup (user, needs password):
-  - `sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
-  - `sudo xcodebuild -license accept`
-  - Developer Mode on the iPhone
+- **An offline web app on the iPhone Home Screen** (open the site in Safari → Share → Add to Home Screen). It runs full-screen like an app, works with no connection, and never expires. Switched from native on 2026-10-30 (see `docs/DECISIONS.md`).
+- All data stays on the phone, in the Home Screen app's private storage. **Deleting the Home Screen icon deletes the data**, so backups matter (see `docs/DATA.md`).
+- The site needs a free static host (HTTPS), which only serves the app's code, never data. **Owner decision pending:** which host (see *Needed from the user*).
+- Updates download in the background and wait for a tap ("Update ready"), so the app never reloads mid-workout.
 
 ## Architecture
 
-- **`WorkoutCore`**: a local Swift package with no UI. It holds the models, database, Strong importer, exercise library, search and every analytics formula. Tested with `swift test`.
-- **App target**: SwiftUI screens only. Generate the project with XcodeGen (`project.yml`) so it stays diffable. Fall back to a hand-made Xcode project if Homebrew/XcodeGen isn't available.
-- **Storage:** SQLite through GRDB.swift (the only third-party dependency). It gives FTS5 search, migrations and fast aggregate queries over about 20k+ sets.
-- **Units:** weights stored in kg (as in Strong's export); display unit is a setting.
+- **WorkoutCore** (`src/core`): pure TypeScript with no UI. It holds the models, database and migrations, the Strong importer, the exercise library, search, logging and every analytics formula. Tested with Vitest (`make test`).
+- **Database worker** (`src/worker`): opens SQLite (WebAssembly build) on the phone's private file system and exposes WorkoutCore to the screen through one typed API.
+- **Screens** (`src/app`): React, rendering only. Linear-style design tokens in CSS.
+- **Storage:** SQLite, the same schema as the native app. Analytics run as SQL over 20k+ sets.
+- **Units:** weights stored in kg exactly as entered, with the unit typed; display unit per exercise.
 
 ### Data model (first pass)
 
 | Table | Key fields |
 |---|---|
 | `muscle` | id, name, group, region. About 20 muscles, with front/side/rear delts split |
-| `exercise` | id, name ("Movement (Equipment)"), equipment, pattern (h-push, v-pull, knee, hip…), mechanic (compound/isolation), e1RM category (k), lengthened_bias flag, source (wger / fedb / curated / custom), archived |
+| `exercise` | id, name ("Movement (Equipment)"), equipment, pattern, mechanic, libraryKey, lengthened-bias flag, tracking kind, source (library / custom / strong), default entry unit, archived |
 | `exercise_muscle` | exercise_id, muscle_id, role (primary 1.0 / secondary 0.5) |
 | `exercise_alias` | exercise_id, alias: names merged from Strong (built-in slang lives in `library.json`) |
 | `workout` | id, start, end, name, notes, template_id, block_id, source (strong / app) |
@@ -51,70 +48,60 @@ A personal iPhone app to replace Strong. It keeps 4 years of Strong history, has
 
 ## Milestones
 
-Each milestone ends with unit tests passing, the app running in the simulator, and a run on the iPhone.
+Milestones are numbered W (web). W1–W3 port what the native app already had; `reference/native/` is the spec. Each milestone ends with `make verify` passing, every screen checked at iPhone 15 Pro Max size in dark and light, and a run in Safari on the simulator.
 
-### M0: Skeleton and safety net
-- Docs, Makefile, `WorkoutCore` package with GRDB, schema v1 migration, pre-migration snapshot, XcodeGen project, Linear-style design tokens, app shell with tabs.
-- Backups: pick an iCloud Drive folder once (security-scoped bookmark); automatic snapshot on going to the background when data changed; "Back up now"; retention (14 newest + 1 per month); restore from a file with a safety snapshot first.
-- kg ↔ lb conversion and original-unit inference (`Units/`).
+### W0: Web skeleton (done)
+- Vite + React + TypeScript, ESLint layer rules, Vitest. SQLite in a worker on the phone's private file system; `v1-schema` migration; snapshot before migrating.
+- Offline support and "Update ready"; Home Screen icon and manifest; design tokens (dark and light); five tabs; Settings → Appearance.
 
-### M1: Strong import (top priority; export is in `export_data/`)
-- Parse the owner's layout (comma-delimited, `Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE`, durations like `1h 7m`). Also accept the newer semicolon layout with `Workout #` and `Duration (sec)`. Full profile in `docs/DATA.md`.
-- Set Order W/D/F → warm-up / drop / failure. Skip "Rest Timer" rows and turn "Note" rows into notes if present.
-- Infer the entry unit per set (61.23 kg → 135 lb).
-- Import the 15 body-measurement files (`Date,Measurement Type,Value,Unit,Source`).
-- **Typo review:** flag sets far outside that exercise's typical weight or reps near that date (missed digit, extra zero). Confirm, fix or ignore each before committing.
-- Exercise mapping screen for the 85 names (about 30 custom): exact → split movement/equipment → fuzzy → manual pick or create custom. Save every choice.
-- Verify: workout, set and exercise counts and total kg match the file exactly. Re-import is idempotent.
+### W0b: Hosting (needs the owner)
+- Publish the site on a free static host with HTTPS, then add it to the Home Screen. Deploying is one `make` command.
 
-### M2: Exercise library and search
-- One curated library file in Strong's naming style (about 420 exercises in 165 movement families), 23 muscles with delts split, modern movements included. Not merged from wger or free-exercise-db (see `docs/DECISIONS.md`).
-- Seeded into the database on launch; Strong names that match exactly link automatically.
-- In-memory search: slang dictionary, prefixes, typo tolerance, ranking by your usage and recency.
-- Filters: muscle, equipment, custom. Unlimited custom exercises; duplicate a built-in one to make your own.
-- Match screen for the Strong names that didn't link: suggestions, merge history, keep as your own.
+### W1: Strong import, History and backups
+- Port units, the CSV and Strong parsers, the unit resolver, typo checks, the reviewable import plan and the importer (snapshot first, one transaction); `make import-report` on the real export must match `docs/DATA.md` exactly.
+- Import flow in Settings; History list and workout detail.
+- Backups: one-tap backup to Files / iCloud Drive through the share sheet; restore from a file with a safety snapshot first; last-backup date always visible.
 
-### M3: Logging
-- Active workout screen: previous values inline per set, swipe to copy, large custom number pad.
-- Units: per-exercise entry unit (kg or lb) remembered; one-tap kg/lb toggle on the number pad; both units shown on demand.
-- Live typo check: a suspicious weight or rep count asks "Is this right?" before saving (same check as the import review).
-- RPE or RIR entry (user's choice of scale), set types, supersets, L/R sides, notes (exercise / slot / workout).
-- Auto rest timer per exercise and per set, lock-screen notification, actual rest recorded.
-- Exercise position and prior same-muscle hard sets recorded automatically.
-- Plate and warm-up calculators.
+### W2: Exercise library and search
+- Port the curated library (421 exercises), seeding, name and alias resolution, custom exercises, merge, search with slang and typo tolerance, catalog queries.
+- Exercises tab (browse, search, filters, detail, custom exercises) and the Strong matching screen.
 
-### M4: Workouts and templates
+### W3: Logging
+- Port the logger, previous performance, the live workout query and the live typo check.
+- Workout tab: previous values inline, pre-filled sets, large number pad with kg/lb toggle, finish summary, "Is this right?" prompt.
+- Rest timer (on screen; alerts while locked are limited on the web, see `docs/DECISIONS.md`). Plate and warm-up calculators.
+
+### W4: Workouts and templates
 - Folders, drag to reorder, supersets, defaults per exercise, duplicate, start from a template or from any past session.
 - Calendar and full history.
 
-### M5: Analytics engine (in `WorkoutCore`, fully unit-tested)
+### W5: Analytics engine (in `WorkoutCore`, fully unit-tested)
 - Effective reps E = reps + RIR (RIR = 10 − RPE; unknown → 2, lower weight).
 - e1RM = w × (1 + (E − 1)/k), k by category (38 / 29 / 24 / 20 / 15). Qualifies if not a warm-up, E ≤ 12, RIR ≤ 4.
 - Trend: EWMA, α = 1 − e^(−days/τ), τ 14–21 d; hold sessions >15% off the trend.
 - Fractional hard sets (primary 1.0, secondary 0.5 or 0.3 setting; hard = RIR ≤ 4), zones <4 / 4–10 / 10–20 / 20–30 / >30, per-session flag >11.
 - Relative intensity, rep-range buckets, RIR histogram, intensity–volume points, frequency, balance ratios, drop-off, bodyweight trend, block change (formulas in report section 12).
 
-### M6: Analytics screens
+### W6: Analytics screens
 1. **Exercise detail:** e1RM trend, rep-max table, reps at fixed load, like-for-like filters (position, rep range, rest), history.
 2. **Muscles:** weekly sets direct vs indirect, body map, frequency, neglected list, balance ratios, exercise share per muscle.
 3. **Intensity × volume:** rep-range mix, RIR histogram, intensity–volume map.
 4. **Session summary**, **weekly report**, **block comparison**, **all-time** view.
 
-### M7: Body
+### W7: Body
 - Bodyweight with trend; measurements with L/R; strength relative to bodyweight; e1RM and bodyweight overlay.
 
-### M8: Optional (pick later)
+### W8: Optional (pick later)
 - Load calculator (weight for planned reps × RIR from your trend, rounded to your equipment).
 - User-defined progression rules per exercise (double progression, RIR target, % e1RM, top set + back-offs), off by default.
 - Stall flag with a user threshold; RIR calibration from failure sets; personal k per lift; lengthened-bias share chart.
 
 ## Needed from the user
 
-- [x] Xcode license accepted, components installed.
 - [x] Strong export (in `export_data/`, git-ignored).
-- [ ] Apple ID team ID in `Config/Local.xcconfig` (Xcode → Settings → Accounts) for phone builds.
+- [ ] **Hosting:** a free account on a static host (for example Cloudflare Pages, which keeps the code private, or GitHub Pages, which needs the code public). Only the app's code is hosted; data never leaves the phone.
 - [ ] Optional: Strong screenshots as UI reference.
-- [ ] iPhone iOS version; preferred effort scale (RPE or RIR); app display name.
+- [ ] Preferred effort scale (RPE or RIR); app display name (currently "Workouts").
 
 ## Status
 
@@ -127,3 +114,5 @@ Each milestone ends with unit tests passing, the app running in the simulator, a
   - Deferred to M2: matching Strong names to library exercises (see `docs/DECISIONS.md`).
 - 2026-10-30: **M2 core done** (branch `m2-exercise-library`): curated library (421 exercises), muscle taxonomy, schema v2, seeding at launch, name/alias resolution, custom exercises and merge (snapshot first), search, catalog queries. 112 tests pass; app builds. Agent workflow added (`AGENTS.md`, `docs/agents/WORKFLOW.md`, `docs/tasks/`).
   - Remaining M2 work is on the task board: Exercises tab, Strong matching screen, app icon.
+- 2026-10-30: **Switched to an offline web app** (owner: no weekly reinstall). Native app archived (`native-archive` branch; spec in `reference/native/`). **W0 done** on branch `web`: SQLite in a worker on the phone's private file system, `v1-schema` migration with snapshot-before-migrate, offline support with "Update ready", design tokens in dark and light, five tabs, Settings → Appearance. 9 tests; `make verify` passes. Checked in Safari on the iPhone 15 Pro Max simulator (iOS 27.0): the database opens and persists.
+  - Next: W1 tasks on the board; hosting needs the owner.

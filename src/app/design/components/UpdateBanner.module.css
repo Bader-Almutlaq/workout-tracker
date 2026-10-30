@@ -1,0 +1,21 @@
+.banner {
+  position: fixed;
+  left: var(--space-l);
+  right: var(--space-l);
+  bottom: calc(env(safe-area-inset-bottom) + var(--tab-bar-height) + var(--space-s));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-s) var(--space-m);
+  background: var(--color-surface-raised);
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+}
+
+.action {
+  font: var(--font-callout);
+  color: var(--color-accent);
+  padding: var(--space-xs) var(--space-s);
+}

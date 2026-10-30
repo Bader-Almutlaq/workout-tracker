@@ -8,32 +8,39 @@ workout-tracker/
 ├── docs/                    PLAN, architecture, data, design, decisions
 │   ├── agents/WORKFLOW.md   How agents claim tasks, work in parallel, review and hand off
 │   └── tasks/               Task board (BOARD.md) and one brief per task
-├── design/                SVG sources for graphics (app icon); `make icon` renders them
-├── tools/                 Small developer scripts used by the Makefile
 ├── Makefile                 The only build/test entry point (`make help`)
-├── project.yml              XcodeGen spec for the iOS app (source of truth for the .xcodeproj)
-├── Config/                  Build settings (.xcconfig); Local.xcconfig is git-ignored
-├── App/                     iOS app target: SwiftUI only
-│   ├── WorkoutTrackerApp.swift   Entry point; builds the dependency graph once
-│   ├── AppEnvironment.swift      Owns the long-lived services (database, backups)
-│   ├── DesignSystem/             Colors, typography, spacing, reusable components
-│   ├── Features/<Feature>/       One folder per screen area: View(s) + its @Observable model
-│   └── Resources/                Asset catalog, Info.plist
-├── Packages/WorkoutCore/    Swift package: all logic, no UI
-│   ├── Sources/WorkoutCore/
-│   │   ├── Database/        Connection, migrations, snapshot-before-migrate
-│   │   ├── Models/          Persisted record types (one per file)
-│   │   ├── Backup/          Snapshot writing, retention, restore
-│   │   ├── Units/           kg/lb conversion and original-unit inference
-│   │   ├── Import/          Strong CSV parsing and planning          (M1)
-│   │   ├── Library/         Exercise library, muscles, search, edits (M2)
-│   │   │   └── Resources/library.json   The curated library (edit this to add exercises)
-│   │   ├── Logging/         Writing a workout as it happens          (M3)
-│   │   ├── Queries/         Read-only queries behind screens
-│   │   ├── Validation/      Typo / outlier checks
-│   │   ├── Analytics/       e1RM, trend, volume, intensity…          (M5)
-│   │   └── Support/         Logging and other shared plumbing
-│   └── Tests/WorkoutCoreTests/   Mirrors Sources/ folder by folder
+├── index.html               The page shell: iOS Home Screen meta tags, root element
+├── vite.config.ts           Build, offline support (service worker) and the Home Screen manifest
+├── eslint.config.js         Lint rules, including the layer boundaries
+├── tsconfig.*.json          core (no DOM), app (DOM + worker), node (tools); `make typecheck` runs all three
+├── public/                  Home Screen icons (rendered by `make icon`)
+├── design/                  SVG sources for graphics (app icon)
+├── tools/                   Developer scripts run on the Mac (icon renderer, import report)
+├── src/
+│   ├── core/                WorkoutCore: all logic, no UI, synchronous, tested in Node
+│   │   ├── db/              Database wrapper, migrations, settings
+│   │   ├── models/          Row types, one per table                       (W1)
+│   │   ├── units/           kg/lb conversion and original-unit inference   (W1)
+│   │   ├── import/          Strong CSV parsing, planning, importing        (W1)
+│   │   ├── validation/      Typo / outlier checks                          (W1, W3)
+│   │   ├── queries/         Read-only queries behind screens               (W1–W3)
+│   │   ├── backup/          Validating and restoring backup files          (W1)
+│   │   ├── library/         Exercise library, muscles, search, edits       (W2)
+│   │   │   └── library.json The curated library (edit this to add exercises)
+│   │   ├── logging/         Writing a workout as it happens                (W3)
+│   │   ├── analytics/       e1RM, trend, volume, intensity…                (W5)
+│   │   └── support/         Logging and other shared plumbing
+│   ├── worker/              The Web Worker that owns the live database
+│   │   ├── database.worker.ts   Entry point: opens the store, exposes the API
+│   │   ├── OnDeviceStore.ts     The database file on the phone, safety snapshots
+│   │   └── WorkerApi.ts         Everything the screen may ask of the database
+│   └── app/                 React screens
+│       ├── main.tsx, App.tsx    Entry point, routes and tab bar
+│       ├── data/                The worker client (`database`), `useDatabaseQuery`, offline/updates, storage
+│       ├── design/              tokens.css, global.css, shared components
+│       ├── appearance/          System / Dark / Light preference
+│       └── features/<area>/     One folder per screen area
+├── reference/native/        The archived Swift app: read-only spec for the port (W1–W3), then deleted
 ├── reports/, research_notes/     Research behind every formula
 └── export_data/             The owner's real Strong export (git-ignored, never committed)
 ```
@@ -41,19 +48,22 @@ workout-tracker/
 ## Layers and dependency direction
 
 ```
-App (SwiftUI views → @Observable feature models)
-        │  calls
+src/app (React screens)
+        │  async calls through `database` (Comlink)
         ▼
-WorkoutCore (services → models → database)
+src/worker (WorkerApi: one method per screen need)
+        │  synchronous calls
+        ▼
+src/core (WorkoutCore: services → models → Database)
         │
         ▼
-GRDB.swift (SQLite)
+SQLite (WebAssembly) on the phone's private file system
 ```
 
-- **WorkoutCore** knows nothing about SwiftUI or UIKit. It compiles and tests on macOS with `swift test`, which keeps the feedback loop fast.
-- **Feature models** (`@Observable`, `@MainActor`) translate user intent into WorkoutCore calls and hold view state. One per screen area.
-- **Views** only render and forward taps.
-- Services are created once in `AppEnvironment` and passed down, so there are no singletons and no hidden global state.
+- **WorkoutCore** knows nothing about React, the DOM or workers. Its TypeScript config has no DOM types, so it can't reach the screen, files or the network. It runs and tests in Node, which keeps feedback fast.
+- **The worker** is the only place the live database is opened. Each `WorkerApi` method calls WorkoutCore and returns plain data (results are copied between threads). Write methods notify subscribers, so every open screen refreshes.
+- **Screens** read with `useDatabaseQuery(key, () => database.someRead(...))` and write with `await database.someWrite(...)`. They hold view state only (what's selected, what's being typed).
+- ESLint (`eslint.config.js`) fails the build if core imports app/worker/React, or if the app imports SQLite or `core/db`.
 
 ## Glossary (allowed abbreviations)
 
@@ -65,46 +75,47 @@ GRDB.swift (SQLite)
 | Hard set | A working set at RIR ≤ 4 (or RIR unknown) |
 | Fractional sets | Hard sets weighted 1.0 for primary muscles and 0.5 for secondary (Pelland 2025) |
 | Block | A user-marked training period (mesocycle) used for comparisons |
+| OPFS | The browser's private file system, where the database lives on the phone |
 
 ## Concept ownership
 
-Each concept is implemented once, in one place. When adding a concept, add a row here.
+Each concept is implemented once, in one place. When adding a concept, add a row here. Rows marked *(to port)* name the native file in `reference/native/Packages/WorkoutCore/Sources/WorkoutCore/` that specifies them.
 
-| Concept | Owner (WorkoutCore) |
+| Concept | Owner |
 |---|---|
-| Database connection and migrations | `Database/AppDatabase.swift`, `Database/Migrations.swift` |
-| Schema (tables, columns) | `Database/Migrations.swift` |
-| Writing a consistent single-file snapshot | `AppDatabase.writeSnapshot` (used for pre-migration, pre-restore and cloud backups) |
-| Backup, prune, restore, validate a backup file | `Backup/BackupService.swift` |
-| When to back up; which backups to keep | `Backup/BackupPolicy.swift` |
-| Backup file naming and ordering | `Backup/BackupFile.swift` |
-| Remembering the iCloud Drive folder | `Backup/BackupFolderBookmark.swift` |
-| iCloud-safe file copy/delete | `Support/CoordinatedFile.swift` |
-| kg ↔ lb conversion, display rounding, original-unit inference | `Units/WeightUnit.swift`, `Units/Weight.swift` |
-| Logging categories | `Support/Log.swift` |
-| Stored record types (one per table) | `Models/` |
-| CSV reading | `Import/CSVTable.swift` |
-| Strong file formats and timestamps | `Import/StrongWorkoutsFile.swift`, `Import/StrongMeasurementsFile.swift`, `Import/StrongTimestamp.swift` |
-| Which unit an exported exercise is in | `Import/ExportUnitResolver.swift` |
-| Import review (plan, decisions) and writing it | `Import/StrongImportPlan.swift`, `Import/StrongImportOptions.swift`, `Import/StrongImporter.swift` |
-| Typo / outlier detection (import review and, later, live logging) | `Validation/SetPlausibility.swift` |
-| Live typo check for one set | `Validation/LiveSetCheck.swift` |
-| History list and workout detail queries | `Queries/WorkoutHistory.swift` |
-| Muscle taxonomy (23 muscles, delts split) and regions | `Library/Muscle.swift`, `Library/MuscleRegion.swift`; DB rows frozen in migration v2 |
-| Equipment, movement patterns, mechanic, set tracking kinds | `Library/Equipment.swift`, `Library/MovementPattern.swift`, `Library/Mechanic.swift`, `Library/ExerciseTracking.swift` |
-| The built-in exercise list (names, muscles, aliases) | `Library/Resources/library.json`, loaded and validated by `Library/ExerciseLibrary.swift` |
-| Exercise naming ("Movement (Equipment)") and stable keys | `ExerciseLibrary.name(movement:equipment:)`, `ExerciseLibrary.key(forName:)` |
-| Copying the library into the database on launch | `Library/ExerciseLibrarySeeder.swift` |
-| Name or alias → exercise | `Library/ExerciseNameResolver.swift` |
-| Creating, editing, archiving and merging exercises | `Library/ExerciseEditor.swift` |
-| Search text normalisation, slang, typo distance | `Library/SearchText.swift`, `Library/GymSlang.swift` |
-| Exercise search and import-name suggestions | `Library/ExerciseSearch.swift` |
-| Exercise list, detail and unmatched-import queries | `Queries/ExerciseCatalog.swift` |
-| Key–value app settings | `Database/AppSetting.swift` |
-| Logging a workout live: start, add exercises and sets, complete, reorder, finish, discard | `Logging/WorkoutLogger.swift` |
-| What was done last time for an exercise (inline values, pre-fill) | `Queries/PreviousPerformance.swift` |
-| The workout in progress as the logging screen shows it | `Queries/LiveWorkout.swift` |
+| SQLite access (queries, transactions, export/import bytes) | `src/core/db/Database.ts` |
+| Schema and migrations | `src/core/db/migrations.ts` |
+| Opening the database on the phone; safety snapshots | `src/worker/OnDeviceStore.ts` |
+| What the screen can ask of the database | `src/worker/WorkerApi.ts` |
+| Running a query from a screen and refreshing after writes | `src/app/data/database.ts` (`useDatabaseQuery`) |
+| Offline support and "Update ready" | `src/app/data/appUpdate.ts` |
+| Asking the browser to keep storage | `src/app/data/persistentStorage.ts` |
+| Logging categories | `src/core/support/log.ts` |
+| Light / dark preference | `src/app/appearance/appearance.ts` |
+| Color, type, spacing, radius and motion tokens | `src/app/design/tokens.css` |
+| Key–value app settings | `src/core/db/AppSetting.ts` *(to port: `Database/AppSetting.swift`)* |
+| kg ↔ lb conversion, display rounding, original-unit inference | `src/core/units/` *(to port: `Units/`)* |
+| Stored record types (one per table) | `src/core/models/` *(to port: `Models/`)* |
+| CSV reading | `src/core/import/CsvTable.ts` *(to port: `Import/CSVTable.swift`)* |
+| Strong file formats and timestamps | `src/core/import/` *(to port: `Import/Strong*.swift`)* |
+| Which unit an exported exercise is in | `src/core/import/ExportUnitResolver.ts` *(to port)* |
+| Import review (plan, decisions) and writing it | `src/core/import/StrongImportPlan.ts`, `StrongImporter.ts` *(to port)* |
+| Typo / outlier detection (import review and live logging) | `src/core/validation/SetPlausibility.ts` *(to port)* |
+| Live typo check for one set | `src/core/validation/LiveSetCheck.ts` *(to port)* |
+| History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` *(to port)* |
+| Backup file naming, validation and restore | `src/core/backup/` and `OnDeviceStore` *(new for web, W1)* |
+| Muscle taxonomy (23 muscles, delts split) and regions | `src/core/library/Muscle.ts` *(to port)*; rows frozen in `v1-schema` |
+| Equipment, movement patterns, mechanic, tracking kinds | `src/core/library/` *(to port)* |
+| The built-in exercise list (names, muscles, aliases) | `src/core/library/library.json`, loaded by `ExerciseLibrary.ts` *(to port)* |
+| Exercise naming ("Movement (Equipment)") and stable keys | `ExerciseLibrary` *(to port)* |
+| Copying the library into the database on launch | `src/core/library/ExerciseLibrarySeeder.ts` *(to port)* |
+| Name or alias → exercise | `src/core/library/ExerciseNameResolver.ts` *(to port)* |
+| Creating, editing, archiving and merging exercises | `src/core/library/ExerciseEditor.ts` *(to port)* |
+| Search text normalisation, slang, typo distance | `src/core/library/SearchText.ts`, `GymSlang.ts` *(to port)* |
+| Exercise search and import-name suggestions | `src/core/library/ExerciseSearch.ts` *(to port)* |
+| Exercise list, detail and unmatched-import queries | `src/core/queries/ExerciseCatalog.ts` *(to port)* |
+| Logging a workout live | `src/core/logging/WorkoutLogger.ts` *(to port)* |
+| What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` *(to port)* |
+| The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` *(to port)* |
 
-App-side owners: color, type, spacing and radius tokens in `App/DesignSystem/`; weight-to-text formatting in `App/DesignSystem/WeightFormatting.swift`; the backup screen and automatic background backup in `App/Features/Settings/BackupSettingsModel.swift`; the import flow in `App/Features/Import/`; history in `App/Features/History/`.
-
-Developer tool: `Packages/WorkoutCore/Sources/StrongImportReport` (`make import-report`) dry-runs the importer on `export_data/` and prints totals, unit verdicts and flagged sets. It's the only code allowed to read the owner's real export.
+Developer tool: `tools/import-report.ts` (`make import-report`, W1) dry-runs the importer on `export_data/` and prints totals, unit verdicts and flagged sets. It's the only code allowed to read the owner's real export.

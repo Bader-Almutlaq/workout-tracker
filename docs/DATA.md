@@ -4,30 +4,33 @@
 
 | Copy | Location | Written when |
 |---|---|---|
-| **Live database** | App's Application Support folder on the iPhone: `WorkoutTracker/workouts.sqlite` (SQLite, WAL mode) | Every change |
-| **Local safety snapshots** | Application Support: `WorkoutTracker/Snapshots/` | Automatically before any schema migration runs and before any restore |
-| **Cloud backups** | A folder the owner picks once in iCloud Drive (via the Files picker) | Automatically when the app goes to the background (at most every 15 minutes), on "Back up now", and right after a folder is chosen |
+| **Live database** | On the phone, in the Home Screen app's private file system (OPFS), file `/workouts.sqlite` in SQLite's storage pool named `workout-tracker` | Every change |
+| **Local safety snapshots** | Same pool, `/snapshot-<UTC time>.sqlite`; the newest 3 are kept | Automatically before any schema migration runs and before any restore |
+| **Backups** | Wherever the owner saves them, normally a folder in iCloud Drive | When the owner taps **Back up** (W1) |
 
-### Why backups go to iCloud Drive this way
+- The app asks the browser for **persistent storage** at launch, so iOS never clears it to save space. Home Screen web apps are exempt from Safari's 7-day storage limit for websites.
+- The Home Screen app has its own storage, separate from Safari's. Opening the same address in a Safari tab shows an empty app; that's expected.
+- **Deleting the Home Screen icon deletes the data.** Restore from a backup afterwards.
+- No data is ever sent anywhere. The host only serves the app's code.
 
-Apps that own a folder in iCloud Drive (the ones you see listed by app name) need Apple's iCloud capability, which requires the paid Developer Program. A free Personal Team can't use it. Any app *can* write to a folder the user chose in the Files picker. The app stores a **security-scoped bookmark** to that folder, so it keeps write access across launches without asking again. iCloud then syncs the folder off the phone.
+### Backups (W1)
 
-The live database stays on the phone, not in iCloud Drive. SQLite files that sync while open can be corrupted (the separate WAL file may sync out of step). Backups are complete, closed, single-file snapshots, which are safe to sync.
+A web app can't write to iCloud Drive by itself, so backups take one tap:
 
-### Backup files
-
-- Name: `WorkoutTracker-YYYY-MM-DDTHH-mm-ss.sqlite` (UTC, sortable).
-- Each is a complete, single-file SQLite database (rollback-journal mode, no `-wal`/`-shm` side files) made with SQLite's online backup API, so it is consistent even while the app is writing.
-- Retention in the cloud folder: keep the newest backup of each day for the last 14 days, plus the newest backup of each calendar month forever. Others are deleted. Files that don't match the naming pattern are never touched.
-- **Restore:** pick a backup file. The app checks that it opens and has a known schema, takes a local snapshot of the current data, then copies the backup over the live database.
+- **Back up** exports the whole database as one file, `WorkoutTracker-YYYY-MM-DDTHH-mm-ss.sqlite` (UTC, sortable), and opens the iOS share sheet. Choose **Save to Files** and the same iCloud Drive folder each time. If sharing isn't available, the file downloads instead.
+- Each backup is a complete, self-contained SQLite file that any SQLite tool can open.
+- Settings always shows the date of the last backup. When it's more than 7 days old, the finish-workout summary shows one quiet line with a Back up button (information, not a nag).
+- **Restore:** pick a backup file. The app checks it is SQLite, has a known schema and wasn't made by a newer version, takes a local safety snapshot of the current data, then replaces the live database and reopens it.
+- Old backups are the owner's files; the app never deletes them.
 
 ### Data loss scenarios
 
 | Event | Outcome |
 |---|---|
-| The 7-day signature expires | App won't open; data intact. Re-run from Xcode. |
-| App deleted / phone lost | Restore from the newest iCloud backup. |
-| Bad migration or bug | Restore from the pre-migration snapshot or a cloud backup. |
+| No connection at the gym | Nothing happens: the app and data are on the phone. |
+| A new version fails to download | The installed version keeps working. |
+| Home Screen icon deleted / phone lost | Re-add the app, then restore the newest backup. |
+| Bad migration or bug | The worker snapshotted before migrating; restore that snapshot or a backup. |
 
 ## Logging state
 

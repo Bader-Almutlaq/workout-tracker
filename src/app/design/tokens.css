@@ -1,0 +1,88 @@
+/*
+ * Design tokens from docs/DESIGN.md. Components use these variables only: never raw colors,
+ * font sizes, spacing or radii.
+ *
+ * Light values are the default; dark values apply when the phone is dark (and Settings says
+ * "System"), or when Settings forces Dark. `data-theme` on <html> is set by appearance.ts.
+ */
+
+:root {
+  color-scheme: light;
+
+  --color-background: #fbfbfc;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f4f5f7;
+  --color-border: rgb(0 0 0 / 0.08);
+  --color-border-strong: rgb(0 0 0 / 0.14);
+  --color-text-primary: #0b0c0e;
+  --color-text-secondary: #5a5e66;
+  --color-text-tertiary: #8a8f98;
+  --color-accent: #5e6ad2;
+  --color-accent-subtle: rgb(94 106 210 / 0.12);
+  --color-on-accent: #ffffff;
+
+  /* Status: always paired with an icon and a label. */
+  --color-status-good: #0ca30c;
+  --color-status-warning: #fab219;
+  --color-status-serious: #ec835a;
+  --color-status-critical: #d03b3b;
+
+  /* Type scale (size / weight). Numbers add `font-variant-numeric: tabular-nums`. */
+  --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-display: 600 34px/1.1 var(--font-family);
+  --font-title: 600 22px/1.2 var(--font-family);
+  --font-headline: 600 15px/1.3 var(--font-family);
+  --font-body: 400 15px/1.4 var(--font-family);
+  --font-callout: 500 13px/1.3 var(--font-family);
+  --font-caption: 500 11px/1.3 var(--font-family);
+  --tracking-caption: 0.04em;
+
+  /* 4-pt spacing grid. Screen side margin is --space-l. */
+  --space-xs: 4px;
+  --space-s: 8px;
+  --space-m: 12px;
+  --space-l: 16px;
+  --space-xl: 24px;
+  --space-xxl: 32px;
+
+  --radius-small: 8px;
+  --radius-medium: 12px;
+  --radius-large: 16px;
+
+  --hairline: 0.5px;
+  /* The one transition: 180 ms ease-out, no bounces. */
+  --motion-standard: 180ms ease-out;
+
+  /* Height of the tab bar, excluding the home-indicator inset. */
+  --tab-bar-height: 52px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --color-background: #08090a;
+    --color-surface: #141516;
+    --color-surface-raised: #1c1d1f;
+    --color-border: rgb(255 255 255 / 0.08);
+    --color-border-strong: rgb(255 255 255 / 0.14);
+    --color-text-primary: #f7f8f8;
+    --color-text-secondary: #9ea1a8;
+    --color-text-tertiary: #62666d;
+    --color-accent: #7c85e8;
+    --color-accent-subtle: rgb(124 133 232 / 0.16);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-background: #08090a;
+  --color-surface: #141516;
+  --color-surface-raised: #1c1d1f;
+  --color-border: rgb(255 255 255 / 0.08);
+  --color-border-strong: rgb(255 255 255 / 0.14);
+  --color-text-primary: #f7f8f8;
+  --color-text-secondary: #9ea1a8;
+  --color-text-tertiary: #62666d;
+  --color-accent: #7c85e8;
+  --color-accent-subtle: rgb(124 133 232 / 0.16);
+}

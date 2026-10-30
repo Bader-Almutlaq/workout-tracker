@@ -1,0 +1,10 @@
+{
+  // WorkoutCore: pure logic. No DOM and no Node types, so it can't reach the screen, the file system or the network.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": [],
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.core.tsbuildinfo"
+  },
+  "include": ["src/core"]
+}

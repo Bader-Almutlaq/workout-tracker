@@ -1,8 +1,8 @@
 # Design system
 
-Inspired by Linear: calm, dense, precise. Designed dark-first, with a full light theme. By default it follows the phone's appearance setting; Settings → Appearance can force Dark or Light (`AppearancePreference`, stored in `UserDefaults`). Near-black layered surfaces, hairline borders instead of shadows, one indigo accent, and a type scale that carries hierarchy without extra decoration. Numbers are the content, so they get the best typography.
+Inspired by Linear: calm, dense, precise. Designed dark-first, with a full light theme. By default it follows the phone's appearance setting; Settings → Appearance can force Dark or Light (`src/app/appearance/appearance.ts`, stored in `localStorage`). Near-black layered surfaces, hairline borders instead of shadows, one indigo accent, and a type scale that carries hierarchy without extra decoration. Numbers are the content, so they get the best typography.
 
-Tokens live in `App/DesignSystem/`. Views use tokens only, never raw colors, font sizes or paddings.
+Tokens live in `src/app/design/tokens.css` as CSS variables (`--color-surface`, `--font-headline`, `--space-l`…). Components use them through CSS modules, never raw colors, font sizes or paddings. Screens are designed at 430 × 932 (iPhone 15 Pro Max) and respect the safe areas (`env(safe-area-inset-*)`).
 
 ## Color tokens
 
@@ -23,7 +23,7 @@ Tokens live in `App/DesignSystem/`. Views use tokens only, never raw colors, fon
 
 ## Typography
 
-System font (SF Pro). Hierarchy comes from size and weight, never color alone.
+System font (`-apple-system`, which is SF Pro on the iPhone). Text inputs are 16 px so iOS doesn't zoom into them. Hierarchy comes from size and weight, never color alone.
 
 | Style | Size / weight | Use |
 |---|---|---|
@@ -47,14 +47,14 @@ All numbers in tables, set rows and axes use **monospaced digits** so columns al
 - 4-pt grid: `xs 4, s 8, m 12, l 16, xl 24, xxl 32`. Screen side margin 16.
 - Corner radius: 8 (rows, chips), 12 (cards), 16 (sheets).
 - No drop shadows. Elevation is shown by a lighter surface plus a hairline border.
-- Motion: 150–200 ms ease-out, no bounces. Haptics only on set completion and timer end.
+- Motion: 150–200 ms ease-out, no bounces (`--motion-standard`). No haptics: Safari on iOS has no vibration API.
 
 ## Charts
 
 Charts follow the data-viz method used for this project. Its rules: pick the form first; color by job; thin marks; one y-axis; legends for two or more series; text in ink colors, never series colors.
 
 - **Single-series trends** (e1RM, bodyweight): the smoothed trend is a 2 pt `accent` line. Raw session values are 6–8 pt dots at 35% opacity, so the noise is visible but quiet. The title names the series, so there's no legend.
-- **Interaction:** touch-and-drag shows a vertical rule with a value readout (Swift Charts `chartXSelection`). This replaces hover on a phone.
+- **Interaction:** touch-and-drag shows a vertical rule with a value readout (pointer events on the SVG). This replaces hover on a phone.
 
 ### Signature chart: recent vs baseline
 
@@ -78,7 +78,7 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
   - **One finger, press and drag:** a vertical rule snaps to the nearest point and the headline area becomes a readout. It shows the date, the recent and baseline values, and for weights both units.
   - **Two fingers, or press then drag the second edge:** selects a range (`chartXSelection(range:)`). The readout shows the range statistics: start → end change, mean, min, max, number of sessions and total hard sets.
   - Releasing returns to the headline.
-- Built with Swift Charts only (`LineMark`, `PointMark`, `RuleMark`, `chartXSelection`), with no third-party chart library. Chart math (windows, baselines, % change, range statistics) lives in `WorkoutCore/Analytics`; the view only draws.
+- Drawn as SVG by React components, using `d3-scale` and `d3-shape` for scales and smooth curves (`curveCatmullRom`), with no chart framework. Touch uses pointer events on the SVG. Chart math (windows, baselines, % change, range statistics) lives in `src/core/analytics`; the component only draws.
 - **Axes:** gridlines in `border`, horizontal only. Axis labels in `textTertiary`, using monospaced digits. The y-axis does not start at zero for e1RM trends (a trend chart, not a magnitude chart). Bars always start at zero.
 - **Volume per muscle:** horizontal bars sorted by value, with direct and indirect sets stacked and a 2 pt gap between segments. Evidence zones are drawn as faint background bands with text labels.
 - **Categorical palette** (fixed order, never cycled; at most 3 series on scatter-type charts, at most 8 on lines and bars, and anything beyond folds into "Other"):
@@ -108,6 +108,6 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
 
 ## App icon
 
-- Source: `design/app-icon.svg`. Render with `make icon` (AppKit, no extra tools) into `App/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png`. Never edit the PNG by hand.
+- Source: `design/app-icon.svg`. Render with `make icon` into `public/icon-192.png`, `public/icon-512.png` and `public/apple-touch-icon.png` (the Home Screen icon). Never edit the PNGs by hand.
 - Concept: the end of a loaded barbell from the side. The plates grow left to right, so the mark also reads as a rising bar chart. It is the indigo accent on the near-black background, with no text.
 - Graphics are drawn as SVG by agents. A design tool such as Figma isn't needed for marks this simple.

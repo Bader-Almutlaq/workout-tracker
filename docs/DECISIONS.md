@@ -65,3 +65,23 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 
 ## 2026-10-30: Appearance is a Settings choice stored in UserDefaults
 - **Why:** the owner wants the app dark even when the phone is in light mode. `AppearancePreference` (System, Dark, Light) is applied once at the root with `preferredColorScheme`. It is a display preference, not training data, so it lives in `UserDefaults` rather than the database and isn't in backups.
+
+## 2026-10-30: Switch from a native app to an offline web app on the Home Screen (supersedes the first entry)
+- **Why:** free native signing expires every 7 days, and the owner won't reinstall weekly or risk the app not opening at the gym. A web app added to the Home Screen never expires, needs no Mac and no fee, and runs fully offline once installed. All data stays on the phone.
+- **Kept:** the product, the schema, every formula, the curated library (`src/core/library/library.json`), the design system and the test cases. The Swift code is kept read-only in `reference/native/` as the specification for the port, and deleted when the port is done. The full native app is on the `native-archive` branch.
+- **Given up:** vibration (Safari has no vibration API), reliable rest-timer alerts while the screen is locked, and fully automatic cloud backups (a web app can't write to iCloud Drive by itself; backups take one tap; see `docs/DATA.md`).
+- **Alternatives:** Mac auto-refreshing the native app over Wi-Fi (fails silently if the Mac sleeps or the phone is away); SideStore/AltStore (broken by Apple sign-in changes since 2026-10-12); paying $99/yr (ruled out by the owner).
+
+## 2026-10-30: Web stack: TypeScript, React, Vite, SQLite in WebAssembly
+- **Why:** TypeScript and React are the most widely known stack, so any agent or provider can work on the code. SQLite (the official WebAssembly build) keeps the native schema, migrations and analytics SQL almost unchanged, and a backup is still one `.sqlite` file. It stores data in the browser's private file system through SQLite's "SAH pool" storage, which needs no special server headers and works in Safari since iOS 16.4.
+- **Shape:** the database runs in a Web Worker so queries never block the screen; the screen calls it through one typed API (`src/worker/WorkerApi.ts`, via Comlink). WorkoutCore (`src/core`) is synchronous, pure TypeScript with no DOM types, tested in Node with Vitest.
+- **Alternatives:** IndexedDB with Dexie (no SQL for analytics; the schema would be redesigned); Svelte (smaller, but fewer agents know it well); a server database (data would leave the phone, and it needs hosting that costs money).
+
+## 2026-10-30: One web migration replaces the native app's three
+- **Why:** migrations are append-only once they ship, but no native build ever reached the phone, so no data exists in the old schema. Folding v1–v3 into `v1-schema` gives a clean start. From now on the web migrations are append-only.
+
+## 2026-10-30: Updates wait for a tap
+- **Why:** the app is stored offline by a service worker. A new version downloads in the background, then shows "Update ready" and waits, so it can never reload in the middle of a workout. If a download fails, the installed version keeps working.
+
+## 2026-10-30: Appearance preference lives in localStorage
+- **Why:** it's a display preference, not training data, so it stays out of the database and the backups. Supersedes the native `UserDefaults` entry above with the same reasoning.

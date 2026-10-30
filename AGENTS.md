@@ -1,6 +1,6 @@
 # Workout Tracker: instructions for every agent
 
-A personal iPhone workout tracker that replaces Strong. The owner is an advanced lifter who **does not read the code**. Agents build and maintain everything, often several at once and from different providers (Claude Code, Codex, others). The repository is the only shared memory, so everything an agent needs must be written down here.
+A personal workout tracker that replaces Strong. It's an **offline web app added to the iPhone Home Screen**: it never expires, needs no app store, and keeps every bit of data on the phone. The owner is an advanced lifter who **does not read the code**. Agents build and maintain everything, often several at once and from different providers (Claude Code, Codex, others). The repository is the only shared memory, so everything an agent needs must be written down here.
 
 This file is the single entry point. `CLAUDE.md` imports it; Codex and other tools read it directly.
 
@@ -12,6 +12,7 @@ This file is the single entry point. `CLAUDE.md` imports it; Codex and other too
 4. If you were given a task ID, read its file in `docs/tasks/`. If not, ask the owner or the lead which task to take; never start unlisted work.
 5. Read `docs/agents/WORKFLOW.md` if you will change code. It covers claiming a task, branches, parallel work, review and handoff.
 6. Before touching an area, read the doc that owns it: `docs/ARCHITECTURE.md` (code structure and who owns each concept), `docs/DATA.md` (storage, backups, import), `docs/DESIGN.md` (visual system, charts), `docs/DECISIONS.md` (why things are the way they are).
+7. Run `make install` once if `node_modules/` is missing.
 
 **End of every session:** update your task file's *Handoff* section and `docs/tasks/BOARD.md`. Update `docs/PLAN.md` Status only when a milestone changes. A session that ends without a handoff note loses its work for the next agent.
 
@@ -21,44 +22,48 @@ This file is the single entry point. `CLAUDE.md` imports it; Codex and other too
 - No AI features, exercise videos, social, streaks or celebrations. Keep the UI uncluttered.
 - Every analytics formula cites its source from `reports/Workout tracker app research.md` in its doc comment, or is marked `Heuristic:` with the reason.
 - **Data safety first.** Never ship a migration, importer, merge or restore path that can lose data without taking a snapshot first. Weights are stored in kilograms exactly as entered, with the unit they were typed in; display conversion happens only in the UI layer.
-- The owner's real Strong export lives in `export_data/` (git-ignored). Never commit it, never copy it into tests or fixtures, never paste its contents into docs. Only the `StrongImportReport` developer tool reads it.
+- **Offline always.** Every feature works with no connection. Nothing is ever sent off the phone; there is no server, analytics or tracking.
+- The owner's real Strong export lives in `export_data/` (git-ignored). Never commit it, never copy it into tests or fixtures, never paste its contents into docs. Only the `tools/import-report.ts` developer tool reads it.
 
 ## Engineering rules
 
 **One concept, one implementation, one place.**
-- Each concept (e1RM, fractional sets, unit conversion, outlier check, backup, search…) has exactly one implementation in `WorkoutCore`. Views and other code call it; they never re-derive it.
+- Each concept (e1RM, fractional sets, unit conversion, outlier check, backup, search…) has exactly one implementation in WorkoutCore (`src/core`). The worker and screens call it; they never re-derive it.
 - `docs/ARCHITECTURE.md` → *Concept ownership* lists the owner of every concept. Check it before writing anything, and add a row when you add a concept.
-- One primary type per file, with the file named after the type.
+- One primary export per file, with the file named after it (`WorkoutLogger.ts` exports `WorkoutLogger`).
 
-**Layers** (see `docs/ARCHITECTURE.md`):
-- `Packages/WorkoutCore`: models, database, import, library, search, analytics and backup. No SwiftUI and no UIKit. Everything can be tested with `swift test` on the Mac.
-- `App/`: SwiftUI only. Views hold no business logic: they render state from an `@Observable` model and forward user intent to it.
-- Dependencies point inward only: App → WorkoutCore, never the reverse. The App never imports GRDB.
+**Layers** (see `docs/ARCHITECTURE.md`; ESLint and the TypeScript configs enforce them):
+- `src/core` (**WorkoutCore**): models, database, migrations, import, library, search, logging, analytics, backup. Pure, synchronous TypeScript. No React, no DOM types, no worker code. Everything is tested with `make test`.
+- `src/worker`: the Web Worker that opens the on-device database and exposes WorkoutCore to the screen through one typed API (`WorkerApi.ts`). No business logic of its own.
+- `src/app`: React screens. Views hold no business logic: they render data from the worker API and forward the owner's taps to it. The app never imports SQLite or `src/core/db`.
+- Dependencies point inward only: app → worker API → core, never the reverse.
 
-**Swift style.**
-- Swift 6 language mode with strict concurrency. Use value types (`struct`, `enum`) by default. Use `actor` or `@MainActor` for shared mutable state; never `@unchecked Sendable` without a comment explaining why it is safe.
-- No force unwraps (`!`), `try!` or `fatalError` outside tests.
-- Errors are typed `enum`s conforming to `Error` and `LocalizedError`, with a message the owner can read. Never swallow errors: log them and surface them.
-- Logging uses `os.Logger` through `Log` (subsystem `com.ketchup.workouttracker`; categories `database`, `backup`, `import`, `analytics`, `ui`). No `print`.
+**TypeScript style.**
+- `strict` mode with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` in core. Prefer `readonly` data, plain objects and functions; use a class only for something with a lifetime (a database connection, a logger session).
+- No non-null assertions (`!`), no `any`, no `@ts-ignore`. A cast (`as`) needs a comment saying why it is safe, except the row types passed to `Database.all/get`.
+- Errors are classes extending `Error` with a `kind` and a message the owner can read (see `DatabaseError`). Never swallow errors: log them and surface them on screen.
+- Logging goes through `log.<category>` from `src/core/support/log.ts` (categories `database`, `backup`, `import`, `analytics`, `ui`). Never call `console` directly.
 - Names are full words (`estimatedOneRepMax`, not `e1rm`) except the domain abbreviations defined in `docs/ARCHITECTURE.md` (RIR, RPE, e1RM).
-- No magic numbers. Constants live in a named `enum` namespace with a doc comment and a citation.
-- No dead code, no commented-out code, no speculative protocols, and no abstractions with a single implementation "for later".
+- No magic numbers. Constants live in a named, frozen object (`export const SetPlausibilityLimits = { … } as const`) with a doc comment and a citation.
+- No dead code, no commented-out code, no speculative interfaces, and no abstractions with a single implementation "for later".
 
 **Documentation.**
-- Every public type, function and property gets a `///` doc comment: what it is, its units and edge cases. Formulas include the equation and the citation.
+- Every exported function, type, class and constant gets a `/** … */` doc comment: what it is, its units and edge cases. Formulas include the equation and the citation.
 - Comments explain *why*, not what.
 - Record non-obvious choices in `docs/DECISIONS.md` (newest last).
 
 **Tests.**
-- Swift Testing (`import Testing`, `@Test`, `#expect`). Every `WorkoutCore` feature ships with tests: the happy path, edge cases, and a regression test for every bug fixed.
+- Vitest, in a `*.test.ts` file next to the file it tests. Every WorkoutCore feature ships with tests: the happy path, edge cases, and a regression test for every bug fixed.
+- Database tests use `Database.openInMemory()` plus `migrate(db)`; never mock the database.
 - Formulas are tested against the worked examples in the research report.
-- Fixtures are small and synthetic (`Tests/WorkoutCoreTests/Fixtures/`).
+- Fixtures are small and synthetic (`src/core/<area>/fixtures/`).
+- When porting from `reference/native/`, port the Swift tests too, case for case.
 
 **Database.**
-- Migrations are append-only. Never edit a migration that has shipped; add a new one. Reference data (such as muscle rows) is written out inside the migration, frozen.
-- The app takes a local snapshot automatically before running pending migrations.
+- Migrations (`src/core/db/migrations.ts`) are append-only. Never edit a migration that has shipped; add a new one. Reference data (such as muscle rows) is written out inside the migration, frozen.
+- The worker takes a local snapshot automatically before running pending migrations.
 
-**UI.** Follow `docs/DESIGN.md` (Linear-inspired tokens in `App/DesignSystem/`; views use tokens only). Charts use Swift Charts only.
+**UI.** Follow `docs/DESIGN.md` (Linear-inspired tokens in `src/app/design/tokens.css`; components use CSS variables only, through CSS modules). Charts are SVG drawn by React with `d3-scale`/`d3-shape` for the math, no chart framework. Every screen must work at 430 × 932 (iPhone 15 Pro Max), in dark and light, with the safe areas respected.
 
 ## Commands
 
@@ -66,21 +71,22 @@ All common commands live in the `Makefile`; run `make help` to list them. Use th
 
 | Command | What it does |
 |---|---|
-| `make test` | WorkoutCore unit tests on the Mac (fast, no simulator) |
-| `make build` | Builds the iOS app for the simulator, with no signing |
-| `make verify` | `test` + `build`. **Must pass before any task is marked done** |
-| `make sim` | Builds, installs and launches the app on the booted simulator |
+| `make install` | Installs dependencies |
+| `make dev` | Runs the app at http://localhost:5173 with live reload |
+| `make test` | WorkoutCore unit tests (Vitest, in Node) |
+| `make verify` | Lint + type checks + tests + production build. **Must pass before any task is marked done** |
+| `make preview` | Serves the production build, where offline support works |
+| `make sim-safari` | Opens the dev server in Safari on the iPhone 15 Pro Max simulator |
 | `make import-report` | Dry-runs the Strong importer on the owner's export and prints totals and flagged sets |
 
 ## Environment
 
-- Xcode 27.1 at `/Applications/Xcode.app`. The Makefile sets `DEVELOPER_DIR` itself, so `xcode-select` doesn't matter.
-- The Xcode project is generated by XcodeGen from `project.yml`. Edit `project.yml`, never `*.xcodeproj` (it is git-ignored and regenerated).
-- Signing uses a free Apple ID (Personal Team). The team ID goes in `Config/Local.xcconfig` (git-ignored). Bundle ID `com.ketchup.workouttracker` is fixed forever: changing it orphans the data on the phone.
+- Node.js (installed with Homebrew). Xcode 27.1 is installed only for the iOS Simulator (iOS 27.0 runtime, "iPhone 15 Pro Max", the owner's phone).
+- The native Swift app is archived: read-only in `reference/native/` (the porting spec) and complete on the `native-archive` branch. Don't build or edit it.
 - The owner's shell has the RTK command rewriter. If a command misbehaves (for example `ls` with flags), prefix it with `rtk proxy`.
 
 ## Git
 
-- `main` holds finished, verified milestones. Work happens on a branch per task (`task/T-012-short-name`) or per milestone; see `docs/agents/WORKFLOW.md`.
+- `main` holds finished, verified milestones. Work happens on a branch per task (`task/T-013-short-name`) off the current milestone branch; see `docs/agents/WORKFLOW.md`.
 - Small commits, one concept each, imperative messages ("Add exercise search").
 - Never force-push, rewrite `main`, or delete branches that others may be using.

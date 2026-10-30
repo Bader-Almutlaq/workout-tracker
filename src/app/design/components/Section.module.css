@@ -1,0 +1,44 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.label {
+  font: var(--font-caption);
+  letter-spacing: var(--tracking-caption);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.card {
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+}
+
+.footnote {
+  font: var(--font-callout);
+  color: var(--color-text-tertiary);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-m);
+  padding: var(--space-m);
+}
+
+.row + .row {
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.rowLabel {
+  color: var(--color-text-secondary);
+}
+
+.rowValue {
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}

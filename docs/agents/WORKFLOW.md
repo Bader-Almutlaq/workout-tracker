@@ -32,7 +32,7 @@ A fresh chat with no instructions acts as **lead**: read the board, report the s
 
 ### Finishing a task
 
-1. `make verify` passes (tests and app build). For UI tasks, also run `make sim` and look at the screen (see *UI checks*).
+1. `make verify` passes (lint, type checks, tests, build). For UI tasks, also look at every screen you changed (see *UI checks*).
 2. Fill the task file's **Handoff**: what you did, files touched, decisions taken, anything left or doubtful, and how you verified it.
 3. Set the board status to `review`. Commit on your branch with an imperative message.
 4. Stop. The lead reviews and merges.
@@ -43,9 +43,9 @@ Write the handoff anyway, say exactly where you stopped and what the next step i
 
 ## Parallel work
 
-- Two agents never edit the same file at the same time. Task scopes are written so they don't overlap; if two tasks must touch the same file (for example `RootView.swift`), they run one after the other.
-- Each parallel agent works in its own git worktree, for example `git worktree add ../workout-tracker-T-014 task/T-014-…`, so builds and branches don't collide.
-- Shared files that only the lead edits: `AGENTS.md`, `docs/PLAN.md`, `docs/ARCHITECTURE.md` (concept table), `docs/DECISIONS.md`, `project.yml`, `Package.swift` and migrations. An implementer that needs a change there asks for it in the handoff.
+- Two agents never edit the same file at the same time. Task scopes are written so they don't overlap; if two tasks must touch the same file (for example `src/app/App.tsx`), they run one after the other.
+- Each parallel agent works in its own git worktree, for example `git worktree add ../workout-tracker-T-014 task/T-014-…`, then `make install` inside it, so builds and branches don't collide. Use a different dev-server port per worktree (`npx vite --port 5174`).
+- Shared files that only the lead edits: `AGENTS.md`, `docs/PLAN.md`, `docs/ARCHITECTURE.md` (concept table), `docs/DECISIONS.md`, `package.json`, `vite.config.ts`, `eslint.config.js`, the `tsconfig` files, `src/core/db/migrations.ts`, `src/app/App.tsx` (routes) and `src/app/design/tokens.css`. An implementer that needs a change there asks for it in the handoff, or the task file hands it over explicitly. To add a `WorkerApi` method, add it in its own clearly marked block so parallel tasks merge cleanly.
 - **Exception:** a task file can explicitly hand one of these to its implementer, for example "add a row to the concept table".
 
 ## Review (lead)
@@ -75,10 +75,12 @@ If a mid-tier implementer gets stuck twice on the same problem, stop and hand it
 
 ## UI checks
 
-- `make sim` builds, installs and launches the app on a booted iPhone simulator.
-- Agents with simulator tools take screenshots and tap through the flow. Others run `xcrun simctl io booted screenshot <file>.png` and look at the image.
-- Check: dark and light mode, the longest realistic text (for example "Triceps Pushdown (Cable - Straight Bar)"), the empty state, and the loading state.
-- Preview data comes from `AppEnvironment.preview()`. Never use the owner's real export in the app bundle.
+- Start the app with `make dev` (http://localhost:5173).
+- **Agents with browser tools:** set the viewport to 430 × 932 (iPhone 15 Pro Max), take screenshots in dark and light (emulated color scheme, or Settings → Appearance), and tap through the flow.
+- **Real iPhone Safari:** `make sim-safari` opens the dev server on the "iPhone 15 Pro Max" simulator (iOS 27.0); `make screenshot` saves what it shows. Use it at least once per milestone, and for anything touching safe areas, inputs, the keyboard, scrolling or storage.
+- Check: dark and light, the longest realistic text (for example "Triceps Pushdown (Cable - Straight Bar)"), the empty state, the loading state, and an error state.
+- Offline support only runs in the production build: `make preview` (http://localhost:4173).
+- Never load the owner's real export in the app for screenshots; use synthetic data.
 
 ## Writing a task brief (lead)
 

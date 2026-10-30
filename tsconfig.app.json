@@ -1,0 +1,13 @@
+{
+  // The worker (database host) and the React app. They may import from src/core; core never imports from them.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "WebWorker.ImportScripts"],
+    "jsx": "react-jsx",
+    // CSS module classes are typed as an index signature; with this check on, every `styles.x` would be `string | undefined`.
+    "noUncheckedIndexedAccess": false,
+    "types": ["vite/client", "vite-plugin-pwa/client"],
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+  },
+  "include": ["src/app", "src/worker", "src/core"]
+}

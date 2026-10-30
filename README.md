@@ -1,34 +1,22 @@
 # Workout Tracker
 
-A personal iPhone workout tracker that replaces Strong. It keeps the full Strong history, has a large exercise library and gives literature-based analytics. No AI, no social, no subscriptions.
+A personal workout tracker that replaces Strong: an offline web app on the iPhone Home Screen. It keeps every Strong workout, has a large modern exercise library, and gives science-based analytics. No accounts, no cloud, no ads; data never leaves the phone.
 
-- **Agents start here:** `AGENTS.md` (rules, start-of-session routine), then `docs/tasks/BOARD.md`
-- **Plan and status:** `docs/PLAN.md`
-- **How agents share work (tasks, review, handoff):** `docs/agents/WORKFLOW.md`
-- **How the code is organised:** `docs/ARCHITECTURE.md`
-- **Where data lives, backups, Strong import format:** `docs/DATA.md`
-- **Visual design and charts:** `docs/DESIGN.md`
-- **Why things are the way they are:** `docs/DECISIONS.md`
-- **The research behind every formula:** `reports/Workout tracker app research.md`
+**Agents start at [`AGENTS.md`](AGENTS.md).** The plan and status are in [`docs/PLAN.md`](docs/PLAN.md), the task board in [`docs/tasks/BOARD.md`](docs/tasks/BOARD.md), and the way agents work together in [`docs/agents/WORKFLOW.md`](docs/agents/WORKFLOW.md).
 
-## Everyday commands
+## Commands
 
 ```bash
-make help     # list commands
-make test     # run the logic tests on the Mac
-make build    # build the app for the simulator
-make verify   # tests + build (required before any task is done)
-make sim      # run the app in the iPhone simulator
+make install   # once, after cloning
+make dev       # run the app at http://localhost:5173
+make verify    # lint, type checks, tests and build: must pass before any task is done
+make help      # everything else
 ```
 
-## Installing on the iPhone (free Apple ID)
+## Putting it on the iPhone
 
-One-time setup:
-1. Xcode → Settings → Accounts → add your Apple ID. Note the "Personal Team" ID.
-2. Copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and put the team ID in it.
-3. Run `make project`, then open `WorkoutTracker.xcodeproj` in Xcode.
-4. Connect the iPhone, select it as the run destination, and press Run (▶).
-5. On the iPhone: Settings → Privacy & Security → Developer Mode → on (it restarts), then Settings → General → VPN & Device Management → trust your Apple ID.
-6. In the app: Settings → Choose folder… → pick or create a folder in iCloud Drive for backups.
+1. Open the app's web address in **Safari** on the iPhone.
+2. Tap **Share → Add to Home Screen**.
+3. Open it from the Home Screen icon from then on. It works offline and never expires.
 
-Every week (free installs expire after 7 days): connect the iPhone and press Run again. **Your data stays.** Never delete the app to fix a signing problem; if you ever must, restore from the iCloud backup afterwards.
+Back up from Settings now and then (one tap, saved to iCloud Drive). Deleting the Home Screen icon deletes the data on the phone; a backup brings it back.

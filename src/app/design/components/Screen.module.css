@@ -1,0 +1,17 @@
+.screen {
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top) + var(--space-l)) var(--space-l)
+    calc(env(safe-area-inset-bottom) + var(--tab-bar-height) + var(--space-xl));
+}
+
+.title {
+  font: var(--font-display);
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-xl);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}

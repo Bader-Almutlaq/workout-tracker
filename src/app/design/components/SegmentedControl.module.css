@@ -1,0 +1,23 @@
+.control {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--color-surface-raised);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+}
+
+.option {
+  flex: 1;
+  min-height: 32px;
+  border-radius: calc(var(--radius-small) - 2px);
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+  transition: background var(--motion-standard), color var(--motion-standard);
+}
+
+.option[aria-checked='true'] {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  box-shadow: 0 0 0 var(--hairline) var(--color-border-strong);
+}
