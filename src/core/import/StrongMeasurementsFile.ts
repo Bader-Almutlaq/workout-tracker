@@ -43,17 +43,21 @@ export function parseStrongMeasurementsFile(text: string): PlannedMeasurement[] 
 
   return table.rows.map((fields, index): PlannedMeasurement => {
     const line = index + 2;
-    const dateText = fields[date] ?? '';
+    const dateText = trimWhitespace(fields[date] ?? '');
     const takenAt = parseStrongTimestamp(dateText);
     if (takenAt === undefined) throw new ImportError({ kind: 'invalidValue', column: 'Date', value: dateText, line });
-    const valueText = fields[value] ?? '';
+    const valueText = trimWhitespace(fields[value] ?? '');
     const number = parseDecimal(valueText.replaceAll(',', '.'));
     if (number === undefined) throw new ImportError({ kind: 'invalidValue', column: 'Value', value: valueText, line });
-    const unitText = unit === undefined ? 'cm' : (fields[unit] ?? '').toLowerCase();
+    const unitText = unit === undefined ? 'cm' : trimWhitespace(fields[unit] ?? '').toLowerCase();
+    const storedValue = normaliseMeasurement(number, unitText);
+    if (!Number.isFinite(storedValue)) {
+      throw new ImportError({ kind: 'invalidValue', column: 'Value', value: valueText, line });
+    }
     return {
       takenAt,
       site: measurementSiteSlug(fields[type] ?? ''),
-      value: normaliseMeasurement(number, unitText),
+      value: storedValue,
       source: 'strong',
     };
   });

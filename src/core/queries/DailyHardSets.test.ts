@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Database } from '../db/Database';
 import { migrate } from '../db/migrations';
 import type { HardSet } from '../analytics/HardSets';
+import { rangeStatistics, recentVsBaseline } from '../analytics/RecentVsBaseline';
 import { dailyHardSets, DailyHardSetsError } from './DailyHardSets';
 import { weeklyMuscleVolume } from './WeeklyMuscleVolume';
 
@@ -59,6 +60,60 @@ function workout(date: Date, sets: readonly HardSet[], inProgress = false): numb
 const hard: HardSet = { kind: 'working', rpe: null, isCompleted: true };
 
 describe('dailyHardSets', () => {
+  test('zero-filled rest days reach both the rolling baseline and selected-range statistics', () => {
+    workout(new Date(2024, 0, 1, 12), [hard, hard]);
+    workout(new Date(2024, 0, 28, 12), [hard, hard, hard, hard]);
+    const daily = dailyHardSets(db, { from: '2024-01-01', to: '2024-01-28' });
+    const comparison = recentVsBaseline(daily);
+    // 6 sets across 28 days → baseline 6/28×7 = 1.5; recent 4 → +166⅔%.
+    expect(comparison[26]?.baseline).toBeNull();
+    expect(comparison[27]).toMatchObject({ recent: 4, baseline: 1.5, classification: 'above' });
+    expect(comparison[27]?.percentDifference).toBeCloseTo(500 / 3, 10);
+    expect(rangeStatistics(daily, '2024-01-01', '2024-01-28')).toEqual({
+      start: 2,
+      end: 4,
+      change: 2,
+      total: 6,
+      count: 28,
+      mean: 6 / 28,
+      min: 0,
+      max: 4,
+    });
+  });
+
+  test('a workout crossing midnight stays on its start day and Monday week', () => {
+    vi.stubEnv('TZ', 'America/New_York');
+    // After spring DST, 03:50Z is Sunday 23:50; the set and finish fall on Monday.
+    const workoutId = workout(new Date('2024-03-11T03:50:00.000Z'), [hard]);
+    db.run('UPDATE workout SET endedAt = ? WHERE id = ?', ['2024-03-11T04:10:00.000Z', workoutId]);
+    db.run('UPDATE workoutSet SET completedAt = ?', ['2024-03-11T04:05:00.000Z']);
+    expect(dailyHardSets(db, { from: '2024-03-10', to: '2024-03-11' })).toEqual([
+      { date: '2024-03-10', value: 1 },
+      { date: '2024-03-11', value: 0 },
+    ]);
+    expect(
+      weeklyMuscleVolume(db, new Date(2024, 2, 10), new Date(2024, 2, 11)).map((week) => [
+        week.weekStart,
+        week.muscles.find((muscle) => muscle.muscle === 'chest')?.totalSets,
+      ]),
+    ).toEqual([
+      ['2024-03-04', 1],
+      ['2024-03-11', 0],
+    ]);
+  });
+
+  test('a DST change at midnight does not drop the last selected day', () => {
+    vi.stubEnv('TZ', 'America/Santiago');
+    // Sep 8 starts at 01:00; Sep 9 starts at 00:00. There are still two civil days.
+    expect(new Date(2024, 8, 8).getHours()).toBe(1);
+    workout(new Date(2024, 8, 8, 12), [hard]);
+    workout(new Date(2024, 8, 9, 0, 30), [hard, hard]);
+    expect(dailyHardSets(db, { from: '2024-09-08', to: '2024-09-09' })).toEqual([
+      { date: '2024-09-08', value: 1 },
+      { date: '2024-09-09', value: 2 },
+    ]);
+  });
+
   test('zero-fills inclusive local days and counts every hard set once despite multiple muscle tags', () => {
     workout(new Date(2024, 0, 2, 12), [hard, hard]);
     expect(dailyHardSets(db, { from: '2024-01-01', to: '2024-01-03' })).toEqual([

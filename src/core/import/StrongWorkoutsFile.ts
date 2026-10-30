@@ -164,5 +164,5 @@ export function parseStrongDuration(text: string): number | null {
     }
     matched = true;
   }
-  return matched ? total : null;
+  return matched && Number.isFinite(total) ? total : null;
 }

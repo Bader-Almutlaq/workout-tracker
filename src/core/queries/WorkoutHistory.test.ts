@@ -12,6 +12,30 @@ async function fixtureDatabase() {
 }
 
 describe('history queries', () => {
+  test('summary counts and tonnage reconcile with every displayed set, including drops and failure', async () => {
+    const { db, pushWorkoutId, legsWorkoutId } = await fixtureDatabase();
+    try {
+      // Push: 61.23×8 + 60×6 + (99.21×0.45359237)×12 = 1389.8507883324 kg.
+      // Legs: (140×0.45359237)×10 + 63.93×15 = 1593.979318 kg.
+      for (const [id, count, tonnage] of [
+        [pushWorkoutId, 4, 1389.8507883324],
+        [legsWorkoutId, 2, 1593.979318],
+      ]) {
+        if (id === undefined || count === undefined || tonnage === undefined) throw new Error('Missing audit fixture');
+        const sets = workoutDetail(db, id)?.entries.flatMap((item) => item.sets) ?? [];
+        expect(sets).toHaveLength(count);
+        expect(sets.every((set) => set.isCompleted)).toBe(true);
+        expect(workoutSummary(db, id)).toMatchObject({ setCount: count });
+        expect(workoutSummary(db, id)?.volumeKilograms).toBeCloseTo(tonnage, 9);
+        expect(
+          sets.filter((set) => set.kind !== 'warmup').reduce((total, set) => total + set.weightKilograms * set.reps, 0),
+        ).toBeCloseTo(tonnage, 9);
+      }
+    } finally {
+      db.close();
+    }
+  });
+
   test('Summaries are newest first with counts and tonnage excluding warm-ups', async () => {
     const { db, pushWorkoutId } = await fixtureDatabase();
     const summaries = workoutSummaries(db);

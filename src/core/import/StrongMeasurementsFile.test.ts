@@ -13,6 +13,34 @@ import {
 vi.stubEnv('TZ', 'UTC');
 
 describe('Strong measurements file', () => {
+  test.each([' 2024-01-01 10:00:00 , Waist , 31 , IN ', '2024-01-01 10:00:00,Waist,31, IN '])(
+    'Surrounding field whitespace cannot turn 31 inches into 31 centimetres: %s',
+    (row) => {
+      const [measurement] = parseStrongMeasurementsFile(`Date,Measurement Type,Value,Unit\n${row}`);
+      // 31 × 2.54 = 78.74 cm; use the same field trimming as workout exports.
+      expect(measurement).toMatchObject({ site: 'waist', value: 78.74, takenAt: '2024-01-01T10:00:00.000Z' });
+    },
+  );
+
+  test('Overflowing measurement values are refused before storage', () => {
+    expectImportError(
+      () => parseStrongMeasurementsFile('Date,Measurement Type,Value,Unit\n2024-01-01 10:00:00,Waist,1e309,cm'),
+      {
+        kind: 'invalidValue',
+        column: 'Value',
+        value: '1e309',
+        line: 2,
+      },
+    );
+  });
+
+  test('Finite inches that overflow centimetres are refused before storage', () => {
+    expectImportError(
+      () => parseStrongMeasurementsFile('Date,Measurement Type,Value,Unit\n2024-01-01 10:00:00,Waist,1e308,in'),
+      { kind: 'invalidValue', column: 'Value', value: '1e308', line: 2 },
+    );
+  });
+
   test('Measurements: site slugs and inches converted to centimetres', () => {
     const values = parseStrongMeasurementsFile(WAIST);
     expect(values.map((value) => value.site)).toEqual(['waist', 'waist']);

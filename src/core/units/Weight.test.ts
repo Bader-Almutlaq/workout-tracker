@@ -2,6 +2,25 @@ import { describe, expect, test } from 'vitest';
 import { displayValue, inferEntryUnit, toKilograms, valueIn } from './Weight';
 
 describe('Weight conversion and entry-unit inference', () => {
+  test.each([
+    [135, 61.23496995],
+    [225, 102.05828325],
+    [2.5, 1.133980925],
+  ])('%d lb retains unrounded kilograms and round-trips to the typed display', (pounds, kilograms) => {
+    // Hand multiplication by the exact 0.45359237 kg/lb definition, not a rounded CSV value.
+    const stored = toKilograms(pounds, 'lb');
+    expect(stored).toBeCloseTo(kilograms, 12);
+    expect(valueIn(stored, 'lb')).toBeCloseTo(pounds, 12);
+    expect(displayValue(stored, 'lb')).toBe(pounds);
+  });
+
+  test('display snapping never rounds the kilograms kept for storage', () => {
+    const stored = toKilograms(102.499, 'kg');
+    expect(stored).toBe(102.499);
+    expect(displayValue(stored, 'kg')).toBe(102.5);
+    expect(stored).toBe(102.499);
+  });
+
   test('Pounds convert to kilograms with the exact 1959 factor', () => {
     expect(toKilograms(135, 'lb')).toBe(135 * 0.45359237);
     expect(toKilograms(100, 'kg')).toBe(100);

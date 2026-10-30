@@ -69,6 +69,20 @@ describe('Strong workouts file details beyond the native tests', () => {
     expect(parseStrongDuration('1.5h')).toBe(5400);
   });
 
+  test('Duration arithmetic cannot turn a finite amount into infinite seconds', () => {
+    // 10^308 hours × 3600 exceeds the largest finite binary64 number.
+    expect(parseStrongDuration('1e308h')).toBeNull();
+  });
+
+  test('Overflowing decimal weights are rejected with their source location', () => {
+    expectImportError(() => parseStrongWorkoutsFile(`${HEADER}\n2024-01-01 10:00:00,A,1h,B,1,1e309,5,0,0,,,`), {
+      kind: 'invalidValue',
+      column: 'weight',
+      value: '1e309',
+      line: 2,
+    });
+  });
+
   test('A non-numeric weight, reps or RPE is reported with its column and line', () => {
     const row = (weight: string, reps: string, rpe: string): string =>
       `${HEADER}\n2024-01-01 10:00:00,A,1h,B,1,${weight},${reps},0,0,,,${rpe}`;

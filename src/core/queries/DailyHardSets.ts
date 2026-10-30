@@ -32,6 +32,14 @@ function calendarDate(key: string): Date {
   return date;
 }
 
+function nextCalendarDay(date: Date): Date {
+  const next = new Date(date);
+  next.setDate(next.getDate() + 1);
+  // A midnight DST jump can move a day's start to 01:00. Do not carry that hour into later days.
+  next.setHours(0, 0, 0, 0);
+  return next;
+}
+
 /**
  * Zero-filled daily hard sets from finished workouts, grouped by the workout start's local day
  * exactly like weeklyMuscleVolume. Imported workouts need no end/completion timestamp.
@@ -43,8 +51,7 @@ export function dailyHardSets(database: Database, options: DailyHardSetsOptions)
   const from = calendarDate(options.from);
   const to = calendarDate(options.to);
   if (from > to) return [];
-  const end = new Date(to);
-  end.setDate(end.getDate() + 1);
+  const end = nextCalendarDay(to);
   const muscleId = options.muscleId ?? null;
   const rows = database.all<{
     startedAt: string;
@@ -76,7 +83,7 @@ export function dailyHardSets(database: Database, options: DailyHardSetsOptions)
     days.set(day, sets);
   }
   const result: SeriesPoint[] = [];
-  for (const day = new Date(from); day <= to; day.setDate(day.getDate() + 1)) {
+  for (let day = new Date(from); day <= to; day = nextCalendarDay(day)) {
     const date = localDateKey(day);
     const sets = (days.get(date) ?? []).map((row) => ({ ...row, isCompleted: row.isCompleted === 1 }));
     const value =

@@ -66,6 +66,28 @@ function addSet(
 }
 
 describe('ExerciseStrength.series', () => {
+  it('uses civil days for the inclusive 28-day rate boundary west of UTC', () => {
+    vi.stubEnv('TZ', 'America/Los_Angeles');
+    addSet(entry(workout('2026-01-01T20:00:00.000Z')), { reps: 1, rpe: 10 });
+    addSet(entry(workout('2026-01-08T20:00:00.000Z')), { weightKilograms: 110, reps: 1, rpe: 10 });
+    // Jan 29 at 23:30 PST is Jan 30 UTC. Jan 1 is still exactly 28 civil days ago.
+    const result = ExerciseStrength.series(db, 1, new Date('2026-01-30T07:30:00.000Z'));
+    // 100 + (1 − exp(−7/21))×10 = 102.8346868942621; one week → +2.8346868942621%.
+    expect(result.latest).toBeCloseTo(102.8346868942621, 12);
+    expect(result.changePerWeekPercent).toBeCloseTo(2.8346868942621, 12);
+    expect(ExerciseStrength.series(db, 1, new Date('2026-01-30T08:00:00.000Z')).changePerWeekPercent).toBeNull();
+  });
+
+  it('includes today in the trend just after local midnight east of UTC', () => {
+    vi.stubEnv('TZ', 'Asia/Riyadh');
+    addSet(entry(workout('2026-01-01T21:05:00.000Z')), { reps: 1, rpe: 10 });
+    // 00:05 on Jan 2 locally is still Jan 1 UTC. A true 100 kg single seeds exactly 100 kg.
+    const result = ExerciseStrength.series(db, 1, new Date('2026-01-01T21:30:00.000Z'));
+    expect(result.sessions[0]?.date).toBe('2026-01-02');
+    expect(result.trend).toEqual([{ date: '2026-01-02', e1rmKilograms: 100 }]);
+    expect(result.latest).toBe(100);
+  });
+
   it('returns empty data for an exercise with no sets or a missing exercise', () => {
     const empty = { sessions: [], trend: [], latest: null, changePerWeekPercent: null };
     expect(ExerciseStrength.series(db, 1, now)).toEqual(empty);

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { Database } from '../db/Database';
 import { migrate } from '../db/migrations';
 import { MUSCLES } from '../library/Muscle';
@@ -24,7 +24,10 @@ beforeEach(async () => {
   );
 });
 
-afterEach(() => db.close());
+afterEach(() => {
+  db.close();
+  vi.unstubAllEnvs();
+});
 
 function workout(date: Date, sets: readonly HardSet[], inProgress = false): number {
   const workoutId = db.run(
@@ -56,6 +59,23 @@ function workout(date: Date, sets: readonly HardSet[], inProgress = false): numb
 const hard: HardSet = { kind: 'working', rpe: null, isCompleted: true };
 
 describe('weeklyMuscleVolume', () => {
+  test('one set cannot acquire two roles for the same muscle or multiply through joins', () => {
+    workout(new Date(2024, 0, 3), [hard, { ...hard, kind: 'drop' }, { ...hard, kind: 'failure' }]);
+    expect(() =>
+      db.run(
+        `
+      INSERT INTO exerciseMuscle (exerciseId, muscleId, role)
+      VALUES (?, 'chest', 'secondary')
+      `,
+        [benchId],
+      ),
+    ).toThrow();
+    const week = weeklyMuscleVolume(db, new Date(2024, 0, 3), new Date(2024, 0, 3))[0];
+    // 3 performed sets × 1 primary = 3; × 0.5 secondary = 1.5, without join multiplication.
+    expect(week?.muscles.find((row) => row.muscle === 'chest')?.totalSets).toBe(3);
+    expect(week?.muscles.find((row) => row.muscle === 'triceps')?.totalSets).toBe(1.5);
+  });
+
   test('counts the report bench example from finished imported data without end/completion timestamps', () => {
     workout(new Date(2024, 0, 3, 12), [hard]);
     const result = weeklyMuscleVolume(db, new Date(2024, 0, 3), new Date(2024, 0, 3));
@@ -99,6 +119,7 @@ describe('weeklyMuscleVolume', () => {
   });
 
   test('preserves calendar weeks spanning spring and autumn daylight-saving changes', () => {
+    vi.stubEnv('TZ', 'America/New_York');
     const ranges: readonly (readonly [Date, Date, Date, Date])[] = [
       [new Date(2024, 2, 10, 23, 59), new Date(2024, 2, 11), new Date(2024, 2, 4), new Date(2024, 2, 17)],
       [new Date(2024, 10, 3, 23, 59), new Date(2024, 10, 4), new Date(2024, 9, 28), new Date(2024, 10, 10)],
