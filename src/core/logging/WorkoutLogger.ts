@@ -2,7 +2,7 @@ import type { Database } from '../db/Database';
 import type { SetKind } from '../models/SetKind';
 import type { WorkoutSetRow } from '../models/WorkoutSet';
 import type { WeightUnit } from '../units/WeightUnit';
-import { previousPerformance } from '../queries/PreviousPerformance';
+import { matchPreviousSets, previousPerformance } from '../queries/PreviousPerformance';
 import { WorkoutLoggerError } from './WorkoutLoggerError';
 import type { ExerciseTracking } from '../library/ExerciseTracking';
 
@@ -62,7 +62,6 @@ export class WorkoutLogger {
       `,
         [now.toISOString(), template.name, templateId],
       ).lastInsertRowId;
-      this.db.run('UPDATE template SET lastStartedAt = ? WHERE id = ?', [now.toISOString(), templateId]);
       const exercises = this.db.all<{
         id: number;
         exerciseId: number;
@@ -93,8 +92,9 @@ export class WorkoutLogger {
           [exercise.id],
         );
         const isTimed = TIMED_TRACKINGS.has(exercise.tracking);
+        const matches = matchPreviousSets(sets, previous);
         sets.forEach((set, index) => {
-          const prior = previous[index];
+          const prior = matches[index];
           this.db.run(
             `
             INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, rpe, durationSeconds, isCompleted)
@@ -167,6 +167,11 @@ export class WorkoutLogger {
       const entries = this.db.all<{ id: number }>('SELECT id FROM workoutExercise WHERE workoutId = ?', [workoutId]);
       for (const entry of entries) this.renumberSets(entry.id);
       this.db.run('UPDATE workout SET endedAt = ?, isInProgress = 0 WHERE id = ?', [now.toISOString(), workoutId]);
+      this.db.run(
+        `UPDATE template SET lastStartedAt = (SELECT startedAt FROM workout WHERE id = ?)
+         WHERE id = (SELECT templateId FROM workout WHERE id = ?)`,
+        [workoutId, workoutId],
+      );
       return { workoutId, completedSets, droppedSets };
     });
   }

@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react';
+import { matchPreviousSets } from '../../../core/queries/PreviousPerformance';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import { setLabels } from '../../format/setText';
 import type { EditedCell } from './CellEditor';
@@ -24,6 +25,7 @@ export function ExerciseCard({
   readonly actions: ExerciseCardActions;
 }) {
   const labels = setLabels(entry.sets);
+  const previousSets = matchPreviousSets(entry.sets, entry.previous);
   return (
     <section className={styles.card} aria-label={entry.exercise.name}>
       <ExerciseCardHeader entry={entry} index={index} count={count} actions={actions} />
@@ -34,7 +36,7 @@ export function ExerciseCard({
           entry={entry}
           set={set}
           label={labels[position] ?? ''}
-          previous={entry.previous[position]}
+          previous={previousSets[position]}
           editing={editing?.set.id === set.id ? editing : undefined}
           actions={actions}
         />

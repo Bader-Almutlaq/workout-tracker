@@ -6,7 +6,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-.row + .row {
+.set + .set {
   border-top: var(--hairline) solid var(--color-border);
 }
 
@@ -39,4 +39,11 @@
   margin-left: auto;
   font: var(--font-callout);
   color: var(--color-text-secondary);
+}
+
+.note {
+  margin: 0 var(--space-m) var(--space-s);
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
 }

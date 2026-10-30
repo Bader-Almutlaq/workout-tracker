@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { Database } from '../db/Database';
 import { migrate } from '../db/migrations';
-import { previousPerformance } from './PreviousPerformance';
+import { matchPreviousSets, previousPerformance } from './PreviousPerformance';
 
 test('previous performance combines repeated entries in order and honors exclusion', async () => {
   const db = await Database.openInMemory();
@@ -15,4 +15,14 @@ test('previous performance combines repeated entries in order and honors exclusi
   `);
   expect(previousPerformance(db, 1).map((set) => set.reps)).toEqual([8, 10]);
   expect(previousPerformance(db, 1, 1)).toEqual([]);
+});
+
+test('matches last time by warm-up and work order even when kinds are interleaved or missing', () => {
+  const previous = [
+    { kind: 'warmup', value: 1 },
+    { kind: 'working', value: 2 },
+    { kind: 'drop', value: 3 },
+  ];
+  const current = [{ kind: 'working' }, { kind: 'warmup' }, { kind: 'failure' }, { kind: 'warmup' }];
+  expect(matchPreviousSets(current, previous).map((set) => set?.value)).toEqual([2, 1, 3, undefined]);
 });

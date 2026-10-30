@@ -25,7 +25,10 @@ describe('history queries', () => {
         const sets = workoutDetail(db, id)?.entries.flatMap((item) => item.sets) ?? [];
         expect(sets).toHaveLength(count);
         expect(sets.every((set) => set.isCompleted)).toBe(true);
-        expect(workoutSummary(db, id)).toMatchObject({ setCount: count });
+        expect(workoutSummary(db, id)).toMatchObject({
+          setCount: sets.filter((set) => set.kind !== 'warmup').length,
+          warmupCount: sets.filter((set) => set.kind === 'warmup').length,
+        });
         expect(workoutSummary(db, id)?.volumeKilograms).toBeCloseTo(tonnage, 9);
         expect(
           sets.filter((set) => set.kind !== 'warmup').reduce((total, set) => total + set.weightKilograms * set.reps, 0),
@@ -43,7 +46,8 @@ describe('history queries', () => {
     const push = summaries[1];
     expect(push?.id).toBe(pushWorkoutId);
     expect(push?.exerciseCount).toBe(2);
-    expect(push?.setCount).toBe(4);
+    expect(push?.setCount).toBe(3);
+    expect(push?.warmupCount).toBe(1);
     const expected = 61.23 * 8 + 60 * 6 + 99.21 * KILOGRAMS_PER_POUND * 12;
     expect(push?.volumeKilograms).toBeCloseTo(expected, 6);
   });
@@ -98,5 +102,14 @@ describe('history queries', () => {
     const { db, pushWorkoutId } = await fixtureDatabase();
     expect(workoutSummary(db, pushWorkoutId)).toEqual(workoutSummaries(db)[1]);
     expect(workoutSummary(db, 999)).toBeUndefined();
+  });
+});
+
+test('counts warm-ups separately from all non-warm-up kinds', async () => {
+  const { countWorkoutSets } = await import('./WorkoutHistory');
+  expect(countWorkoutSets([])).toEqual({ setCount: 0, warmupCount: 0 });
+  expect(countWorkoutSets([{ kind: 'warmup' }, { kind: 'working' }, { kind: 'drop' }, { kind: 'failure' }])).toEqual({
+    setCount: 3,
+    warmupCount: 1,
   });
 });

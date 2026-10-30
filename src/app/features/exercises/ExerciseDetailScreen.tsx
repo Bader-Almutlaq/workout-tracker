@@ -4,10 +4,11 @@ import { BackLink } from '../../design/components/BackLink';
 import { EmptyState } from '../../design/components/EmptyState';
 import { Screen } from '../../design/components/Screen';
 import { Section, SectionRow } from '../../design/components/Section';
+import { setCountsText } from '../history/setCountsText';
 import { dayWithYearText } from '../../format/dateText';
 import styles from './ExerciseDetailScreen.module.css';
 import { ExerciseActions } from './ExerciseActions';
-import { exerciseTraitsText, usageText } from './exerciseText';
+import { exerciseTraitsText } from './exerciseText';
 import { MuscleChips } from './MuscleChips';
 import { RecentSessionRow } from './RecentSessionRow';
 import { StrengthCard } from './StrengthCard';
@@ -42,7 +43,10 @@ export function ExerciseDetailScreen() {
       </Section>
       {detail.value.workoutCount > 0 && (
         <Section label="Usage">
-          <SectionRow label="Logged" value={usageText(detail.value.workoutCount, detail.value.setCount)} />
+          <SectionRow
+            label="Logged"
+            value={`${detail.value.workoutCount} workout${detail.value.workoutCount === 1 ? '' : 's'} · ${setCountsText(detail.value.setCount, detail.value.warmupCount ?? 0)}`}
+          />
           {detail.value.firstUsedAt !== null && (
             <SectionRow label="First" value={dayWithYearText(detail.value.firstUsedAt.toISOString())} />
           )}

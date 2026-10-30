@@ -1,3 +1,4 @@
+import { countWorkoutSets } from './WorkoutHistory';
 import type { Database } from '../db/Database';
 import { fromExerciseRow, type Exercise, type ExerciseRow } from '../models/Exercise';
 import { fromWorkoutSetRow, type WorkoutSet, type WorkoutSetRow } from '../models/WorkoutSet';
@@ -13,6 +14,7 @@ export interface ExerciseCatalogSession {
   readonly workoutId: number;
   readonly startedAt: Date;
   readonly workSetCount: number;
+  readonly warmupCount: number;
   readonly topSet: WorkoutSet | null;
 }
 /** Exercise details, usage totals and recent sessions. */
@@ -23,6 +25,7 @@ export interface ExerciseCatalogDetail {
   readonly aliases: readonly string[];
   readonly workoutCount: number;
   readonly setCount: number;
+  readonly warmupCount?: number;
   readonly firstUsedAt: Date | null;
   readonly lastUsedAt: Date | null;
   readonly recentSessions: readonly ExerciseCatalogSession[];
@@ -89,17 +92,23 @@ export const ExerciseCatalog = {
       'SELECT COUNT(DISTINCT we.workoutId) AS workouts, COUNT(s.id) AS sets, MIN(w.startedAt) AS first, MAX(w.startedAt) AS last FROM workoutExercise we JOIN workout w ON w.id = we.workoutId LEFT JOIN workoutSet s ON s.workoutExerciseId = we.id WHERE we.exerciseId = ?',
       [exerciseId],
     );
+    const usageSets = db.all<{ kind: string }>(
+      `SELECT s.kind FROM workoutSet s JOIN workoutExercise we ON we.id = s.workoutExerciseId
+       WHERE we.exerciseId = ?`,
+      [exerciseId],
+    );
+    const usageCounts = countWorkoutSets(usageSets);
     const entries = db.all<{ workoutId: number; startedAt: string; entryId: number }>(
       'SELECT w.id AS workoutId, w.startedAt, we.id AS entryId FROM workoutExercise we JOIN workout w ON w.id = we.workoutId WHERE we.exerciseId = ? ORDER BY w.startedAt DESC LIMIT ?',
       [exerciseId, recentSessionLimit],
     );
     const sessions: ExerciseCatalogSession[] = [];
     for (const entry of entries) {
-      const work = db
-        .all<WorkoutSetRow>("SELECT * FROM workoutSet WHERE workoutExerciseId = ? AND kind != 'warmup'", [
-          entry.entryId,
-        ])
+      const sets = db
+        .all<WorkoutSetRow>('SELECT * FROM workoutSet WHERE workoutExerciseId = ?', [entry.entryId])
         .map(fromWorkoutSetRow);
+      const counts = countWorkoutSets(sets);
+      const work = sets.filter((set) => set.kind !== 'warmup');
       const top = work.reduce<WorkoutSet | null>(
         (best, set) =>
           best === null ||
@@ -115,13 +124,15 @@ export const ExerciseCatalog = {
         sessions.push({
           workoutId: entry.workoutId,
           startedAt: new Date(entry.startedAt),
-          workSetCount: work.length,
+          workSetCount: counts.setCount,
+          warmupCount: counts.warmupCount,
           topSet: top,
         });
       else
         sessions[index] = {
           ...previous,
-          workSetCount: previous.workSetCount + work.length,
+          workSetCount: previous.workSetCount + counts.setCount,
+          warmupCount: previous.warmupCount + counts.warmupCount,
           topSet:
             top !== null && top.weightKilograms > (previous.topSet?.weightKilograms ?? -1) ? top : previous.topSet,
         };
@@ -132,7 +143,8 @@ export const ExerciseCatalog = {
       secondaryMuscles: muscles(db, exerciseId, 'secondary'),
       aliases: aliases(db, exerciseId, row.libraryKey, library),
       workoutCount: usage?.workouts ?? 0,
-      setCount: usage?.sets ?? 0,
+      setCount: usageCounts.setCount,
+      warmupCount: usageCounts.warmupCount,
       firstUsedAt: date(usage?.first ?? null),
       lastUsedAt: date(usage?.last ?? null),
       recentSessions: sessions,

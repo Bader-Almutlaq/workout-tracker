@@ -27,3 +27,15 @@ export function previousPerformance(
     )
     .map(fromWorkoutSetRow);
 }
+
+/** Match each current set to the corresponding previous warm-up or non-warm-up, in order. */
+export function matchPreviousSets<T extends { readonly kind: string }>(
+  current: readonly { readonly kind: string }[],
+  previous: readonly T[],
+): (T | undefined)[] {
+  const warmups = previous.filter((set) => set.kind === 'warmup');
+  const workSets = previous.filter((set) => set.kind !== 'warmup');
+  let warmupIndex = 0;
+  let workIndex = 0;
+  return current.map((set) => (set.kind === 'warmup' ? warmups[warmupIndex++] : workSets[workIndex++]));
+}

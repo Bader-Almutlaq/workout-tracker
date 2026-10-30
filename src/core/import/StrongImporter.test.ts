@@ -5,7 +5,7 @@ import { DatabaseError } from '../db/DatabaseError';
 import { migrate } from '../db/migrations';
 import { NEWER_LAYOUT, OLDER_LAYOUT, WAIST } from './fixtures/StrongFixtures';
 import { makeStrongImportPlan, type StrongImportPlan } from './StrongImportPlan';
-import { importStrongPlan } from './StrongImporter';
+import { importStrongPlan, strongImportWorkoutCounts } from './StrongImporter';
 import { parseStrongMeasurementsFile } from './StrongMeasurementsFile';
 import { parseStrongWorkoutsFile } from './StrongWorkoutsFile';
 
@@ -193,5 +193,14 @@ test('import and reimport preserve app history, active work, templates, measurem
     // INSERT OR IGNORE may consume AUTOINCREMENT ids; gaps do not change or duplicate any owner record.
     if (name !== 'sqlite_sequence') expect(reimported[name]).toEqual(rows);
   }
+  db.close();
+});
+
+test('Preview counts new and already imported source keys', async () => {
+  const db = await migratedDatabase();
+  const planned = plan();
+  expect(strongImportWorkoutCounts(db, planned.workouts)).toEqual({ alreadyImported: 0, newWorkouts: 2 });
+  importStrongPlan(db, planned, NOW);
+  expect(strongImportWorkoutCounts(db, planned.workouts)).toEqual({ alreadyImported: 2, newWorkouts: 0 });
   db.close();
 });

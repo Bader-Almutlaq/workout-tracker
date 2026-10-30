@@ -13,13 +13,29 @@ export interface WorkoutSummary {
   readonly endedAt: string | null;
   readonly name: string;
   readonly exerciseCount: number;
-  /** Every logged set, warm-ups included. */
+  /** Non-warm-up sets. */
   readonly setCount: number;
+  /** Warm-up sets, shown separately. */
+  readonly warmupCount?: number;
   /**
    * Tonnage: Σ weight × reps over non-warm-up sets, in kg. Secondary "work done" figure only;
    * it doesn't predict hypertrophy (Refalo 2023).
    */
   readonly volumeKilograms: number;
+}
+
+/** Counts non-warm-up and warm-up sets separately; drop and failure sets count as work. */
+export function countWorkoutSets(sets: readonly { readonly kind: string }[]): {
+  setCount: number;
+  warmupCount: number;
+} {
+  let setCount = 0;
+  let warmupCount = 0;
+  for (const set of sets) {
+    if (set.kind === 'warmup') warmupCount += 1;
+    else setCount += 1;
+  }
+  return { setCount, warmupCount };
 }
 
 /** One exercise of a workout with its sets, in logged order. */
@@ -43,7 +59,6 @@ function summarySql(condition: string): string {
   return `
     SELECT w.id, w.startedAt, w.endedAt, w.name,
            COUNT(DISTINCT we.id) AS exerciseCount,
-           COUNT(s.id) AS setCount,
            COALESCE(SUM(CASE WHEN s.kind <> 'warmup' THEN s.weightKilograms * s.reps END), 0) AS volumeKilograms
     FROM workout w
     LEFT JOIN workoutExercise we ON we.workoutId = w.id
@@ -58,17 +73,36 @@ function placeholders(count: number): string {
   return Array.from({ length: count }, () => '?').join(', ');
 }
 
+function summariesWithCounts(db: Database, condition: string, workoutId?: number): WorkoutSummary[] {
+  const parameters = workoutId === undefined ? [] : [workoutId];
+  const summaries = db.all<Omit<WorkoutSummary, 'setCount' | 'warmupCount'>>(summarySql(condition), parameters);
+  const rows = db.all<{ workoutId: number; kind: string }>(
+    `SELECT w.id AS workoutId, s.kind FROM workout w
+     JOIN workoutExercise we ON we.workoutId = w.id
+     JOIN workoutSet s ON s.workoutExerciseId = we.id
+     WHERE ${condition}`,
+    parameters,
+  );
+  const setsByWorkout = new Map<number, { kind: string }[]>();
+  for (const row of rows) {
+    const sets = setsByWorkout.get(row.workoutId) ?? [];
+    sets.push(row);
+    setsByWorkout.set(row.workoutId, sets);
+  }
+  return summaries.map((summary) => ({ ...summary, ...countWorkoutSets(setsByWorkout.get(summary.id) ?? []) }));
+}
+
 /**
  * All finished workouts, newest first. The workout in progress is excluded: the logging screen
  * shows it (`LiveWorkout`).
  */
 export function workoutSummaries(db: Database): WorkoutSummary[] {
-  return db.all<WorkoutSummary>(summarySql('w.isInProgress = 0'));
+  return summariesWithCounts(db, 'w.isInProgress = 0');
 }
 
 /** The summary of one finished workout, or `undefined` if it doesn't exist or is still in progress. */
 export function workoutSummary(db: Database, workoutId: number): WorkoutSummary | undefined {
-  return db.get<WorkoutSummary>(summarySql('w.isInProgress = 0 AND w.id = ?'), [workoutId]);
+  return summariesWithCounts(db, 'w.isInProgress = 0 AND w.id = ?', workoutId)[0];
 }
 
 /**

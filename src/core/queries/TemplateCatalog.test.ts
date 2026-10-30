@@ -15,7 +15,19 @@ it('returns ordered summaries and editor detail, including empty and missing sta
   expect(TemplateCatalog.list(db).unfiled[0]).toMatchObject({
     exerciseNames: ['Bench'],
     setCount: 2,
-    lastStartedAt: 'c',
+    lastStartedAt: null,
   });
   expect(TemplateCatalog.detail(db, 1)?.exercises[0]?.sets).toHaveLength(2);
+});
+
+it('derives last done only from finished workouts, ignoring stale stamps and active workouts', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  db.exec(`
+    INSERT INTO template (id, name, position, createdAt, updatedAt, lastStartedAt)
+    VALUES (1, 'Push', 0, 'a', 'b', '2099-01-01');
+    INSERT INTO workout (startedAt, name, source, templateId, isInProgress)
+    VALUES ('2026-01-01', 'Finished', 'app', 1, 0), ('2026-02-01', 'Active', 'app', 1, 1);
+  `);
+  expect(TemplateCatalog.list(db).unfiled[0]?.lastStartedAt).toBe('2026-01-01');
 });
