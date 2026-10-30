@@ -40,8 +40,9 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
 | [T-028](T-028-template-core.md) | Template engine: folders, templates, start from a template, save a workout as a template | done | Codex Terra (high), reviewed by lead | merged |
-| [T-029](T-029-template-screens.md) | Template screens: list with folders on the Workout tab, editor, save-as-template | review | Claude Sonnet (subagent) | `task/T-029-template-screens` |
+| [T-029](T-029-template-screens.md) | Template screens: list with folders on the Workout tab, editor, save-as-template | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-030](T-030-history-calendar.md) | History calendar | done | Codex Terra (high), reviewed by lead | merged |
+| T-031 | Templates follow-ups: reorder templates in a folder, "discard changes?" when leaving the editor, label rep fields as seconds for timed exercises | todo, brief to write | | |
 
 ## Next milestones (tasks are written when the milestone starts)
 

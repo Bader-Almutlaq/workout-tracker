@@ -131,6 +131,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Templates and folders: save, edit, reorder, duplicate, delete, save a workout as a template | `src/core/templates/TemplateStore.ts` (`TemplateDraft`, `TemplateStoreError`) |
 | Template list and editor data | `src/core/queries/TemplateCatalog.ts` |
 | Starting a workout from a template | `WorkoutLogger.startFromTemplate` |
+| Template screens and draft editing on screen | `src/app/features/templates/` (pure draft-edit and target-text helpers there) |
+| Bottom sheet | `src/app/design/components/BottomSheet.tsx` |
 | Which days had a workout (History calendar) | `src/core/queries/WorkoutCalendar.ts`; grid in `src/app/features/history/calendarGrid.ts` |
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` |
 | The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` |
