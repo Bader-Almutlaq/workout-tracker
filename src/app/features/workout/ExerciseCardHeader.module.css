@@ -1,0 +1,14 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-m);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  font: var(--font-headline);
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}

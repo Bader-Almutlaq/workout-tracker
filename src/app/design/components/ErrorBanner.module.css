@@ -1,0 +1,33 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-m);
+  background: var(--color-surface-raised);
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-medium);
+  font: var(--font-callout);
+  color: var(--color-text-primary);
+}
+
+.icon {
+  flex: none;
+  color: var(--color-status-critical);
+}
+
+.message {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-xs) 0;
+  overflow-wrap: anywhere;
+}
+
+.dismiss {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--color-text-tertiary);
+}

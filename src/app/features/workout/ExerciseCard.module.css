@@ -1,0 +1,17 @@
+.card {
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.addSet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  width: 100%;
+  min-height: 44px;
+  border-top: var(--hairline) solid var(--color-border);
+  font: var(--font-callout);
+  color: var(--color-accent);
+}

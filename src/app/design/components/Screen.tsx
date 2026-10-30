@@ -4,6 +4,7 @@ import styles from './Screen.module.css';
 /**
  * A full screen with a large title, as every tab uses. Content scrolls under a safe-area-aware header.
  * `leading` sits above the title (a `BackLink` on a pushed screen); `subtitle` sits under it.
+ * The title is usually text; the Workout tab passes a button so the name can be tapped to rename it.
  */
 export function Screen({
   title,
@@ -11,7 +12,7 @@ export function Screen({
   leading,
   children,
 }: {
-  readonly title: string;
+  readonly title: ReactNode;
   readonly subtitle?: string;
   readonly leading?: ReactNode;
   readonly children: ReactNode;

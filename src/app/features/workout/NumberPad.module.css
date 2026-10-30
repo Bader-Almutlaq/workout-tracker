@@ -1,0 +1,54 @@
+.dock {
+  --pad-key-height: 48px;
+  --pad-title-height: 32px;
+  --pad-height: calc(
+    4 * var(--pad-key-height) + 3 * var(--space-s) + var(--pad-title-height) + var(--space-s) + 2 * var(--space-m)
+  );
+}
+
+.spacer {
+  height: var(--pad-height);
+}
+
+/* Fixed above the tab bar, so it stays put while the sets scroll behind it. */
+.pad {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom) + var(--tab-bar-height));
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  height: var(--pad-height);
+  padding: var(--space-m) var(--space-l);
+  background: var(--color-surface);
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.error {
+  position: absolute;
+  right: var(--space-l);
+  bottom: calc(100% + var(--space-s));
+  left: var(--space-l);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--pad-title-height);
+}
+
+.title {
+  font: var(--font-caption);
+  letter-spacing: var(--tracking-caption);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-s);
+}

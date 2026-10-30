@@ -5,10 +5,12 @@ import styles from './ConfirmDialog.module.css';
 /**
  * A modal question with a confirm and a cancel button, drawn with the browser's `<dialog>` so focus
  * stays inside it and the Escape key cancels. Render it only while the question is open.
+ * `cancelLabel` renames the second button ("Cancel" by default) when the safe answer has another name.
  */
 export function ConfirmDialog({
   title,
   confirmLabel,
+  cancelLabel = 'Cancel',
   isBusy = false,
   onConfirm,
   onCancel,
@@ -16,6 +18,7 @@ export function ConfirmDialog({
 }: {
   readonly title: string;
   readonly confirmLabel: string;
+  readonly cancelLabel?: string;
   readonly isBusy?: boolean;
   readonly onConfirm: () => void;
   readonly onCancel: () => void;
@@ -36,7 +39,7 @@ export function ConfirmDialog({
           {confirmLabel}
         </Button>
         <Button isDisabled={isBusy} onPress={onCancel}>
-          Cancel
+          {cancelLabel}
         </Button>
       </div>
     </dialog>

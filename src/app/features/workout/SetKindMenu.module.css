@@ -1,0 +1,11 @@
+.label {
+  width: 100%;
+  font: var(--font-callout);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-tertiary);
+  text-align: left;
+}
+
+.label[data-special='true'] {
+  color: var(--color-accent);
+}

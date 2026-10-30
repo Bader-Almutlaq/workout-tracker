@@ -29,9 +29,14 @@ export function setLabels(sets: readonly Pick<WorkoutSet, 'kind'>[]): string[] {
   });
 }
 
+/** Just the number of an effort rating, e.g. "8.5", for set rows where the column says RPE. */
+export function rpeNumberText(rpe: number): string {
+  return rpeFormat.format(rpe);
+}
+
 /** An effort rating as text, e.g. "RPE 8.5". */
 export function rpeText(rpe: number): string {
-  return `RPE ${rpeFormat.format(rpe)}`;
+  return `RPE ${rpeNumberText(rpe)}`;
 }
 
 /** "1 set" or "12 sets". */
