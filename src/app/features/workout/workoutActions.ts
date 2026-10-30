@@ -45,10 +45,29 @@ function updateSet(setId: number, values: SetValues): Promise<void> {
  * every field, so building it from the on-screen set could undo a change still waiting in the queue
  * (weight typed, then reps typed before the weight's write shows up on screen).
  */
-function editSet(workoutId: number, setId: number, change: (values: SetValues) => SetValues): void {
+function editSet(
+  workoutId: number,
+  setId: number,
+  change: (values: SetValues) => SetValues,
+  onSuspicious?: (prompt: TypoPrompt) => void,
+): void {
   void loggingQueue.enqueue(async () => {
     const stored = await savedSet(workoutId, setId);
-    await updateSet(setId, change(setValuesOf(stored)));
+    const values = change(setValuesOf(stored));
+    await updateSet(setId, values);
+    if (onSuspicious !== undefined) {
+      const detail = await database.workoutDetail(workoutId);
+      const entry = detail?.entries.find((candidate) => candidate.entry.id === stored.workoutExerciseId);
+      if (entry === undefined) throw new WorkoutLoggerError('exerciseNotFound');
+      const finding = await database.liveSetFinding(
+        entry.exercise.id,
+        values.weightKilograms,
+        values.reps,
+        values.kind,
+        workoutId,
+      );
+      if (finding !== null) onSuspicious(typoPromptFor(finding, { ...stored, ...values }));
+    }
   });
 }
 
@@ -77,13 +96,27 @@ export function addExercises(workoutId: number, exerciseIds: readonly number[]):
   return loggingQueue.enqueue(() => database.addExercises(workoutId, exerciseIds));
 }
 
-/** Saves what was typed into a cell (`null` for empty). A value that can't be saved is reported in the banner. */
-export function saveCell(workoutId: number, cell: Cell, typed: number | null, tracking: ExerciseTracking): void {
-  editSet(workoutId, cell.setId, (values) => {
-    const edit = withTypedValue(values, cell.field, typed, tracking);
-    if (!edit.isValid) throw new TypedValueError(edit.message);
-    return edit.values;
-  });
+/**
+ * Saves a cell (`null` clears it). Invalid values appear in the banner. History optionally checks
+ * saved weight/rep changes and reports a typo prompt; live logging still checks on completion.
+ */
+export function saveCell(
+  workoutId: number,
+  cell: Cell,
+  typed: number | null,
+  tracking: ExerciseTracking,
+  onSuspicious?: (prompt: TypoPrompt) => void,
+): void {
+  editSet(
+    workoutId,
+    cell.setId,
+    (values) => {
+      const edit = withTypedValue(values, cell.field, typed, tracking);
+      if (!edit.isValid) throw new TypedValueError(edit.message);
+      return edit.values;
+    },
+    cell.field === 'weight' || cell.field === 'reps' ? onSuspicious : undefined,
+  );
 }
 
 /** Changes a set between working, warm-up, drop and failure. */

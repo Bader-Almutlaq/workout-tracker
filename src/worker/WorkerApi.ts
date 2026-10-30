@@ -56,7 +56,7 @@ import {
   type WorkoutSummary,
 } from '../core/queries/WorkoutHistory';
 import { setRestTarget } from '../core/logging/RestTimer';
-import { WorkoutLogger, type FinishResult } from '../core/logging/WorkoutLogger';
+import { WorkoutLogger, type FinishedWorkoutChange, type FinishResult } from '../core/logging/WorkoutLogger';
 import type { SetKind } from '../core/models/SetKind';
 import { liveWorkoutSnapshot, type LiveWorkoutSnapshot } from '../core/queries/LiveWorkout';
 import { TemplateCatalog, type TemplateList } from '../core/queries/TemplateCatalog';
@@ -126,6 +126,24 @@ const RECENT_WORKOUT_LIMIT = 6;
 class StrongImportFlowError extends Error {
   override readonly name = 'StrongImportFlowError';
   readonly kind = 'invalidSelection';
+}
+
+/** A snapshot failure must block destructive History actions and explain how to retry. */
+class HistorySnapshotError extends Error {
+  override readonly name = 'HistorySnapshotError';
+  readonly kind = 'snapshotFailed';
+  constructor() {
+    super('Could not keep a safety copy. No changes were made. Free some space on this phone and try again.');
+  }
+}
+
+async function takeHistorySnapshot(store: OnDeviceStore): Promise<void> {
+  try {
+    await store.takeSnapshot();
+  } catch (error) {
+    log.database.error('History safety snapshot failed', error);
+    throw new HistorySnapshotError();
+  }
 }
 
 /**
@@ -571,6 +589,49 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       notifyListeners();
     }),
     // End of Warm-ups (T-044)
+
+    // Edit past workouts (T-050)
+
+    /** A finished workout with previous performance for shared logging cards; live or missing ids return undefined. */
+    pastWorkout: serially(async (workoutId: number): Promise<LiveWorkoutSnapshot | undefined> => {
+      const snapshot = liveWorkoutSnapshot((await liveStore()).database, workoutId);
+      return snapshot?.workout.isInProgress === false ? snapshot : undefined;
+    }),
+
+    /** Takes one safety snapshot before entering History edit mode; no workout data is changed or notified. */
+    beginPastWorkoutEdit: serially(async (workoutId: number): Promise<void> => {
+      const store = await liveStore();
+      workoutLogger(store.database).requireFinished(workoutId);
+      await takeHistorySnapshot(store);
+    }),
+
+    /** Snapshots first, then deletes a finished workout and tombstones its import identity atomically. */
+    deletePastWorkout: serially(async (workoutId: number): Promise<void> => {
+      const store = await liveStore();
+      workoutLogger(store.database).requireFinished(workoutId);
+      await takeHistorySnapshot(store);
+      workoutLogger(store.database).deleteFinished(workoutId);
+      notifyListeners();
+    }),
+
+    /** Saves one finished workout field; duration is in seconds and null keeps an unknown end time. */
+    updatePastWorkout: serially(async (workoutId: number, change: FinishedWorkoutChange): Promise<void> => {
+      workoutLogger((await liveStore()).database).updateFinished(workoutId, change);
+      notifyListeners();
+    }),
+
+    /** Saves notes on one workout exercise entry, never the exercise library definition. */
+    updateWorkoutExerciseNotes: serially(async (entryId: number, notes: string): Promise<void> => {
+      workoutLogger((await liveStore()).database).updateExerciseNotes(entryId, notes);
+      notifyListeners();
+    }),
+
+    /** Saves notes on one set without replacing its performance or import fields. */
+    updateWorkoutSetNotes: serially(async (setId: number, notes: string): Promise<void> => {
+      workoutLogger((await liveStore()).database).updateSetNotes(setId, notes);
+      notifyListeners();
+    }),
+    // End of Edit past workouts (T-050)
 
     // Workout (T-024)
     // Every write is one logger action and notifies listeners, so the logging screen refreshes after each tap.

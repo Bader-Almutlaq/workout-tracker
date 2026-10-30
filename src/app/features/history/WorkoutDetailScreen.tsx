@@ -1,3 +1,7 @@
+import { useState } from 'react';
+import { LoggingErrorBanner } from '../workout/LoggingErrorBanner';
+import { PastWorkoutActions } from './PastWorkoutActions';
+import { PastWorkoutEditor } from './PastWorkoutEditor';
 import { PersonalBestsSection } from '../workout/PersonalBestsSection';
 import { useParams } from 'react-router';
 import { database, useDatabaseQuery } from '../../data/database';
@@ -15,8 +19,9 @@ const MISSING_MESSAGE = 'This workout no longer exists.';
 /** One past workout: each exercise with its sets, weights in the unit they were typed in. */
 export function WorkoutDetailScreen() {
   const workoutId = Number(useParams().workoutId);
+  const [editingWorkoutId, setEditingWorkoutId] = useState<number | undefined>();
   const detail = useDatabaseQuery(`workout-${workoutId}`, async () => ({
-    detail: await database.workoutDetail(workoutId),
+    detail: await database.pastWorkout(workoutId),
     bests: await database.personalBestsForWorkout(workoutId),
   }));
   const back = <BackLink to="/history" label="History" />;
@@ -31,12 +36,17 @@ export function WorkoutDetailScreen() {
     );
   }
 
-  const { workout, entries } = detail.value.detail;
+  const snapshot = detail.value.detail;
+  const { workout, entries } = snapshot;
+  if (editingWorkoutId === workoutId)
+    return <PastWorkoutEditor key={workoutId} snapshot={snapshot} onDone={() => setEditingWorkoutId(undefined)} />;
   const duration = durationText(workout.startedAt, workout.endedAt);
   const when = dayAndTimeText(workout.startedAt);
 
   return (
     <Screen title={workout.name} subtitle={duration === undefined ? when : `${when} · ${duration}`} leading={back}>
+      <LoggingErrorBanner />
+      <PastWorkoutActions workout={workout} onEdit={() => setEditingWorkoutId(workoutId)} />
       <PersonalBestsSection bests={detail.value.bests} />
       {entries.map(({ entry, exercise, sets }) => {
         const labels = setLabels(sets);
