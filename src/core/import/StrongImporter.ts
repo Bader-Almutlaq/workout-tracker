@@ -10,6 +10,8 @@ export interface ImportResult {
   /** Workouts already imported earlier (same `sourceKey`). */
   readonly workoutsSkipped: number;
   readonly setsAdded: number;
+  /** Sets selected to be left out of this import. */
+  readonly setsExcluded: number;
   readonly exercisesCreated: number;
   /** Measurements not already present (same time and site). */
   readonly measurementsAdded: number;
@@ -20,6 +22,7 @@ interface Counters {
   workoutsAdded: number;
   workoutsSkipped: number;
   setsAdded: number;
+  setsExcluded: number;
   exercisesCreated: number;
   measurementsAdded: number;
 }
@@ -48,6 +51,7 @@ export function importStrongPlan(db: Database, plan: StrongImportPlan, now: Date
       workoutsAdded: 0,
       workoutsSkipped: 0,
       setsAdded: 0,
+      setsExcluded: plan.setsExcluded ?? 0,
       exercisesCreated: 0,
       measurementsAdded: 0,
     };

@@ -77,3 +77,5 @@ All weights are stored in **kilograms, exactly as entered** (`Double`). Each set
 Implemented once in WorkoutCore and used in two places:
 - **Import review:** sets whose weight or reps are far outside that exercise's typical range near that date (likely a missed digit or extra zero) are listed for confirm / fix / ignore before the import commits.
 - **Live logging:** the same check asks "Is this right?" before saving a suspicious set.
+A set left out of an imported workout can be brought back only by deleting that workout and importing the export again. If every set was left out, the workout was not imported and can be imported later. The original export remains unchanged.
+

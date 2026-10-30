@@ -113,6 +113,8 @@ export interface StrongImportPlan {
   /** Suspicious sets, minus those the owner confirmed or corrected. */
   readonly findings: readonly SetFinding[];
   readonly measurements: readonly PlannedMeasurement[];
+  /** Number of existing set lines selected to be left out. */
+  readonly setsExcluded?: number;
   readonly totals: ImportTotals;
 }
 
@@ -149,9 +151,27 @@ export function makeStrongImportPlan(
   const columnUnitOf = (exerciseName: string): WeightUnit =>
     options.unitOverrides.get(exerciseName) ?? verdicts.get(exerciseName)?.columnUnit ?? 'kg';
 
-  const workouts = groupIntoWorkouts(rows).map((workoutRows) =>
+  const reviewWorkouts = groupIntoWorkouts(rows).map((workoutRows) =>
     makeWorkout(workoutRows, columnUnitOf, options.corrections),
   );
+  const workouts = reviewWorkouts
+    .map((workout) => {
+      const exercises = workout.exercises
+        .map((exercise) => ({
+          ...exercise,
+          sets: exercise.sets
+            .filter((set) => !options.excludedLines.has(set.line))
+            .map((set, position) => ({ ...set, position })),
+        }))
+        .filter((exercise, index) => exercise.sets.length > 0 || workout.exercises[index]?.sets.length === 0)
+        .map((exercise, position) => ({ ...exercise, position }));
+      return { ...workout, exercises };
+    })
+    .filter(
+      (workout, index) =>
+        workout.exercises.some((exercise) => exercise.sets.length > 0) ||
+        !reviewWorkouts[index]?.exercises.some((exercise) => exercise.sets.length > 0),
+    );
 
   let sets = 0;
   let workSets = 0;
@@ -165,6 +185,12 @@ export function makeStrongImportPlan(
           workSets += 1;
           volumeKilograms += set.weightKilograms * set.reps;
         }
+      }
+    }
+  }
+  for (const workout of reviewWorkouts) {
+    for (const exercise of workout.exercises) {
+      for (const set of exercise.sets) {
         setsByLine.set(set.line, {
           workoutStartedAt: workout.startedAt,
           workoutName: workout.name,
@@ -178,10 +204,16 @@ export function makeStrongImportPlan(
 
   return {
     workouts,
-    exercises: makeOverviews(setRows, verdicts, columnUnitOf, options.unitOverrides),
+    exercises: makeOverviews(
+      setRows.filter((row) => !options.excludedLines.has(row.line)),
+      verdicts,
+      columnUnitOf,
+      options.unitOverrides,
+    ),
     setsByLine,
-    findings: findSuspiciousSets(workouts, options.confirmedLines),
+    findings: findSuspiciousSets(reviewWorkouts, options.confirmedLines),
     measurements,
+    setsExcluded: setRows.filter((row) => options.excludedLines.has(row.line)).length,
     totals: {
       workouts: workouts.length,
       sets,

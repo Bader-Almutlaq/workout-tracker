@@ -35,9 +35,10 @@ Before the owner imports four years of Strong history, the import review must le
 
 _Filled in by the implementer when stopping or finishing._
 
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Implemented; uncommitted, ready for review.
+- **What was done:** Added leave-out and undo controls, filtered import plans and totals, result reporting, documentation, and regression tests.
+- **Files touched:** StrongImportOptions, StrongImportPlan, StrongImporter and their tests; FindingGroupCard, ImportReviewStep, ImportResultStep and result test; docs/DATA.md; this handoff.
+- **Decisions taken:** Excluded counts represent selected existing set lines, including those in workouts already imported. Review keeps the original set context for undo and unit inference. Existing note-only entries remain preserved; entries whose sets were all excluded are removed.
+- **Open questions / left over:** No simulator or manual UI check was performed. An entirely excluded workout is absent from the database and can be imported on a later run without deletion.
+- **How it was verified:** `make format` and `make verify` passed: 94 test files, 715 tests, production build.
+
