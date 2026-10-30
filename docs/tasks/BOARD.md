@@ -67,7 +67,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-038](T-038-audit-data-accuracy.md) | Audit: data accuracy | done (6 fixes, 21 tests) | Codex Sol (high), reviewed by lead | merged |
 | [T-039](T-039-e2e-fixes.md) | Fixes from the end-to-end check (set notes, warm-up prefill, template stamp, set counts, import preview) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-040](T-040-import-leave-out.md) | Leave out a flagged set at import | done | Codex Terra (high), reviewed by lead | merged |
-| [T-041](T-041-backup-on-finish-and-one-tap-clean.md) | Backup button on every finish; leave out all flagged sets in one tap | doing | Codex Terra (high) | `task/T-041-finish-backup-clean` |
+| [T-041](T-041-backup-on-finish-and-one-tap-clean.md) | Backup button on every finish; leave out all flagged sets in one tap | done | Codex Terra (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
