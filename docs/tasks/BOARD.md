@@ -42,7 +42,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-028](T-028-template-core.md) | Template engine: folders, templates, start from a template, save a workout as a template | done | Codex Terra (high), reviewed by lead | merged |
 | [T-029](T-029-template-screens.md) | Template screens: list with folders on the Workout tab, editor, save-as-template | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-030](T-030-history-calendar.md) | History calendar | done | Codex Terra (high), reviewed by lead | merged |
-| [T-031](T-031-template-follow-ups.md) | Template follow-ups: reorder, discard prompt, seconds label | doing | Codex Terra (high) | `task/T-031-template-follow-ups` |
+| [T-031](T-031-template-follow-ups.md) | Template follow-ups: reorder, discard prompt, seconds label | done (lead fixed timed targets landing in reps) | Codex Terra (high), reviewed by lead | merged |
 
 ## W5: Analytics engine
 

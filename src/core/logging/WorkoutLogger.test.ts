@@ -198,3 +198,14 @@ test('Starting from a template uses template set counts and kinds with history a
   expect(db.value('SELECT lastStartedAt FROM template WHERE id = 1')).toBe(now.toISOString());
   expect(() => logger.startFromTemplate(1, now)).toThrow(new WorkoutLoggerError('workoutAlreadyInProgress', workout));
 });
+
+test('Starting a template for a timed exercise puts the target in seconds, not reps', async () => {
+  const { db, logger } = await fixture();
+  db.exec(`INSERT INTO exercise (id, name, source, tracking, createdAt) VALUES (30, 'Plank Hold', 'custom', 'duration', 'a');
+    INSERT INTO template (id, name, position, createdAt, updatedAt) VALUES (1, 'Core', 0, 'a', 'a');
+    INSERT INTO templateExercise (id, templateId, exerciseId, position) VALUES (1, 1, 30, 0);
+    INSERT INTO templateSet (templateExerciseId, position, kind, targetRepsLow) VALUES (1, 0, 'working', 45);`);
+  const workout = logger.startFromTemplate(1, now);
+  const entry = db.value<number>('SELECT id FROM workoutExercise WHERE workoutId = ?', [workout]) ?? -1;
+  expect(sets(db, entry)[0]).toMatchObject({ reps: 0, durationSeconds: 45 });
+});

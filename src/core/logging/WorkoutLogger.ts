@@ -4,7 +4,12 @@ import type { WorkoutSetRow } from '../models/WorkoutSet';
 import type { WeightUnit } from '../units/WeightUnit';
 import { previousPerformance } from '../queries/PreviousPerformance';
 import { WorkoutLoggerError } from './WorkoutLoggerError';
+import type { ExerciseTracking } from '../library/ExerciseTracking';
+
 import { TemplateStoreError } from '../templates/TemplateStoreError';
+
+/** Tracking kinds whose sets record a duration; their template targets are seconds. */
+const TIMED_TRACKINGS: ReadonlySet<ExerciseTracking> = new Set(['duration', 'weight-duration']);
 
 /** Limits that catch input mistakes without restricting real training; RPE bounds: Zourdos 2016. */
 export const WorkoutLoggerLimits = {
@@ -65,9 +70,10 @@ export class WorkoutLogger {
         supersetGroup: number | null;
         notes: string | null;
         defaultEntryUnit: WeightUnit;
+        tracking: ExerciseTracking;
       }>(
         `
-        SELECT te.*, e.defaultEntryUnit FROM templateExercise te JOIN exercise e ON e.id = te.exerciseId
+        SELECT te.*, e.defaultEntryUnit, e.tracking FROM templateExercise te JOIN exercise e ON e.id = te.exerciseId
         WHERE te.templateId = ? ORDER BY te.position
       `,
         [templateId],
@@ -86,6 +92,7 @@ export class WorkoutLogger {
         `,
           [exercise.id],
         );
+        const isTimed = TIMED_TRACKINGS.has(exercise.tracking);
         sets.forEach((set, index) => {
           const prior = previous[index];
           this.db.run(
@@ -99,9 +106,10 @@ export class WorkoutLogger {
               set.kind,
               prior?.weightKilograms ?? 0,
               exercise.defaultEntryUnit,
-              prior?.reps ?? set.targetRepsLow ?? 0,
+              prior?.reps ?? (isTimed ? 0 : (set.targetRepsLow ?? 0)),
               prior?.rpe ?? null,
-              prior?.durationSeconds ?? null,
+              // For timed exercises the template's target is seconds, not reps.
+              prior?.durationSeconds ?? (isTimed ? set.targetRepsLow : null),
             ],
           );
         });
