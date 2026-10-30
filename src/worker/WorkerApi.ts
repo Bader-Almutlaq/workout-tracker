@@ -1,3 +1,6 @@
+import { dailyHardSets } from '../core/queries/DailyHardSets';
+import type { SeriesPoint } from '../core/analytics/RecentVsBaseline';
+import type { Muscle } from '../core/library/Muscle';
 import { weeklyMuscleVolume, type WeeklyMuscleVolume } from '../core/queries/WeeklyMuscleVolume';
 import { workoutDaysInMonth, type WorkoutCalendarDay } from '../core/queries/WorkoutCalendar';
 import { ExerciseStrength, type ExerciseStrengthSeries } from '../core/queries/ExerciseStrength';
@@ -145,6 +148,13 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         snapshotCount: store.snapshotNames().length,
         openReport: store.openReport,
       };
+    },
+
+    // Signature chart (T-036)
+
+    /** Zero-filled local calendar days (YYYY-MM-DD); optional muscle uses fractional hard sets. */
+    async dailyHardSets(from: string, to: string, muscleId?: Muscle): Promise<SeriesPoint[]> {
+      return dailyHardSets((await liveStore()).database, { from, to, ...(muscleId === undefined ? {} : { muscleId }) });
     },
 
     // Analytics (T-035)

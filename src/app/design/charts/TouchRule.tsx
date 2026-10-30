@@ -12,10 +12,12 @@ export function TouchRule({
   scales,
   selectedIndex,
   onSelect,
+  label = 'Session estimate; drag or use arrow keys',
 }: {
   readonly points: readonly ChartPoint[];
   readonly scales: ChartScales;
   readonly selectedIndex: number | null;
+  readonly label?: string;
   readonly onSelect: (index: number | null) => void;
 }) {
   const pointer = useRef<number | null>(null);
@@ -60,7 +62,7 @@ export function TouchRule({
         height={scales.bottom - scales.top}
         tabIndex={0}
         role="slider"
-        aria-label="Session estimate; drag or use arrow keys"
+        aria-label={label}
         aria-valuemin={1}
         aria-valuemax={points.length}
         aria-valuenow={(selectedIndex ?? points.length - 1) + 1}

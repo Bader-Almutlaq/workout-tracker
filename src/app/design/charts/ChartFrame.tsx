@@ -1,12 +1,11 @@
 import { useId, type ReactNode } from 'react';
 import { FORMAT_LOCALE } from '../../format/formatLocale';
-import { ChartLayout, type ChartScales } from './chartScales';
+import { ChartLayout, chartDateLabels, type ChartScales } from './chartScales';
 import styles from './ChartFrame.module.css';
 
 const axisFormat = new Intl.NumberFormat(FORMAT_LOCALE, { maximumFractionDigits: 1 });
-const monthFormat = new Intl.DateTimeFormat(FORMAT_LOCALE, { month: 'short', year: '2-digit', timeZone: 'UTC' });
 
-/** SVG plot with a subtle background fade, three value gridlines and UTC month labels. */
+/** SVG plot with a subtle background fade, round value gridlines and UTC date labels; horizontal gridlines only (DESIGN.md → Charts). */
 export function ChartFrame({
   width,
   scales,
@@ -19,13 +18,7 @@ export function ChartFrame({
   readonly children: ReactNode;
 }) {
   const gradientId = useId();
-  const seenMonths = new Set<string>();
-  const months = scales.x.ticks(ChartLayout.monthLabelCount).filter((date) => {
-    const month = monthFormat.format(date);
-    if (seenMonths.has(month)) return false;
-    seenMonths.add(month);
-    return true;
-  });
+  const labels = chartDateLabels(scales);
   return (
     <svg className={styles.chart} viewBox={`0 0 ${width} ${ChartLayout.height}`} aria-label={label} role="group">
       <defs>
@@ -49,7 +42,7 @@ export function ChartFrame({
           </text>
         </g>
       ))}
-      {months.map((date) => (
+      {labels.map(({ date, text }) => (
         <text
           key={date.toISOString()}
           className={styles.label}
@@ -57,7 +50,7 @@ export function ChartFrame({
           y={ChartLayout.height - ChartLayout.padding.bottom / 4}
           textAnchor="middle"
         >
-          {monthFormat.format(date)}
+          {text}
         </text>
       ))}
       {children}

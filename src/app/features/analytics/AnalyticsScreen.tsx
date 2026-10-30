@@ -3,6 +3,7 @@ import type { Muscle } from '../../../core/library/Muscle';
 import { database, useDatabaseQuery } from '../../data/database';
 import { EmptyState } from '../../design/components/EmptyState';
 import { Screen } from '../../design/components/Screen';
+import { SignatureCard } from './SignatureCard';
 import { MuscleBars } from './MuscleBars';
 import { MuscleHistory } from './MuscleHistory';
 import { VolumeTable } from './VolumeTable';
@@ -25,6 +26,7 @@ export function AnalyticsScreen() {
   });
   return (
     <Screen title="Analytics" subtitle="Weekly hard sets by muscle">
+      <SignatureCard />
       {query.status === 'loading' && <EmptyState message="Loading…" />}
       {query.status === 'failed' && <EmptyState message={query.message} />}
       {query.status === 'ready' && query.value.workoutCount === 0 && (

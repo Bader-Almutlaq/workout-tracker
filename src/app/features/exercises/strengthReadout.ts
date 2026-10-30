@@ -1,3 +1,4 @@
+import { valueIn } from '../../../core/units/Weight';
 import type { ExerciseStrengthSession } from '../../../core/queries/ExerciseStrength';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { dayWithYearText } from '../../format/dateText';
@@ -27,3 +28,14 @@ export function strengthReadout(session: ExerciseStrengthSession, unit: WeightUn
 export function strengthWeeklyChangeText(percent: number | null): string {
   return percent === null ? '—' : `${rateFormat.format(percent)}% per week`;
 }
+
+/** Heuristic: headline precision follows T-036's natural load steps, 0.5 kg or 1 lb, with at most one decimal. */
+export function strengthHeadlineText(kilograms: number, unit: WeightUnit): string {
+  const step = unit === 'kg' ? strengthHeadlineSteps.kilograms : strengthHeadlineSteps.pounds;
+  const rounded = Math.round(valueIn(kilograms, unit) / step) * step;
+  return `${headlineFormat.format(rounded)} ${unit}`;
+}
+
+/** Heuristic: T-036 display steps keep a smoothed estimate readable without changing its stored precision. */
+const strengthHeadlineSteps = Object.freeze({ kilograms: 0.5, pounds: 1 });
+const headlineFormat = new Intl.NumberFormat(FORMAT_LOCALE, { maximumFractionDigits: 1 });
