@@ -101,9 +101,9 @@ Milestones are numbered W (web). W1–W3 port what the native app already had; `
 Short entries from the owner's review; each gets a design pass with the owner before tasks are written. Order is not decided yet.
 
 - **R0. Charts on hold.** Don't change any chart until the owner has tried them on the phone and given feedback. Open point for that review: the Estimated 1RM headline treats a jump of more than 15% as a probable typo and holds it until confirmed. After a long break (e.g. 104.8 → 131 kg), the headline keeps showing the old value.
-- **R1. Measurements page.** Its own screen (like Strong), reachable from the tab bar or Analytics. Each site has a "where and how to measure" note the owner writes (e.g. "waist: at the belly button, tape snug, relaxed"). Muscle sites can be logged **flexed and relaxed**. Tap a site → its history and chart; log a new value. Bookkeeping only, nothing fancier. *Today:* imported Strong measurements are stored (`bodyMeasurement`), but there is no screen. Replaces W7's measurement part.
+- **R1. Measurements page.** Its own screen (like Strong), reachable from the tab bar or Analytics. Each site has a "where and how to measure" note the owner writes (e.g. "waist: at the belly button, tape snug, relaxed"). Muscle sites can be logged **flexed and relaxed**. Tap a site → its history, a chart and its change (since the first entry and over recent weeks); log a new value. Sites cover the body parts the owner tracks (Strong's 15 plus flexed/relaxed pairs). Bookkeeping only, nothing fancier. *Today:* imported Strong measurements are stored (`bodyMeasurement`), but there is no screen. Replaces W7's measurement part.
 - **R2. Bigger exercise library with descriptions** (and images if feasible offline). Look for an open, licence-compatible dataset to merge in; keep primary and secondary muscles, which drive the volume maths. *Today:* 420 curated exercises, no descriptions or images.
-- **R3. Exercise variants.** The same movement on different machines (Panatta vs Nautilus chest press), with different grips or attachments, progresses differently. Distinct movements are already distinct exercises (bench vs incline). Open question: model a brand, grip or attachment as a variant tag that splits progression, or as separate exercises.
+- **R3. Exercise variants.** The same movement on different machines (Panatta vs Nautilus chest press), with different grips or attachments, progresses differently. Record a **machine name** (brand/model) and an **attachment** (rope, V-bar, wide bar…) and grip. Distinct movements are already distinct exercises (bench vs incline). Open question: model a brand, grip or attachment as a variant tag that splits progression, or as separate exercises.
 - **R4. Programs → workouts → exercises.** A program (e.g. "Upper/Lower") holds its workouts (e.g. "Upper A, Wednesday"), each holding exercises. *Today:* template folders → templates, and workouts started from a template remember it (`workout.templateId`), so this is largely a rename plus the analytics in R5.
 - **R5. Analytics by view.**
   - **From an exercise:** performance across everything (e1RM, which is load-independent).
@@ -118,7 +118,25 @@ Short entries from the owner's review; each gets a design pass with the owner be
   - Solid kg ↔ lb handling.
   - "Last time" shows load, reps and effort, not just the weight. Any suggestion stays opt-in (see the product rules).
   - Show the template's target reps and RPE on the live workout screen (today they appear only on the start sheet; reps prefill from last time).
+  - The same exercise twice in a program with different rep ranges (heavy day vs light day) is tracked apart (see R5).
   - The owner can send Strong screenshots as a reference.
+
+- **R7. Import from other apps.** Strong works today. Add Hevy next, then other common trackers whose exports are documented. Each importer reuses the review step: unit check, flagged sets, leave out.
+- **R8. Export.**
+  - The full backup already exists (one SQLite file).
+  - Add CSV exports in **Strong's format**, which Hevy and most trackers can import, and in **Hevy's format**.
+  - Check each round trip by importing the export into the real app where possible.
+- **R9. Warm-ups.** Warm-up sets look distinct and never count toward volume or hard sets; the counting part is done (T-039). *To confirm with the owner:* whether "warm-up feature" also means generating warm-up sets automatically (a ramp up to the first working weight), off by default.
+- **R10. Effort: RPE and RIR.**
+  - Enter effort as RPE or RIR (one setting; stored once, as RPE).
+  - Show an RPE-over-time chart per exercise.
+  - Show an RPE estimate: "100 kg × 8 is about RPE 8 for you", from the e1RM trend. Descriptive, never a prescription.
+- **R11. Automatic backup.** Today a backup is one tap, with a reminder after 7 days. The owner wants it fully automatic. A web app can't write to iCloud Drive silently, so it needs a cloud the owner signs into once. Decision pending: see *Needed from the user*.
+- **R12. Edit past workouts.** History is read-only today, so a typo after import or after finishing can't be fixed. Allow editing and deleting sets and workouts in History, taking a snapshot first, and run the typo check when editing.
+- **R13. Deload marker (to discuss).**
+  - A button starts a deload.
+  - The app proposes a deload from the research report (volume and intensity reductions, length), opt-in and editable.
+  - Charts colour the deload weeks so a planned dip reads as a deload, not a loss of performance.
 
 ## Needed from the user
 
@@ -126,6 +144,8 @@ Short entries from the owner's review; each gets a design pass with the owner be
 - [x] **Hosting:** GitHub Pages, public repository (2026-10-30).
 - [ ] Optional: Strong screenshots as UI reference.
 - [ ] Preferred effort scale (RPE or RIR); app display name (currently "Workouts").
+- [ ] **Automatic backup (R11):** which cloud the app may send backups to (e.g. Dropbox or Google Drive, free, signed in once; or iCloud via CloudKit, which needs a paid Apple Developer account). This relaxes "nothing leaves the phone" for the owner's own cloud only.
+- [ ] Warm-up generator wanted? (R9)
 
 ## Status
 
