@@ -1,3 +1,4 @@
+import type { Database } from '../core/db/Database';
 import { personalBestsForWorkout, personalBestCounts } from '../core/queries/PersonalBests';
 import { workoutComparison } from '../core/queries/WorkoutComparison';
 import { MeasurementQueries } from '../core/measurements/MeasurementQueries';
@@ -31,6 +32,7 @@ import { validateBackup } from '../core/backup/BackupValidation';
 import { AppSettingKey, getSetting, setSetting } from '../core/db/AppSetting';
 import type { OnDeviceStore, OpenReport } from './OnDeviceStore';
 import type { CustomExerciseDraft } from '../core/library/CustomExerciseDraft';
+import type { ExerciseLoadingSettings } from '../core/library/ExerciseEditor';
 import { ExerciseEditor } from '../core/library/ExerciseEditor';
 import { ExerciseLibrary } from '../core/library/ExerciseLibrary';
 import type { ExerciseSearchEntry } from '../core/library/ExerciseSearch';
@@ -130,6 +132,16 @@ class StrongImportFlowError extends Error {
  *   the database across an `await`: a restore swaps the connection.
  */
 export function createWorkerApi(ready: Promise<OnDeviceStore>) {
+  // Warm-ups (T-044): provenance has the same lifetime as the database connection.
+  const loggers = new WeakMap<Database, WorkoutLogger>();
+  const workoutLogger = (db: Database): WorkoutLogger => {
+    let logger = loggers.get(db);
+    if (logger === undefined) {
+      logger = new WorkoutLogger(db);
+      loggers.set(db, logger);
+    }
+    return logger;
+  };
   const listeners = new Map<number, ChangeListener>();
   let nextSubscriptionId = 1;
   let importRows: StrongRow[] = [];
@@ -518,19 +530,31 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     }),
     // End of Exercises (T-022)
 
+    // Warm-ups (T-044)
+    /** Untouched generated warm-up ids for one entry; completion always stores the shown values. */
+    suggestedWarmupSetIds: serially(async (entryId: number): Promise<number[]> =>
+      workoutLogger((await liveStore()).database).suggestedWarmupSetIds(entryId),
+    ),
+    /** Saves nullable loading overrides on any exercise, including built-in exercises. */
+    updateExerciseLoading: serially(async (exerciseId: number, settings: ExerciseLoadingSettings): Promise<void> => {
+      ExerciseEditor.setLoadingSettings((await liveStore()).database, exerciseId, settings);
+      notifyListeners();
+    }),
+    // End of Warm-ups (T-044)
+
     // Workout (T-024)
     // Every write is one logger action and notifies listeners, so the logging screen refreshes after each tap.
 
     /** The workout being logged with last session's sets for each exercise, or `null` when none is in progress. */
     liveWorkout: serially(async (): Promise<LiveWorkoutSnapshot | null> => {
       const db = (await liveStore()).database;
-      const workoutId = new WorkoutLogger(db).activeWorkoutId();
+      const workoutId = workoutLogger(db).activeWorkoutId();
       return workoutId === undefined ? null : (liveWorkoutSnapshot(db, workoutId) ?? null);
     }),
 
     /** The id of the workout being logged, or `null` when none is in progress. */
     activeWorkoutId: serially(async (): Promise<number | null> => {
-      return new WorkoutLogger((await liveStore()).database).activeWorkoutId() ?? null;
+      return workoutLogger((await liveStore()).database).activeWorkoutId() ?? null;
     }),
 
     /** The latest finished workouts, newest first, offered under "Repeat a past workout". */
@@ -567,7 +591,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     startWorkout: serially(async (name: string, exerciseIds: readonly number[]): Promise<number> => {
       const database = (await liveStore()).database;
       const workoutId = database.transaction(() => {
-        const logger = new WorkoutLogger(database);
+        const logger = workoutLogger(database);
         const id = logger.start(name, new Date());
         for (const exerciseId of exerciseIds) logger.addExercise(exerciseId, id);
         return id;
@@ -580,7 +604,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     finishWorkout: serially(async (workoutId: number): Promise<FinishResult> => {
       const db = (await liveStore()).database;
       const result = db.transaction(() => {
-        const finished = new WorkoutLogger(db).finish(workoutId, new Date());
+        const finished = workoutLogger(db).finish(workoutId, new Date());
         // Dropbox backup (T-042): commit the retry flag with the workout, before the app can close.
         if (
           finished.workoutId !== null &&
@@ -607,13 +631,13 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
 
     /** Deletes the workout in progress with everything logged in it. */
     discardWorkout: serially(async (workoutId: number): Promise<void> => {
-      new WorkoutLogger((await liveStore()).database).discard(workoutId);
+      workoutLogger((await liveStore()).database).discard(workoutId);
       notifyListeners();
     }),
 
     /** Renames a workout and replaces its notes (`null` clears them). */
     updateWorkout: serially(async (workoutId: number, name: string, notes: string | null): Promise<void> => {
-      new WorkoutLogger((await liveStore()).database).update(workoutId, name, notes);
+      workoutLogger((await liveStore()).database).update(workoutId, name, notes);
       notifyListeners();
     }),
 
@@ -621,7 +645,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     addExercises: serially(async (workoutId: number, exerciseIds: readonly number[]): Promise<void> => {
       const database = (await liveStore()).database;
       database.transaction(() => {
-        const logger = new WorkoutLogger(database);
+        const logger = workoutLogger(database);
         for (const exerciseId of exerciseIds) logger.addExercise(exerciseId, workoutId);
       });
       notifyListeners();
@@ -629,19 +653,19 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
 
     /** Removes an exercise entry and its sets from the workout. */
     removeExercise: serially(async (entryId: number): Promise<void> => {
-      new WorkoutLogger((await liveStore()).database).removeExercise(entryId);
+      workoutLogger((await liveStore()).database).removeExercise(entryId);
       notifyListeners();
     }),
 
     /** Moves an exercise entry to a zero-based position in the workout. */
     moveExercise: serially(async (entryId: number, newPosition: number): Promise<void> => {
-      new WorkoutLogger((await liveStore()).database).moveExercise(entryId, newPosition);
+      workoutLogger((await liveStore()).database).moveExercise(entryId, newPosition);
       notifyListeners();
     }),
 
     /** Appends a planned set that copies the exercise's last set. */
     addSet: serially(async (entryId: number): Promise<void> => {
-      new WorkoutLogger((await liveStore()).database).addSet(entryId);
+      workoutLogger((await liveStore()).database).addSet(entryId);
       notifyListeners();
     }),
 
@@ -656,7 +680,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         kind: SetKind,
         durationSeconds: number | null,
       ): Promise<void> => {
-        new WorkoutLogger((await liveStore()).database).updateSet(
+        workoutLogger((await liveStore()).database).updateSet(
           setId,
           weightKilograms,
           entryUnit,
@@ -671,19 +695,19 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
 
     /** Switches an exercise between kg and lb for its planned sets; stored kilograms don't change. */
     setEntryUnit: serially(async (unit: WeightUnit, entryId: number): Promise<void> => {
-      new WorkoutLogger((await liveStore()).database).setEntryUnit(unit, entryId);
+      workoutLogger((await liveStore()).database).setEntryUnit(unit, entryId);
       notifyListeners();
     }),
 
     /** Marks a set done (recording the rest since the previous one) or not done. */
     setCompleted: serially(async (setId: number, completed: boolean): Promise<void> => {
-      new WorkoutLogger((await liveStore()).database).setCompleted(setId, completed, new Date());
+      workoutLogger((await liveStore()).database).setCompleted(setId, completed, new Date());
       notifyListeners();
     }),
 
     /** Deletes a set. */
     deleteSet: serially(async (setId: number): Promise<void> => {
-      new WorkoutLogger((await liveStore()).database).deleteSet(setId);
+      workoutLogger((await liveStore()).database).deleteSet(setId);
       notifyListeners();
     }),
     // End of Workout (T-024)
@@ -795,7 +819,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
      * refreshing swaps it for the workout in progress, which is the way to resume it.
      */
     startFromTemplate: serially(async (templateId: number): Promise<number> => {
-      const logger = new WorkoutLogger((await liveStore()).database);
+      const logger = workoutLogger((await liveStore()).database);
       if (logger.activeWorkoutId() !== undefined) notifyListeners();
       const workoutId = logger.startFromTemplate(templateId, new Date());
       notifyListeners();

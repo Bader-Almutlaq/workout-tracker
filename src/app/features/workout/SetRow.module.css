@@ -16,3 +16,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.row[data-warmup='true'] {
+  --set-cell-background: var(--color-warmup-row);
+  background: var(--color-warmup-row);
+}
+.row[data-separator='true'] {
+  border-top: var(--hairline) solid var(--color-border-strong);
+}

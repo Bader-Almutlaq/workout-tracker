@@ -9,7 +9,6 @@ import { ExerciseForm } from './ExerciseForm';
 import { RETURN_TO_PARAM, safeReturnPath } from './returnPath';
 
 const MISSING_MESSAGE = 'This exercise no longer exists.';
-const BUILT_IN_MESSAGE = 'Built-in exercises can’t be edited. Duplicate it to make your own version.';
 
 /**
  * Creates or edits an exercise. Three ways in, all the same form:
@@ -45,13 +44,6 @@ export function ExerciseFormScreen() {
       </Screen>
     );
   }
-  if (editId !== undefined && detail !== null && detail.exercise.libraryKey !== null) {
-    return (
-      <Screen title={title} leading={back}>
-        <EmptyState message={BUILT_IN_MESSAGE} />
-      </Screen>
-    );
-  }
 
   const initial: CustomExerciseDraft =
     detail === null ? { name: params.get('name') ?? '' } : draftFromDetail(detail, editId === undefined);
@@ -61,6 +53,8 @@ export function ExerciseFormScreen() {
       <ExerciseForm
         exerciseId={editId === undefined ? undefined : Number(editId)}
         initial={initial}
+        unit={detail?.exercise.defaultEntryUnit ?? 'kg'}
+        loadingOnly={editId !== undefined && detail !== null && detail.exercise.libraryKey !== null}
         backPath={backPath}
       />
     </Screen>

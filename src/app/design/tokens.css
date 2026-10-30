@@ -19,6 +19,7 @@
   --color-text-tertiary: #8a8f98;
   --color-accent: #5e6ad2;
   --color-accent-subtle: rgb(94 106 210 / 0.12);
+  --color-warmup-row: rgb(199 150 63 / 0.1);
   --color-on-accent: #ffffff;
 
   /* Status: always paired with an icon and a label. */
@@ -70,6 +71,7 @@
     --color-text-tertiary: #62666d;
     --color-accent: #7c85e8;
     --color-accent-subtle: rgb(124 133 232 / 0.16);
+    --color-warmup-row: rgb(199 150 63 / 0.14);
   }
 }
 
@@ -85,4 +87,5 @@
   --color-text-tertiary: #62666d;
   --color-accent: #7c85e8;
   --color-accent-subtle: rgb(124 133 232 / 0.16);
+  --color-warmup-row: rgb(199 150 63 / 0.14);
 }

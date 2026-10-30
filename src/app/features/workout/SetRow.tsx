@@ -23,6 +23,8 @@ export function SetRow({
   previous,
   editing,
   actions,
+  isSuggested = false,
+  separatesWarmups = false,
 }: {
   readonly entry: LiveWorkoutEntry;
   readonly set: WorkoutSet;
@@ -33,6 +35,8 @@ export function SetRow({
   /** The cell of this row the pad is typing into, if any. */
   readonly editing: EditedCell | undefined;
   readonly actions: ExerciseCardActions;
+  readonly isSuggested?: boolean;
+  readonly separatesWarmups?: boolean;
 }) {
   const { tracking, defaultEntryUnit } = entry.exercise;
   const row = useRef<HTMLDivElement>(null);
@@ -55,6 +59,8 @@ export function SetRow({
         className={`${grid.grid} ${styles.row}`}
         data-weight={recordsWeight(tracking)}
         data-completed={set.isCompleted}
+        data-warmup={set.kind === 'warmup'}
+        data-separator={separatesWarmups}
       >
         <SetKindMenu
           label={label}
@@ -69,13 +75,21 @@ export function SetRow({
           <SetCell
             set={set}
             field="weight"
+            isSuggested={isSuggested}
             tracking={tracking}
             editing={editing}
             {...(isInOtherUnit ? { unitSuffix: set.entryUnit } : {})}
             onPress={edit('weight')}
           />
         )}
-        <SetCell set={set} field="reps" tracking={tracking} editing={editing} onPress={edit('reps')} />
+        <SetCell
+          isSuggested={isSuggested}
+          set={set}
+          field="reps"
+          tracking={tracking}
+          editing={editing}
+          onPress={edit('reps')}
+        />
         <SetCell set={set} field="rpe" tracking={tracking} editing={editing} onPress={edit('rpe')} />
         <CheckButton isCompleted={set.isCompleted} onPress={() => actions.toggleCompleted(entry, set)} />
       </div>

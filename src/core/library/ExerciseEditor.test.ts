@@ -140,3 +140,74 @@ it('foreign keys refuse deletion of an exercise used by history or only by a tem
   expect(DataSafetyFixture.read(db)).toEqual(templateOnly);
   db.close();
 });
+
+it('stores loading overrides on create, preserves omitted fields on update, and clears explicit null', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  const settings = { loadStepKilograms: 2, barWeightKilograms: 17.25, warmupSetCount: 4 };
+  try {
+    const id = ExerciseEditor.create(db, { ...draft, ...settings }, now);
+    const read = () =>
+      db.get('SELECT loadStepKilograms, barWeightKilograms, warmupSetCount FROM exercise WHERE id = ?', [id]);
+    expect(read()).toEqual(settings);
+    ExerciseEditor.update(db, id, draft);
+    expect(read()).toEqual(settings);
+    ExerciseEditor.update(db, id, { ...draft, loadStepKilograms: null, barWeightKilograms: null, warmupSetCount: 0 });
+    expect(read()).toEqual({ loadStepKilograms: null, barWeightKilograms: null, warmupSetCount: 0 });
+  } finally {
+    db.close();
+  }
+});
+
+it('loading-only edits work on library exercises without changing their frozen metadata', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  try {
+    db.run(`
+      INSERT INTO exercise (id, name, source, libraryKey, createdAt)
+      VALUES (1, 'Synthetic library bench', 'library', 'synthetic-bench', '2026-01-01')
+    `);
+    const before = db.get('SELECT * FROM exercise WHERE id = 1');
+    ExerciseEditor.setLoadingSettings(db, 1, { loadStepKilograms: 1.25, barWeightKilograms: 0, warmupSetCount: 0 });
+    expect(db.get('SELECT * FROM exercise WHERE id = 1')).toEqual({
+      ...before,
+      loadStepKilograms: 1.25,
+      barWeightKilograms: 0,
+      warmupSetCount: 0,
+    });
+    ExerciseEditor.setLoadingSettings(db, 1, {});
+    expect(db.get('SELECT * FROM exercise WHERE id = 1')).toEqual(before);
+    expect(() => ExerciseEditor.setLoadingSettings(db, -1, {})).toThrow('no longer exists');
+  } finally {
+    db.close();
+  }
+});
+
+it.each([
+  { loadStepKilograms: 0 },
+  { loadStepKilograms: -1 },
+  { loadStepKilograms: NaN },
+  { loadStepKilograms: Infinity },
+  { barWeightKilograms: -1 },
+  { barWeightKilograms: NaN },
+  { barWeightKilograms: Infinity },
+  { warmupSetCount: -1 },
+  { warmupSetCount: 5 },
+  { warmupSetCount: 1.5 },
+  { warmupSetCount: NaN },
+])('invalid loading settings fail atomically: %j', async (settings) => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  try {
+    const id = ExerciseEditor.create(db, draft, now);
+    const before = DataSafetyFixture.read(db);
+    expect(() => ExerciseEditor.setLoadingSettings(db, id, settings)).toThrow('Use a positive load step');
+    expect(() => ExerciseEditor.create(db, { ...draft, name: 'Invalid', ...settings }, now)).toThrow(
+      'Use a positive load step',
+    );
+    expect(() => ExerciseEditor.update(db, id, { ...draft, ...settings })).toThrow('Use a positive load step');
+    expect(DataSafetyFixture.read(db)).toEqual(before);
+  } finally {
+    db.close();
+  }
+});

@@ -33,6 +33,12 @@ export interface Exercise {
   readonly defaultEntryUnit: WeightUnit;
   /** Rest timer length the owner chose for this exercise, in seconds; `null` uses the app default. */
   readonly restTargetSeconds: number | null;
+  /** Load increment in exact kg; null/omitted uses the equipment default. Optional for older in-memory callers. */
+  readonly loadStepKilograms?: number | null;
+  /** Empty bar/carriage in exact kg; null/omitted uses the equipment default. */
+  readonly barWeightKilograms?: number | null;
+  /** Suggested warm-up count, 0–4; null/omitted uses the equipment default. */
+  readonly warmupSetCount?: number | null;
   /** Hidden from search and pickers; history is kept. */
   readonly isArchived: boolean;
   /** UTC ISO 8601 timestamp. */

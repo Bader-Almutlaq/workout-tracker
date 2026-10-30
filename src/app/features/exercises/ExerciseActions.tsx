@@ -28,7 +28,10 @@ export function ExerciseActions({ detail }: { readonly detail: ExerciseCatalogDe
   return (
     <div className={styles.actions}>
       {isBuiltIn ? (
-        <LinkButton to={`/exercises/new?copy=${exercise.id}`}>Duplicate as my own</LinkButton>
+        <>
+          <LinkButton to={`/exercises/${exercise.id}/edit`}>Edit loading</LinkButton>
+          <LinkButton to={`/exercises/new?copy=${exercise.id}`}>Duplicate as my own</LinkButton>
+        </>
       ) : (
         <LinkButton to={`/exercises/${exercise.id}/edit`}>Edit</LinkButton>
       )}
