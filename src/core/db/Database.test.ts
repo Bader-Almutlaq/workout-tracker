@@ -24,6 +24,7 @@ describe('migrations', () => {
       'exercise',
       'exerciseAlias',
       'exerciseMuscle',
+      'measurementSite',
       'migration',
       'muscle',
       'template',

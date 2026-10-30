@@ -79,3 +79,11 @@ Implemented once in WorkoutCore and used in two places:
 - **Live logging:** the same check asks "Is this right?" before saving a suspicious set.
 A set left out of an imported workout can be brought back only by deleting that workout and importing the export again. If every set was left out, the workout was not imported and can be imported later. The original export remains unchanged.
 
+
+## Body measurements (T-043)
+
+- `measurementSite` owns stable site keys, length/mass kind, left/right grouping, flexed support, display order and the editable how-to guide. Migration `v4-measurement-sites` freezes 16 defaults (15 Strong circumference sites plus bodyweight). Unknown legacy/imported slugs become custom length sites; original values are never guessed or changed.
+- `bodyMeasurement` stores unrounded cm for lengths and kg for masses, a UTC timestamp, provenance, and `relaxed`/`flexed` state. Uniqueness is `(takenAt, site, state)`. New app entries retain their typed `entryUnit`; legacy/imported entries have null because their original typing unit is unknown. Editing preserves provenance. Duplicate entries are refused rather than overwritten.
+- v4 rebuilds the table in one migration transaction, preserving ids, timestamps, values, source and the autoincrement high-water mark. Existing rows become relaxed. The worker takes its existing safety snapshot before migration; older backups validate and migrate through the existing restore flow.
+- `lengthUnit` (`cm`/`in`, default `cm`) and `weightUnit` (`kg`/`lb`, default `kg`) are app settings for Body display. The existing app had per-exercise entry units and kg training analytics, but no global weight setting; Body provides the weight display picker. All units remain in backups. An inch is exactly 2.54 cm; lb conversion uses the existing weight owner.
+- Changes are computed independently per state, relative to that state's latest observation. A 4-/12-week change subtracts the newest entry on or before latest minus 28/84 elapsed days; it is null if none exists. Since-first needs two entries. The monthly rate is a descriptive least-squares slope using observations in the inclusive last 84 days, scaled by a mean Gregorian month (365.2425 / 12 days); fewer than two distinct timestamps gives null. No interpolation or training recommendation is made.

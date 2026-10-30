@@ -37,7 +37,7 @@ export const DataSafetyFixture = {
         (2, 2, 0, 'warmup', 0, 'kg', 0, NULL, NULL, NULL, 'right', NULL, NULL, 0, NULL),
         (3, 1, 1, 'working', 42.125, 'kg', 9, 10, NULL, NULL, 'both', NULL, NULL, 1, ''),
         (4, 1, 2, 'drop', 20.25, 'kg', 12, 9, 0, 0, 'both', 0, NULL, 1, NULL);
-      INSERT INTO bodyMeasurement VALUES
+      INSERT INTO bodyMeasurement (id, takenAt, site, value, source) VALUES
         (1, '2026-01-01T10:00:00.000Z', 'waist', 83.125, 'strong'),
         (2, '2026-01-02T10:00:00.000Z', 'bodyweight', 81.2345, 'app');
       INSERT INTO appSetting VALUES ('custom-setting', 'α\n{"enabled":true}');

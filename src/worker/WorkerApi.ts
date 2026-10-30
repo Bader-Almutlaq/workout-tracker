@@ -1,3 +1,10 @@
+import { MeasurementQueries } from '../core/measurements/MeasurementQueries';
+import {
+  MeasurementStore,
+  type MeasurementDraft,
+  type MeasurementSiteDraft,
+} from '../core/measurements/MeasurementStore';
+import { measurementUnits, type MeasurementUnits } from '../core/measurements/MeasurementUnits';
 import { log } from '../core/support/log';
 import { dailyHardSets } from '../core/queries/DailyHardSets';
 import type { SeriesPoint } from '../core/analytics/RecentVsBaseline';
@@ -174,6 +181,52 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         openReport: store.openReport,
       };
     }),
+
+    // Measurements (T-043)
+
+    /** Ordered groups with latest relaxed/flexed values and changes, plus display preferences. */
+    measurementSites: serially(async () => {
+      const db = (await liveStore()).database;
+      return { groups: MeasurementQueries.list(db), units: measurementUnits(db) };
+    }),
+
+    /** A site's complete history, or null if it no longer exists. */
+    measurementDetail: serially(async (key: string) => {
+      return MeasurementQueries.detail((await liveStore()).database, key);
+    }),
+
+    /** Logs or edits one measurement in the supplied entry unit, defaulting to now. */
+    saveMeasurement: serially(async (draft: MeasurementDraft): Promise<number> => {
+      const id = MeasurementStore.save((await liveStore()).database, draft);
+      notifyListeners();
+      return id;
+    }),
+
+    /** Deletes one measurement. */
+    deleteMeasurement: serially(async (id: number): Promise<void> => {
+      MeasurementStore.delete((await liveStore()).database, id);
+      notifyListeners();
+    }),
+
+    /** Replaces a site's how-to note verbatim. */
+    updateMeasurementGuide: serially(async (key: string, guide: string): Promise<void> => {
+      MeasurementStore.updateGuide((await liveStore()).database, key, guide);
+      notifyListeners();
+    }),
+
+    /** Adds a custom length/mass site and returns its stable key. */
+    addMeasurementSite: serially(async (draft: MeasurementSiteDraft): Promise<string> => {
+      const key = MeasurementStore.addSite((await liveStore()).database, draft);
+      notifyListeners();
+      return key;
+    }),
+
+    /** Remembers body display units without rewriting measurements. */
+    setMeasurementUnits: serially(async (units: MeasurementUnits): Promise<void> => {
+      MeasurementStore.setUnits((await liveStore()).database, units);
+      notifyListeners();
+    }),
+    // End of Measurements (T-043)
 
     // Signature chart (T-036)
 

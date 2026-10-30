@@ -13,7 +13,7 @@ export interface ImportResult {
   /** Sets selected to be left out of this import. */
   readonly setsExcluded: number;
   readonly exercisesCreated: number;
-  /** Measurements not already present (same time and site). */
+  /** Measurements not already present (same time, site and relaxed state). */
   readonly measurementsAdded: number;
 }
 
@@ -90,8 +90,18 @@ export function importStrongPlan(db: Database, plan: StrongImportPlan, now: Date
     }
 
     for (const measurement of plan.measurements) {
+      // New exports can introduce slugs that were absent when v4 ran.
+      db.run(
+        `
+        INSERT OR IGNORE INTO measurementSite
+          (key, name, kind, groupKey, side, supportsFlexed, guide, position, isCustom)
+        VALUES (?, ?, ?, ?, NULL, 0, '', (SELECT COALESCE(MAX(position), -1) + 1 FROM measurementSite), 1)
+      `,
+        [measurement.site, measurement.site, measurement.site === 'bodyweight' ? 'mass' : 'length', measurement.site],
+      );
       const { changes } = db.run(
-        'INSERT OR IGNORE INTO bodyMeasurement (takenAt, site, value, source) VALUES (?, ?, ?, ?)',
+        `INSERT OR IGNORE INTO bodyMeasurement (takenAt, site, value, source, state)
+         VALUES (?, ?, ?, ?, 'relaxed')`,
         [measurement.takenAt, measurement.site, measurement.value, measurement.source],
       );
       if (changes > 0) counters.measurementsAdded += 1;

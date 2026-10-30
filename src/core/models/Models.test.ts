@@ -209,6 +209,8 @@ describe('row conversion', () => {
       site: 'bodyweight',
       value: 84.5,
       source: 'app',
+      state: 'relaxed',
+      entryUnit: null,
     });
   });
 });

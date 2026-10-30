@@ -1,19 +1,16 @@
 import { BodyMeasurementSite, type BodyMeasurement } from '../models/BodyMeasurement';
-import { toKilograms } from '../units/Weight';
+import { storedMeasurementValue } from '../measurements/MeasurementUnits';
 import { CsvTable } from './CsvTable';
 import { ImportError } from './ImportError';
 import { parseDecimal } from './parseDecimal';
 import { parseStrongTimestamp } from './StrongTimestamp';
 import { trimWhitespace } from './trimWhitespace';
 
-/** A measurement read from a Strong export, ready to store (the database assigns the `id`). */
-export type PlannedMeasurement = Omit<BodyMeasurement, 'id'>;
+/** Exact measurement conversion constants, retained here for existing import callers. */
+export { MeasurementConversion } from '../measurements/MeasurementUnits';
 
-/** Unit conversions for measurement files. */
-export const MeasurementConversion = {
-  /** Exact, by international definition (1959). */
-  centimetresPerInch: 2.54,
-} as const;
+/** A measurement read from a Strong export, ready to store (the database assigns the `id`). */
+export type PlannedMeasurement = Omit<BodyMeasurement, 'id' | 'state' | 'entryUnit'>;
 
 /** Whether `table` looks like a measurements export (used to sort picked files). */
 export function isStrongMeasurementsFile(table: CsvTable): boolean {
@@ -81,10 +78,10 @@ export function normaliseMeasurement(value: number, unit: string): number {
     case 'in':
     case 'inch':
     case 'inches':
-      return value * MeasurementConversion.centimetresPerInch;
+      return storedMeasurementValue(value, 'in');
     case 'lb':
     case 'lbs':
-      return toKilograms(value, 'lb');
+      return storedMeasurementValue(value, 'lb');
     default:
       return value;
   }
