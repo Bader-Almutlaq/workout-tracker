@@ -33,11 +33,9 @@ From Settings, the owner picks the Strong export files on the phone, reviews whi
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Implementation complete; visual and simulator acceptance checks remain outstanding.
+- **What was done:** Added the Settings entry and import route, CSV picking, review of totals and detected pound units, grouped suspicious-set decisions and manual edits, blocking progress, and result counts. The worker retains the source and rebuilds the plan for decisions; it takes a snapshot before the transaction and notifies listeners after success.
+- **Files touched:** `src/worker/WorkerApi.ts`, `src/app/App.tsx`, `src/app/features/settings/SettingsScreen.tsx`, `src/app/features/import/StrongImportScreen.tsx`, `src/app/features/import/StrongImportScreen.module.css`, and this handoff. Core import and migrations were not changed.
+- **Decisions taken:** Added `reviewStrongImport` to rebuild the plan off the UI thread when decisions change. Only one workouts file may be selected at a time: line numbers identify review decisions and collide across multiple workouts files; any number of measurement files can accompany it. Unreviewed findings import as logged, matching the native flow.
+- **Open questions / left over:** Run the complete flow on iPhone 15 Pro Max Safari in dark and light with a synthetic fixture, including flagged-set edits, errors, and re-import. Confirm layout, keyboard, safe areas, snapshot and actual phone import timing. No real export was read. The changes are uncommitted as requested.
+- **How it was verified:** `make verify` passed (lint, type checks, 277 tests, production build). Existing core tests cover planning, corrections and idempotent importing; the new UI and worker integration were not exercised end-to-end. `make dev` failed with `listen EPERM` on port 5173 under the sandbox, preventing simulator and browser checks.
