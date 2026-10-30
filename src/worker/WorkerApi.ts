@@ -1,5 +1,6 @@
 import { weeklyMuscleVolume, type WeeklyMuscleVolume } from '../core/queries/WeeklyMuscleVolume';
 import { workoutDaysInMonth, type WorkoutCalendarDay } from '../core/queries/WorkoutCalendar';
+import { ExerciseStrength, type ExerciseStrengthSeries } from '../core/queries/ExerciseStrength';
 import { CsvTable } from '../core/import/CsvTable';
 import { makeStrongImportPlan, type StrongImportPlan } from '../core/import/StrongImportPlan';
 import { makeImportOptions, type StrongImportOptions } from '../core/import/StrongImportOptions';
@@ -467,6 +468,14 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       notifyListeners();
     },
     // End of Rest timer (T-027)
+
+    // Strength (T-034)
+
+    /** Daily best estimates and smoothed strength in kg; no qualifying history returns empty series. */
+    async exerciseStrength(exerciseId: number): Promise<ExerciseStrengthSeries> {
+      return ExerciseStrength.series((await liveStore()).database, exerciseId, new Date());
+    },
+    // End of Strength (T-034)
 
     // Templates (T-029)
 
