@@ -26,7 +26,7 @@ Manual backups to Files / iCloud Drive take one tap and remain available alongsi
 
 #### Connect Dropbox (once on this phone)
 
-The Dropbox section is hidden until the lead fills in the public `DROPBOX_APP_KEY` in `src/app/data/dropboxConfig.ts`. The Dropbox app must use **App folder** access and enable `files.content.write` and `files.metadata.read`. No client secret or redirect URI is needed.
+The built-in public app key is ready to use. To use your own Dropbox app instead, expand **Use your own Dropbox app key**, create an app at dropbox.com/developers/apps with **Scoped access** and **App folder**, enable `files.metadata.read`, `files.content.write` and `files.content.read`, then enter and save its App key. Changing the key revokes the old connection first; connect again afterwards. Leave the field blank and save to return to the built-in key. No client secret or redirect URI is needed.
 
 1. Open **Settings → Backup → Dropbox → Connect Dropbox**. Allow a new tab if Safari asks.
 2. Approve access in Dropbox. Copy the authorization code Dropbox displays, then return to the Home Screen app.
@@ -37,7 +37,7 @@ After each saved workout the app uploads the same validated `.sqlite` export use
 
 A failed upload remains pending and retries when the app next opens or receives an `online` event. Keep the app open long enough to finish: iOS can suspend background web apps. If Dropbox revokes access, the app forgets the rejected credentials and offers **Reconnect Dropbox**. Backups require a connection; logging always works offline.
 
-Only the refresh token is persisted in this phone's `localStorage`, under `workout-tracker.dropbox.refresh-token`; access tokens and the PKCE verifier stay in memory. Tokens never enter SQLite, logs, or backup files. The non-secret `appSetting` rows are `cloudBackupProvider`, `lastCloudBackupAt`, and `cloudBackupPending`. Restoring a backup on another phone does not connect its Dropbox; connect again there. Clearing website data or deleting the Home Screen app requires connecting again too.
+The refresh token and optional public app key are persisted in this phone's `localStorage`, under `workout-tracker.dropbox.refresh-token` and `workout-tracker.dropbox.app-key`; access tokens and the PKCE verifier stay in memory. Tokens never enter SQLite, logs, or backup files. The non-secret `appSetting` rows are `cloudBackupProvider`, `lastCloudBackupAt`, and `cloudBackupPending`. Restoring a backup on another phone does not connect its Dropbox; connect again there. Clearing website data or deleting the Home Screen app requires connecting again too.
 
 After a successful upload the app lists the complete Dropbox app-folder root, keeping the newest **14** app backups plus the **earliest backup of each calendar month in the phone's local time**, ordered by Dropbox's server timestamp. It deletes only exact app backup filenames; unrelated files, subfolders, manual backups elsewhere, and local safety snapshots are untouched. A failed upload never runs retention. A retention failure still records the successful upload and leaves a pending retry. Changes saved during an upload retain a pending retry so a stale export cannot mark newer data as backed up.
 

@@ -84,7 +84,7 @@ export function BackupSection() {
     <>
       <Section
         label="Backup"
-        footnote="Back up saves a copy of everything to Files; choose the same iCloud Drive folder each time. Restore replaces what is on this phone."
+        footnote="As an alternative to Dropbox, Back up now saves a copy of everything to Files; choose the same iCloud Drive folder each time. Restore replaces what is on this phone."
       >
         <SectionRow label="Last backup" value={describeLastBackup(lastBackupAt)} />
         <button
@@ -96,7 +96,7 @@ export function BackupSection() {
             backUp();
           }}
         >
-          {backupFile.status === 'loading' ? 'Preparing…' : 'Back up'}
+          {backupFile.status === 'loading' ? 'Preparing…' : 'Back up now'}
         </button>
         <button
           type="button"

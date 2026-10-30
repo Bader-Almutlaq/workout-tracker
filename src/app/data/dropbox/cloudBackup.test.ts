@@ -5,6 +5,7 @@ const calls = vi.hoisted(() => ({
   initialize: vi.fn(async () => undefined),
   retryPending: vi.fn(async () => undefined),
 }));
+vi.mock('./effectiveDropboxAppKey', () => ({ effectiveDropboxAppKey: () => 'key' }));
 vi.mock('../database', () => ({ database: {} }));
 vi.mock('./DropboxBackup', () => ({
   DropboxBackup: class {
@@ -31,12 +32,12 @@ test('enabled runtime initializes once and forwards online events without a moun
   expect(calls.retryPending).toHaveBeenCalledOnce();
 });
 
-test('disabled runtime performs no startup action and registers no online listener', async () => {
+test('disabled runtime retains startup and online wiring for a key added later', async () => {
   calls.enabled = false;
   const browser = new EventTarget();
   vi.stubGlobal('window', browser);
   await import('./cloudBackup');
   browser.dispatchEvent(new Event('online'));
-  expect(calls.initialize).not.toHaveBeenCalled();
-  expect(calls.retryPending).not.toHaveBeenCalled();
+  expect(calls.initialize).toHaveBeenCalledOnce();
+  expect(calls.retryPending).toHaveBeenCalledOnce();
 });

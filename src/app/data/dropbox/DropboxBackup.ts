@@ -4,6 +4,7 @@ import type { BackupExport, CloudBackupSettings, CloudBackupSettingsUpdate } fro
 import { DropboxApi } from './DropboxApi';
 import { DropboxError } from './DropboxError';
 import { DropboxTokenStore } from './DropboxTokenStore';
+import { effectiveDropboxAppKey } from './effectiveDropboxAppKey';
 import { authorizationUrl, createVerifier, verifierChallenge } from './pkce';
 
 /** The shared view state; credentials and the verifier never appear here. */
@@ -41,7 +42,7 @@ export class DropboxBackup {
   private verifier: string | undefined;
 
   constructor(
-    private readonly appKey: string,
+    private appKey: string,
     private readonly database: DropboxBackupDatabase,
     private readonly tokens: DropboxTokenStore,
     private readonly api: DropboxApi,
@@ -151,6 +152,26 @@ export class DropboxBackup {
     });
   }
 
+  /** Save a device key only after revoking the old connection; an empty key selects the default. */
+  saveAppKey(key: string): Promise<void> {
+    return this.run(async () => {
+      const trimmed = key.trim();
+      // An empty value explicitly removes the override, so compare against the built-in default.
+      const selectedKey = trimmed || effectiveDropboxAppKey(undefined);
+      if (selectedKey !== this.appKey && this.tokens.read() !== undefined) {
+        this.update({ phase: 'disconnecting', message: undefined });
+        await this.api.revoke();
+        this.update({ connected: false, reconnect: false, awaitingCode: false, lastBackupAt: undefined });
+        await this.database.updateCloudBackupSettings({ provider: null, pending: false, lastCloudBackupAt: null });
+      }
+      this.tokens.writeAppKey(trimmed);
+      this.verifier = undefined;
+      this.appKey = selectedKey;
+      this.api.setAppKey(this.appKey);
+      this.update({ enabled: this.appKey.length > 0, awaitingCode: false, message: undefined });
+    }, true);
+  }
+
   private async upload(): Promise<void> {
     this.update({ phase: 'backingUp', message: undefined });
     await this.database.updateCloudBackupSettings({ pending: true });
@@ -173,8 +194,8 @@ export class DropboxBackup {
     });
   }
 
-  private run(operation: () => Promise<void>): Promise<void> {
-    if (!this.state.enabled) return Promise.resolve();
+  private run(operation: () => Promise<void>, allowDisabled = false): Promise<void> {
+    if (!this.state.enabled && !allowDisabled) return Promise.resolve();
     const result = this.tail.then(async () => {
       try {
         await operation();

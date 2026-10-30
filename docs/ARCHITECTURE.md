@@ -113,7 +113,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Live typo check for one set | `src/core/validation/LiveSetCheck.ts` (shares `summariseSessions` with the import review) |
 | History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` |
 | Grouping the history list by month (phone's time zone) | `src/core/queries/WorkoutMonthGroups.ts` |
-| Cloud backup orchestration, PKCE, token lifetime, Dropbox HTTP calls and retry status | `src/app/data/dropbox/DropboxBackup.ts`, `pkce.ts`, `DropboxTokenStore.ts`, `DropboxApi.ts`; singleton in `cloudBackup.ts`, disabled by empty `src/app/data/dropboxConfig.ts` key |
+| Cloud backup orchestration, PKCE, token lifetime, Dropbox HTTP calls and retry status | `src/app/data/dropbox/DropboxBackup.ts`, `pkce.ts`, `DropboxTokenStore.ts`, `DropboxApi.ts`; singleton in `cloudBackup.ts`, key selection in `effectiveDropboxAppKey.ts`, with a built-in default in `src/app/data/dropboxConfig.ts` |
 | Cloud backup retention (newest 14 plus earliest local-month server timestamp, exact root backup filenames only) | `src/core/backup/CloudRetention.ts` (`cloudBackupPathsToDelete`) |
 | Non-secret cloud backup settings and pending flag committed with Finish | `src/worker/WorkerApi.ts` → Dropbox backup (T-042) blocks; upload completion checks the export write revision before clearing pending |
 | When to remind the owner to back up | `src/core/backup/BackupReminder.ts` (`BackupReminderPolicy`) |

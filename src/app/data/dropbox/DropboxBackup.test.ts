@@ -315,6 +315,39 @@ describe('Dropbox connection and backup orchestration', () => {
     expect(JSON.stringify(vi.mocked(log.backup.error).mock.calls)).not.toContain(ACCESS);
   });
 
+  test('changing the key revokes using the old key before saving and requires a new connection', async () => {
+    const { connect, backup, tokens, request, advance, popup } = setup();
+    await connect();
+    advance(3_600_000);
+    request.mockClear();
+    await backup.saveAppKey('  another-key  ');
+    const refresh = new URLSearchParams(String(request.mock.calls[0]?.[1]?.body));
+    expect(refresh.get('client_id')).toBe('synthetic-app-key');
+    expect(String(request.mock.calls[1]?.[0])).toContain('/token/revoke');
+    expect(tokens.read()).toBeUndefined();
+    expect(tokens.readAppKey()).toBe('another-key');
+    expect(backup.snapshot()).toMatchObject({ connected: false, enabled: true });
+    await backup.beginConnect(() => popup);
+    expect(new URL(String(popup.navigate.mock.lastCall?.[0])).searchParams.get('client_id')).toBe('another-key');
+  });
+
+  test('failed revocation preserves the original key and connection', async () => {
+    const { connect, backup, tokens, request } = setup();
+    await connect();
+    request.mockRejectedValue(new Error('offline'));
+    await backup.saveAppKey('another-key');
+    expect(tokens.readAppKey()).toBeUndefined();
+    expect(tokens.read()).toBe(REFRESH);
+    expect(backup.snapshot()).toMatchObject({ connected: true, message: expect.stringContaining('connection') });
+  });
+
+  test('saving a key enables a previously disabled coordinator', async () => {
+    const { backup, tokens } = setup('');
+    await backup.saveAppKey('new-key');
+    expect(tokens.readAppKey()).toBe('new-key');
+    expect(backup.snapshot().enabled).toBe(true);
+  });
+
   test('backup failures are published to subscribers and unsubscribed views stop receiving changes', async () => {
     const { backup, tokens, request } = setup();
     tokens.write(REFRESH);

@@ -1,0 +1,28 @@
+import { expect, test } from 'vitest';
+import { DropboxTokenStore } from './DropboxTokenStore';
+import { effectiveDropboxAppKey } from './effectiveDropboxAppKey';
+
+test('saved key takes precedence and clearing it restores the default, including an empty default', () => {
+  const values = new Map<string, string>();
+  const storage: Storage = {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => {
+      values.set(key, value);
+    },
+    removeItem: (key) => {
+      values.delete(key);
+    },
+    clear: () => values.clear(),
+    key: (index) => [...values.keys()][index] ?? null,
+    get length() {
+      return values.size;
+    },
+  };
+  const store = new DropboxTokenStore(() => storage);
+  expect(effectiveDropboxAppKey(store, 'default')).toBe('default');
+  expect(effectiveDropboxAppKey(store, '')).toBe('');
+  store.writeAppKey(' custom ');
+  expect(effectiveDropboxAppKey(store, 'default')).toBe('custom');
+  store.writeAppKey('');
+  expect(effectiveDropboxAppKey(store, 'default')).toBe('default');
+});

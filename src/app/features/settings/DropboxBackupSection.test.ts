@@ -40,9 +40,11 @@ function finishMarkup(): string {
   return renderToStaticMarkup(createElement(MemoryRouter, {}, createElement(DropboxBackupLine)));
 }
 
-test('the entire optional Settings section and finish row disappear when the feature is disabled', () => {
+test('without a key Settings offers setup only and the finish row disappears', () => {
   view.state = { ...view.state, enabled: false, connected: true, message: 'old error' };
-  expect(settingsMarkup()).toBe('');
+  expect(settingsMarkup()).toContain('Use your own Dropbox app key');
+  expect(settingsMarkup()).not.toContain('Connect Dropbox');
+  expect(settingsMarkup()).not.toContain('Disconnect</button>');
   expect(finishMarkup()).toBe('');
 });
 
@@ -63,7 +65,7 @@ test('connected Settings exposes manual cloud backup and Disconnect, disabling t
   expect(markup).toContain('Back up to Dropbox now');
   expect(markup).toContain('Disconnect');
   expect(markup).toContain('Backing up to Dropbox…');
-  expect(markup.match(/disabled=""/g)).toHaveLength(2);
+  expect(markup.match(/disabled=""/g)).toHaveLength(4);
 });
 
 test('finish failure has an alert and Try again; revoked connections instead link to Settings', () => {

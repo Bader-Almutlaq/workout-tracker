@@ -47,3 +47,8 @@
   color: var(--color-accent);
   text-align: left;
 }
+
+.keyForm {
+  display: grid;
+  gap: var(--space-m);
+}

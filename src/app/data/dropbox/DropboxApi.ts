@@ -43,11 +43,16 @@ export class DropboxApi {
   private accessToken: AccessToken | undefined;
 
   constructor(
-    private readonly appKey: string,
+    private appKey: string,
     private readonly tokens: DropboxTokenStore,
     private readonly request: typeof fetch = fetch,
     private readonly now: () => number = Date.now,
   ) {}
+
+  /** Change the public client key after the previous grant has been revoked. */
+  setAppKey(appKey: string): void {
+    this.appKey = appKey;
+  }
 
   /** Exchange the pasted code and in-memory verifier; requires Dropbox to return an offline refresh token. */
   async exchange(code: string, verifier: string): Promise<void> {
