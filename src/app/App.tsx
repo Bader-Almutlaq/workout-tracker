@@ -10,6 +10,7 @@ import { WorkoutDetailScreen } from './features/history/WorkoutDetailScreen';
 import { StrongImportScreen } from './features/import/StrongImportScreen';
 import { StrongMatchingScreen } from './features/matching/StrongMatchingScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
+import { TemplateEditorScreen } from './features/templates/TemplateEditorScreen';
 import { AddExerciseScreen } from './features/workout/AddExerciseScreen';
 import { WorkoutScreen } from './features/workout/WorkoutScreen';
 import { WorkoutSummaryScreen } from './features/workout/WorkoutSummaryScreen';
@@ -21,6 +22,8 @@ export function App() {
       <Routes>
         <Route path="/" element={<WorkoutScreen />} />
         <Route path="/workout/add" element={<AddExerciseScreen />} />
+        <Route path="/workout/templates/new" element={<TemplateEditorScreen />} />
+        <Route path="/workout/templates/:templateId" element={<TemplateEditorScreen />} />
         <Route path="/workout/summary/:workoutId?" element={<WorkoutSummaryScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/history/:workoutId" element={<WorkoutDetailScreen />} />

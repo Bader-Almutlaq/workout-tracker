@@ -6,6 +6,7 @@ import { Section } from '../../design/components/Section';
 import { durationText } from '../../format/dateText';
 import { setCountText } from '../../format/setText';
 import { volumeText } from '../../format/weightText';
+import { SaveAsTemplate } from '../templates/SaveAsTemplate';
 import { BackupReminderLine } from './BackupReminderLine';
 import { SummaryStat } from './SummaryStat';
 import styles from './SavedWorkoutSummary.module.css';
@@ -44,6 +45,7 @@ export function SavedWorkoutSummary({ workoutId, done }: { readonly workoutId: n
         ))}
       </Section>
       <BackupReminderLine />
+      <SaveAsTemplate workoutId={workoutId} workoutName={totals.name} />
       {done}
     </Screen>
   );

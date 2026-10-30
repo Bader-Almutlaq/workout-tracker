@@ -1,0 +1,35 @@
+import { EmptyState } from '../../design/components/EmptyState';
+import { exerciseNameOf } from './exerciseNames';
+import { isSupersetWithNext } from './templateExerciseEdits';
+import type { TemplateEditorModel } from './TemplateEditorModel';
+import { TemplateExerciseCard } from './TemplateExerciseCard';
+import styles from './TemplateExerciseList.module.css';
+
+/** The exercise cards of the template being edited, or a line saying how to add the first one. */
+export function TemplateExerciseList({
+  model,
+  names,
+}: {
+  readonly model: TemplateEditorModel;
+  readonly names: ReadonlyMap<number, string>;
+}) {
+  const { draft, pad, actions } = model;
+  if (draft.exercises.length === 0) return <EmptyState message="No exercises yet. Add the first one below." />;
+  return (
+    <div className={styles.cards}>
+      {draft.exercises.map((exercise, index) => (
+        <TemplateExerciseCard
+          // The same exercise can be in a template twice, so its position is the only identity it has.
+          key={index}
+          exercise={exercise}
+          name={exerciseNameOf(names, exercise.exerciseId)}
+          index={index}
+          count={draft.exercises.length}
+          isSupersetWithNext={isSupersetWithNext(draft, index)}
+          editing={pad.editing?.cell.exerciseIndex === index ? pad.editing : undefined}
+          actions={actions}
+        />
+      ))}
+    </div>
+  );
+}
