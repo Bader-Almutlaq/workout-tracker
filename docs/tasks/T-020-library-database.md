@@ -6,7 +6,7 @@
 
 ## Goal
 
-The library's 421 exercises are copied into the database (linking any same-name exercises already there, such as imported Strong ones), the owner can create, edit, archive and merge exercises, and the Exercises screen has the queries it needs: the list, one exercise's detail, and the Strong names not yet matched.
+The library's 420 exercises are copied into the database (linking any same-name exercises already there, such as imported Strong ones), the owner can create, edit, archive and merge exercises, and the Exercises screen has the queries it needs: the list, one exercise's detail, and the Strong names not yet matched.
 
 ## Read first
 

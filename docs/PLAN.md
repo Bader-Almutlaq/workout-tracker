@@ -63,7 +63,7 @@ Milestones are numbered W (web). W1–W3 port what the native app already had; `
 - Backups: one-tap backup to Files / iCloud Drive through the share sheet; restore from a file with a safety snapshot first; last-backup date always visible.
 
 ### W2: Exercise library and search
-- Port the curated library (421 exercises), seeding, name and alias resolution, custom exercises, merge, search with slang and typo tolerance, catalog queries.
+- Port the curated library (420 exercises), seeding, name and alias resolution, custom exercises, merge, search with slang and typo tolerance, catalog queries.
 - Exercises tab (browse, search, filters, detail, custom exercises) and the Strong matching screen.
 
 ### W3: Logging
@@ -112,7 +112,7 @@ Milestones are numbered W (web). W1–W3 port what the native app already had; `
 - 2026-10-29: **M1 code complete** (branch `m1-strong-import`). Parsers for both Strong layouts and measurement files, per-exercise unit detection, typo detection with suggestions, a reviewable import plan, an idempotent importer (snapshot first, one transaction), and history queries. App: Settings → Import from Strong (pick files → review units and flagged sets → import → result) and a live History tab with a workout detail screen. 58 tests pass; app builds with no warnings. Dry run on the real export matches it exactly (see `docs/DATA.md`).
   - Not yet verified: the import and History screens running on a device or simulator.
   - Deferred to M2: matching Strong names to library exercises (see `docs/DECISIONS.md`).
-- 2026-10-30: **M2 core done** (branch `m2-exercise-library`): curated library (421 exercises), muscle taxonomy, schema v2, seeding at launch, name/alias resolution, custom exercises and merge (snapshot first), search, catalog queries. 112 tests pass; app builds. Agent workflow added (`AGENTS.md`, `docs/agents/WORKFLOW.md`, `docs/tasks/`).
+- 2026-10-30: **M2 core done** (branch `m2-exercise-library`): curated library (420 exercises), muscle taxonomy, schema v2, seeding at launch, name/alias resolution, custom exercises and merge (snapshot first), search, catalog queries. 112 tests pass; app builds. Agent workflow added (`AGENTS.md`, `docs/agents/WORKFLOW.md`, `docs/tasks/`).
   - Remaining M2 work is on the task board: Exercises tab, Strong matching screen, app icon.
 - 2026-10-30: **Switched to an offline web app** (owner: no weekly reinstall). Native app archived (`native-archive` branch; spec in `reference/native/`). **W0 done** on branch `web`: SQLite in a worker on the phone's private file system, `v1-schema` migration with snapshot-before-migrate, offline support with "Update ready", design tokens in dark and light, five tabs, Settings → Appearance. 9 tests; `make verify` passes. Checked in Safari on the iPhone 15 Pro Max simulator (iOS 27.0): the database opens and persists.
   - Next: W1 tasks on the board; hosting needs the owner.

@@ -3,6 +3,8 @@ import { restoreBackup, type LiveDatabaseStorage, type RestoreReport } from '../
 import { Database } from '../core/db/Database';
 import { DatabaseError } from '../core/db/DatabaseError';
 import { migrate, pendingMigrationIds } from '../core/db/migrations';
+import { ExerciseLibrary } from '../core/library/ExerciseLibrary';
+import { ExerciseLibrarySeeder } from '../core/library/ExerciseLibrarySeeder';
 import { log } from '../core/support/log';
 
 /** Storage limits for the on-device file pool. */
@@ -76,6 +78,7 @@ export class OnDeviceStore {
     if (appliedMigrations.length > 0) {
       log.database.info(`Applied migrations: ${appliedMigrations.join(', ')}`);
     }
+    seedLibrary(database, now);
     return new OnDeviceStore(pool, sqlite, database, { appliedMigrations, snapshotName });
   }
 
@@ -135,7 +138,10 @@ export class OnDeviceStore {
       () => undefined,
     );
     try {
-      return await running;
+      const report = await running;
+      // A backup from an older version may predate the current library.
+      seedLibrary(this.database, now);
+      return report;
     } finally {
       this.restoreInProgress = undefined;
     }
@@ -165,5 +171,16 @@ export class OnDeviceStore {
       .filter((name) => name.startsWith(SNAPSHOT_PREFIX))
       .sort()
       .reverse();
+  }
+}
+
+/**
+ * Copies the built-in exercise library into the database when its version changed (a no-op on
+ * most launches). Seeding only adds rows and refreshes library fields, so it needs no snapshot.
+ */
+function seedLibrary(database: Database, now: Date): void {
+  const result = ExerciseLibrarySeeder.seed(database, ExerciseLibrary.bundled(), now);
+  if (!result.skipped) {
+    log.database.info(`Library seeded: ${result.inserted} added, ${result.linked} linked, ${result.updated} updated`);
   }
 }

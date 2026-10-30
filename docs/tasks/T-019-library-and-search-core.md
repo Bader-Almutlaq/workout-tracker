@@ -6,7 +6,7 @@
 
 ## Goal
 
-WorkoutCore can load and validate the curated library of 421 exercises, knows the 23 muscles and the other exercise vocabularies, and can search exercises the way the native app did: slang ("rdl", "ohp"), plurals, prefixes, typo tolerance, and ranking by the owner's usage and recency. Everything in this task is pure: no database.
+WorkoutCore can load and validate the curated library of 420 exercises, knows the 23 muscles and the other exercise vocabularies, and can search exercises the way the native app did: slang ("rdl", "ohp"), plurals, prefixes, typo tolerance, and ranking by the owner's usage and recency. Everything in this task is pure: no database.
 
 ## Read first
 
@@ -33,7 +33,7 @@ WorkoutCore can load and validate the curated library of 421 exercises, knows th
 
 - [ ] `make verify` passes.
 - [ ] Every native test case in the three test files is ported and passing, plus the muscle-rows test.
-- [ ] Search on 421 exercises runs in under 5 ms per query in a test (`performance.now()` is available in Node).
+- [ ] Search on 420 exercises runs in under 5 ms per query in a test (`performance.now()` is available in Node).
 
 ## Handoff
 
