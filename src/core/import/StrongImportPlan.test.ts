@@ -210,7 +210,7 @@ describe('Import plan details beyond the native tests', () => {
     expect(result.workouts[0]?.exercises.map((exercise) => [exercise.name, exercise.position, exercise.notes])).toEqual(
       [
         ['Curl', 0, 'first\nsecond'],
-        ['Press', 2, null],
+        ['Press', 1, null],
       ],
     );
   });
@@ -258,4 +258,17 @@ describe('Import plan details beyond the native tests', () => {
       skippedRestTimerRows: 0,
     });
   });
+});
+
+test('Excluded flagged sets remain reviewable and can be restored', () => {
+  const text = squatHistoryWithTypo();
+  const original = plan(text);
+  const line = original.findings[0]?.id;
+  if (line === undefined) throw new Error('Fixture has no finding');
+  const excluded = plan(text, makeImportOptions({ excludedLines: new Set([line, 99999]) }));
+  expect(excluded.findings.some((finding) => finding.id === line)).toBe(true);
+  expect(excluded.setsByLine.has(line)).toBe(true);
+  expect(excluded.setsExcluded).toBe(1);
+  expect(excluded.totals.sets).toBe(original.totals.sets - 1);
+  expect(plan(text).totals).toEqual(original.totals);
 });

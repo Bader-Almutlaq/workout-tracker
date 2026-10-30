@@ -4,6 +4,7 @@ import { DataSafetyFixture } from '../db/fixtures/DataSafetyFixture';
 import { DatabaseError } from '../db/DatabaseError';
 import { migrate } from '../db/migrations';
 import { NEWER_LAYOUT, OLDER_LAYOUT, WAIST } from './fixtures/StrongFixtures';
+import { makeImportOptions } from './StrongImportOptions';
 import { makeStrongImportPlan, type StrongImportPlan } from './StrongImportPlan';
 import { importStrongPlan, strongImportWorkoutCounts } from './StrongImporter';
 import { parseStrongMeasurementsFile } from './StrongMeasurementsFile';
@@ -35,6 +36,7 @@ describe('Importing into the database', () => {
       workoutsAdded: 2,
       workoutsSkipped: 0,
       setsAdded: 6,
+      setsExcluded: 0,
       exercisesCreated: 2,
       measurementsAdded: 2,
     });
@@ -54,6 +56,7 @@ describe('Importing into the database', () => {
       workoutsAdded: 0,
       workoutsSkipped: 2,
       setsAdded: 0,
+      setsExcluded: 0,
       exercisesCreated: 0,
       measurementsAdded: 0,
     });
@@ -202,5 +205,40 @@ test('Preview counts new and already imported source keys', async () => {
   expect(strongImportWorkoutCounts(db, planned.workouts)).toEqual({ alreadyImported: 0, newWorkouts: 2 });
   importStrongPlan(db, planned, NOW);
   expect(strongImportWorkoutCounts(db, planned.workouts)).toEqual({ alreadyImported: 2, newWorkouts: 0 });
+  db.close();
+});
+
+test('Excluded sets are omitted and the same choices remain idempotent', async () => {
+  const db = await migratedDatabase();
+  const rows = parseStrongWorkoutsFile(
+    [
+      'Date,Workout Name,Exercise Name,Set Order,Weight,Reps',
+      '2024-01-01 10:00:00,A,Curl,1,20,5',
+      '2024-01-01 10:00:00,A,Curl,2,20,6',
+      '2024-01-01 10:00:00,A,Row,1,30,8',
+      '2024-01-01 10:00:00,A,Press,1,40,5',
+      '2024-01-02 10:00:00,B,Curl,1,20,5',
+    ].join('\n'),
+  );
+  const reviewed = makeStrongImportPlan(rows, [], makeImportOptions({ excludedLines: new Set([2, 4, 6]) }));
+  expect(reviewed.totals).toMatchObject({ workouts: 1, sets: 2, workSets: 2, volumeKilograms: 320 });
+  expect(reviewed.exercises.map((exercise) => [exercise.name, exercise.setCount])).toEqual([
+    ['Curl', 1],
+    ['Press', 1],
+  ]);
+  expect(
+    reviewed.workouts[0]?.exercises.map((exercise) => [exercise.position, exercise.sets.map((set) => set.position)]),
+  ).toEqual([
+    [0, [0]],
+    [1, [0]],
+  ]);
+  expect(importStrongPlan(db, reviewed, NOW)).toMatchObject({ workoutsAdded: 1, setsAdded: 2, setsExcluded: 3 });
+  expect(count(db, 'workout')).toBe(1);
+  expect(count(db, 'workoutExercise')).toBe(2);
+  expect(db.all('SELECT position, reps FROM workoutSet ORDER BY id')).toEqual([
+    { position: 0, reps: 6 },
+    { position: 0, reps: 5 },
+  ]);
+  expect(importStrongPlan(db, reviewed, NOW)).toMatchObject({ workoutsAdded: 0, workoutsSkipped: 1, setsAdded: 0 });
   db.close();
 });

@@ -25,6 +25,15 @@ export function ImportReviewStep({
   runImport: () => void;
 }) {
   const groups = groupFindings(plan);
+  const setExcluded = (items: readonly FindingItem[], excluded: boolean) => {
+    const excludedLines = new Set(options.excludedLines);
+    for (const item of items) {
+      if (excluded) excludedLines.add(item.finding.id);
+      else excludedLines.delete(item.finding.id);
+    }
+    review({ ...options, excludedLines });
+  };
+  const decisionCount = options.corrections.size + options.confirmedLines.size + options.excludedLines.size;
   const counts = useDatabaseQuery('strong-import-counts', () => database.strongImportWorkoutCounts(plan.workouts));
   return (
     <>
@@ -39,9 +48,9 @@ export function ImportReviewStep({
       <section>
         <div className={styles.heading}>
           <h2>Check these sets ({plan.findings.length})</h2>
-          {options.corrections.size + options.confirmedLines.size > 0 && (
+          {decisionCount > 0 && (
             <button className={styles.link} onClick={() => review(makeImportOptions())}>
-              Reset {options.corrections.size + options.confirmedLines.size} decisions
+              Reset {decisionCount} {decisionCount === 1 ? 'decision' : 'decisions'}
             </button>
           )}
         </div>
@@ -54,7 +63,15 @@ export function ImportReviewStep({
           </p>
         )}
         {groups.map((group) => (
-          <FindingGroupCard key={group.key} group={group} apply={apply} keep={keep} edit={edit} />
+          <FindingGroupCard
+            key={group.key}
+            group={group}
+            apply={apply}
+            keep={keep}
+            edit={edit}
+            excludedLines={options.excludedLines}
+            setExcluded={setExcluded}
+          />
         ))}
       </section>
       <div>

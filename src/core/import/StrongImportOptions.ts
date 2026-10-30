@@ -14,6 +14,8 @@ export interface StrongImportOptions {
   readonly unitOverrides: ReadonlyMap<string, WeightUnit>;
   /** Corrections keyed by the set's line number in the export. */
   readonly corrections: ReadonlyMap<number, SetCorrection>;
+  /** Set lines to leave out of the import. */
+  readonly excludedLines: ReadonlySet<number>;
   /** Lines the owner confirmed as correct; they are no longer flagged. */
   readonly confirmedLines: ReadonlySet<number>;
 }
@@ -23,6 +25,7 @@ export function makeImportOptions(decisions: Partial<StrongImportOptions> = {}):
   return {
     unitOverrides: decisions.unitOverrides ?? new Map(),
     corrections: decisions.corrections ?? new Map(),
+    excludedLines: decisions.excludedLines ?? new Set(),
     confirmedLines: decisions.confirmedLines ?? new Set(),
   };
 }
