@@ -1,3 +1,4 @@
+import { localDateKey } from '../support/localDate';
 import type { Database } from '../db/Database';
 
 /** A local calendar date and the finished workout IDs started on it, newest first. */
@@ -15,7 +16,7 @@ export function workoutDaysInMonth(db: Database, year: number, month: number): W
   for (const row of rows) {
     const date = new Date(row.startedAt);
     if (date.getFullYear() !== year || date.getMonth() + 1 !== month) continue;
-    const key = `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+    const key = localDateKey(date);
     const ids = days.get(key) ?? [];
     ids.push(row.id);
     days.set(key, ids);

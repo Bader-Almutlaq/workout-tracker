@@ -1,3 +1,4 @@
+import { localDateKey } from '../support/localDate';
 import { HardSetPolicy } from '../analytics/HardSets';
 import { muscleVolume, type MuscleVolume, type MuscleVolumeSet } from '../analytics/MuscleVolume';
 import type { Database } from '../db/Database';
@@ -29,14 +30,6 @@ function mondayOf(date: Date): Date {
     monday.getDate() - (weekday === CalendarWeek.sunday ? CalendarWeek.days : weekday) + CalendarWeek.monday,
   );
   return monday;
-}
-
-function localDateKey(date: Date): string {
-  return [
-    date.getFullYear().toString().padStart(4, '0'),
-    (date.getMonth() + 1).toString().padStart(2, '0'),
-    date.getDate().toString().padStart(2, '0'),
-  ].join('-');
 }
 
 /**

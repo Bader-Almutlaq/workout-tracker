@@ -92,6 +92,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Offline support and "Update ready" | `src/app/data/appUpdate.ts` |
 | Asking the browser to keep storage | `src/app/data/persistentStorage.ts` |
 | Logging categories | `src/core/support/log.ts` |
+| Which calendar day a timestamp falls on (phone's time zone) | `src/core/support/localDate.ts` (`localDateKey`) |
 | Ordered grouping (first-appearance order) | `src/core/support/groupBy.ts` |
 | Light / dark preference | `src/app/appearance/appearance.ts` |
 | Color, type, spacing, radius and motion tokens | `src/app/design/tokens.css` |
@@ -134,6 +135,11 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Template screens and draft editing on screen | `src/app/features/templates/` (pure draft-edit and target-text helpers there) |
 | Bottom sheet | `src/app/design/components/BottomSheet.tsx` |
 | Which days had a workout (History calendar) | `src/core/queries/WorkoutCalendar.ts`; grid in `src/app/features/history/calendarGrid.ts` |
+| Effective reps (RIR from RPE) | `src/core/analytics/EffectiveReps.ts` |
+| Estimated 1RM per set, k by exercise category, which sets qualify | `src/core/analytics/EstimatedOneRepMax.ts` |
+| Strength trend (EWMA), change per week | `src/core/analytics/StrengthTrend.ts`; per exercise via `src/core/queries/ExerciseStrength.ts` |
+| Hard sets; fractional sets per muscle; volume zones | `src/core/analytics/HardSets.ts`, `MuscleVolume.ts`; weekly via `src/core/queries/WeeklyMuscleVolume.ts` |
+| Recent vs baseline (signature chart math), range statistics | `src/core/analytics/RecentVsBaseline.ts` |
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` |
 | The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` |
 

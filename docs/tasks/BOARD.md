@@ -48,8 +48,8 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
-| [T-032](T-032-e1rm-and-trend.md) | Effective reps, e1RM, session values and trend | doing | Codex Sol (high) | `task/T-032-e1rm-and-trend` |
-| [T-033](T-033-volume-and-baseline.md) | Hard sets per muscle, weekly volume, recent vs baseline | doing | Codex Sol (high) | `task/T-033-volume-and-baseline` |
+| [T-032](T-032-e1rm-and-trend.md) | Effective reps, e1RM, session values and trend | done | Codex Sol (high), reviewed by lead | merged |
+| [T-033](T-033-volume-and-baseline.md) | Hard sets per muscle, weekly volume, recent vs baseline | done | Codex Sol (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
