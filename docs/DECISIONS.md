@@ -85,3 +85,7 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 
 ## 2026-10-30: Appearance preference lives in localStorage
 - **Why:** it's a display preference, not training data, so it stays out of the database and the backups. Supersedes the native `UserDefaults` entry above with the same reasoning.
+
+## 2026-10-30: Rest timer counts up from the last completed set; the target is the owner's
+- **Why:** measure, don't prescribe. The bar shows time since the last completed set (derived from `completedAt`, so it survives closing the app) against a target the owner sets per exercise with ±15 s (`exercise.restTargetSeconds`, migration v2). The 2:00 starting value is a convenience, not advice. Past the target it keeps counting with a quiet ✓, because the rest actually taken is what gets recorded.
+- **Limits:** no sound, vibration or lock-screen alert; the web can't deliver them reliably on iOS.

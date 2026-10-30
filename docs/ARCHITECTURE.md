@@ -126,6 +126,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Exercise search and import-name suggestions | `src/core/library/ExerciseSearch.ts` (`SearchTuning` holds every score) |
 | Exercise list, detail and unmatched-import queries | `src/core/queries/ExerciseCatalog.ts` |
 | Logging a workout live | `src/core/logging/WorkoutLogger.ts` (`WorkoutLoggerLimits`) |
+| Rest timer: default and limits, per-exercise target, elapsed and remaining | `src/core/logging/RestTimer.ts` (`RestTimerDefaults`); bar in `src/app/features/workout/RestBar.tsx` |
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` |
 | The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` |
 

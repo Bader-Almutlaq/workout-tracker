@@ -1,0 +1,21 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 var(--space-s);
+  border-radius: var(--radius-small);
+  font: var(--font-callout);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+  transition: background var(--motion-standard);
+}
+
+.button:active {
+  background: var(--color-border-strong);
+}
+
+.button:disabled {
+  opacity: 0.4;
+}
