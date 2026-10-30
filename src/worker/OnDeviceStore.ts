@@ -14,6 +14,8 @@ export const OnDeviceStoreLimits = {
    * Heuristic: enough to step back a few bad updates without filling the pool. Cloud backups are the long-term copy.
    */
   snapshotsKept: 3,
+  /** Heuristic: the smallest ISO timestamp increment keeps snapshot names unique and sortable, in milliseconds. */
+  snapshotTimestampStepMilliseconds: 1,
   /**
    * Files the pool keeps open: the live database and its journal, SQLite temp files, the snapshots,
    * and one spare for a restore in progress. Heuristic, from the pool's own guidance (one entry per file).
@@ -69,19 +71,25 @@ export class OnDeviceStore {
     const pool = await openPool(sqlite);
 
     const database = Database.wrap(new pool.OpfsSAHPoolDb(LIVE_DATABASE), sqlite);
-    const pending = pendingMigrationIds(database);
-    const hasData = (database.value<number>("SELECT count(*) FROM sqlite_master WHERE name = 'workout'") ?? 0) > 0;
+    try {
+      const pending = pendingMigrationIds(database);
+      const hasData = (database.value<number>("SELECT count(*) FROM sqlite_master WHERE name = 'workout'") ?? 0) > 0;
 
-    let snapshotName: string | undefined;
-    if (pending.length > 0 && hasData) {
-      snapshotName = await OnDeviceStore.saveSnapshot(pool, database.exportBytes(), now);
+      let snapshotName: string | undefined;
+      if (pending.length > 0 && hasData) {
+        snapshotName = await OnDeviceStore.saveSnapshot(pool, database.exportBytes(), now);
+      }
+      const appliedMigrations = migrate(database, now);
+      if (appliedMigrations.length > 0) {
+        log.database.info(`Applied migrations: ${appliedMigrations.join(', ')}`);
+      }
+      seedLibrary(database, now);
+      return new OnDeviceStore(pool, sqlite, database, { appliedMigrations, snapshotName });
+    } catch (error) {
+      // A failed launch must release the connection so reopening can recover safely.
+      database.close();
+      throw error;
     }
-    const appliedMigrations = migrate(database, now);
-    if (appliedMigrations.length > 0) {
-      log.database.info(`Applied migrations: ${appliedMigrations.join(', ')}`);
-    }
-    seedLibrary(database, now);
-    return new OnDeviceStore(pool, sqlite, database, { appliedMigrations, snapshotName });
   }
 
   /**
@@ -158,7 +166,18 @@ export class OnDeviceStore {
   }
 
   private static async saveSnapshot(pool: SAHPoolUtil, bytes: Uint8Array, now: Date): Promise<string> {
-    const name = `${SNAPSHOT_PREFIX}${now.toISOString().replaceAll(':', '-')}.sqlite`;
+    // Keep names monotonic even after a clock correction: pruning must never delete the new safety copy.
+    const latest = OnDeviceStore.snapshotsIn(pool)[0];
+    const previousTimestamp =
+      latest === undefined
+        ? Number.NaN
+        : Date.parse(
+            latest.slice(SNAPSHOT_PREFIX.length, -'.sqlite'.length).replace(/T(\d{2})-(\d{2})-(\d{2})/, 'T$1:$2:$3'),
+          );
+    const timestamp = Number.isFinite(previousTimestamp)
+      ? Math.max(now.getTime(), previousTimestamp + OnDeviceStoreLimits.snapshotTimestampStepMilliseconds)
+      : now.getTime();
+    const name = `${SNAPSHOT_PREFIX}${new Date(timestamp).toISOString().replaceAll(':', '-')}.sqlite`;
     await pool.importDb(name, bytes);
     for (const old of OnDeviceStore.snapshotsIn(pool).slice(OnDeviceStoreLimits.snapshotsKept)) {
       pool.unlink(old);

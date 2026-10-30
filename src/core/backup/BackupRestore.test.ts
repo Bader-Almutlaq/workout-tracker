@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { DataSafetyFixture } from '../db/fixtures/DataSafetyFixture';
 import { Database } from '../db/Database';
 import { MIGRATIONS, migrate } from '../db/migrations';
 import { BackupError } from './BackupError';
@@ -165,4 +166,64 @@ describe('restoreBackup', () => {
     const snapshot = storage.snapshots.get(snapshotName);
     expect(workoutNames(await Database.fromBytes(snapshot ?? new Uint8Array()))).toEqual(['Current data']);
   });
+});
+
+test('full backup round trip preserves every table, column, value and id sequence exactly', async () => {
+  const source = await Database.openInMemory();
+  migrate(source, NOW);
+  DataSafetyFixture.seed(source);
+  const expected = DataSafetyFixture.read(source);
+  const backup = source.exportBytes();
+  const { storage, live } = await setUp();
+  const previous = DataSafetyFixture.read(live);
+  const report = await restoreBackup(storage, live, backup, NOW);
+  const restored = connectionOf(storage);
+  expect(DataSafetyFixture.read(restored)).toEqual(expected);
+  expect(restored.exportBytes()).toEqual(backup);
+  const snapshot = await Database.fromBytes(storage.snapshots.get(report.snapshotName) ?? new Uint8Array());
+  expect(DataSafetyFixture.read(snapshot)).toEqual(previous);
+  source.close();
+  restored.close();
+  snapshot.close();
+});
+
+test('structurally damaged backup is rejected before snapshot or replacement, leaving live rows intact', async () => {
+  const { storage, live } = await setUp();
+  const damaged = await databaseWith('Damaged');
+  damaged.exec('ALTER TABLE workoutSet DROP COLUMN notes');
+  const before = DataSafetyFixture.read(live);
+  await expect(restoreBackup(storage, live, damaged.exportBytes(), NOW)).rejects.toMatchObject({ kind: 'damaged' });
+  expect(DataSafetyFixture.read(live)).toEqual(before);
+  expect(storage.connection).toBe(live);
+  expect(storage.snapshots.size).toBe(0);
+  damaged.close();
+  live.close();
+});
+
+test('an actual v1 backup migrates to v3 while retaining all its history and the current safety snapshot', async () => {
+  const source = await databaseWith('v1 history', MIGRATIONS.slice(0, 1));
+  source.exec(`
+    INSERT INTO appSetting VALUES ('v1-setting', 'Keep α');
+    INSERT INTO exercise (id, name, source, createdAt) VALUES (1, 'v1 custom', 'custom', 'a');
+    INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (1, 1, 1, 0);
+    INSERT INTO workoutSet
+      (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, notes)
+    VALUES (1, 0, 'drop', 61.23456789, 'lb', 8, 'Keep notes');
+  `);
+  const { storage, live } = await setUp();
+  const before = DataSafetyFixture.read(live);
+  const report = await restoreBackup(storage, live, source.exportBytes(), NOW);
+  expect(report.appliedMigrations).toEqual(MIGRATIONS.slice(1).map(({ id }) => id));
+  expect(workoutNames(connectionOf(storage))).toEqual(['v1 history']);
+  expect(connectionOf(storage).get('SELECT weightKilograms, entryUnit, notes FROM workoutSet')).toEqual({
+    weightKilograms: 61.23456789,
+    entryUnit: 'lb',
+    notes: 'Keep notes',
+  });
+  expect(connectionOf(storage).value("SELECT value FROM appSetting WHERE key = 'v1-setting'")).toBe('Keep α');
+  const snapshot = await Database.fromBytes(storage.snapshots.get(report.snapshotName) ?? new Uint8Array());
+  expect(DataSafetyFixture.read(snapshot)).toEqual(before);
+  source.close();
+  snapshot.close();
+  connectionOf(storage).close();
 });

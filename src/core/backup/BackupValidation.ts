@@ -19,7 +19,8 @@ function tableNames(db: Database): Set<string> {
  * 3. SQLite's `quick_check` passes (`damaged`);
  * 4. it knows no migration this version doesn't (`newerVersion`), because opening newer data could corrupt it;
  * 5. migrating the copy up to date works (`damaged`), which proves the restore's final step will;
- * 6. afterwards it has every table a freshly created database has (`missingTables`).
+ * 6. afterwards it has every table a freshly created database has (`missingTables`);
+ * 7. table definitions, indexes and triggers match the known schema and all references exist (`damaged`).
  *
  * Older backups (fewer migrations) are valid: restoring migrates them.
  *
@@ -41,9 +42,18 @@ export async function validateBackup(bytes: Uint8Array, migrations: readonly Mig
   try {
     inspect(backup, migrations);
     const present = tableNames(backup);
-    const missing = [...(await expectedTableNames(migrations))].filter((name) => !present.has(name));
+    const expected = await expectedSchema(migrations);
+    const missing = [...expected.keys()].filter((name) => !present.has(name));
     if (missing.length > 0) {
       throw new BackupError('missingTables', `This backup is incomplete: it lacks ${missing.join(', ')}.`);
+    }
+    for (const [name, shape] of expected) {
+      if (JSON.stringify(tableShape(backup, name)) !== JSON.stringify(shape)) {
+        throw new BackupError('damaged', `This backup has an unexpected schema for ${name}. Nothing was changed.`);
+      }
+    }
+    if (backup.all('PRAGMA foreign_key_check').length > 0) {
+      throw new BackupError('damaged', 'This backup contains broken references between records. Nothing was changed.');
     }
   } finally {
     backup.close();
@@ -76,13 +86,24 @@ function inspect(backup: Database, migrations: readonly Migration[]): void {
   }
 }
 
-/** Tables a database made by `migrations` has. Built by running them, so the list can never go stale. */
-async function expectedTableNames(migrations: readonly Migration[]): Promise<Set<string>> {
+/** Schema definitions from the frozen migrations, including older backups after upgrading their in-memory copy. */
+async function expectedSchema(migrations: readonly Migration[]) {
   const reference = await Database.openInMemory();
   try {
     migrate(reference, new Date(), migrations);
-    return tableNames(reference);
+    return new Map([...tableNames(reference)].map((name) => [name, tableShape(reference, name)]));
   } finally {
     reference.close();
   }
+}
+
+/** Frozen migration SQL defines the exact schema, including CHECK constraints, indexes and any triggers. */
+function tableShape(db: Database, name: string) {
+  return db.all<{ type: string; name: string; sql: string | null }>(
+    `
+    SELECT type, name, sql FROM sqlite_master
+    WHERE tbl_name = ? ORDER BY type, name
+  `,
+    [name],
+  );
 }

@@ -8,7 +8,9 @@ export class WorkoutLoggerError extends Error {
       | 'setNotFound'
       | 'invalidReps'
       | 'invalidWeight'
-      | 'invalidRPE',
+      | 'invalidRPE'
+      | 'invalidDuration'
+      | 'invalidRestTarget',
     readonly value?: number,
   ) {
     const messages = {
@@ -19,6 +21,8 @@ export class WorkoutLoggerError extends Error {
       invalidReps: `${value} isn’t a valid number of reps.`,
       invalidWeight: `${value} kg isn’t a valid weight.`,
       invalidRPE: `RPE must be between 1 and 10 (got ${value}).`,
+      invalidDuration: 'Enter a finite duration of zero seconds or more.',
+      invalidRestTarget: 'Enter a finite rest target in seconds.',
     };
     super(messages[kind]);
     this.name = 'WorkoutLoggerError';

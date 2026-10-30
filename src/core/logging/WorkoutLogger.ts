@@ -118,10 +118,25 @@ export class WorkoutLogger {
     });
   }
 
-  /** Drops uncompleted sets and empty exercises, ending or deleting the workout. */
+  /** Drops planned sets and ends the workout. Repeating a finish never changes finished data; missing ids are a no-op. */
   finish(workoutId: number, now: Date): FinishResult {
     return this.db.transaction(() => {
-      this.requireWorkout(workoutId);
+      const workout = this.db.get<{ isInProgress: number }>('SELECT isInProgress FROM workout WHERE id = ?', [
+        workoutId,
+      ]);
+      if (workout === undefined) return { workoutId: null, completedSets: 0, droppedSets: 0 };
+      if (workout.isInProgress === 0) {
+        const completedSets =
+          this.db.value<number>(
+            `
+          SELECT COUNT(*) FROM workoutSet s
+          JOIN workoutExercise entry ON entry.id = s.workoutExerciseId
+          WHERE entry.workoutId = ? AND s.isCompleted = 1
+        `,
+            [workoutId],
+          ) ?? 0;
+        return { workoutId, completedSets, droppedSets: 0 };
+      }
       const droppedSets = this.db.run(
         `
         DELETE FROM workoutSet WHERE isCompleted = 0
@@ -277,7 +292,7 @@ export class WorkoutLogger {
     });
   }
 
-  /** Updates a set's kg load, typed unit, reps, RPE, kind and optional duration in seconds. */
+  /** Updates kg load, typed unit, reps, RPE, kind and duration in seconds (null or finite and nonnegative). */
   updateSet(
     setId: number,
     weightKilograms: number,
@@ -293,6 +308,8 @@ export class WorkoutLogger {
       throw new WorkoutLoggerError('invalidReps', reps);
     if (rpe !== null && !(rpe >= WorkoutLoggerLimits.rpeRange.minimum && rpe <= WorkoutLoggerLimits.rpeRange.maximum))
       throw new WorkoutLoggerError('invalidRPE', rpe);
+    if (durationSeconds !== null && (!Number.isFinite(durationSeconds) || durationSeconds < 0))
+      throw new WorkoutLoggerError('invalidDuration', durationSeconds);
     this.db.transaction(() => {
       if (
         this.db.run(
@@ -318,16 +335,20 @@ export class WorkoutLogger {
     });
   }
 
-  /** Marks a set completed at now, recording seconds since the previous completed set, or clears it. */
+  /** Sets completion, recording time and rest in seconds only when the state changes; repeated requests are a no-op. */
   setCompleted(setId: number, completed: boolean, now: Date): void {
     this.db.transaction(() => {
-      const set = this.db.get<{ workoutId: number }>(
+      const set = this.db.get<{ workoutId: number; isCompleted: number }>(
         `
-        SELECT we.workoutId FROM workoutSet s JOIN workoutExercise we ON we.id = s.workoutExerciseId WHERE s.id = ?
+        SELECT we.workoutId, s.isCompleted
+        FROM workoutSet s
+        JOIN workoutExercise we ON we.id = s.workoutExerciseId
+        WHERE s.id = ?
       `,
         [setId],
       );
       if (set === undefined) throw new WorkoutLoggerError('setNotFound');
+      if (set.isCompleted === Number(completed)) return;
       const previous = completed
         ? this.db.value<string | null>(
             `
