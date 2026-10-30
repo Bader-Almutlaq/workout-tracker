@@ -100,7 +100,7 @@ Milestones are numbered W (web). W1–W3 port what the native app already had; `
 
 Short entries from the owner's review; each gets a design pass with the owner before tasks are written. Order is not decided yet.
 
-- **R0. Charts on hold.** Don't change any chart until the owner has tried them on the phone and given feedback.
+- **R0. Charts on hold.** Don't change any chart until the owner has tried them on the phone and given feedback. Open point for that review: the Estimated 1RM headline treats a jump of more than 15% as a probable typo and holds it until confirmed. After a long break (e.g. 104.8 → 131 kg), the headline keeps showing the old value.
 - **R1. Measurements page.** Its own screen (like Strong), reachable from the tab bar or Analytics. Each site has a "where and how to measure" note the owner writes (e.g. "waist: at the belly button, tape snug, relaxed"). Muscle sites can be logged **flexed and relaxed**. Tap a site → its history and chart; log a new value. Bookkeeping only, nothing fancier. *Today:* imported Strong measurements are stored (`bodyMeasurement`), but there is no screen. Replaces W7's measurement part.
 - **R2. Bigger exercise library with descriptions** (and images if feasible offline). Look for an open, licence-compatible dataset to merge in; keep primary and secondary muscles, which drive the volume maths. *Today:* 420 curated exercises, no descriptions or images.
 - **R3. Exercise variants.** The same movement on different machines (Panatta vs Nautilus chest press), with different grips or attachments, progresses differently. Distinct movements are already distinct exercises (bench vs incline). Open question: model a brand, grip or attachment as a variant tag that splits progression, or as separate exercises.
@@ -117,6 +117,7 @@ Short entries from the owner's review; each gets a design pass with the owner be
   - RPE **or** RIR entry.
   - Solid kg ↔ lb handling.
   - "Last time" shows load, reps and effort, not just the weight. Any suggestion stays opt-in (see the product rules).
+  - Show the template's target reps and RPE on the live workout screen (today they appear only on the start sheet; reps prefill from last time).
   - The owner can send Strong screenshots as a reference.
 
 ## Needed from the user
