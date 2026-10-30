@@ -59,6 +59,10 @@ The owner types the way they think: "chest machine", "rear delt cable", "quad is
    - "lat pull" finds lat pulldowns
 5. Performance: under 5 ms per keystroke for 1,500 entries in Node (add a timing test with a synthetic library).
 
+## Round 2 (lead)
+
+The bundled-library name lookup in `ExerciseSearch` (`ExerciseLibrary.bundled()` keyed by name) is a second source of truth: remove it. The `exercise` table already stores `movementPattern` and `mechanic` for every exercise (library and custom), so make them required fields of `ExerciseSearchEntry` (`null` when unknown) and fill them where entries are built, in `src/core/queries/ExerciseCatalog.ts` (now in scope). Update test fixtures that build entries. Custom exercises then work too.
+
 ## Acceptance criteria
 
 - [ ] `make format`; `make verify` passes.
@@ -66,11 +70,10 @@ The owner types the way they think: "chest machine", "rear delt cable", "quad is
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Round 2 implemented; ready for lead review. Changes remain uncommitted.
+- **What was done:** Preserved Round 1 vocabulary search and filters. Removed search's bundled-name metadata lookup; the catalog now supplies each exercise's stored movement pattern and mechanic, including custom and edited library exercises.
+- **Files touched:** `ExerciseSearch.ts` and its test, `SearchVocabulary.ts` and its test, `ExerciseCatalog.ts` and its test, `ExerciseFilters.tsx`, `exerciseBrowseState.ts` and its test, `exerciseSections.test.ts`, `matchingPlan.test.ts`, and this handoff.
+- **Public API:** `ExerciseSearchEntry.pattern` and `mechanic` are required and nullable; catalog entries populate both from the database.
+- **Decisions taken:** Unknown metadata remains null. Round 1's single movement-word name fallback remains in place for unknown patterns; secondary muscle matches and mutually exclusive mechanic chips retain their existing behavior.
+- **Open questions / left over:** None for Round 2. The existing fallback can still find a name when its pattern is unknown.
+- **How it was verified:** `make format` and `make verify` passed; 114 test files and 808 tests, including a database-backed custom/edited metadata regression. An initial test expected the wrong usage-based ordering and was corrected.

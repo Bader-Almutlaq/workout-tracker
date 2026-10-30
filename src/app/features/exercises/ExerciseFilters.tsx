@@ -40,6 +40,18 @@ export function ExerciseFilters({
         value={state.equipment ?? ''}
         onChange={(value) => onChange({ ...state, equipment: oneOf(EQUIPMENT, value) })}
       />
+      <ToggleChip
+        isOn={state.mechanic === 'compound'}
+        onToggle={() => onChange({ ...state, mechanic: state.mechanic === 'compound' ? undefined : 'compound' })}
+      >
+        Compound
+      </ToggleChip>
+      <ToggleChip
+        isOn={state.mechanic === 'isolation'}
+        onToggle={() => onChange({ ...state, mechanic: state.mechanic === 'isolation' ? undefined : 'isolation' })}
+      >
+        Isolation
+      </ToggleChip>
       <ToggleChip isOn={state.customOnly} onToggle={() => onChange({ ...state, customOnly: !state.customOnly })}>
         Mine
       </ToggleChip>

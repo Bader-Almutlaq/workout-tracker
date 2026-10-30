@@ -6,6 +6,8 @@ import type { Equipment } from '../library/Equipment';
 import type { ExerciseLibrary } from '../library/ExerciseLibrary';
 import type { ExerciseSearchEntry } from '../library/ExerciseSearch';
 import type { Muscle } from '../library/Muscle';
+import type { Mechanic } from '../library/Mechanic';
+import type { MovementPattern } from '../library/MovementPattern';
 
 /** Maximum number of workout entries inspected for the recent sessions list, matching native behavior. */
 export const recentSessionLimit = 10;
@@ -65,17 +67,27 @@ export const ExerciseCatalog = {
       id: number;
       name: string;
       equipment: Equipment | null;
+      movementPattern: MovementPattern | null;
+      mechanic: Mechanic | null;
       source: string;
       libraryKey: string | null;
       usageCount: number;
       lastUsedAt: string | null;
     }>(
-      `SELECT e.id, e.name, e.equipment, e.source, e.libraryKey, COUNT(DISTINCT we.workoutId) AS usageCount, MAX(w.startedAt) AS lastUsedAt FROM exercise e LEFT JOIN workoutExercise we ON we.exerciseId = e.id LEFT JOIN workout w ON w.id = we.workoutId WHERE e.isArchived = 0 GROUP BY e.id`,
+      `SELECT e.id, e.name, e.equipment, e.movementPattern, e.mechanic, e.source, e.libraryKey,
+              COUNT(DISTINCT we.workoutId) AS usageCount, MAX(w.startedAt) AS lastUsedAt
+       FROM exercise e
+       LEFT JOIN workoutExercise we ON we.exerciseId = e.id
+       LEFT JOIN workout w ON w.id = we.workoutId
+       WHERE e.isArchived = 0
+       GROUP BY e.id`,
     );
     return rows.map((row) => ({
       id: row.id,
       name: row.name,
       equipment: row.equipment,
+      pattern: row.movementPattern,
+      mechanic: row.mechanic,
       aliases: aliases(db, row.id, row.libraryKey, library),
       primaryMuscles: muscles(db, row.id, 'primary'),
       secondaryMuscles: muscles(db, row.id, 'secondary'),
