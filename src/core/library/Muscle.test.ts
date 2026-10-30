@@ -11,11 +11,11 @@ interface MuscleRow {
 }
 
 describe('muscle taxonomy', () => {
-  test('lists the same 23 muscles, names and regions as the rows frozen in the v1-schema migration', async () => {
+  test('lists the same 28 muscles, names and regions as the frozen v1/v6 rows', async () => {
     const db = await Database.openInMemory();
     migrate(db);
     const rows = db.all<MuscleRow>('SELECT id, name, region FROM muscle ORDER BY rowid');
-    expect(rows).toHaveLength(23);
+    expect(rows).toHaveLength(28);
     expect(rows.map((row) => row.id)).toEqual([...MUSCLES]);
     expect(rows.map((row) => row.name)).toEqual(MUSCLES.map((muscle) => MUSCLE_DISPLAY_NAMES[muscle]));
     expect(rows.map((row) => row.region)).toEqual(MUSCLES.map((muscle) => MUSCLE_REGION_OF[muscle]));

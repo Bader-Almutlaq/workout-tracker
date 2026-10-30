@@ -129,3 +129,25 @@ Loading overrides are editable on built-in exercises separately from their froze
 
 
 The brief's 60 kg, three-warm-up example says 20 × 8 for the first set, but 40% × 60 = 24 kg rounds down to 22.5 kg on the specified 20 + 2.5n ladder. The implementation follows the explicit fractions and rounding rule (22.5 × 8, 35 × 5, 47.5 × 2); an empty-bar exception needs an owner decision rather than an invented threshold.
+
+## 2026-10-31: Expand the curated library with reviewed public-domain details (T-047)
+
+Supersedes the earlier decision to avoid merging free-exercise-db. The owner requested a broader
+catalog, instructions and optional pictures. The converter consumes only the committed pinned
+source and reviewed mapping; its frozen base preserves all 420 original names/keys and primary
+muscle tags. New source entries retain meaningful movement/grip/range differences, and matching
+variants receive source aliases and details. New small-muscle tags are secondary on synergists,
+so original primary-muscle volume stays unchanged. Direct serratus punches and tibialis raises
+are the exceptions. A custom exercise whose name collides with a newly added library entry stays
+custom and untouched; the seeder omits that library row rather than taking ownership of it.
+
+Pictures load only on the exercise detail screen, from the exact upstream commit recorded in
+`data/sources/free-exercise-db/SOURCE.md`, through `cdn.jsdelivr.net`. This optional picture read
+is the only network read besides app updates and the owner's connected Dropbox. It sends no
+workouts, measurements, exercise history or other owner data; requests contain only public source
+image paths, with no referrer or credentials. As with any network host, the CDN sees ordinary
+connection metadata such as the requesting IP address. The default-on phone-local setting can
+stop all picture loads. Instructions stay bundled. Workbox CacheFirst caches only this pinned
+host/path with a 600-frame limit; uncached/failed frames render nothing. There is no background
+image prefetch or wholesale picture download. Credits live under Settings using a query parameter,
+so this task does not modify the shared app route table.

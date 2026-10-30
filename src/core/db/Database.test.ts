@@ -11,7 +11,7 @@ async function migratedDatabase(): Promise<Database> {
 }
 
 describe('migrations', () => {
-  test('a new database gets every table and all 23 muscles', async () => {
+  test('a new database gets every table and all 28 muscles', async () => {
     const db = await migratedDatabase();
     const tables = db
       .all<{ name: string }>(
@@ -35,7 +35,7 @@ describe('migrations', () => {
       'workoutExercise',
       'workoutSet',
     ]);
-    expect(db.value('SELECT count(*) FROM muscle')).toBe(23);
+    expect(db.value('SELECT count(*) FROM muscle')).toBe(28);
   });
 
   test('running again applies nothing', async () => {
@@ -115,7 +115,7 @@ describe('Database', () => {
 });
 
 describe('populated migration safety audit', () => {
-  test('v1 to v3 preserves every old table, row and column, and rerunning is byte-for-byte unchanged', async () => {
+  test('v1 to current preserves every old table, row and column, and rerunning is byte-for-byte unchanged', async () => {
     const current = await migratedDatabase();
     DataSafetyFixture.seed(current);
     const original = DataSafetyFixture.read(current);
@@ -141,8 +141,11 @@ describe('populated migration safety audit', () => {
     const after = DataSafetyFixture.read(legacy);
     for (const [name, rows] of Object.entries(before)) {
       if (name === 'migration') continue;
+      if (name !== 'muscle') expect(after[name]).toHaveLength(rows.length);
       expect(
-        after[name]?.map((row) => Object.fromEntries(Object.keys(rows[0] ?? {}).map((key) => [key, row[key]]))),
+        after[name]
+          ?.slice(0, rows.length)
+          .map((row) => Object.fromEntries(Object.keys(rows[0] ?? {}).map((key) => [key, row[key]]))),
       ).toEqual(rows);
     }
     const unchanged = legacy.exportBytes();

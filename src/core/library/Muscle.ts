@@ -1,8 +1,8 @@
 import type { MuscleRegion } from './MuscleRegion';
 
 /**
- * Every muscle the app counts sets for, head to toe. The slugs are stable: they are stored in
- * the `muscle` table (frozen in the `v1-schema` migration) and in `library.json`, so never rename one.
+ * Every muscle the app counts sets for, in stable database order. The slugs are stable: they are stored in
+ * the `muscle` table (frozen in the `v1-schema` and `v6-library-details` migrations) and in `library.json`, so never rename one.
  *
  * The research report recommends about 20 muscles with the front, side and rear delts separated,
  * because neither open dataset splits the shoulder and set counts for side and rear delts are what
@@ -12,9 +12,9 @@ import type { MuscleRegion } from './MuscleRegion';
  * - `upper-back`: rhomboids plus middle and lower trapezius, what rows and face pulls train besides the lats.
  * - `upper-traps`: upper trapezius, what shrugs train.
  * - `lower-back`: spinal erectors.
- * - `biceps`: biceps brachii and brachialis.
+ * - `biceps`: biceps brachii; brachialis has its own secondary tag.
  * - `forearm-flexors`: wrist and finger flexors, for wrist curls and grip work.
- * - `forearm-extensors`: wrist extensors and brachioradialis, for reverse wrist curls, reverse and hammer curls.
+ * - `forearm-extensors`: wrist extensors, for reverse wrist curls, reverse and hammer curls.
  * - `hip-abductors`: gluteus medius and minimus, what the hip abductor machine trains.
  */
 export const MUSCLES = [
@@ -41,12 +41,17 @@ export const MUSCLES = [
   'hamstrings',
   'calves',
   'neck',
+  'serratus',
+  'brachialis',
+  'brachioradialis',
+  'tibialis',
+  'lower-traps',
 ] as const;
 
 /** A muscle slug; one of `MUSCLES`. */
 export type Muscle = (typeof MUSCLES)[number];
 
-/** Name of each muscle shown in the UI. Matches `muscle.name` in the `v1-schema` migration. */
+/** Name of each muscle shown in the UI. Matches `muscle.name` in the `v1-schema` and `v6-library-details` migrations. */
 export const MUSCLE_DISPLAY_NAMES: Readonly<Record<Muscle, string>> = {
   chest: 'Chest',
   'front-delt': 'Front delts',
@@ -71,9 +76,14 @@ export const MUSCLE_DISPLAY_NAMES: Readonly<Record<Muscle, string>> = {
   hamstrings: 'Hamstrings',
   calves: 'Calves',
   neck: 'Neck',
+  serratus: 'Serratus',
+  brachialis: 'Brachialis',
+  brachioradialis: 'Brachioradialis',
+  tibialis: 'Tibialis',
+  'lower-traps': 'Lower traps',
 };
 
-/** The body area each muscle is listed under. Matches `muscle.region` in the `v1-schema` migration. */
+/** The body area each muscle is listed under. Matches `muscle.region` in the `v1-schema` and `v6-library-details` migrations. */
 export const MUSCLE_REGION_OF: Readonly<Record<Muscle, MuscleRegion>> = {
   chest: 'chest',
   'front-delt': 'shoulders',
@@ -98,10 +108,15 @@ export const MUSCLE_REGION_OF: Readonly<Record<Muscle, MuscleRegion>> = {
   hamstrings: 'legs',
   calves: 'legs',
   neck: 'neck',
+  serratus: 'chest',
+  brachialis: 'arms',
+  brachioradialis: 'arms',
+  tibialis: 'legs',
+  'lower-traps': 'back',
 };
 
 /**
- * Orders muscles head to toe (the order of `MUSCLES`), which is how lists show them.
+ * Orders muscles in stable taxonomy order (the order of `MUSCLES`), which is how lists show them.
  * Usable directly as an `Array.prototype.sort` comparator.
  */
 export function compareMuscles(left: Muscle, right: Muscle): number {

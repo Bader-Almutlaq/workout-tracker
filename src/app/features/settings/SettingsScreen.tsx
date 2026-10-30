@@ -1,3 +1,6 @@
+import { useSearchParams } from 'react-router';
+import { CreditsScreen } from './CreditsScreen';
+import { ExercisePicturesSetting } from './ExercisePicturesSetting';
 import { useState } from 'react';
 import { APPEARANCES, savedAppearance, saveAppearance, type Appearance } from '../../appearance/appearance';
 import { database, useDatabaseQuery } from '../../data/database';
@@ -11,6 +14,7 @@ import { UnitsSection } from './UnitsSection';
 
 /** Settings: appearance and what's stored on this phone. Import joins in milestone W1. */
 export function SettingsScreen() {
+  const [search] = useSearchParams();
   const [appearance, setAppearance] = useState<Appearance>(savedAppearance);
   const summary = useDatabaseQuery('summary', () => database.summary());
 
@@ -19,12 +23,15 @@ export function SettingsScreen() {
     saveAppearance(value);
   };
 
+  if (search.has('credits')) return <CreditsScreen />;
+
   return (
     <Screen title="Settings">
       <section>
         <SegmentedControl label="Appearance" options={APPEARANCES} value={appearance} onChange={choose} />
       </section>
       <UnitsSection />
+      <ExercisePicturesSetting />
       <Section label="On this phone">
         {summary.status === 'ready' ? (
           <>
@@ -41,6 +48,9 @@ export function SettingsScreen() {
         <MatchingRow />
       </Section>
       <BackupSection />
+      <Section label="About">
+        <LinkRow to="/settings?credits">Credits</LinkRow>
+      </Section>
     </Screen>
   );
 }

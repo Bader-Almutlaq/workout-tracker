@@ -7,6 +7,8 @@ import { Section, SectionRow } from '../../design/components/Section';
 import { setCountsText } from '../history/setCountsText';
 import { dayWithYearText } from '../../format/dateText';
 import styles from './ExerciseDetailScreen.module.css';
+import { ExerciseInstructions } from './ExerciseInstructions';
+import { ExercisePictures } from './ExercisePictures';
 import { ExerciseActions } from './ExerciseActions';
 import { exerciseTraitsText } from './exerciseText';
 import { MuscleChips } from './MuscleChips';
@@ -41,6 +43,8 @@ export function ExerciseDetailScreen() {
         <MuscleChips primary={detail.value.primaryMuscles} secondary={detail.value.secondaryMuscles} />
         {traits !== '' && <p className={styles.traits}>{traits}</p>}
       </Section>
+      <ExercisePictures key={exercise.id} imageKeys={exercise.imageKeys} />
+      <ExerciseInstructions instructions={exercise.instructions} />
       {detail.value.workoutCount > 0 && (
         <Section label="Usage">
           <SectionRow

@@ -121,3 +121,33 @@ A set left out of an imported workout can be brought back only by deleting that 
 - Changes are computed independently per state, relative to that state's latest observation. A 4-/12-week change subtracts the newest entry on or before latest minus 28/84 elapsed days; it is null if none exists. Since-first needs two entries. The monthly rate is a descriptive least-squares slope using observations in the inclusive last 84 days, scaled by a mean Gregorian month (365.2425 / 12 days); fewer than two distinct timestamps gives null. No interpolation or training recommendation is made.
 
 - Body measurement display units are set in Settings → Units and included in database backups.
+
+## Exercise library sources (T-047, schema v6)
+
+`src/core/library/library.json` is generated offline by `node --import tsx tools/build-library.ts`.
+The inputs are the unchanged pinned `data/sources/free-exercise-db/exercises.json` (provenance and
+Unlicense in its `SOURCE.md`) and `data/sources/library-mapping.json`. The mapping freezes the
+original 165 families/420 names in `baseFamilies` and records a match, new variant/family, or skip
+for every source id. Change the mapping and increment its version before regenerating; never edit
+the generated catalog. Exact original names/keys and primary tags survive; new aliases feed the
+existing catalog/search. Duplicate source matches keep the first source id's details in lexical
+order, and combine aliases. Explicit equipment/muscle overrides and resistance exceptions are
+reviewable in the mapping. `weighted` represents unusual external implements (stones, sleds,
+sandbags, chains) for which the existing equipment vocabulary has no dedicated slug; explicit
+weight/repetition or weight/duration tracking keeps these external loads distinct from bodyweight work.
+
+Migration `v6-library-details` adds nullable `exercise.instructions` (newline-separated steps)
+and `exercise.imageKeys` (JSON source paths), plus frozen serratus, brachialis, brachioradialis,
+tibialis and lower-traps rows. The worker's existing snapshot precedes migration. Seeding writes
+details only to library rows; custom rows, including name collisions, are preserved. Nullable
+columns retain all v5 rows, loading preferences, history and backup compatibility. Small-muscle
+synergists are secondary tags; only direct serratus punches and tibialis raises get new primary
+tags. Existing primary tags remain unchanged.
+
+Instructions ship in the app and always work offline. Pictures are optional pinned jsDelivr JPEGs;
+viewed frames use a bounded CacheFirst service-worker cache (600 frames, about 300 exercises).
+Uncached pictures disappear quietly offline. **Settings → Show exercise pictures**, default on,
+is a phone-local display preference outside database backups, like appearance. Turning it off
+stops picture requests and display; it does not delete already cached pictures. **Settings → Credits**
+links the public-domain source. Browser storage eviction can remove the picture cache; training
+data remains independent of it.

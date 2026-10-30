@@ -11,6 +11,9 @@ const BASE_PATH = process.env['BASE_PATH'] ?? '/';
 /** The SQLite WebAssembly file is about 0.9 MB; the default precache limit (2 MiB) is raised for headroom. */
 const PRECACHE_LIMIT_BYTES = 5 * 1024 * 1024;
 
+/** Heuristic: retain two frames for about 300 viewed exercises without unbounded picture storage. */
+const PICTURE_CACHE_ENTRIES = 600;
+
 export default defineConfig({
   base: BASE_PATH,
   plugins: [
@@ -39,6 +42,19 @@ export default defineConfig({
         // Everything the app needs runs offline, including the database engine.
         globPatterns: ['**/*.{js,css,html,wasm,png,svg,json}'],
         maximumFileSizeToCacheInBytes: PRECACHE_LIMIT_BYTES,
+        // Heuristic: about 300 viewed exercises (two frames each), bounded to avoid unbounded storage.
+        runtimeCaching: [
+          {
+            urlPattern:
+              /^https:\/\/cdn\.jsdelivr\.net\/gh\/yuhonas\/free-exercise-db@f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5\/exercises\/[\w-]+\/[01]\.jpg$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'exercise-pictures',
+              expiration: { maxEntries: PICTURE_CACHE_ENTRIES },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+        ],
         navigateFallback: `${BASE_PATH}index.html`,
       },
     }),

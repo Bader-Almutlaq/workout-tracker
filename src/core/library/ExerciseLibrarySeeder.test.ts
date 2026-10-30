@@ -76,3 +76,62 @@ describe('library seeding', () => {
     expect(db.value('SELECT exerciseId FROM workoutExercise')).toBe(7);
   });
 });
+
+it('fills exact-variant details, leaves custom exercises untouched, and re-seeds idempotently', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db);
+    db.run(`INSERT INTO exercise (name, source, createdAt, instructions, imageKeys)
+      VALUES ('Custom movement', 'custom', '2026-01-01', 'My instructions', '["custom/0.jpg"]')`);
+    const customBefore = db.get('SELECT * FROM exercise WHERE source = ?', ['custom']);
+    const detailed = (version: number) =>
+      ExerciseLibrary.fromJson(
+        JSON.stringify({
+          version,
+          families: [
+            {
+              movement: 'Bench Press',
+              pattern: 'horizontal-push',
+              mechanic: 'compound',
+              primary: ['chest'],
+              variants: [
+                { equipment: 'barbell', instructions: ['Start.', 'Press.'], imageKeys: ['Bench/0.jpg', 'Bench/1.jpg'] },
+                'dumbbell',
+              ],
+            },
+          ],
+        }),
+      );
+    ExerciseLibrarySeeder.seed(db, detailed(1), now);
+    expect(
+      db.get('SELECT instructions, imageKeys FROM exercise WHERE libraryKey = ?', ['bench-press-barbell']),
+    ).toEqual({ instructions: 'Start.\nPress.', imageKeys: '["Bench/0.jpg","Bench/1.jpg"]' });
+    expect(
+      db.get('SELECT instructions, imageKeys FROM exercise WHERE libraryKey = ?', ['bench-press-dumbbell']),
+    ).toEqual({ instructions: null, imageKeys: null });
+    const before = db.all('SELECT * FROM exercise');
+    expect(ExerciseLibrarySeeder.seed(db, detailed(1), now).skipped).toBe(true);
+    expect(ExerciseLibrarySeeder.seed(db, detailed(2), now).updated).toBe(2);
+    expect(db.all('SELECT * FROM exercise')).toEqual(before);
+    expect(db.get('SELECT * FROM exercise WHERE source = ?', ['custom'])).toEqual(customBefore);
+  } finally {
+    db.close();
+  }
+});
+
+it('does not claim a custom exercise when an expansion adds the same name', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db);
+    db.run(`INSERT INTO exercise (name, source, createdAt)
+      VALUES ('Bench Press (Barbell)', 'custom', '2026-01-01')`);
+    const before = db.get('SELECT * FROM exercise WHERE source = ?', ['custom']);
+    const result = ExerciseLibrarySeeder.seed(db, library(), now);
+    expect(result.inserted).toBe(1);
+    expect(result.linked).toBe(0);
+    expect(db.get('SELECT * FROM exercise WHERE source = ?', ['custom'])).toEqual(before);
+    expect(db.value('SELECT instructions FROM exercise WHERE source = ?', ['custom'])).toBeNull();
+  } finally {
+    db.close();
+  }
+});
