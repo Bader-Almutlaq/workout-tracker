@@ -71,9 +71,9 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-042](T-042-dropbox-backup.md) | Automatic backup to Dropbox (R11) | done (live Dropbox connect checked by owner) | Codex Sol + Terra (high), reviewed by lead | merged |
 | [T-043](T-043-measurements.md) | Body measurements: sites with how-to notes, flexed/relaxed, history and change (R1) | done (polish in T-043b) | Codex Sol (high), reviewed by lead | merged |
 | [T-044](T-044-loadable-weights-and-warmups.md) | Loadable weights + auto warm-up sets | doing | Codex Sol (high) | `task/T-044-warmups` |
-| [T-043b](T-043b-body-polish.md) | Body screen polish | doing | Codex Terra (high) | `task/T-043b-body-polish` |
+| [T-043b](T-043b-body-polish.md) | Body screen polish | done | Codex Terra (high), reviewed by lead | merged |
 | [T-045](T-045-finish-comparison-and-bests.md) | Finish screen: compared with last time, personal bests | done | Codex Terra (high), reviewed by lead | merged |
-| [T-046](T-046-search-by-muscle-words.md) | Plain-language exercise search (muscles, movements, equipment words) | todo (next free Codex slot) | | |
+| [T-046](T-046-search-by-muscle-words.md) | Plain-language exercise search (muscles, movements, equipment words) | doing | Codex Terra (high) | `task/T-046-search` |
 
 ## Next milestones (tasks are written when the milestone starts)
 
