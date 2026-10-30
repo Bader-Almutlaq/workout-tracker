@@ -2,7 +2,7 @@
 
 Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest milestone at the top.
 
-**Current milestone:** W3, logging. Milestone branch: `web` (deployed from `main` with `make deploy`).
+**Current milestone:** W4, templates and calendar. Milestone branch: `web` (deployed from `main` with `make deploy`).
 **Lead:** Claude Opus (main chat).
 
 ## W1: Strong import, History and backups
@@ -34,6 +34,14 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-025](T-025-backup-reminder.md) | Finish summary: quiet "Back up" line when the last backup is over 7 days old | done | Codex Terra (high), reviewed by lead | merged |
 | [T-026](T-026-search-tie-breaks.md) | Search tie-breaks prefer common equipment | done | Codex Terra (high), reviewed by lead | merged |
 | [T-027](T-027-rest-timer.md) | Rest timer on the logging screen | done | Claude Sonnet (subagent), reviewed by lead | merged |
+
+## W4: Templates and calendar
+
+| ID | Task | Status | Agent | Branch |
+|---|---|---|---|---|
+| [T-028](T-028-template-core.md) | Template engine: folders, templates, start from a template, save a workout as a template | doing | Codex Terra (high) | `task/T-028-template-core` |
+| T-029 | Template screens: list with folders on the Workout tab, editor, save-as-template | todo (after T-028), brief to write | | |
+| [T-030](T-030-history-calendar.md) | History calendar | doing | Codex Terra (high) | `task/T-030-history-calendar` |
 
 ## Next milestones (tasks are written when the milestone starts)
 
