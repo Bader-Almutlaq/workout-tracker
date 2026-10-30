@@ -38,7 +38,7 @@ export function SettingsScreen() {
         )}
       </Section>
       <Section label="Import" footnote="Safe to repeat: workouts already imported are skipped.">
-        <LinkRow to="/settings/import">Import from Strong…</LinkRow>
+        <LinkRow to="/settings/import">Import from Strong, Hevy, FitNotes or Fitbod…</LinkRow>
         <MatchingRow />
       </Section>
       <ExportSection />

@@ -16,8 +16,12 @@ export function PoundExercisesSection({
   const poundExercises = plan.exercises.filter((exercise) => exercise.columnUnit === 'lb' || exercise.isOverridden);
   return poundExercises.length > 0 ? (
     <Section
-      label="Exercises Strong exported in pounds"
-      footnote="Strong exports each exercise in the unit it's set to now. These were detected as pounds and will be converted to kg. Switch one back if it's wrong."
+      label="Exercises exported in pounds"
+      footnote={
+        plan.sourceFormat === 'strong' || plan.sourceFormat === undefined
+          ? "Strong exports each exercise in the unit it's set to now. These were detected as pounds and will be converted to kg. Switch one back if it's wrong."
+          : "These export columns are in pounds and will be converted to kg. Changing an exercise's unit applies to all its sets."
+      }
     >
       {poundExercises.map((exercise) => (
         <div className={styles.unitRow} key={exercise.name}>

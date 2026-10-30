@@ -27,6 +27,11 @@ import {
   type PlannedMeasurement,
 } from '../core/import/StrongMeasurementsFile';
 import { parseStrongWorkoutsFile } from '../core/import/StrongWorkoutsFile';
+import { detectWorkoutFileFormat } from '../core/import/formats/detectWorkoutFileFormat';
+import { parseHevyWorkoutsFile } from '../core/import/formats/HevyWorkoutsFile';
+import { parseFitNotesWorkoutsFile } from '../core/import/formats/FitNotesWorkoutsFile';
+import { parseFitbodWorkoutsFile } from '../core/import/formats/FitbodWorkoutsFile';
+import { ImportError } from '../core/import/ImportError';
 import type { StrongRow } from '../core/import/StrongRow';
 import * as Comlink from 'comlink';
 import { backupFileName } from '../core/backup/BackupFile';
@@ -421,7 +426,23 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
               throw new StrongImportFlowError(
                 'Choose only one workouts file at a time, along with any measurement files.',
               );
-            rows.push(...parseStrongWorkoutsFile(file.text));
+            const format = detectWorkoutFileFormat(file.text);
+            switch (format) {
+              case 'strong':
+                rows.push(...parseStrongWorkoutsFile(file.text));
+                break;
+              case 'hevy':
+                rows.push(...parseHevyWorkoutsFile(file.text));
+                break;
+              case 'fitnotes':
+                rows.push(...parseFitNotesWorkoutsFile(file.text));
+                break;
+              case 'fitbod':
+                rows.push(...parseFitbodWorkoutsFile(file.text));
+                break;
+              case 'unknown':
+                throw new ImportError({ kind: 'unsupportedWorkoutFile' });
+            }
             workoutsFileSelected = true;
           }
         }
@@ -437,7 +458,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     /** Rebuilds the review after the owner changes a decision. */
     reviewStrongImport: serially(async (options: StrongImportOptions): Promise<StrongImportPlan> => {
       await liveStore();
-      if (importPlan === undefined) throw new StrongImportFlowError('Choose Strong files before reviewing the import.');
+      if (importPlan === undefined) throw new StrongImportFlowError('Choose files before reviewing the import.');
       importPlan = makeStrongImportPlan(importRows, importMeasurements, options);
       return importPlan;
     }),
@@ -445,7 +466,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     /** Takes a safety snapshot, then imports the chosen decisions and refreshes screens. */
     runStrongImport: serially(async (options: StrongImportOptions): Promise<ImportResult> => {
       const store = await liveStore();
-      if (importPlan === undefined) throw new StrongImportFlowError('Choose Strong files before importing.');
+      if (importPlan === undefined) throw new StrongImportFlowError('Choose files before importing.');
       const plan = makeStrongImportPlan(importRows, importMeasurements, makeImportOptions(options));
       await store.takeSnapshot();
       const result = importStrongPlan(store.database, plan, new Date());

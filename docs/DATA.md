@@ -104,6 +104,43 @@ All weights are stored in **kilograms, exactly as entered** (`Double`). Each set
 
 **Body measurements** come as one file per site (`strong_waist.csv`, `strong_left_bicep.csv`, …), header `Date,Measurement Type,Value,Unit,Source`, unit `cm`. There are 15 sites and few rows each. No bodyweight file exists.
 
+## Other apps
+
+Settings → **Import from Strong, Hevy, FitNotes or Fitbod…** accepts one workout CSV at a time,
+plus any Strong measurement files. Headers identify the app (case-insensitive, any column order);
+unknown columns are ignored. All adapters feed `StrongRow` into the same units, flagged-set,
+Leave out all, matching and snapshot-before-import pipeline. **Each of the three formats below
+is unverified against a real file** until the owner or a user supplies one; tests use small
+synthetic CSVs based on the documented column layouts.
+
+| App | Columns and mapping |
+|---|---|
+| Hevy | Required: `title`, `start_time`, `exercise_title`. `end_time` determines workout duration; `description` → workout notes; `exercise_notes` → exercise note rows (identical repeated notes are stored once per workout/exercise). `set_type`: normal → working, warmup → warm-up, dropset → drop, failure → failure; unknown/blank labels → working. `weight_kg` or `weight_lbs` retains the explicit unit. `reps`, `rpe`, `distance_km` or `distance_miles`, `duration_seconds` → the corresponding set values (distance converted to meters). `set_index` is informational; file order determines set order. `superset_id` is ignored. |
+| FitNotes | Required: `Date`, `Exercise`. `Weight (kgs)` or `Weight (lbs)` retains the explicit unit. `Reps` → reps, `Distance` with `Distance Unit` (`m`, `km`, `mi` or their English names) → meters; `Time` (`HH:MM:SS`) → seconds; `Comment` → set note. All sets are working sets in file order. `Category` is ignored. |
+| Fitbod | Required: `Date`, `Exercise`. `Weight(kg)` or `Weight(lb)` retains the explicit unit. `Reps`, `Duration(s)`, `Distance(m)` → the corresponding set values. `isWarmup` true/1/yes → warm-up; false/0/no/blank → working. `Note` → set note. **`multiplier` is not applied:** dumbbell-pair weights stay as entered. `Incline` and `Resistance` are ignored because the normalized rows have no matching fields. |
+
+Optional blank numeric cells are absent (weight/reps default to zero); malformed or negative
+numbers are rejected with a column and row number. If both weight variants exist, a populated
+kg cell wins, otherwise lb is used. Explicit units bypass Strong's numeric inference, including
+entry-unit inference; a review override applies to every set of that exercise. Individual rows
+can retain different explicit units in the same file. Optional missing measurement columns do
+not prevent importing bodyweight or timed sets.
+
+Hevy accepts local `26 Oct 2024, 18:00` and ISO dates/times; `start_time` is its workout key.
+FitNotes accepts `YYYY-MM-DD`: one **FitNotes workout** per date, starting at **12:00 local**,
+including dates with daylight-saving changes. Fitbod accepts numeric local dates/times and ISO:
+one **Fitbod workout** per distinct start minute, or per date when no time is supplied (noon
+local). This is a heuristic because no workout ID is available; separate sessions in the same
+minute cannot be distinguished. ISO offsets preserve their instant; timestamps without an
+offset use the phone's time zone, with the same gap/fold behavior as Strong. Noncontiguous rows
+with the same workout key still form one workout, preserving their relative order.
+
+Source keys use `hevy:`, `fitnotes:` and `fitbod:` prefixes, so re-importing the same file adds
+nothing and different apps never collide. Importing the same real workout from two apps can
+therefore create two records; cross-app deduplication is not attempted. The database's existing
+`source = strong` classification remains the shared external-import category (no migration).
+Exercise names use the existing matching flow; no library or matching behavior changes.
+
 ## Typo and outlier checks
 
 Implemented once in WorkoutCore and used in two places:
