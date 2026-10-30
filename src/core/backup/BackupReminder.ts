@@ -11,3 +11,12 @@ export function isBackupStale(lastBackupAt: string | undefined, now: Date): bool
   const days = daysSinceBackup(lastBackupAt, now);
   return days === undefined || days > BackupReminderPolicy.staleAfterDays;
 }
+
+/** Caption for the last recorded backup; a successful action in this view takes precedence. */
+export function backupCaption(lastBackupAt: string | undefined, now: Date, justBackedUp: boolean): string {
+  if (justBackedUp) return 'Backed up just now';
+  const days = daysSinceBackup(lastBackupAt, now);
+  if (days === undefined) return 'Not backed up yet';
+  if (days === 0) return 'Last backup: today';
+  return `Last backup: ${days} ${days === 1 ? 'day' : 'days'} ago`;
+}

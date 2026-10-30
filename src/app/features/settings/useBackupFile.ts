@@ -13,14 +13,17 @@ export function useBackupFile() {
     // The worker returns a Uint8Array backed by an ordinary ArrayBuffer suitable for a Blob.
     return new File([bytes as BlobPart], fileName, { type: BACKUP_MEDIA_TYPE });
   });
+  const [backedUp, setBackedUp] = useState(false);
   const [notice, setNotice] = useState<{ readonly tone: 'good' | 'bad'; readonly text: string }>();
 
-  const recordBackup = () =>
-    database.recordBackupMade().then(
+  const recordBackup = () => {
+    setBackedUp(true);
+    return database.recordBackupMade().then(
       () => setNotice({ tone: 'good', text: 'Backup saved.' }),
       (error: unknown) =>
         setNotice({ tone: 'bad', text: `The backup was saved but not recorded: ${messageOf(error)}` }),
     );
+  };
 
   // iOS requires the share call in the tap handler, before any await.
   const backUp = () => {
@@ -37,7 +40,7 @@ export function useBackupFile() {
     }
   };
 
-  return { file, notice, backUp, clearNotice: () => setNotice(undefined) };
+  return { file, notice, backedUp, backUp, clearNotice: () => setNotice(undefined) };
 }
 
 function canShareFile(file: File): boolean {

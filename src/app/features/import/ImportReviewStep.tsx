@@ -6,6 +6,38 @@ import { groupFindings, type FindingItem } from './importFindingText';
 import { ImportTotalsSection } from './ImportTotalsSection';
 import { PoundExercisesSection } from './PoundExercisesSection';
 import styles from './StrongImportScreen.module.css';
+// The review screen unmounts while its plan is rebuilt. Associate undo data with the
+// immutable exclusion set passed through that rebuild, so a new import starts cleanly.
+const bulkUndo = new WeakMap<ReadonlySet<number>, ReadonlySet<number>>();
+
+/** Leaves out unique flagged lines, or restores the exclusion decisions before the bulk action. */
+export function toggleBulkExclusions(
+  excludedLines: ReadonlySet<number>,
+  flaggedLines: readonly number[],
+): ReadonlySet<number> {
+  const previous = bulkUndo.get(excludedLines);
+  if (previous !== undefined) return new Set(previous);
+  const next = new Set([...excludedLines, ...flaggedLines]);
+  bulkUndo.set(next, new Set(excludedLines));
+  return next;
+}
+
+/** Carries bulk undo through a per-set exclusion change. */
+export function updateExclusions(
+  excludedLines: ReadonlySet<number>,
+  lines: readonly number[],
+  excluded: boolean,
+): ReadonlySet<number> {
+  const next = new Set(excludedLines);
+  for (const line of lines) {
+    if (excluded) next.add(line);
+    else next.delete(line);
+  }
+  const previous = bulkUndo.get(excludedLines);
+  if (previous !== undefined) bulkUndo.set(next, previous);
+  return next;
+}
+
 /** Shows import totals, unit choices and suspicious-set review. */
 export function ImportReviewStep({
   plan,
@@ -26,13 +58,18 @@ export function ImportReviewStep({
 }) {
   const groups = groupFindings(plan);
   const setExcluded = (items: readonly FindingItem[], excluded: boolean) => {
-    const excludedLines = new Set(options.excludedLines);
-    for (const item of items) {
-      if (excluded) excludedLines.add(item.finding.id);
-      else excludedLines.delete(item.finding.id);
-    }
+    const excludedLines = updateExclusions(
+      options.excludedLines,
+      items.map((item) => item.finding.id),
+      excluded,
+    );
     review({ ...options, excludedLines });
   };
+  const flaggedLines = [...new Set(plan.findings.map((finding) => finding.id))];
+  const flaggedCount = flaggedLines.length;
+  const totalSets = plan.setsByLine.size;
+  const percentage = totalSets === 0 ? '0.0' : ((flaggedCount / totalSets) * 100).toFixed(1);
+  const canUndoBulk = bulkUndo.has(options.excludedLines);
   const decisionCount = options.corrections.size + options.confirmedLines.size + options.excludedLines.size;
   const counts = useDatabaseQuery('strong-import-counts', () => database.strongImportWorkoutCounts(plan.workouts));
   return (
@@ -54,13 +91,23 @@ export function ImportReviewStep({
             </button>
           )}
         </div>
-        {groups.length === 0 ? (
+        {groups.length === 0 && !canUndoBulk ? (
           <p className={styles.description}>Nothing looks like a typo.</p>
         ) : (
-          <p className={styles.note}>
-            These differ a lot from the same exercise in nearby sessions: maybe a missed digit, an extra zero or the
-            wrong unit.
-          </p>
+          <div>
+            <button
+              className={styles.primary}
+              onClick={() =>
+                review({ ...options, excludedLines: toggleBulkExclusions(options.excludedLines, flaggedLines) })
+              }
+            >
+              {canUndoBulk ? 'Undo' : `Leave out all ${flaggedCount} flagged sets`}
+            </button>
+            <p className={styles.note}>
+              {flaggedCount} of {totalSets} sets ({percentage}%) differ a lot from nearby sessions. Leaving them out
+              keeps typos out of your charts; your export file is unchanged.
+            </p>
+          </div>
         )}
         {groups.map((group) => (
           <FindingGroupCard
