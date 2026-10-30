@@ -81,8 +81,12 @@ function median(values: readonly number[]): number {
   return sorted.length % 2 === 0 && below !== undefined ? (below + middle) / 2 : middle;
 }
 
-/** Groups an exercise's sets into sessions, oldest first (ties keep the order the sets came in). */
-function summariseSessions(sets: readonly SetObservation[]): SessionSummary[] {
+/**
+ * Groups an exercise's sets into sessions, oldest first (ties keep the order the sets came in), with
+ * each session's top working weight and median working reps. Shared by the import review and the
+ * live check, so both judge "typical" the same way.
+ */
+export function summariseSessions(sets: readonly SetObservation[]): SessionSummary[] {
   return [...groupBy(sets, (set) => set.sessionKey).values()]
     .map((sessionSets): SessionSummary => {
       const work = sessionSets.filter((set) => isPlausibilityKind(set.kind));
