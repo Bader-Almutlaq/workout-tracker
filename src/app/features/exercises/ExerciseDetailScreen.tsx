@@ -10,6 +10,7 @@ import { ExerciseActions } from './ExerciseActions';
 import { exerciseTraitsText, usageText } from './exerciseText';
 import { MuscleChips } from './MuscleChips';
 import { RecentSessionRow } from './RecentSessionRow';
+import { StrengthCard } from './StrengthCard';
 
 const MISSING_MESSAGE = 'This exercise no longer exists.';
 
@@ -49,6 +50,9 @@ export function ExerciseDetailScreen() {
             <SectionRow label="Last" value={dayWithYearText(detail.value.lastUsedAt.toISOString())} />
           )}
         </Section>
+      )}
+      {exercise.tracking === 'weight-reps' && (
+        <StrengthCard key={exercise.id} exerciseId={exercise.id} unit={exercise.defaultEntryUnit} />
       )}
       {recentSessions.length > 0 && (
         <Section label="Recent">
