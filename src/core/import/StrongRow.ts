@@ -1,3 +1,6 @@
+import type { WeightUnit } from '../units/WeightUnit';
+import type { WorkoutFileFormat } from './formats/detectWorkoutFileFormat';
+
 /** What a row of a Strong workouts export holds. */
 export type StrongRowContent =
   /** A set. `order` is the raw "Set Order" value, e.g. "1", "W", "D", "F". */
@@ -8,10 +11,14 @@ export type StrongRowContent =
   | { readonly kind: 'restTimer' };
 
 /**
- * One data row of a Strong workouts export, with values parsed but not yet interpreted (weights
- * are still in the export's per-exercise unit).
+ * One normalized workout-export row, with values parsed but weights still in the export unit.
+ * Strong uses per-exercise inference; other adapters supply explicit units and provenance.
  */
 export interface StrongRow {
+  /** Adapter provenance; absent for legacy Strong rows so their keys remain unchanged. */
+  readonly sourceFormat?: Exclude<WorkoutFileFormat, 'unknown'>;
+  /** Explicit adapter column unit; absent for Strong's existing per-exercise inference. */
+  readonly exportUnit?: WeightUnit;
   /**
    * The row's position in the file, counting the header as line 1 and not counting blank lines.
    * It is also the row's identifier in the typo review. For files with multi-line quoted values
@@ -19,8 +26,8 @@ export interface StrongRow {
    */
   readonly line: number;
   /**
-   * The workout's start timestamp exactly as exported, e.g. "2021-11-20 20:53:38". Strong has no
-   * workout ID in older exports, so this identifies the workout.
+   * The adapter's workout grouping key. Strong keeps the exact exported start timestamp,
+   * Hevy keeps start_time, FitNotes uses its date, and Fitbod uses its start minute or date.
    */
   readonly workoutKey: string;
   /** The start instant as a UTC ISO 8601 timestamp (the export's local time, converted). */

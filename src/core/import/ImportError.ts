@@ -6,6 +6,8 @@ export type ImportErrorDetails =
   | { readonly kind: 'unterminatedQuote'; readonly line: number }
   /** A required column is missing, e.g. "Exercise Name". */
   | { readonly kind: 'missingColumn'; readonly column: string }
+  /** No supported workout dialect can be identified from the header. */
+  | { readonly kind: 'unsupportedWorkoutFile' }
   /** A value can't be read, e.g. a date or number in an unexpected format. */
   | { readonly kind: 'invalidValue'; readonly column: string; readonly value: string; readonly line: number }
   /** The file isn't a Strong workouts or measurements export. */
@@ -22,7 +24,9 @@ function describe(details: ImportErrorDetails): string {
     case 'unterminatedQuote':
       return `The file is damaged: a quoted value starting near line ${details.line} never ends.`;
     case 'missingColumn':
-      return `This doesn't look like a Strong export: the "${details.column}" column is missing.`;
+      return `This export is missing the "${details.column}" column.`;
+    case 'unsupportedWorkoutFile':
+      return "This file isn't a Strong, Hevy, FitNotes or Fitbod workout export.";
     case 'invalidValue':
       return `Line ${details.line}: "${details.value}" isn't a valid ${details.column}.`;
     case 'unrecognisedFile':

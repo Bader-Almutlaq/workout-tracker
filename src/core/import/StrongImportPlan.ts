@@ -8,9 +8,6 @@ import { makeImportOptions, type SetCorrection, type StrongImportOptions } from 
 import type { PlannedMeasurement } from './StrongMeasurementsFile';
 import type { StrongRow } from './StrongRow';
 
-/** Prefix of `PlannedWorkout.sourceKey`; keeps Strong keys apart from any other source's. */
-const SOURCE_KEY_PREFIX = 'strong:';
-
 /** Milliseconds in a second, for turning a duration into an end time. */
 const MILLISECONDS_PER_SECOND = 1000;
 
@@ -47,7 +44,7 @@ export interface PlannedExercise {
 
 /** One workout. */
 export interface PlannedWorkout {
-  /** "strong:" + the exported start timestamp; makes re-imports idempotent. */
+  /** Format prefix plus the exported workout key; makes re-imports idempotent within each app. */
   readonly sourceKey: string;
   /** UTC ISO 8601 timestamp. */
   readonly startedAt: string;
@@ -105,6 +102,8 @@ export interface SetContext {
  * `StrongImportOptions` whenever the owner changes a decision.
  */
 export interface StrongImportPlan {
+  /** Detected workout dialect; absent for measurement-only plans and older callers. */
+  readonly sourceFormat?: StrongRow['sourceFormat'];
   readonly workouts: readonly PlannedWorkout[];
   /** One entry per exercise with sets, most sets first (ties in order of first appearance). */
   readonly exercises: readonly ExerciseOverview[];
@@ -137,7 +136,7 @@ function isSetRow(row: StrongRow): row is SetRow {
 
 /**
  * Builds the plan.
- * @param rows From `parseStrongWorkoutsFile`.
+ * @param rows From `parseStrongWorkoutsFile` or another supported app's adapter.
  * @param measurements From `parseStrongMeasurementsFile`; may be empty.
  * @param options The owner's review decisions.
  */
@@ -148,8 +147,8 @@ export function makeStrongImportPlan(
 ): StrongImportPlan {
   const setRows = rows.filter(isSetRow);
   const verdicts = resolveVerdicts(setRows);
-  const columnUnitOf = (exerciseName: string): WeightUnit =>
-    options.unitOverrides.get(exerciseName) ?? verdicts.get(exerciseName)?.columnUnit ?? 'kg';
+  const columnUnitOf = (exerciseName: string, explicitUnit?: WeightUnit): WeightUnit =>
+    options.unitOverrides.get(exerciseName) ?? explicitUnit ?? verdicts.get(exerciseName)?.columnUnit ?? 'kg';
 
   const reviewWorkouts = groupIntoWorkouts(rows).map((workoutRows) =>
     makeWorkout(workoutRows, columnUnitOf, options.corrections),
@@ -203,6 +202,7 @@ export function makeStrongImportPlan(
   const startTimes = workouts.map((workout) => workout.startedAt).sort();
 
   return {
+    sourceFormat: rows[0]?.sourceFormat ?? (rows.length > 0 ? 'strong' : undefined),
     workouts,
     exercises: makeOverviews(
       setRows.filter((row) => !options.excludedLines.has(row.line)),
@@ -230,20 +230,43 @@ export function makeStrongImportPlan(
 function resolveVerdicts(setRows: readonly SetRow[]): Map<string, UnitVerdict> {
   const verdicts = new Map<string, UnitVerdict>();
   for (const [name, rows] of groupBy(setRows, (row) => row.exerciseName)) {
-    verdicts.set(name, resolveExportUnit(rows.map((row) => row.weightValue)));
+    const explicitUnit = rows.find((row) => row.exportUnit !== undefined)?.exportUnit;
+    verdicts.set(
+      name,
+      explicitUnit === undefined
+        ? resolveExportUnit(rows.map((row) => row.weightValue))
+        : { columnUnit: explicitUnit, kilogramVotes: 0, poundVotes: 0 },
+    );
   }
   return verdicts;
 }
 
 /**
- * Splits rows into workouts, keeping file order. Strong writes each workout's rows contiguously,
- * keyed by its start timestamp.
+ * Splits rows into workouts, keeping file order. Strong retains its contiguous grouping;
+ * adapters can also group noncontiguous rows under their format-specific workout key.
  */
 function groupIntoWorkouts(rows: readonly StrongRow[]): WorkoutRows[] {
   const groups: [StrongRow, ...StrongRow[]][] = [];
+  const adapterGroups = new Map<string, [StrongRow, ...StrongRow[]]>();
   for (const row of rows) {
+    if (row.sourceFormat !== undefined && row.sourceFormat !== 'strong') {
+      const key = `${row.sourceFormat}:${row.workoutKey}`;
+      const existing = adapterGroups.get(key);
+      if (existing === undefined) {
+        const group: [StrongRow, ...StrongRow[]] = [row];
+        adapterGroups.set(key, group);
+        groups.push(group);
+      } else {
+        existing.push(row);
+      }
+      continue;
+    }
     const current = groups[groups.length - 1];
-    if (current !== undefined && current[current.length - 1]?.workoutKey === row.workoutKey) {
+    if (
+      current !== undefined &&
+      (current[0].sourceFormat ?? 'strong') === (row.sourceFormat ?? 'strong') &&
+      current[current.length - 1]?.workoutKey === row.workoutKey
+    ) {
       current.push(row);
     } else {
       groups.push([row]);
@@ -254,7 +277,7 @@ function groupIntoWorkouts(rows: readonly StrongRow[]): WorkoutRows[] {
 
 function makeWorkout(
   rows: WorkoutRows,
-  columnUnitOf: (exerciseName: string) => WeightUnit,
+  columnUnitOf: (exerciseName: string, explicitUnit?: WeightUnit) => WeightUnit,
   corrections: ReadonlyMap<number, SetCorrection>,
 ): PlannedWorkout {
   const exercises: ExerciseDraft[] = [];
@@ -275,7 +298,7 @@ function makeWorkout(
           row,
           row.content.order,
           exercise.sets.length,
-          columnUnitOf(row.exerciseName),
+          columnUnitOf(row.exerciseName, row.exportUnit),
           corrections.get(row.line),
         ),
       );
@@ -284,7 +307,7 @@ function makeWorkout(
 
   const [first] = rows;
   return {
-    sourceKey: SOURCE_KEY_PREFIX + first.workoutKey,
+    sourceKey: `${first.sourceFormat ?? 'strong'}:${first.workoutKey}`,
     startedAt: first.startedAt,
     endedAt: workoutEnd(first.startedAt, first.durationSeconds),
     name: first.workoutName,
@@ -326,7 +349,7 @@ function makeSet(
     position,
     kind: setKindOf(order),
     weightKilograms: correction?.weightKilograms ?? toKilograms(row.weightValue, columnUnit),
-    entryUnit: inferEntryUnit(row.weightValue, columnUnit) ?? columnUnit,
+    entryUnit: row.exportUnit === undefined ? (inferEntryUnit(row.weightValue, columnUnit) ?? columnUnit) : columnUnit,
     reps: correction?.reps ?? row.reps,
     rpe: row.rpe !== null && row.rpe >= RpeRange.min && row.rpe <= RpeRange.max ? row.rpe : null,
     durationSeconds: row.seconds,

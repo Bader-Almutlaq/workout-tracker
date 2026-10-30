@@ -13,6 +13,16 @@ import {
 vi.stubEnv('TZ', 'UTC');
 
 describe('Strong measurements file', () => {
+  test('Optional state accepts relaxed and flexed, defaults missing values, and rejects invalid values', () => {
+    const values = parseStrongMeasurementsFile(
+      'Date,Measurement Type,Value,Unit,State\n2024-01-01 10:00:00,Waist,80,cm, FLEXED \n2024-01-01 10:00:00,Waist,79,cm,relaxed\n2024-01-02 10:00:00,Waist,78,cm,',
+    );
+    expect(values.map((value) => value.state ?? 'relaxed')).toEqual(['flexed', 'relaxed', 'relaxed']);
+    expectImportError(
+      () => parseStrongMeasurementsFile('Date,Measurement Type,Value,State\n2024-01-01 10:00:00,Waist,80,tense'),
+      { kind: 'invalidValue', column: 'State', value: 'tense', line: 2 },
+    );
+  });
   test.each([' 2024-01-01 10:00:00 , Waist , 31 , IN ', '2024-01-01 10:00:00,Waist,31, IN '])(
     'Surrounding field whitespace cannot turn 31 inches into 31 centimetres: %s',
     (row) => {

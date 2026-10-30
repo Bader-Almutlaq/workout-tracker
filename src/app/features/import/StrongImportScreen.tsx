@@ -16,7 +16,7 @@ import { ImportReviewStep } from './ImportReviewStep';
 import { ImportWorkingOverlay } from './ImportWorkingOverlay';
 
 type Phase = 'pick' | 'working' | 'review' | 'result' | 'failed';
-/** Pick Strong CSV files, review their units and suspicious sets, and import them. */
+/** Pick supported workout CSVs, review their units and suspicious sets, and import them. */
 export function StrongImportScreen() {
   const [phase, setPhase] = useState<Phase>('pick');
   const [message, setMessage] = useState('');
@@ -37,7 +37,7 @@ export function StrongImportScreen() {
     try {
       await action();
     } catch (error) {
-      log.import.error('Strong import failed', error);
+      log.import.error('Workout import failed', error);
       setMessage(messageOf(error));
       setPhase('failed');
     } finally {
@@ -117,7 +117,7 @@ export function StrongImportScreen() {
   };
   return (
     <Screen
-      title="Import from Strong"
+      title="Import workouts"
       leading={phase === 'working' ? undefined : <BackLink to="/settings" label="Settings" />}
     >
       <input ref={input} type="file" accept=".csv,text/csv" multiple hidden onChange={pick} />

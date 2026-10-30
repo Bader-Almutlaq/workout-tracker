@@ -104,6 +104,43 @@ All weights are stored in **kilograms, exactly as entered** (`Double`). Each set
 
 **Body measurements** come as one file per site (`strong_waist.csv`, `strong_left_bicep.csv`, …), header `Date,Measurement Type,Value,Unit,Source`, unit `cm`. There are 15 sites and few rows each. No bodyweight file exists.
 
+## Other apps
+
+Settings → **Import from Strong, Hevy, FitNotes or Fitbod…** accepts one workout CSV at a time,
+plus any Strong measurement files. Headers identify the app (case-insensitive, any column order);
+unknown columns are ignored. All adapters feed `StrongRow` into the same units, flagged-set,
+Leave out all, matching and snapshot-before-import pipeline. **Each of the three formats below
+is unverified against a real file** until the owner or a user supplies one; tests use small
+synthetic CSVs based on the documented column layouts.
+
+| App | Columns and mapping |
+|---|---|
+| Hevy | Required: `title`, `start_time`, `exercise_title`. `end_time` determines workout duration; `description` → workout notes; `exercise_notes` → exercise note rows (identical repeated notes are stored once per workout/exercise). `set_type`: normal → working, warmup → warm-up, dropset → drop, failure → failure; unknown/blank labels → working. `weight_kg` or `weight_lbs` retains the explicit unit. `reps`, `rpe`, `distance_km` or `distance_miles`, `duration_seconds` → the corresponding set values (distance converted to meters). `set_index` is informational; file order determines set order. `superset_id` is ignored. |
+| FitNotes | Required: `Date`, `Exercise`. `Weight (kgs)` or `Weight (lbs)` retains the explicit unit. `Reps` → reps, `Distance` with `Distance Unit` (`m`, `km`, `mi` or their English names) → meters; `Time` (`HH:MM:SS`) → seconds; `Comment` → set note. All sets are working sets in file order. `Category` is ignored. |
+| Fitbod | Required: `Date`, `Exercise`. `Weight(kg)` or `Weight(lb)` retains the explicit unit. `Reps`, `Duration(s)`, `Distance(m)` → the corresponding set values. `isWarmup` true/1/yes → warm-up; false/0/no/blank → working. `Note` → set note. **`multiplier` is not applied:** dumbbell-pair weights stay as entered. `Incline` and `Resistance` are ignored because the normalized rows have no matching fields. |
+
+Optional blank numeric cells are absent (weight/reps default to zero); malformed or negative
+numbers are rejected with a column and row number. If both weight variants exist, a populated
+kg cell wins, otherwise lb is used. Explicit units bypass Strong's numeric inference, including
+entry-unit inference; a review override applies to every set of that exercise. Individual rows
+can retain different explicit units in the same file. Optional missing measurement columns do
+not prevent importing bodyweight or timed sets.
+
+Hevy accepts local `26 Oct 2024, 18:00` and ISO dates/times; `start_time` is its workout key.
+FitNotes accepts `YYYY-MM-DD`: one **FitNotes workout** per date, starting at **12:00 local**,
+including dates with daylight-saving changes. Fitbod accepts numeric local dates/times and ISO:
+one **Fitbod workout** per distinct start minute, or per date when no time is supplied (noon
+local). This is a heuristic because no workout ID is available; separate sessions in the same
+minute cannot be distinguished. ISO offsets preserve their instant; timestamps without an
+offset use the phone's time zone, with the same gap/fold behavior as Strong. Noncontiguous rows
+with the same workout key still form one workout, preserving their relative order.
+
+Source keys use `hevy:`, `fitnotes:` and `fitbod:` prefixes, so re-importing the same file adds
+nothing and different apps never collide. Importing the same real workout from two apps can
+therefore create two records; cross-app deduplication is not attempted. The database's existing
+`source = strong` classification remains the shared external-import category (no migration).
+Exercise names use the existing matching flow; no library or matching behavior changes.
+
 ## Typo and outlier checks
 
 Implemented once in WorkoutCore and used in two places:
@@ -151,3 +188,17 @@ is a phone-local display preference outside database backups, like appearance. T
 stops picture requests and display; it does not delete already cached pictures. **Settings → Credits**
 links the public-domain source. Browser storage eviction can remove the picture cache; training
 data remains independent of it.
+
+
+## Export (T-048)
+
+Settings → Export shares or downloads UTF-8 CSV files. Workout weights are always kilograms; choose kg when importing into Hevy. Exercise names are JEM's names. The first set carries the exercise note only when that set has no note; workout notes appear on the first workout row. Measurement values are cm or kg. A State column appears when any entry is flexed; Strong and Hevy do not use that column.
+
+CSV is an interchange format, not a complete backup. `StrongCsvRoundTripLosses` records the fields lost or recreated when completed records are exported and imported:
+
+- Workout: `id`, `source`, `sourceKey`, `templateId`.
+- Workout exercise: `id`, `exerciseId`, `supersetGroup`, `notes`. An exercise note is placed in the first set's note only when that set has no note; it does not return as an exercise note.
+- Workout set: `id`, `entryUnit`, `side`, `restBeforeSeconds`, `completedAt`.
+- Body measurement: `id`, `source`, `entryUnit`.
+
+The importer reads optional `State` values (`relaxed` or `flexed`); missing or empty state defaults to relaxed, so flexed and relaxed entries at the same time remain separate. Custom site names become slugs. Empty workouts and exercises have no rows, and incomplete sets and in-progress workouts are excluded. Timestamps have local whole-second precision and are ambiguous at daylight-saving transitions. Select kg explicitly for every exercise during import review: otherwise unit inference can misinterpret kg values. The importer trims surrounding whitespace in notes, converts zero duration or distance to missing, and accepts only RPE in its supported range. Adjacent occurrences of the same exercise name and workouts with identical local start times can merge on import. Use a database backup to preserve all data.
