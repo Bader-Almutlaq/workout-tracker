@@ -1,6 +1,6 @@
 # Design system
 
-Inspired by Linear: calm, dense, precise. Designed dark-first, with a full light theme; it follows the phone's appearance setting. Near-black layered surfaces, hairline borders instead of shadows, one indigo accent, and a type scale that carries hierarchy without extra decoration. Numbers are the content, so they get the best typography.
+Inspired by Linear: calm, dense, precise. Designed dark-first, with a full light theme. By default it follows the phone's appearance setting; Settings → Appearance can force Dark or Light (`AppearancePreference`, stored in `UserDefaults`). Near-black layered surfaces, hairline borders instead of shadows, one indigo accent, and a type scale that carries hierarchy without extra decoration. Numbers are the content, so they get the best typography.
 
 Tokens live in `App/DesignSystem/`. Views use tokens only, never raw colors, font sizes or paddings.
 

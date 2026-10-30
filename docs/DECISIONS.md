@@ -62,3 +62,6 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 ## 2026-10-30: Planned sets are real rows, pre-filled from last session
 - **Why:** logging must take 2–3 taps per set. Adding an exercise copies last session's sets (kind, weight, reps, RPE) as planned rows in the exercise's entry unit, so a set done the same as last time is one tap (complete). Explicit `isInProgress` and `isCompleted` columns (migration v3) keep "planned" separate from "done" without inferring it from timestamps. Imported Strong sets have no completion time but are done. Finishing removes what was never completed.
 - **Alternatives:** empty rows with greyed placeholders, as in Strong (an extra tap per set to copy); deriving state from `completedAt`/`endedAt` (ambiguous for imports).
+
+## 2026-10-30: Appearance is a Settings choice stored in UserDefaults
+- **Why:** the owner wants the app dark even when the phone is in light mode. `AppearancePreference` (System, Dark, Light) is applied once at the root with `preferredColorScheme`. It is a display preference, not training data, so it lives in `UserDefaults` rather than the database and isn't in backups.

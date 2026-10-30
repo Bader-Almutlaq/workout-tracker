@@ -1,8 +1,9 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Settings: Strong import, backups and restore.
+/// Settings: appearance, Strong import, backups and restore.
 struct SettingsView: View {
+    @AppStorage(AppearancePreference.storageKey) private var appearance = AppearancePreference.system
     @Bindable var backup: BackupSettingsModel
     /// Creates a fresh import flow each time the sheet opens.
     let makeImportModel: () -> StrongImportModel
@@ -22,6 +23,7 @@ struct SettingsView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Spacing.xl) {
+                    appearanceSection
                     importSection
                     backupSection
                     restoreSection
@@ -67,6 +69,18 @@ struct SettingsView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(backup.errorMessage ?? "")
+        }
+    }
+
+    private var appearanceSection: some View {
+        VStack(alignment: .leading, spacing: Spacing.s) {
+            SectionLabel("Appearance")
+            Picker("Appearance", selection: $appearance) {
+                ForEach(AppearancePreference.allCases) { option in
+                    Text(option.displayName).tag(option)
+                }
+            }
+            .pickerStyle(.segmented)
         }
     }
 
