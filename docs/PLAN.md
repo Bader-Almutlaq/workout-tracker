@@ -144,7 +144,7 @@ Short entries from the owner's review; each gets a design pass with the owner be
 - [x] **Hosting:** GitHub Pages, public repository (2026-10-30).
 - [ ] Optional: Strong screenshots as UI reference.
 - [ ] Preferred effort scale (RPE or RIR); app display name (currently "Workouts").
-- [x] **Automatic backup (R11): Google Drive (owner, 2026-10-31).** Still needed: the OAuth client ID from the owner's Google Cloud project. Original question: which cloud the app may send backups to (e.g. Dropbox or Google Drive, free, signed in once; or iCloud via CloudKit, which needs a paid Apple Developer account). This relaxes "nothing leaves the phone" for the owner's own cloud only.
+- [x] **Automatic backup (R11): Dropbox (owner, 2026-10-31).** Still needed: the app key from the owner's Dropbox app (App Console). Original question: which cloud the app may send backups to (e.g. Dropbox or Google Drive, free, signed in once; or iCloud via CloudKit, which needs a paid Apple Developer account). This relaxes "nothing leaves the phone" for the owner's own cloud only.
 - [ ] Warm-up generator wanted? (R9)
 
 ## Status
