@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isBackupStale } from './BackupReminder';
+import { backupCaption, isBackupStale } from './BackupReminder';
 
 describe('isBackupStale', () => {
   const now = new Date('2026-10-30T12:00:00Z');
@@ -22,5 +22,21 @@ describe('isBackupStale', () => {
 
   it('treats a future backup as current', () => {
     expect(isBackupStale('2026-10-31T12:00:00Z', now)).toBe(false);
+  });
+});
+
+describe('backupCaption', () => {
+  const now = new Date('2026-10-30T12:00:00Z');
+
+  it('describes missing, recent and stale backups', () => {
+    expect(backupCaption(undefined, now, false)).toBe('Not backed up yet');
+    expect(backupCaption('2026-10-27T12:00:00Z', now, false)).toBe('Last backup: 3 days ago');
+    expect(backupCaption('2026-10-29T12:00:00Z', now, false)).toBe('Last backup: 1 day ago');
+    expect(backupCaption('2026-10-22T12:00:00Z', now, false)).toBe('Last backup: 8 days ago');
+  });
+
+  it('shows a successful backup immediately', () => {
+    expect(backupCaption(undefined, now, true)).toBe('Backed up just now');
+    expect(backupCaption('2026-10-30T12:00:00Z', now, false)).toBe('Last backup: today');
   });
 });

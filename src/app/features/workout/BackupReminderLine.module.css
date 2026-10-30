@@ -1,20 +1,30 @@
 .reminder {
-  color: var(--color-text-secondary);
   font: var(--font-callout);
 }
 
-.line {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-m);
-}
-
 .action {
-  padding: var(--space-m);
-  color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  border: 0;
+  border-radius: var(--radius-small);
+  padding: var(--space-m) var(--space-l);
+  font: var(--font-headline);
+  width: 100%;
 }
 
 .action:disabled {
   color: var(--color-text-tertiary);
+}
+
+.caption,
+.warning {
+  margin: var(--space-xs) 0;
+}
+
+.caption {
+  color: var(--color-text-tertiary);
+}
+
+.warning {
+  color: var(--color-text-secondary);
 }

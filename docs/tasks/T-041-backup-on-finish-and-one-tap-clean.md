@@ -41,11 +41,9 @@ Two owner requests before the first real import:
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Ready for review; changes remain uncommitted as requested.
+- **What was done:** Finish summary always offers backup with an age caption; import review can exclude all unique flagged lines and undo to the previous exclusions.
+- **Files touched:** `BackupReminderLine.tsx` and its CSS, `useBackupFile.ts`, `BackupReminder.ts` and its test, `ImportReviewStep.tsx` and its test, `docs/DATA.md`, and this handoff.
+- **Decisions taken:** Count unique flagged set lines against all original set contexts, including already excluded sets. Bulk undo restores the exclusion set from before the bulk action, including after individual exclusion changes; other decision types remain unchanged. A successful share or download shows the immediate caption even if recording its timestamp fails.
+- **Open questions / left over:** Visual checks in dark and light and the iOS share sheet were not performed in this session. The browser share API reports completion of the share flow, not independent confirmation that a file reached iCloud.
+- **How it was verified:** `make format`; `make verify` passed (95 test files, 719 tests, lint, type checks and production build).

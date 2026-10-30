@@ -19,7 +19,7 @@ A web app can't write to iCloud Drive by itself, so backups take one tap:
 
 - **Back up** exports the whole database as one file, `WorkoutTracker-YYYY-MM-DDTHH-mm-ss.sqlite` (UTC, sortable), and opens the iOS share sheet. Choose **Save to Files** and the same iCloud Drive folder each time. If sharing isn't available, the file downloads instead.
 - Each backup is a complete, self-contained SQLite file that any SQLite tool can open.
-- Settings always shows the date of the last backup. When it's more than 7 days old, the finish-workout summary shows one quiet line with a Back up button (information, not a nag).
+- Settings always shows the date of the last backup. Every finish-workout summary offers **Back up now** and shows the last backup age; the caption is a quiet reminder when it is more than 7 days old. The owner must tap the button and save the file in the share sheet.
 - **Restore:** pick a backup file. The app checks it is SQLite, has a known schema and wasn't made by a newer version, takes a local safety snapshot of the current data, then replaces the live database and reopens it.
 - Old backups are the owner's files; the app never deletes them.
 
@@ -75,7 +75,7 @@ All weights are stored in **kilograms, exactly as entered** (`Double`). Each set
 ## Typo and outlier checks
 
 Implemented once in WorkoutCore and used in two places:
-- **Import review:** sets whose weight or reps are far outside that exercise's typical range near that date (likely a missed digit or extra zero) are listed for confirm / fix / ignore before the import commits.
+- **Import review:** sets whose weight or reps are far outside that exercise's typical range near that date (likely a missed digit or extra zero) are listed for confirm / fix / ignore before the import commits. **Leave out all flagged sets** excludes them in one tap; Undo restores the previous exclusions. Individual controls remain available.
 - **Live logging:** the same check asks "Is this right?" before saving a suspicious set.
 A set left out of an imported workout can be brought back only by deleting that workout and importing the export again. If every set was left out, the workout was not imported and can be imported later. The original export remains unchanged.
 
