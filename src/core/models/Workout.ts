@@ -18,6 +18,8 @@ export interface Workout {
   readonly sourceKey: string | null;
   /** `true` while the workout is being logged. At most one workout is in progress. */
   readonly isInProgress: boolean;
+  /** The template it was started from; `null` for empty starts, repeats and imports, or if that template was deleted. */
+  readonly templateId: number | null;
 }
 
 /** A raw `workout` row as SQLite returns it: `isInProgress` is a 0/1 integer. */

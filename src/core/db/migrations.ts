@@ -154,6 +154,54 @@ export const MIGRATIONS: readonly Migration[] = [
     id: 'v2-exercise-rest-target',
     sql: `ALTER TABLE exercise ADD COLUMN restTargetSeconds INTEGER CHECK (restTargetSeconds IS NULL OR restTargetSeconds > 0);`,
   },
+  {
+    // Workout templates (W4). A template is the owner's plan: which exercises, in what order, how many
+    // sets of which kind, and optional targets the owner writes (never suggested by the app).
+    id: 'v3-templates',
+    sql: `
+      CREATE TABLE templateFolder (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        position INTEGER NOT NULL            -- 0-based order of folders
+      );
+
+      CREATE TABLE template (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        folderId INTEGER REFERENCES templateFolder(id) ON DELETE SET NULL,  -- NULL = not in a folder
+        position INTEGER NOT NULL,           -- 0-based order within its folder (or among unfiled templates)
+        notes TEXT,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        lastStartedAt TEXT                   -- when a workout was last started from it
+      );
+      CREATE INDEX template_folderId ON template(folderId);
+
+      CREATE TABLE templateExercise (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        templateId INTEGER NOT NULL REFERENCES template(id) ON DELETE CASCADE,
+        exerciseId INTEGER NOT NULL REFERENCES exercise(id) ON DELETE RESTRICT,
+        position INTEGER NOT NULL,           -- 0-based order within the template
+        supersetGroup INTEGER,               -- same number = performed as a superset
+        notes TEXT,
+        UNIQUE (templateId, position)
+      );
+      CREATE INDEX templateExercise_exerciseId ON templateExercise(exerciseId);
+
+      CREATE TABLE templateSet (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        templateExerciseId INTEGER NOT NULL REFERENCES templateExercise(id) ON DELETE CASCADE,
+        position INTEGER NOT NULL,           -- 0-based order within the exercise
+        kind TEXT NOT NULL CHECK (kind IN ('warmup', 'working', 'drop', 'failure')),
+        targetRepsLow INTEGER CHECK (targetRepsLow IS NULL OR targetRepsLow >= 0),
+        targetRepsHigh INTEGER CHECK (targetRepsHigh IS NULL OR targetRepsHigh >= targetRepsLow),
+        targetRpe REAL CHECK (targetRpe IS NULL OR (targetRpe >= 1 AND targetRpe <= 10)),
+        UNIQUE (templateExerciseId, position)
+      );
+
+      ALTER TABLE workout ADD COLUMN templateId INTEGER REFERENCES template(id) ON DELETE SET NULL;
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `
