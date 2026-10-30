@@ -132,6 +132,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Search text normalisation, slang, typo distance | `src/core/library/SearchText.ts`, `GymSlang.ts` |
 | Exercise search and import-name suggestions | `src/core/library/ExerciseSearch.ts` (`SearchTuning` holds every score) |
 | Exercise list, detail and unmatched-import queries | `src/core/queries/ExerciseCatalog.ts` |
+| Loadable weight ladders, equipment defaults, kg/lb overrides and rounding | `src/core/units/LoadableWeight.ts` |
+| Warm-up schemes, default counts and protected-slot refresh | `src/core/logging/WarmupPlan.ts`; provenance in `WorkoutLogger`, retained per database connection by `WorkerApi` |
 | Logging a workout live | `src/core/logging/WorkoutLogger.ts` (`WorkoutLoggerLimits`) |
 | Rest timer: default and limits, per-exercise target, elapsed and remaining | `src/core/logging/RestTimer.ts` (`RestTimerDefaults`); bar in `src/app/features/workout/RestBar.tsx` |
 | Templates and folders: save, edit, reorder, duplicate, delete, save a workout as a template | `src/core/templates/TemplateStore.ts` (`TemplateDraft`, `TemplateStoreError`) |

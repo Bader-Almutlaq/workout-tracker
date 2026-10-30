@@ -14,6 +14,18 @@
 - **Deleting the Home Screen icon deletes the data.** Restore from a backup afterwards.
 - The host only serves the app's code. The only data sent off the phone is a full backup to the owner's Dropbox after they explicitly connect it.
 
+### Exercise loading settings (schema v5)
+
+`v5-exercise-load-settings` appends three nullable columns to `exercise` without rewriting rows:
+
+- `loadStepKilograms REAL`: positive total-load increment, in exact kilograms (plate pairs are already included).
+- `barWeightKilograms REAL`: nonnegative empty bar/carriage load, in exact kilograms.
+- `warmupSetCount INTEGER CHECK (warmupSetCount BETWEEN 0 AND 4)`: null uses the equipment/mechanic default; zero disables generation.
+
+Null loading values use the equipment defaults in `LoadableWeight.ts`. The editor converts values from the exercise's entry unit once; stored overrides stay exact when the entry unit changes. Built-in exercises permit loading-only edits while their library metadata stays read-only. Older in-memory model callers may omit the fields; database rows always include nulls or values.
+
+Generated warm-ups are ordinary uncompleted `workoutSet` rows before the work sets. Completed rows retain their values and timestamps. Manual warm-up edits and delete-all suppression are tracked in the logger's memory, never new schema columns. After a worker reload, existing warm-ups are treated as protected and missing warm-ups on an already-loaded entry stay missing; an entry whose first work load was still zero can generate when filled in. Backups contain the planned rows and the loading settings, without transient edit provenance. The existing worker snapshot-before-migration path handles v5.
+
 ### Backups
 
 Manual backups to Files / iCloud Drive take one tap and remain available alongside optional automatic Dropbox backups:

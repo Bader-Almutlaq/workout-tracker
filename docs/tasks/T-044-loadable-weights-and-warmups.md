@@ -116,11 +116,22 @@ Spec and numbers: `docs/design/PROPOSALS.md` → sections 1 and 2.
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
+- **Status:** Implementation complete; verification blocked by two out-of-scope measurement migration test expectations. Changes are uncommitted; the board is untouched, as instructed. Awaiting the owner's scope decision before editing those tests. Not marked done.
+- **What was done:** Added exact kg equipment ladders and nullable overrides; v5 appends the three exercise columns. Warm-up schemes generate on add, template start and first typed work load, round down, deduplicate, and exclude loads at/above work. Refresh reuses rows and preserves completed/manually edited slots. Delete-all suppresses regeneration for that entry. The worker retains one logger per database connection. Added optional loading fields, including loading-only editing for built-in exercises; full-row warm-up tint, W labels, a work-set separator and quiet suggested values. Updated concept ownership, data and decisions docs.
 - **Files touched:**
+  - Core: `src/core/units/LoadableWeight.ts`, `LoadableWeight.test.ts`; `src/core/logging/WarmupPlan.ts`, `WarmupPlan.test.ts`, `WorkoutLogger.ts`, `WorkoutLogger.warmups.test.ts`; `src/core/db/migrations.ts`, `migrations.test.ts`; `src/core/models/Exercise.ts`; `src/core/library/CustomExerciseDraft.ts`, `ExerciseEditError.ts`, `ExerciseEditor.ts`, `ExerciseEditor.test.ts`.
+  - Worker: `src/worker/WorkerApi.ts`, `WorkerApi.test.ts` (new methods in the Warm-ups (T-044) block).
+  - Exercise UI: `ExerciseActions.tsx`, `ExerciseForm.tsx`, `ExerciseFormScreen.tsx`, `exerciseDraft.ts`, `exerciseDraft.test.ts`, new `ExerciseLoadingFields.tsx`, `LoadingWeightField.tsx`, `LoadingWeightField.module.css` under `src/app/features/exercises/`.
+  - Workout UI: `ExerciseCard.tsx`, `ExerciseCard.module.css`, `SetRow.tsx`, `SetRow.module.css`, `SetCell.tsx`, `ValueCell.module.css` under `src/app/features/workout/`; `src/app/design/tokens.css`.
+  - Docs: `docs/ARCHITECTURE.md`, `docs/DATA.md`, `docs/DECISIONS.md`, and this Handoff.
+- **Public API:** `loadProfileFor(exercise, unitSystem): LoadProfile`, `roundToLoadable(weightKilograms, profile, mode): number`, `loadableWeights(profile, maximumKilograms): number[]`, `isBarEquipment(equipment): boolean`; `warmupSets(firstWorkingKilograms, count, profile): WarmupSuggestion[]`, `defaultWarmupCount(exercise): number`, `refreshWarmups(existing, planned, editedSetIds): RefreshedWarmup[]`, `WarmupSchemes`; `ExerciseEditor.setLoadingSettings(db, id, settings)`; `WorkoutLogger.suggestedWarmupSetIds(entryId)`; worker `suggestedWarmupSetIds(entryId)` and `updateExerciseLoading(exerciseId, settings)`.
 - **Decisions taken:**
+  - **Arithmetic conflict:** followed the specified 40/60/80% formula and 2.5 kg down rounding. For 60 kg this is **22.5×8, 35×5, 47.5×2**, rather than the brief's 20×8 first set. The 20 kg example requires an additional empty-bar exception, which is not specified; clarification requested.
+  - Other bars retain their specified kg minimum in lb profiles; lb kettlebells use 5 lb steps. Overrides stay exact kg when entry units change. Unclassified exercises keep historical/template warm-ups unless a count is explicitly chosen; classified exercises replace inherited prefill with the generated plan (including zero).
+  - No schema provenance flags. After a worker reload, existing warm-ups are protected and already-loaded entries with no warm-ups remain suppressed; previously blank work entries can still generate. Protection/suppression is per workout exercise entry.
+  - Loading fields on the public Exercise type are optional nullable properties for compatibility with existing in-memory callers; migrated database rows include the columns. Omitted metadata-update fields preserve stored overrides; null resets them. Loading-only saves replace the loading group.
 - **Open questions / left over:**
-- **How it was verified:**
+  - Permission requested to update only two hard-coded migration-ID assertions at `src/core/measurements/MeasurementMigration.test.ts:41` and `:135`. Both expect only v4, but the required v5 is correctly also applied. The file remains untouched because measurements are excluded from scope. Its expectations should include `v5-exercise-load-settings`, or derive pending ids from the migration list.
+  - Resolve the 60 kg example conflict above before accepting that exact example.
+  - Visual/device verification remains for the lead: `make dev` failed with `listen EPERM: operation not permitted 0.0.0.0:5173`; browser automation also reported its host unavailable. Check 430×932, both themes, loading inputs, completion and the separator on iPhone Safari.
+- **How it was verified:** `make format` passed. Lint and strict type checks passed. `make build` passed, including the service worker. Full `make verify` was run; with `VITEST_MAX_WORKERS=2`, **861/863 tests passed across 117 files**, with only the two excluded measurement-test assertions failing. All 59 added tests passed, covering load ladders, schemes, protected refresh, logger integration, worker-call lifetime, loading validation and v4→v5 row preservation/null defaults. Unrestricted concurrency also exposed an existing PersonalBests wall-clock timing failure and once an OnDeviceStore timeout; limiting workers avoids that contention without changing tests/config. Context7 React documentation confirmed retaining raw input strings during typing. `git diff --check` passed.

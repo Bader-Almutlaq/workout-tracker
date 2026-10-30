@@ -1,3 +1,4 @@
+import { WarmupSchemes } from '../logging/WarmupPlan';
 import type { Database } from '../db/Database';
 import type { ExerciseRow } from '../models/Exercise';
 import type { CustomExerciseDraft } from './CustomExerciseDraft';
@@ -5,8 +6,27 @@ import { ExerciseEditError } from './ExerciseEditError';
 import { exerciseIdNamed } from './ExerciseNameResolver';
 import { replaceExerciseMuscles } from './replaceExerciseMuscles';
 
+/** Nullable loading overrides in exact kg; omitted fields use defaults when saving a loading group. */
+export interface ExerciseLoadingSettings {
+  readonly loadStepKilograms?: number | null;
+  readonly barWeightKilograms?: number | null;
+  readonly warmupSetCount?: number | null;
+}
+
+function validateLoading(settings: ExerciseLoadingSettings): void {
+  const { loadStepKilograms: step, barWeightKilograms: bar, warmupSetCount: count } = settings;
+  if (
+    (step !== null && step !== undefined && (!Number.isFinite(step) || step <= 0)) ||
+    (bar !== null && bar !== undefined && (!Number.isFinite(bar) || bar < 0)) ||
+    (count !== null && count !== undefined && (!Number.isInteger(count) || WarmupSchemes[count] === undefined))
+  ) {
+    throw new ExerciseEditError('invalidLoadingSettings');
+  }
+}
+
 /** The draft's name, trimmed, and its muscles, with any primary muscle removed from the secondary list. */
 function validate(draft: CustomExerciseDraft) {
+  validateLoading(draft);
   const name = (draft.name ?? '').trim();
   if (name.length === 0) throw new ExerciseEditError('emptyName');
   const primary = draft.primaryMuscles ?? [];
@@ -41,6 +61,7 @@ export const ExerciseEditor = {
           now.toISOString(),
         ],
       );
+      ExerciseEditor.setLoadingSettings(db, result.lastInsertRowId, draft);
       replaceExerciseMuscles(db, result.lastInsertRowId, validated.primary, validated.secondary);
       return result.lastInsertRowId;
     });
@@ -73,8 +94,30 @@ export const ExerciseEditor = {
         // Future Strong exports still contain the old name; renaming must not split its history.
         db.run('INSERT OR IGNORE INTO exerciseAlias (alias, exerciseId) VALUES (?, ?)', [exercise.name, id]);
       }
+      // Older callers which only edit metadata do not clear newly introduced settings.
+      ExerciseEditor.setLoadingSettings(db, id, {
+        loadStepKilograms:
+          draft.loadStepKilograms === undefined ? (exercise.loadStepKilograms ?? null) : draft.loadStepKilograms,
+        barWeightKilograms:
+          draft.barWeightKilograms === undefined ? (exercise.barWeightKilograms ?? null) : draft.barWeightKilograms,
+        warmupSetCount: draft.warmupSetCount === undefined ? (exercise.warmupSetCount ?? null) : draft.warmupSetCount,
+      });
       replaceExerciseMuscles(db, id, validated.primary, validated.secondary);
     });
+  },
+  /** Saves the loading group on any exercise without changing library metadata or history. Null resets defaults. */
+  setLoadingSettings(db: Database, id: number, settings: ExerciseLoadingSettings): void {
+    validateLoading(settings);
+    if (
+      db.run(
+        `
+      UPDATE exercise SET loadStepKilograms = ?, barWeightKilograms = ?, warmupSetCount = ? WHERE id = ?
+    `,
+        [settings.loadStepKilograms ?? null, settings.barWeightKilograms ?? null, settings.warmupSetCount ?? null, id],
+      ).changes === 0
+    ) {
+      throw new ExerciseEditError('notFound');
+    }
   },
   /** Hides or shows an exercise without deleting its history. */
   setArchived(db: Database, id: number, archived: boolean): void {

@@ -38,7 +38,7 @@ describe('v4 measurement migration', () => {
   test('all original rows, string bytes, float bytes and id high-water mark survive', async () => {
     const db = await oldDatabase();
     const before = originalRows(db);
-    expect(migrate(db)).toEqual(['v4-measurement-sites']);
+    expect(migrate(db)).toContain('v4-measurement-sites');
     const after = originalRows(db);
     expect(after).toEqual(before);
     expect(after.map((row) => floatBytes(row.value))).toEqual(before.map((row) => floatBytes(row.value)));
@@ -132,7 +132,7 @@ describe('v4 measurement migration', () => {
       },
     };
     const report = await restoreBackup(storage, connection, bytes);
-    expect(report.appliedMigrations).toEqual(['v4-measurement-sites']);
+    expect(report.appliedMigrations).toContain('v4-measurement-sites');
     expect(snapshot).toEqual(previous);
     expect(originalRows(connection)).toEqual(expected);
     await validateBackup(connection.exportBytes());

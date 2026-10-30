@@ -1,6 +1,12 @@
 /** Reasons an exercise edit or merge cannot be completed. */
 export type ExerciseEditErrorKind =
-  'emptyName' | 'nameInUse' | 'noPrimaryMuscle' | 'notFound' | 'libraryExerciseIsReadOnly' | 'mergeIntoItself';
+  | 'invalidLoadingSettings'
+  | 'emptyName'
+  | 'nameInUse'
+  | 'noPrimaryMuscle'
+  | 'notFound'
+  | 'libraryExerciseIsReadOnly'
+  | 'mergeIntoItself';
 
 /** An exercise edit failure with a message suitable for the owner. */
 export class ExerciseEditError extends Error {
@@ -9,6 +15,7 @@ export class ExerciseEditError extends Error {
     name = '',
   ) {
     const messages: Record<ExerciseEditErrorKind, string> = {
+      invalidLoadingSettings: 'Use a positive load step, a nonnegative bar weight, and 0 to 4 warm-up sets.',
       emptyName: 'Give the exercise a name.',
       nameInUse: `An exercise called “${name}” already exists.`,
       noPrimaryMuscle: 'Pick at least one primary muscle.',

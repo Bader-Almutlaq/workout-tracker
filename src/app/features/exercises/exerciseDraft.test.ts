@@ -40,6 +40,9 @@ describe('exercise draft', () => {
       secondaryMuscles: ['upper-traps'],
       isLengthenedBiased: false,
       tracking: 'weight-reps',
+      loadStepKilograms: null,
+      barWeightKilograms: null,
+      warmupSetCount: null,
     });
   });
 

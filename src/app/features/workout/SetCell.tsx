@@ -24,6 +24,7 @@ export function SetCell({
   editing,
   unitSuffix,
   onPress,
+  isSuggested = false,
 }: {
   readonly set: WorkoutSet;
   readonly field: Field;
@@ -32,6 +33,7 @@ export function SetCell({
   readonly editing: EditedCell | undefined;
   readonly unitSuffix?: string;
   readonly onPress: () => void;
+  readonly isSuggested?: boolean;
 }) {
   const isEditing = editing?.cell.field === field;
   const emptyText = field === 'rpe' ? '—' : '0';
@@ -40,7 +42,7 @@ export function SetCell({
     <ValueCell
       name={cellName(field, tracking)}
       text={isEditing ? text || emptyText : cellText(set, field, tracking)}
-      isPlaceholder={isEditing ? text === '' : isCellEmpty(set, field, tracking)}
+      isPlaceholder={isEditing ? text === '' : isSuggested || isCellEmpty(set, field, tracking)}
       isEditing={isEditing}
       {...(unitSuffix === undefined ? {} : { unitSuffix })}
       onPress={onPress}
