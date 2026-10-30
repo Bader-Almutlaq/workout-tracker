@@ -1,0 +1,25 @@
+.readout {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: var(--space-s);
+  min-width: 0;
+  font: var(--font-headline);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.readout[data-reached='true'] {
+  align-items: center;
+  color: var(--color-text-secondary);
+}
+
+.label {
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+}
+
+.target {
+  font: var(--font-callout);
+  color: var(--color-text-tertiary);
+}

@@ -168,3 +168,8 @@ export function completeCheckedSet(
     await database.setCompleted(setId, true);
   });
 }
+
+/** Remembers the rest target for the exercise, in seconds. */
+export function setRestTarget(exerciseId: number, seconds: number): void {
+  void loggingQueue.enqueue(() => database.setRestTarget(exerciseId, seconds));
+}

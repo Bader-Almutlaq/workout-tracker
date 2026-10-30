@@ -30,6 +30,7 @@ import {
   type WorkoutDetail,
   type WorkoutSummary,
 } from '../core/queries/WorkoutHistory';
+import { setRestTarget } from '../core/logging/RestTimer';
 import { WorkoutLogger, type FinishResult } from '../core/logging/WorkoutLogger';
 import type { SetKind } from '../core/models/SetKind';
 import { liveWorkoutSnapshot, type LiveWorkoutSnapshot } from '../core/queries/LiveWorkout';
@@ -437,6 +438,15 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       notifyListeners();
     },
     // End of Workout (T-024)
+
+    // Rest timer (T-027)
+
+    /** Remembers the owner's rest target for an exercise, in seconds (kept within the rest timer's limits). */
+    async setRestTarget(exerciseId: number, seconds: number): Promise<void> {
+      setRestTarget((await liveStore()).database, exerciseId, seconds);
+      notifyListeners();
+    },
+    // End of Rest timer (T-027)
   };
 }
 

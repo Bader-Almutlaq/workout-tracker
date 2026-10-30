@@ -33,7 +33,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-024](T-024-workout-tab.md) | Workout tab: live logging screen | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-025](T-025-backup-reminder.md) | Finish summary: quiet "Back up" line when the last backup is over 7 days old | doing | Codex Terra (high) | `task/T-025-backup-reminder` |
 | [T-026](T-026-search-tie-breaks.md) | Search tie-breaks prefer common equipment | doing | Codex Terra (high) | `task/T-026-search-tie-breaks` |
-| [T-027](T-027-rest-timer.md) | Rest timer on the logging screen | doing | Claude Sonnet (subagent) | `task/T-027-rest-timer` |
+| [T-027](T-027-rest-timer.md) | Rest timer on the logging screen | review | Claude Sonnet (subagent) | `task/T-027-rest-timer` |
 
 ## Next milestones (tasks are written when the milestone starts)
 
