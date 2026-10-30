@@ -32,6 +32,14 @@ A web app can't write to iCloud Drive by itself, so backups take one tap:
 | Home Screen icon deleted / phone lost | Re-add the app, then restore the newest backup. |
 | Bad migration or bug | The worker snapshotted before migrating; restore that snapshot or a backup. |
 
+## Hosting
+
+- Address: **https://bader-almutlaq.github.io/workout-tracker/** (GitHub Pages, public repository `Bader-Almutlaq/workout-tracker`). It only serves the app's code; no data is ever uploaded.
+- Publish with `make deploy` (pushes `main`, then runs the *Deploy* workflow, which runs `make verify` before publishing, so a failing build never ships). Pushes alone have not been triggering the workflow, so always use `make deploy`.
+- The installed app picks up a new version in the background and shows "Update ready"; nothing reloads until the owner taps Update.
+- Roll back: `git revert` the bad commit on `main`, then `make deploy`.
+- The owner's personal GitHub site had an expired custom domain (bader-almutlaq.me) that redirected every project; it was removed on 2026-10-30.
+
 ## Logging state
 
 - At most one workout has `isInProgress = 1`: the one being logged. History and analytics ignore it until it is finished.

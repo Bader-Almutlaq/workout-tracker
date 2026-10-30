@@ -15,7 +15,7 @@ make help      # everything else
 
 ## Putting it on the iPhone
 
-1. Open the app's web address in **Safari** on the iPhone.
+1. Open **https://bader-almutlaq.github.io/workout-tracker/** in **Safari** on the iPhone.
 2. Tap **Share → Add to Home Screen**.
 3. Open it from the Home Screen icon from then on. It works offline and never expires.
 

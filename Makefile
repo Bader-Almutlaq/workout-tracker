@@ -5,7 +5,7 @@ SIM_DEVICE ?= iPhone 15 Pro Max
 DEV_URL ?= http://localhost:5173
 export DEVELOPER_DIR := /Applications/Xcode.app/Contents/Developer
 
-.PHONY: help install dev test format lint typecheck build verify preview sim-safari screenshot icon import-report
+.PHONY: help install dev test format lint typecheck build verify preview deploy sim-safari screenshot icon import-report
 
 help: ## List commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-14s %s\n", $$1, $$2}'
@@ -36,6 +36,11 @@ verify: lint typecheck test build ## Everything above. Must pass before any task
 
 preview: build ## Serve the production build (offline support works here, not in `make dev`)
 	npx vite preview --host --port 4173
+
+deploy: ## Publish main to https://bader-almutlaq.github.io/workout-tracker/ (pushes main, then runs the Deploy workflow)
+	git push origin main
+	gh workflow run deploy.yml --ref main
+	@echo "Deploy started: gh run watch \$$(gh run list --workflow deploy.yml --limit 1 --json databaseId --jq '.[0].databaseId')"
 
 sim-safari: ## Open the running dev server in Safari on the iPhone simulator
 	xcrun simctl boot "$(SIM_DEVICE)" 2>/dev/null || true

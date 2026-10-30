@@ -12,10 +12,10 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-013](T-013-units-models-settings.md) | Port units, row types and app settings to WorkoutCore | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-014](T-014-strong-import-core.md) | Port the Strong importer and typo checks; `make import-report` | done (report matches the export exactly) | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-015](T-015-history.md) | Port history queries; History list and workout detail screens | done | Claude Sonnet (subagent), reviewed by lead | merged |
-| [T-016](T-016-backup-restore.md) | Back up through the share sheet; restore with a safety snapshot | done (iOS Safari check: lead, pending) | Claude Sonnet (subagent), reviewed by lead | merged |
+| [T-016](T-016-backup-restore.md) | Back up through the share sheet; restore with a safety snapshot | done (share sheet checked in iOS Safari) | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-017](T-017-import-flow.md) | Settings → Import from Strong: pick files, review, import, result | done (flow checked in the browser by lead; split into components in T-021) | Codex Terra (high), reviewed by lead | merged |
 | [T-021](T-021-import-screen-components.md) | Split the import screen into small components | done | Codex Terra (high), reviewed by lead | merged |
-| [T-018](T-018-hosting.md) | Publish the site and add it to the Home Screen | doing: owner chose GitHub Pages (public); waiting on sign-in | lead | `web` |
+| [T-018](T-018-hosting.md) | Publish the site and add it to the Home Screen | done: https://bader-almutlaq.github.io/workout-tracker/ (`make deploy`) | lead | `main` |
 
 ## W2: Exercise library (started early, in parallel with W1)
 

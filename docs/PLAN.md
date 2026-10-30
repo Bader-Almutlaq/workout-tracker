@@ -15,7 +15,7 @@ A personal iPhone workout tracker (an offline web app on the Home Screen) to rep
 
 - **An offline web app on the iPhone Home Screen** (open the site in Safari → Share → Add to Home Screen). It runs full-screen like an app, works with no connection, and never expires. Switched from native on 2026-10-30 (see `docs/DECISIONS.md`).
 - All data stays on the phone, in the Home Screen app's private storage. **Deleting the Home Screen icon deletes the data**, so backups matter (see `docs/DATA.md`).
-- The site needs a free static host (HTTPS), which only serves the app's code, never data. **Owner decision pending:** which host (see *Needed from the user*).
+- Hosted on GitHub Pages at https://bader-almutlaq.github.io/workout-tracker/ (code only, never data). Publish with `make deploy`.
 - Updates download in the background and wait for a tap ("Update ready"), so the app never reloads mid-workout.
 
 ## Architecture
@@ -99,7 +99,7 @@ Milestones are numbered W (web). W1–W3 port what the native app already had; `
 ## Needed from the user
 
 - [x] Strong export (in `export_data/`, git-ignored).
-- [ ] **Hosting:** a free account on a static host (for example Cloudflare Pages, which keeps the code private, or GitHub Pages, which needs the code public). Only the app's code is hosted; data never leaves the phone.
+- [x] **Hosting:** GitHub Pages, public repository (2026-10-30).
 - [ ] Optional: Strong screenshots as UI reference.
 - [ ] Preferred effort scale (RPE or RIR); app display name (currently "Workouts").
 
@@ -116,3 +116,4 @@ Milestones are numbered W (web). W1–W3 port what the native app already had; `
   - Remaining M2 work is on the task board: Exercises tab, Strong matching screen, app icon.
 - 2026-10-30: **Switched to an offline web app** (owner: no weekly reinstall). Native app archived (`native-archive` branch; spec in `reference/native/`). **W0 done** on branch `web`: SQLite in a worker on the phone's private file system, `v1-schema` migration with snapshot-before-migrate, offline support with "Update ready", design tokens in dark and light, five tabs, Settings → Appearance. 9 tests; `make verify` passes. Checked in Safari on the iPhone 15 Pro Max simulator (iOS 27.0): the database opens and persists.
   - Next: W1 tasks on the board; hosting needs the owner.
+- 2026-10-30: **W1 and W2 done, W3 core done.** Strong import (matches the export exactly), History, backup and restore, exercise library with search, Exercises tab, Strong matching, logging core; 345 tests. **Live** at https://bader-almutlaq.github.io/workout-tracker/: checked in Safari on the iPhone 15 Pro Max simulator (database, Update ready, backup share sheet). Next: the Workout tab (T-024, in progress).
