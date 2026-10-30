@@ -91,16 +91,17 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Offline support and "Update ready" | `src/app/data/appUpdate.ts` |
 | Asking the browser to keep storage | `src/app/data/persistentStorage.ts` |
 | Logging categories | `src/core/support/log.ts` |
+| Ordered grouping (first-appearance order) | `src/core/support/groupBy.ts` |
 | Light / dark preference | `src/app/appearance/appearance.ts` |
 | Color, type, spacing, radius and motion tokens | `src/app/design/tokens.css` |
 | Key–value app settings | `src/core/db/AppSetting.ts` (`AppSettingKey` lists every key) |
 | kg ↔ lb conversion, display rounding, original-unit inference | `src/core/units/WeightUnit.ts`, `src/core/units/Weight.ts` |
 | Stored record types (one per table), 0/1 → boolean conversion | `src/core/models/` (`from<Type>Row`) |
-| CSV reading | `src/core/import/CsvTable.ts` *(to port: `Import/CSVTable.swift`)* |
-| Strong file formats and timestamps | `src/core/import/` *(to port: `Import/Strong*.swift`)* |
-| Which unit an exported exercise is in | `src/core/import/ExportUnitResolver.ts` *(to port)* |
-| Import review (plan, decisions) and writing it | `src/core/import/StrongImportPlan.ts`, `StrongImporter.ts` *(to port)* |
-| Typo / outlier detection (import review and live logging) | `src/core/validation/SetPlausibility.ts` *(to port)* |
+| CSV reading | `src/core/import/CsvTable.ts` |
+| Strong file formats and timestamps | `src/core/import/StrongWorkoutsFile.ts`, `StrongMeasurementsFile.ts`, `StrongRow.ts`, `StrongTimestamp.ts` |
+| Which unit an exported exercise is in | `src/core/import/ExportUnitResolver.ts` |
+| Import review (plan, decisions) and writing it | `src/core/import/StrongImportPlan.ts`, `StrongImportOptions.ts`, `StrongImporter.ts` (the worker snapshots first) |
+| Typo / outlier detection (import review and live logging) | `src/core/validation/SetPlausibility.ts` |
 | Live typo check for one set | `src/core/validation/LiveSetCheck.ts` *(to port)* |
 | History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` *(to port)* |
 | Backup file naming, age, validation and the restore sequence | `src/core/backup/BackupFile.ts`, `BackupAge.ts`, `BackupValidation.ts`, `BackupRestore.ts`; `OnDeviceStore` implements its storage |
@@ -109,7 +110,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | The built-in exercise list (names, muscles, aliases) | `src/core/library/library.json`, parsed by `LibraryFile.ts`, loaded and validated by `ExerciseLibrary.ts` |
 | Exercise naming ("Movement (Equipment)") and stable keys | `ExerciseLibrary.exerciseName`, `ExerciseLibrary.key` |
 | Copying the library into the database on launch | `src/core/library/ExerciseLibrarySeeder.ts` *(to port)* |
-| Name or alias → exercise | `src/core/library/ExerciseNameResolver.ts` *(to port)* |
+| Name or alias → exercise | `src/core/library/ExerciseNameResolver.ts` (`exerciseIdNamed`) |
 | Creating, editing, archiving and merging exercises | `src/core/library/ExerciseEditor.ts` *(to port)* |
 | Search text normalisation, slang, typo distance | `src/core/library/SearchText.ts`, `GymSlang.ts` |
 | Exercise search and import-name suggestions | `src/core/library/ExerciseSearch.ts` (`SearchTuning` holds every score) |
@@ -118,4 +119,4 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` *(to port)* |
 | The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` *(to port)* |
 
-Developer tool: `tools/import-report.ts` (`make import-report`, W1) dry-runs the importer on `export_data/` and prints totals, unit verdicts and flagged sets. It's the only code allowed to read the owner's real export.
+Developer tool: `tools/import-report.ts` (`make import-report`) dry-runs the importer on `export_data/` and prints totals, unit verdicts and flagged sets. It's the only code allowed to read the owner's real export.
