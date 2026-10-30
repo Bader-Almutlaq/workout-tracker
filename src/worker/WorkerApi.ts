@@ -3,6 +3,7 @@ import { backupFileName } from '../core/backup/BackupFile';
 import { validateBackup } from '../core/backup/BackupValidation';
 import { AppSettingKey, getSetting, setSetting } from '../core/db/AppSetting';
 import type { OnDeviceStore, OpenReport } from './OnDeviceStore';
+import { workoutDetail, workoutSummaries, type WorkoutDetail, type WorkoutSummary } from '../core/queries/WorkoutHistory';
 
 /** Called after any write, so screens can re-run their queries. */
 export type ChangeListener = () => void;
@@ -131,6 +132,19 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         workoutCount: store.database.value<number>('SELECT count(*) FROM workout WHERE isInProgress = 0') ?? 0,
       };
     },
+
+    // History (T-015)
+
+    /** Every finished workout, newest first. */
+    async historySummaries(): Promise<WorkoutSummary[]> {
+      return workoutSummaries((await liveStore()).database);
+    },
+
+    /** One workout with its exercises and sets, or `undefined` when it doesn't exist. */
+    async workoutDetail(workoutId: number): Promise<WorkoutDetail | undefined> {
+      return workoutDetail((await liveStore()).database, workoutId);
+    },
+    // End of History (T-015)
   };
 }
 

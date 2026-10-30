@@ -1,0 +1,42 @@
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-m);
+  padding: var(--space-s) var(--space-m);
+  font-variant-numeric: tabular-nums;
+}
+
+.row + .row {
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.workingLabel,
+.specialLabel {
+  flex: none;
+  width: 20px;
+  font: var(--font-callout);
+}
+
+.workingLabel {
+  color: var(--color-text-tertiary);
+}
+
+.specialLabel {
+  color: var(--color-accent);
+}
+
+.value {
+  font: var(--font-body);
+  color: var(--color-text-primary);
+}
+
+/* Wide enough for "102.5 kg" so the reps start in the same place on every row. */
+.weight {
+  min-width: 8ch;
+}
+
+.rpe {
+  margin-left: auto;
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+}

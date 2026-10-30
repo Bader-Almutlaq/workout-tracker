@@ -94,6 +94,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Ordered grouping (first-appearance order) | `src/core/support/groupBy.ts` |
 | Light / dark preference | `src/app/appearance/appearance.ts` |
 | Color, type, spacing, radius and motion tokens | `src/app/design/tokens.css` |
+| Weight, volume, RPE, set-label, date and duration text (always `en-US` digits) | `src/app/format/` (`weightText.ts`, `setText.ts`, `dateText.ts`, `formatLocale.ts`) |
+| Shared screen pieces (screen, section, rows, back link, empty state, tab bar) | `src/app/design/components/` |
 | Key–value app settings | `src/core/db/AppSetting.ts` (`AppSettingKey` lists every key) |
 | kg ↔ lb conversion, display rounding, original-unit inference | `src/core/units/WeightUnit.ts`, `src/core/units/Weight.ts` |
 | Stored record types (one per table), 0/1 → boolean conversion | `src/core/models/` (`from<Type>Row`) |
@@ -103,7 +105,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Import review (plan, decisions) and writing it | `src/core/import/StrongImportPlan.ts`, `StrongImportOptions.ts`, `StrongImporter.ts` (the worker snapshots first) |
 | Typo / outlier detection (import review and live logging) | `src/core/validation/SetPlausibility.ts` |
 | Live typo check for one set | `src/core/validation/LiveSetCheck.ts` *(to port)* |
-| History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` *(to port)* |
+| History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` |
+| Grouping the history list by month (phone's time zone) | `src/core/queries/WorkoutMonthGroups.ts` |
 | Backup file naming, age, validation and the restore sequence | `src/core/backup/BackupFile.ts`, `BackupAge.ts`, `BackupValidation.ts`, `BackupRestore.ts`; `OnDeviceStore` implements its storage |
 | Muscle taxonomy (23 muscles, delts split), regions and roles | `src/core/library/Muscle.ts`, `MuscleRegion.ts`, `MuscleRole.ts`; rows frozen in `v1-schema` (a test compares them) |
 | Equipment, movement patterns, mechanic, tracking kinds | `src/core/library/Equipment.ts`, `MovementPattern.ts`, `Mechanic.ts`, `ExerciseTracking.ts` |
