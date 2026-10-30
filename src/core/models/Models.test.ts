@@ -38,11 +38,10 @@ describe('enums', () => {
     const db = await migratedDatabase();
     const { workoutExerciseId } = seedWorkoutExercise(db);
     SET_KINDS.forEach((kind, position) => {
-      db.run("INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps) VALUES (?, ?, ?, 0, 'kg', 1)", [
-        workoutExerciseId,
-        position,
-        kind,
-      ]);
+      db.run(
+        "INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps) VALUES (?, ?, ?, 0, 'kg', 1)",
+        [workoutExerciseId, position, kind],
+      );
     });
     SET_SIDES.forEach((side, position) => {
       db.run(
@@ -72,7 +71,9 @@ describe('row conversion', () => {
        VALUES ('Bayesian Curl (Cable)', 'cable', 'curl', 'isolation', 'library', 'bayesian-curl-cable', 1,
                'weight-reps', 'lb', 0, '2026-10-30T10:00:00.000Z')`,
     );
-    db.run("INSERT INTO exercise (name, source, isArchived, createdAt) VALUES ('Plain', 'custom', 1, '2026-10-30T10:00:00.000Z')");
+    db.run(
+      "INSERT INTO exercise (name, source, isArchived, createdAt) VALUES ('Plain', 'custom', 1, '2026-10-30T10:00:00.000Z')",
+    );
 
     const [library, plain] = db.all<ExerciseRow>('SELECT * FROM exercise ORDER BY id').map(fromExerciseRow);
     expect(library).toMatchObject({
@@ -121,7 +122,9 @@ describe('row conversion', () => {
     db.run(
       "INSERT INTO workout (startedAt, endedAt, name, notes, source, sourceKey, isInProgress) VALUES ('2026-10-30T10:00:00.000Z', '2026-10-30T11:00:00.000Z', 'Pull', 'Felt good', 'strong', 'strong:2026-10-30 10:00:00', 0)",
     );
-    db.run("INSERT INTO workout (startedAt, name, source, isInProgress) VALUES ('2026-10-31T10:00:00.000Z', 'Live', 'app', 1)");
+    db.run(
+      "INSERT INTO workout (startedAt, name, source, isInProgress) VALUES ('2026-10-31T10:00:00.000Z', 'Live', 'app', 1)",
+    );
 
     const [finished, live] = db.all<WorkoutRow>('SELECT * FROM workout ORDER BY id').map(fromWorkoutRow);
     expect(finished).toMatchObject({

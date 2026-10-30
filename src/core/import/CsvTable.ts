@@ -37,7 +37,9 @@ export class CsvTable {
     const rows = records
       .slice(1)
       .filter((record) => !isBlankRecord(record))
-      .map((record) => (record.length >= header.length ? record : [...record, ...Array<string>(header.length - record.length).fill('')]));
+      .map((record) =>
+        record.length >= header.length ? record : [...record, ...Array<string>(header.length - record.length).fill('')],
+      );
     return new CsvTable(header.map(trimWhitespace), rows);
   }
 

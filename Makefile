@@ -5,7 +5,7 @@ SIM_DEVICE ?= iPhone 15 Pro Max
 DEV_URL ?= http://localhost:5173
 export DEVELOPER_DIR := /Applications/Xcode.app/Contents/Developer
 
-.PHONY: help install dev test lint typecheck build verify preview sim-safari screenshot icon import-report
+.PHONY: help install dev test format lint typecheck build verify preview sim-safari screenshot icon import-report
 
 help: ## List commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-14s %s\n", $$1, $$2}'
@@ -19,7 +19,11 @@ dev: ## Run the app locally with live reload at http://localhost:5173 (also reac
 test: ## WorkoutCore unit tests (fast, in Node)
 	npx vitest run
 
-lint: ## ESLint, including the layer rules (core never imports app; app never touches SQLite)
+format: ## Format every source file with Prettier (run before committing)
+	npx prettier --write .
+
+lint: ## Formatting check + ESLint, including the layer rules (core never imports app; app never touches SQLite)
+	npx prettier --check .
 	npx eslint .
 
 typecheck: ## TypeScript strict checks for core (no DOM), app and tools

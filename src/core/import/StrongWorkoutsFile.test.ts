@@ -57,7 +57,8 @@ describe('Strong workouts file', () => {
 });
 
 describe('Strong workouts file details beyond the native tests', () => {
-  const HEADER = 'Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE';
+  const HEADER =
+    'Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE';
 
   test('Unreadable durations are ignored, not errors', () => {
     expect(parseStrongDuration('')).toBeNull();
@@ -93,9 +94,9 @@ describe('Strong workouts file details beyond the native tests', () => {
 
   test('Infinity, NaN and hex numbers are refused rather than stored', () => {
     for (const weight of ['Infinity', 'NaN', '0x10']) {
-      expect(() =>
-        parseStrongWorkoutsFile(`${HEADER}\n2024-01-01 10:00:00,A,1h,B,1,${weight},5,0,0,,,`),
-      ).toThrowError(/isn't a valid weight/);
+      expect(() => parseStrongWorkoutsFile(`${HEADER}\n2024-01-01 10:00:00,A,1h,B,1,${weight},5,0,0,,,`)).toThrowError(
+        /isn't a valid weight/,
+      );
     }
   });
 
@@ -119,8 +120,16 @@ describe('Strong workouts file details beyond the native tests', () => {
   });
 
   test('Columns are found by name in any order, and optional columns may be absent', () => {
-    const [row] = parseStrongWorkoutsFile('Reps,Set Order,Exercise Name,Workout Name,Date\n5,2,Row,Pull,2024-01-01 10:00:00');
-    expect(row).toMatchObject({ reps: 5, exerciseName: 'Row', workoutName: 'Pull', weightValue: 0, durationSeconds: null });
+    const [row] = parseStrongWorkoutsFile(
+      'Reps,Set Order,Exercise Name,Workout Name,Date\n5,2,Row,Pull,2024-01-01 10:00:00',
+    );
+    expect(row).toMatchObject({
+      reps: 5,
+      exerciseName: 'Row',
+      workoutName: 'Pull',
+      weightValue: 0,
+      durationSeconds: null,
+    });
     expect(row?.content).toEqual({ kind: 'set', order: '2' });
   });
 
@@ -133,7 +142,12 @@ describe('Strong workouts file details beyond the native tests', () => {
 
   test('Values are trimmed; the workout key is the trimmed timestamp text', () => {
     const [row] = parseStrongWorkoutsFile(`${HEADER}\n 2024-01-01 10:00:00 , Push ,1h, Bench ,1, 60 ,5,0,0,,,`);
-    expect(row).toMatchObject({ workoutKey: '2024-01-01 10:00:00', workoutName: 'Push', exerciseName: 'Bench', weightValue: 60 });
+    expect(row).toMatchObject({
+      workoutKey: '2024-01-01 10:00:00',
+      workoutName: 'Push',
+      exerciseName: 'Bench',
+      weightValue: 60,
+    });
   });
 
   test('Line numbers count rows after the header, ignoring blank lines', () => {

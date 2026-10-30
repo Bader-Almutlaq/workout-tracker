@@ -26,8 +26,14 @@ export default tseslint.config(
         'error',
         {
           patterns: [
-            { group: ['@sqlite.org/sqlite-wasm'], message: 'The app talks to the database through src/app/data/database.ts.' },
-            { group: ['**/core/db/*', '**/worker/*', '!**/worker/WorkerApi'], message: 'Use the worker API in src/app/data/database.ts.' },
+            {
+              group: ['@sqlite.org/sqlite-wasm'],
+              message: 'The app talks to the database through src/app/data/database.ts.',
+            },
+            {
+              group: ['**/core/db/*', '**/worker/*', '!**/worker/WorkerApi'],
+              message: 'Use the worker API in src/app/data/database.ts.',
+            },
           ],
         },
       ],
@@ -41,8 +47,14 @@ export default tseslint.config(
         'error',
         {
           patterns: [
-            { group: ['react', 'react-*', 'comlink', 'lucide-react'], message: 'WorkoutCore has no UI or threading code.' },
-            { group: ['**/app/*', '**/worker/*'], message: 'Dependencies point inward only: core never imports app or worker.' },
+            {
+              group: ['react', 'react-*', 'comlink', 'lucide-react'],
+              message: 'WorkoutCore has no UI or threading code.',
+            },
+            {
+              group: ['**/app/*', '**/worker/*'],
+              message: 'Dependencies point inward only: core never imports app or worker.',
+            },
           ],
         },
       ],

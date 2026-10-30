@@ -66,7 +66,9 @@ function isPlausibilityKind(kind: SetKind): boolean {
 }
 
 function isInSuggestionBand(ratio: number): boolean {
-  return ratio >= SetPlausibilityThreshold.suggestionBand.lower && ratio <= SetPlausibilityThreshold.suggestionBand.upper;
+  return (
+    ratio >= SetPlausibilityThreshold.suggestionBand.lower && ratio <= SetPlausibilityThreshold.suggestionBand.upper
+  );
 }
 
 /** The median of `values`; 0 for none. */

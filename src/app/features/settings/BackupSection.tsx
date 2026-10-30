@@ -57,7 +57,8 @@ export function BackupSection() {
   const recordBackup = () =>
     database.recordBackupMade().then(
       () => setNotice({ tone: 'good', text: 'Backup saved.' }),
-      (error: unknown) => setNotice({ tone: 'bad', text: `The backup was saved but not recorded: ${messageOf(error)}` }),
+      (error: unknown) =>
+        setNotice({ tone: 'bad', text: `The backup was saved but not recorded: ${messageOf(error)}` }),
     );
 
   // No `await` before `navigator.share`: it must run inside the tap (see the component comment).
@@ -114,10 +115,20 @@ export function BackupSection() {
         footnote="Back up saves a copy of everything to Files; choose the same iCloud Drive folder each time. Restore replaces what is on this phone."
       >
         <SectionRow label="Last backup" value={describeLastBackup(lastBackupAt)} />
-        <button type="button" className={styles.action} disabled={backupFile.status !== 'ready' || isRestoring} onClick={backUp}>
+        <button
+          type="button"
+          className={styles.action}
+          disabled={backupFile.status !== 'ready' || isRestoring}
+          onClick={backUp}
+        >
           {backupFile.status === 'loading' ? 'Preparing…' : 'Back up'}
         </button>
-        <button type="button" className={styles.action} disabled={isRestoring} onClick={() => fileInput.current?.click()}>
+        <button
+          type="button"
+          className={styles.action}
+          disabled={isRestoring}
+          onClick={() => fileInput.current?.click()}
+        >
           {isRestoring ? 'Restoring…' : 'Restore from a backup file…'}
         </button>
         <input ref={fileInput} type="file" accept=".sqlite" hidden onChange={(event) => void pick(event)} />
@@ -127,7 +138,12 @@ export function BackupSection() {
       )}
       {notice !== undefined && <Message tone={notice.tone} text={notice.text} />}
 
-      <dialog ref={confirmDialog} className={styles.dialog} onClose={() => setPicked(undefined)} aria-labelledby="restore-title">
+      <dialog
+        ref={confirmDialog}
+        className={styles.dialog}
+        onClose={() => setPicked(undefined)}
+        aria-labelledby="restore-title"
+      >
         <h2 id="restore-title" className={styles.dialogTitle}>
           Restore this backup?
         </h2>
@@ -139,7 +155,11 @@ export function BackupSection() {
           <button type="button" className={styles.dialogButton} onClick={() => setPicked(undefined)}>
             Cancel
           </button>
-          <button type="button" className={`${styles.dialogButton} ${styles.destructive}`} onClick={() => void restore()}>
+          <button
+            type="button"
+            className={`${styles.dialogButton} ${styles.destructive}`}
+            onClick={() => void restore()}
+          >
             Replace data
           </button>
         </div>
@@ -152,7 +172,10 @@ export function BackupSection() {
 function Message({ tone, text }: Notice) {
   const Icon = tone === 'good' ? CircleCheck : CircleAlert;
   return (
-    <p className={`${styles.message} ${tone === 'good' ? styles.good : styles.bad}`} role={tone === 'good' ? 'status' : 'alert'}>
+    <p
+      className={`${styles.message} ${tone === 'good' ? styles.good : styles.bad}`}
+      role={tone === 'good' ? 'status' : 'alert'}
+    >
       <Icon className={styles.messageIcon} aria-hidden="true" size={16} />
       <span>{text}</span>
     </p>
@@ -161,7 +184,11 @@ function Message({ tone, text }: Notice) {
 
 /** Whether this browser can hand `file` to the share sheet (iOS Safari can; most desktop browsers can't). */
 function canShareFile(file: File): boolean {
-  return typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
+  return (
+    typeof navigator.share === 'function' &&
+    typeof navigator.canShare === 'function' &&
+    navigator.canShare({ files: [file] })
+  );
 }
 
 /** Saves `file` through a temporary link, for browsers without a share sheet. */
@@ -189,5 +216,7 @@ function describeLastBackup(query: ReturnType<typeof useDatabaseQuery<string | u
 function describePicked(picked: PickedBackup): string {
   const madeAt = parseBackupFileName(picked.name);
   const size = `${(picked.bytes.byteLength / BYTES_PER_MEGABYTE).toFixed(1)} MB`;
-  return madeAt === undefined ? `${picked.name} (${size})` : `${picked.name} (${size}), made ${madeAt.toLocaleString()}`;
+  return madeAt === undefined
+    ? `${picked.name} (${size})`
+    : `${picked.name} (${size}), made ${madeAt.toLocaleString()}`;
 }

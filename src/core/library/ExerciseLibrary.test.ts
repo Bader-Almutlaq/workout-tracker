@@ -12,7 +12,14 @@ function singleFamilyJson(overrides: Record<string, unknown>): string {
   return JSON.stringify({
     version: 1,
     families: [
-      { movement: 'Row', pattern: 'horizontal-pull', mechanic: 'compound', primary: ['lats'], variants: ['cable'], ...overrides },
+      {
+        movement: 'Row',
+        pattern: 'horizontal-pull',
+        mechanic: 'compound',
+        primary: ['lats'],
+        variants: ['cable'],
+        ...overrides,
+      },
     ],
   });
 }
@@ -125,7 +132,15 @@ describe('ExerciseLibrary.fromJson validation', () => {
         lengthened: true,
         variants: [
           'dumbbell',
-          { equipment: 'machine', name: 'Seated Row Machine', primary: ['upper-back'], secondary: [], aliases: ['variant alias'], lengthened: false, tracking: 'duration' },
+          {
+            equipment: 'machine',
+            name: 'Seated Row Machine',
+            primary: ['upper-back'],
+            secondary: [],
+            aliases: ['variant alias'],
+            lengthened: false,
+            tracking: 'duration',
+          },
         ],
       }),
     );
@@ -151,7 +166,9 @@ describe('ExerciseLibrary.fromJson validation', () => {
   });
 
   test('bodyweight, weighted and assisted default to bodyweight reps', () => {
-    const library = ExerciseLibrary.fromJson(singleFamilyJson({ variants: ['bodyweight', 'weighted', 'assisted', 'barbell'] }));
+    const library = ExerciseLibrary.fromJson(
+      singleFamilyJson({ variants: ['bodyweight', 'weighted', 'assisted', 'barbell'] }),
+    );
     expect(library.exercises.map((exercise) => exercise.tracking)).toEqual([
       'bodyweight-reps',
       'bodyweight-reps',

@@ -36,11 +36,7 @@ export function WorkoutDetailScreen() {
       {entries.map(({ entry, exercise, sets }) => {
         const labels = setLabels(sets);
         return (
-          <Section
-            key={entry.id}
-            label={exercise.name}
-            {...(entry.notes === null ? {} : { footnote: entry.notes })}
-          >
+          <Section key={entry.id} label={exercise.name} {...(entry.notes === null ? {} : { footnote: entry.notes })}>
             {sets.map((set, index) => (
               <SetRow key={set.id} set={set} label={labels[index] ?? ''} />
             ))}

@@ -239,7 +239,13 @@ function makeWorkout(
       exercise.notes = joined === '' ? null : joined;
     } else {
       exercise.sets.push(
-        makeSet(row, row.content.order, exercise.sets.length, columnUnitOf(row.exerciseName), corrections.get(row.line)),
+        makeSet(
+          row,
+          row.content.order,
+          exercise.sets.length,
+          columnUnitOf(row.exerciseName),
+          corrections.get(row.line),
+        ),
       );
     }
   }
@@ -339,5 +345,7 @@ function findSuspiciousSets(workouts: readonly PlannedWorkout[], confirmed: Read
       }
     }
   }
-  return findImplausibleSets(observations).filter((finding) => !confirmed.has(finding.id) && !corrected.has(finding.id));
+  return findImplausibleSets(observations).filter(
+    (finding) => !confirmed.has(finding.id) && !corrected.has(finding.id),
+  );
 }

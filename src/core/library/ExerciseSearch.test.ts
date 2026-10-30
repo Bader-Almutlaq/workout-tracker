@@ -39,13 +39,25 @@ const FIXTURE: readonly ExerciseSearchEntry[] = [
   entry(2, 'Lateral Raise (Cable)', { equipment: 'cable', primary: ['side-delt'] }),
   entry(3, 'Seated Lateral Raise (Dumbbell)', { equipment: 'dumbbell', primary: ['side-delt'] }),
   entry(4, 'Bayesian Curl (Cable)', { aliases: ['bayesian cable curl'], equipment: 'cable', primary: ['biceps'] }),
-  entry(5, 'Romanian Deadlift (Barbell)', { aliases: ['rdl'], equipment: 'barbell', primary: ['hamstrings', 'glutes'] }),
-  entry(6, 'Romanian Deadlift (Dumbbell)', { aliases: ['rdl'], equipment: 'dumbbell', primary: ['hamstrings', 'glutes'] }),
+  entry(5, 'Romanian Deadlift (Barbell)', {
+    aliases: ['rdl'],
+    equipment: 'barbell',
+    primary: ['hamstrings', 'glutes'],
+  }),
+  entry(6, 'Romanian Deadlift (Dumbbell)', {
+    aliases: ['rdl'],
+    equipment: 'dumbbell',
+    primary: ['hamstrings', 'glutes'],
+  }),
   entry(7, 'Lat Pulldown (Cable)', { equipment: 'cable', primary: ['lats'] }),
   entry(8, 'Pulldown (Machine)', { equipment: 'machine', primary: ['lats'] }),
   entry(9, 'Pull Up', { equipment: 'bodyweight', primary: ['lats'] }),
   entry(10, 'Triceps Pushdown (Cable - Rope)', { equipment: 'cable', primary: ['triceps'] }),
-  entry(11, 'Wrist Curl (Dumbbell)', { aliases: ['palms up wrist curl'], equipment: 'dumbbell', primary: ['forearm-flexors'] }),
+  entry(11, 'Wrist Curl (Dumbbell)', {
+    aliases: ['palms up wrist curl'],
+    equipment: 'dumbbell',
+    primary: ['forearm-flexors'],
+  }),
   entry(12, 'My Cable Thing', { equipment: 'cable', primary: ['chest'], custom: true }),
   entry(13, 'Cable Crossover', { equipment: 'cable', primary: ['chest'] }),
   entry(14, 'Bench Press (Barbell)', { equipment: 'barbell', primary: ['chest'] }),
@@ -109,7 +121,10 @@ describe('ExerciseSearch.results', () => {
   test('a usage boost reorders otherwise equal matches', () => {
     const unused = [entry(1, 'Curl (Cable)', { equipment: 'cable' }), entry(2, 'Curl (Band)', { equipment: 'band' })];
     expect(names(new ExerciseSearch(unused).results('curl', {}, NOW))).toEqual(['Curl (Band)', 'Curl (Cable)']);
-    const used = [entry(1, 'Curl (Cable)', { equipment: 'cable', usage: 30 }), entry(2, 'Curl (Band)', { equipment: 'band' })];
+    const used = [
+      entry(1, 'Curl (Cable)', { equipment: 'cable', usage: 30 }),
+      entry(2, 'Curl (Band)', { equipment: 'band' }),
+    ];
     expect(names(new ExerciseSearch(used).results('curl', {}, NOW))).toEqual(['Curl (Cable)', 'Curl (Band)']);
   });
 
@@ -226,22 +241,22 @@ describe('ExerciseSearch on the bundled library', () => {
     expect(best('Reverse Forearm Extension')[0]?.startsWith('Reverse Wrist Curl')).toBe(true);
   });
 
-/**
- * Heuristic: a regression guard, not a benchmark. A search normally takes a few milliseconds on the
- * Mac, but the suite often runs beside other builds, so a tight limit made this test flaky. 20 ms
- * still catches an accidental slowdown of several times.
- */
-const KEYSTROKE_BUDGET_MILLISECONDS = 20;
+  /**
+   * Heuristic: a regression guard, not a benchmark. A search normally takes a few milliseconds on the
+   * Mac, but the suite often runs beside other builds, so a tight limit made this test flaky. 20 ms
+   * still catches an accidental slowdown of several times.
+   */
+  const KEYSTROKE_BUDGET_MILLISECONDS = 20;
 
-describe('speed', () => {
-  test('an empty query lists the whole library, and each keystroke search stays within budget', () => {
-    expect(bundled.results('', {}, NOW).length).toBeGreaterThan(400);
-    const queries = ['l', 'la', 'lat', 'late', 'latte', 'latter', 'latteral raise'];
-    for (const query of queries) bundled.results(query, {}, NOW); // warm up the JIT, as a typing user already has
-    const start = performance.now();
-    for (const query of queries) bundled.results(query, {}, NOW);
-    const averageMilliseconds = (performance.now() - start) / queries.length;
-    expect(averageMilliseconds).toBeLessThan(KEYSTROKE_BUDGET_MILLISECONDS);
+  describe('speed', () => {
+    test('an empty query lists the whole library, and each keystroke search stays within budget', () => {
+      expect(bundled.results('', {}, NOW).length).toBeGreaterThan(400);
+      const queries = ['l', 'la', 'lat', 'late', 'latte', 'latter', 'latteral raise'];
+      for (const query of queries) bundled.results(query, {}, NOW); // warm up the JIT, as a typing user already has
+      const start = performance.now();
+      for (const query of queries) bundled.results(query, {}, NOW);
+      const averageMilliseconds = (performance.now() - start) / queries.length;
+      expect(averageMilliseconds).toBeLessThan(KEYSTROKE_BUDGET_MILLISECONDS);
+    });
   });
-});
 });

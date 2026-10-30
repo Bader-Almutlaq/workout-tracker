@@ -30,7 +30,13 @@ describe('Importing into the database', () => {
   test('Everything in the plan is stored', async () => {
     const db = await migratedDatabase();
     const result = importStrongPlan(db, plan(), NOW);
-    expect(result).toEqual({ workoutsAdded: 2, workoutsSkipped: 0, setsAdded: 6, exercisesCreated: 2, measurementsAdded: 2 });
+    expect(result).toEqual({
+      workoutsAdded: 2,
+      workoutsSkipped: 0,
+      setsAdded: 6,
+      exercisesCreated: 2,
+      measurementsAdded: 2,
+    });
 
     expect(count(db, 'workoutSet')).toBe(6);
     const curl = db.get<{ defaultEntryUnit: string; source: string; createdAt: string }>(
@@ -43,7 +49,13 @@ describe('Importing into the database', () => {
     const db = await migratedDatabase();
     importStrongPlan(db, plan(), NOW);
     const second = importStrongPlan(db, plan(), NOW);
-    expect(second).toEqual({ workoutsAdded: 0, workoutsSkipped: 2, setsAdded: 0, exercisesCreated: 0, measurementsAdded: 0 });
+    expect(second).toEqual({
+      workoutsAdded: 0,
+      workoutsSkipped: 2,
+      setsAdded: 0,
+      exercisesCreated: 0,
+      measurementsAdded: 0,
+    });
     expect(count(db, 'workout')).toBe(2);
     expect(count(db, 'workoutSet')).toBe(6);
     expect(count(db, 'bodyMeasurement')).toBe(2);
@@ -51,7 +63,9 @@ describe('Importing into the database', () => {
 
   test('Existing exercises are reused, matched case-insensitively', async () => {
     const db = await migratedDatabase();
-    db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('bench press (barbell)', 'custom', ?)", [NOW.toISOString()]);
+    db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('bench press (barbell)', 'custom', ?)", [
+      NOW.toISOString(),
+    ]);
     const result = importStrongPlan(db, plan(), NOW);
     expect(result.exercisesCreated).toBe(1);
     expect(count(db, 'exercise')).toBe(2);
@@ -61,8 +75,9 @@ describe('Importing into the database', () => {
 describe('Importing details beyond the native tests', () => {
   test('A saved alias resolves to its exercise', async () => {
     const db = await migratedDatabase();
-    const id = db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('Bench Press', 'library', ?)", [NOW.toISOString()])
-      .lastInsertRowId;
+    const id = db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('Bench Press', 'library', ?)", [
+      NOW.toISOString(),
+    ]).lastInsertRowId;
     db.run("INSERT INTO exerciseAlias (alias, exerciseId) VALUES ('Bench Press (Barbell)', ?)", [id]);
     const result = importStrongPlan(db, plan(), NOW);
     expect(result.exercisesCreated).toBe(1);
@@ -71,21 +86,29 @@ describe('Importing details beyond the native tests', () => {
 
   test('An existing exercise without history adopts the unit Strong uses; one with history keeps its own', async () => {
     const db = await migratedDatabase();
-    db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('Seated Leg Curl (Machine)', 'library', ?)", [NOW.toISOString()]);
+    db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('Seated Leg Curl (Machine)', 'library', ?)", [
+      NOW.toISOString(),
+    ]);
     importStrongPlan(db, plan(), NOW);
-    expect(db.value<string>("SELECT defaultEntryUnit FROM exercise WHERE name = 'Seated Leg Curl (Machine)'")).toBe('lb');
+    expect(db.value<string>("SELECT defaultEntryUnit FROM exercise WHERE name = 'Seated Leg Curl (Machine)'")).toBe(
+      'lb',
+    );
 
     db.run("UPDATE exercise SET defaultEntryUnit = 'kg' WHERE name = 'Seated Leg Curl (Machine)'");
     db.run('DELETE FROM workout WHERE sourceKey = ?', ['strong:2024-01-08 10:00:00']);
     importStrongPlan(db, plan(), NOW);
     // The first workout (with curl history) was skipped as already imported; the exercise has history, so its unit stays.
-    expect(db.value<string>("SELECT defaultEntryUnit FROM exercise WHERE name = 'Seated Leg Curl (Machine)'")).toBe('kg');
+    expect(db.value<string>("SELECT defaultEntryUnit FROM exercise WHERE name = 'Seated Leg Curl (Machine)'")).toBe(
+      'kg',
+    );
   });
 
   test('Stored rows carry the planned values', async () => {
     const db = await migratedDatabase();
     importStrongPlan(db, plan(), NOW);
-    const workout = db.get('SELECT startedAt, endedAt, name, notes, source, sourceKey, isInProgress FROM workout ORDER BY startedAt');
+    const workout = db.get(
+      'SELECT startedAt, endedAt, name, notes, source, sourceKey, isInProgress FROM workout ORDER BY startedAt',
+    );
     expect(workout).toEqual({
       startedAt: '2024-01-01T10:00:00.000Z',
       endedAt: '2024-01-01T11:07:00.000Z',
@@ -100,7 +123,16 @@ describe('Importing details beyond the native tests', () => {
        FROM workoutSet s JOIN workoutExercise e ON e.id = s.workoutExerciseId JOIN exercise x ON x.id = e.exerciseId
        WHERE x.name = 'Bench Press (Barbell)' AND s.position = 1`,
     );
-    expect(set).toEqual({ position: 1, kind: 'working', weightKilograms: 61.23, entryUnit: 'lb', reps: 8, rpe: 8, isCompleted: 1, side: 'both' });
+    expect(set).toEqual({
+      position: 1,
+      kind: 'working',
+      weightKilograms: 61.23,
+      entryUnit: 'lb',
+      reps: 8,
+      rpe: 8,
+      isCompleted: 1,
+      side: 'both',
+    });
     expect(db.get('SELECT takenAt, site, value, source FROM bodyMeasurement ORDER BY takenAt LIMIT 1')).toMatchObject({
       site: 'waist',
       source: 'strong',
@@ -129,7 +161,8 @@ describe('Importing details beyond the native tests', () => {
     const lastWorkout = good.workouts[good.workouts.length - 1];
     const lastExercise = lastWorkout?.exercises[0];
     const lastSet = lastExercise?.sets[0];
-    if (lastWorkout === undefined || lastExercise === undefined || lastSet === undefined) throw new Error('Fixture changed');
+    if (lastWorkout === undefined || lastExercise === undefined || lastSet === undefined)
+      throw new Error('Fixture changed');
     // Two sets at the same position break the schema's unique index, after the first workout was already written.
     const clashing = { ...lastExercise, sets: [lastSet, lastSet] };
     const broken: StrongImportPlan = {

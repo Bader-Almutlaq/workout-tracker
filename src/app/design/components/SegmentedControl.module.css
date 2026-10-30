@@ -13,7 +13,9 @@
   border-radius: calc(var(--radius-small) - 2px);
   font: var(--font-callout);
   color: var(--color-text-secondary);
-  transition: background var(--motion-standard), color var(--motion-standard);
+  transition:
+    background var(--motion-standard),
+    color var(--motion-standard);
 }
 
 .option[aria-checked='true'] {

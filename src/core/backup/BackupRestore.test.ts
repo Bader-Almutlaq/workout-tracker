@@ -119,7 +119,9 @@ describe('restoreBackup', () => {
     const future = await databaseWith('Future');
     future.run("INSERT INTO migration (id, appliedAt) VALUES ('v99-future', '2030-01-01T00:00:00.000Z')");
 
-    await expect(restoreBackup(storage, live, future.exportBytes(), NOW)).rejects.toMatchObject({ kind: 'newerVersion' });
+    await expect(restoreBackup(storage, live, future.exportBytes(), NOW)).rejects.toMatchObject({
+      kind: 'newerVersion',
+    });
 
     expect(storage.snapshots.size).toBe(0);
     expect(workoutNames(live)).toEqual(['Current data']);

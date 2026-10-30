@@ -23,7 +23,11 @@ const EXIT_USAGE = 2;
 const EXIT_UNREADABLE = 1;
 
 /** Kilograms as the native report printed them: up to two decimals, with thousands separators. */
-const kilogramFormat = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2, roundingMode: 'halfEven' });
+const kilogramFormat = new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+  roundingMode: 'halfEven',
+});
 const dateFormat = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' });
 
 function formatKilograms(value: number): string {
@@ -83,12 +87,15 @@ function main(): void {
   print(`Sets:             ${totals.sets} (${totals.workSets} excluding warm-ups)`);
   print(`Volume:           ${formatKilograms(totals.volumeKilograms)} kg`);
   print(`Dates:            ${formatDate(totals.firstDate)} → ${formatDate(totals.lastDate)}`);
-  print(`Measurements:     ${measurements.length} across ${new Set(measurements.map((measurement) => measurement.site)).size} sites`);
+  print(
+    `Measurements:     ${measurements.length} across ${new Set(measurements.map((measurement) => measurement.site)).size} sites`,
+  );
   print(`Rest-timer rows:  ${totals.skippedRestTimerRows} skipped`);
   print('');
   print('Exercises written in pounds (kg votes / lb votes):');
   for (const exercise of plan.exercises) {
-    if (exercise.columnUnit === 'lb') print(`  ${exercise.name}: ${exercise.verdict.kilogramVotes}/${exercise.verdict.poundVotes}`);
+    if (exercise.columnUnit === 'lb')
+      print(`  ${exercise.name}: ${exercise.verdict.kilogramVotes}/${exercise.verdict.poundVotes}`);
   }
   print('Exercises in kg with any lb votes:');
   for (const exercise of plan.exercises) {

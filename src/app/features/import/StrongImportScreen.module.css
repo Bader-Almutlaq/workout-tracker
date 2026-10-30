@@ -1,22 +1,137 @@
-.description { color: var(--color-text-secondary); font: var(--font-body); }
-.note { color: var(--color-text-tertiary); font: var(--font-callout); margin: var(--space-xs) 0; }
-.primary { background: var(--color-accent); color: var(--color-on-accent); border: 0; border-radius: var(--radius-small); padding: var(--space-m) var(--space-l); font: var(--font-headline); width: 100%; }
-.unitRow, .cardHeader, .finding { padding: var(--space-m); }
-.unitRow { display: flex; align-items: center; justify-content: space-between; gap: var(--space-m); border-bottom: var(--hairline) solid var(--color-border); }
-.unitRow select, .dialog input { background: var(--color-surface-raised); color: var(--color-text-primary); border: var(--hairline) solid var(--color-border-strong); border-radius: var(--radius-small); padding: var(--space-s); }
-.heading, .findingText { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-s); }
-.heading h2 { font: var(--font-caption); color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: var(--tracking-caption); }
-.link { color: var(--color-accent); background: transparent; border: 0; font: var(--font-callout); }
-.card { background: var(--color-surface); border: var(--hairline) solid var(--color-border); border-radius: var(--radius-medium); margin-top: var(--space-s); overflow: hidden; }
-.cardHeader { font: var(--font-headline); }
-.finding { border-top: var(--hairline) solid var(--color-border); font: var(--font-body); font-variant-numeric: tabular-nums; }
-.findingText { flex-wrap: wrap; }
-.buttons { display: flex; flex-wrap: wrap; gap: var(--space-s); padding: var(--space-s); }
-.buttons button { background: var(--color-surface-raised); color: var(--color-accent); border: var(--hairline) solid var(--color-border); border-radius: var(--radius-small); padding: var(--space-s); font: var(--font-callout); }
-.overlay { position: fixed; inset: 0; z-index: 100; background: var(--color-background); color: var(--color-text-secondary); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: var(--space-l); padding: var(--space-l); font: var(--font-body); }
-.spinner { width: var(--space-xl); height: var(--space-xl); border: var(--hairline) solid var(--color-border-strong); border-top-color: var(--color-accent); border-radius: 50%; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.dialog { width: 100%; background: var(--color-surface); border: var(--hairline) solid var(--color-border); border-radius: var(--radius-medium); padding: var(--space-l); color: var(--color-text-primary); }
-.dialog h2, .result { font: var(--font-title); }
-.dialog label { display: flex; flex-direction: column; gap: var(--space-xs); margin-top: var(--space-m); }
-.result { color: var(--color-status-good); }
+.description {
+  color: var(--color-text-secondary);
+  font: var(--font-body);
+}
+.note {
+  color: var(--color-text-tertiary);
+  font: var(--font-callout);
+  margin: var(--space-xs) 0;
+}
+.primary {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  border: 0;
+  border-radius: var(--radius-small);
+  padding: var(--space-m) var(--space-l);
+  font: var(--font-headline);
+  width: 100%;
+}
+.unitRow,
+.cardHeader,
+.finding {
+  padding: var(--space-m);
+}
+.unitRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m);
+  border-bottom: var(--hairline) solid var(--color-border);
+}
+.unitRow select,
+.dialog input {
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  padding: var(--space-s);
+}
+.heading,
+.findingText {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+.heading h2 {
+  font: var(--font-caption);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caption);
+}
+.link {
+  color: var(--color-accent);
+  background: transparent;
+  border: 0;
+  font: var(--font-callout);
+}
+.card {
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  margin-top: var(--space-s);
+  overflow: hidden;
+}
+.cardHeader {
+  font: var(--font-headline);
+}
+.finding {
+  border-top: var(--hairline) solid var(--color-border);
+  font: var(--font-body);
+  font-variant-numeric: tabular-nums;
+}
+.findingText {
+  flex-wrap: wrap;
+}
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  padding: var(--space-s);
+}
+.buttons button {
+  background: var(--color-surface-raised);
+  color: var(--color-accent);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+  padding: var(--space-s);
+  font: var(--font-callout);
+}
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-l);
+  padding: var(--space-l);
+  font: var(--font-body);
+}
+.spinner {
+  width: var(--space-xl);
+  height: var(--space-xl);
+  border: var(--hairline) solid var(--color-border-strong);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.dialog {
+  width: 100%;
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  padding: var(--space-l);
+  color: var(--color-text-primary);
+}
+.dialog h2,
+.result {
+  font: var(--font-title);
+}
+.dialog label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-m);
+}
+.result {
+  color: var(--color-status-good);
+}

@@ -13,8 +13,9 @@ export interface HistoryFixture {
 type SeedSet = readonly [kind: string, weight: number, unit: 'kg' | 'lb', reps: number, rpe: number | null];
 
 function seedExercise(db: Database, name: string): number {
-  return db.run("INSERT INTO exercise (name, source, createdAt) VALUES (?, 'strong', '2024-01-01T00:00:00.000Z')", [name])
-    .lastInsertRowId;
+  return db.run("INSERT INTO exercise (name, source, createdAt) VALUES (?, 'strong', '2024-01-01T00:00:00.000Z')", [
+    name,
+  ]).lastInsertRowId;
 }
 
 function seedWorkout(db: Database, startedAt: string, endedAt: string, name: string, notes: string | null): number {
@@ -26,7 +27,13 @@ function seedWorkout(db: Database, startedAt: string, endedAt: string, name: str
   ]).lastInsertRowId;
 }
 
-function seedEntry(db: Database, workoutId: number, exerciseId: number, position: number, sets: readonly SeedSet[]): void {
+function seedEntry(
+  db: Database,
+  workoutId: number,
+  exerciseId: number,
+  position: number,
+  sets: readonly SeedSet[],
+): void {
   const entryId = db.run('INSERT INTO workoutExercise (workoutId, exerciseId, position) VALUES (?, ?, ?)', [
     workoutId,
     exerciseId,
@@ -53,7 +60,13 @@ export function seedHistoryFixture(db: Database): HistoryFixture {
   const benchPressId = seedExercise(db, 'Bench Press (Barbell)');
   const legCurlId = seedExercise(db, 'Seated Leg Curl (Machine)');
 
-  const pushWorkoutId = seedWorkout(db, '2024-01-01T10:00:00.000Z', '2024-01-01T11:07:00.000Z', 'Push, heavy', 'Felt good');
+  const pushWorkoutId = seedWorkout(
+    db,
+    '2024-01-01T10:00:00.000Z',
+    '2024-01-01T11:07:00.000Z',
+    'Push, heavy',
+    'Felt good',
+  );
   seedEntry(db, pushWorkoutId, benchPressId, 0, [
     ['warmup', 40, 'kg', 10, null],
     ['working', 61.23, 'kg', 8, 8],

@@ -1,0 +1,11 @@
+dist
+dev-dist
+reference
+export_data
+node_modules
+package-lock.json
+src/core/library/library.json
+docs
+reports
+research_notes
+*.md

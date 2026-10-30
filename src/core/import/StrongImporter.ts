@@ -86,12 +86,10 @@ export function importStrongPlan(db: Database, plan: StrongImportPlan, now: Date
     }
 
     for (const measurement of plan.measurements) {
-      const { changes } = db.run('INSERT OR IGNORE INTO bodyMeasurement (takenAt, site, value, source) VALUES (?, ?, ?, ?)', [
-        measurement.takenAt,
-        measurement.site,
-        measurement.value,
-        measurement.source,
-      ]);
+      const { changes } = db.run(
+        'INSERT OR IGNORE INTO bodyMeasurement (takenAt, site, value, source) VALUES (?, ?, ?, ?)',
+        [measurement.takenAt, measurement.site, measurement.value, measurement.source],
+      );
       if (changes > 0) counters.measurementsAdded += 1;
     }
     return counters;

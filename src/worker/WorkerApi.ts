@@ -2,7 +2,11 @@ import { CsvTable } from '../core/import/CsvTable';
 import { makeStrongImportPlan, type StrongImportPlan } from '../core/import/StrongImportPlan';
 import { makeImportOptions, type StrongImportOptions } from '../core/import/StrongImportOptions';
 import { importStrongPlan, type ImportResult } from '../core/import/StrongImporter';
-import { isStrongMeasurementsFile, parseStrongMeasurementsFile, type PlannedMeasurement } from '../core/import/StrongMeasurementsFile';
+import {
+  isStrongMeasurementsFile,
+  parseStrongMeasurementsFile,
+  type PlannedMeasurement,
+} from '../core/import/StrongMeasurementsFile';
 import { parseStrongWorkoutsFile } from '../core/import/StrongWorkoutsFile';
 import type { StrongRow } from '../core/import/StrongRow';
 import * as Comlink from 'comlink';
@@ -10,7 +14,12 @@ import { backupFileName } from '../core/backup/BackupFile';
 import { validateBackup } from '../core/backup/BackupValidation';
 import { AppSettingKey, getSetting, setSetting } from '../core/db/AppSetting';
 import type { OnDeviceStore, OpenReport } from './OnDeviceStore';
-import { workoutDetail, workoutSummaries, type WorkoutDetail, type WorkoutSummary } from '../core/queries/WorkoutHistory';
+import {
+  workoutDetail,
+  workoutSummaries,
+  type WorkoutDetail,
+  type WorkoutSummary,
+} from '../core/queries/WorkoutHistory';
 
 /** Called after any write, so screens can re-run their queries. */
 export type ChangeListener = () => void;
@@ -152,21 +161,28 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     // Strong import (T-017)
 
     /** Parses selected CSVs and builds a review plan without writing to the database. */
-    async planStrongImport(files: readonly { readonly name: string; readonly text: string }[]): Promise<StrongImportPlan> {
+    async planStrongImport(
+      files: readonly { readonly name: string; readonly text: string }[],
+    ): Promise<StrongImportPlan> {
       await liveStore();
       importPlan = undefined;
       const rows: StrongRow[] = [];
       const measurements: PlannedMeasurement[] = [];
       let workoutsFileSelected = false;
       for (const file of files) {
-        if (isStrongMeasurementsFile(CsvTable.parse(file.text))) measurements.push(...parseStrongMeasurementsFile(file.text));
+        if (isStrongMeasurementsFile(CsvTable.parse(file.text)))
+          measurements.push(...parseStrongMeasurementsFile(file.text));
         else {
-          if (workoutsFileSelected) throw new StrongImportFlowError('Choose only one workouts file at a time, along with any measurement files.');
+          if (workoutsFileSelected)
+            throw new StrongImportFlowError(
+              'Choose only one workouts file at a time, along with any measurement files.',
+            );
           rows.push(...parseStrongWorkoutsFile(file.text));
           workoutsFileSelected = true;
         }
       }
-      if (rows.length === 0 && measurements.length === 0) throw new StrongImportFlowError('No workouts or measurements were found in the chosen files.');
+      if (rows.length === 0 && measurements.length === 0)
+        throw new StrongImportFlowError('No workouts or measurements were found in the chosen files.');
       importRows = rows;
       importMeasurements = measurements;
       importPlan = makeStrongImportPlan(rows, measurements);

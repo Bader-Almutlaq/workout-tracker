@@ -1,15 +1,13 @@
 /** Reasons an exercise edit or merge cannot be completed. */
 export type ExerciseEditErrorKind =
-  | 'emptyName'
-  | 'nameInUse'
-  | 'noPrimaryMuscle'
-  | 'notFound'
-  | 'libraryExerciseIsReadOnly'
-  | 'mergeIntoItself';
+  'emptyName' | 'nameInUse' | 'noPrimaryMuscle' | 'notFound' | 'libraryExerciseIsReadOnly' | 'mergeIntoItself';
 
 /** An exercise edit failure with a message suitable for the owner. */
 export class ExerciseEditError extends Error {
-  constructor(readonly kind: ExerciseEditErrorKind, name = '') {
+  constructor(
+    readonly kind: ExerciseEditErrorKind,
+    name = '',
+  ) {
     const messages: Record<ExerciseEditErrorKind, string> = {
       emptyName: 'Give the exercise a name.',
       nameInUse: `An exercise called “${name}” already exists.`,

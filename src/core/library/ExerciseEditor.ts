@@ -92,7 +92,8 @@ export const ExerciseEditor = {
         const target = db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [targetId]);
         if (source === undefined || target === undefined) throw new ExerciseEditError('notFound');
         // A target with no history yet takes the unit the owner used for the source.
-        const targetUses = db.value<number>('SELECT COUNT(*) FROM workoutExercise WHERE exerciseId = ?', [targetId]) ?? 0;
+        const targetUses =
+          db.value<number>('SELECT COUNT(*) FROM workoutExercise WHERE exerciseId = ?', [targetId]) ?? 0;
         if (targetUses === 0) {
           db.run('UPDATE exercise SET defaultEntryUnit = ? WHERE id = ?', [source.defaultEntryUnit, targetId]);
         }

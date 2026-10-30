@@ -4,7 +4,8 @@
  * them pin the time zone first (`vi.stubEnv('TZ', 'UTC')`).
  */
 
-const OLDER_HEADER = 'Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE';
+const OLDER_HEADER =
+  'Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE';
 
 /**
  * Older comma layout. Two workouts:

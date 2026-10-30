@@ -46,6 +46,7 @@ This file is the single entry point. `CLAUDE.md` imports it; Codex and other too
 - Names are full words (`estimatedOneRepMax`, not `e1rm`) except the domain abbreviations defined in `docs/ARCHITECTURE.md` (RIR, RPE, e1RM).
 - No magic numbers. Constants live in a named, frozen object (`export const SetPlausibilityLimits = { … } as const`) with a doc comment and a citation.
 - No dead code, no commented-out code, no speculative interfaces, and no abstractions with a single implementation "for later".
+- **Formatting is automatic:** run `make format` before committing; `make lint` (part of `make verify`) fails on unformatted files. Keep components small: a screen file composes named sub-components and helpers, and no JSX line packs several elements or statements.
 
 **Documentation.**
 - Every exported function, type, class and constant gets a `/** … */` doc comment: what it is, its units and edge cases. Formulas include the equation and the citation.
@@ -74,6 +75,7 @@ All common commands live in the `Makefile`; run `make help` to list them. Use th
 | `make install` | Installs dependencies |
 | `make dev` | Runs the app at http://localhost:5173 with live reload |
 | `make test` | WorkoutCore unit tests (Vitest, in Node) |
+| `make format` | Formats every source file (Prettier) |
 | `make verify` | Lint + type checks + tests + production build. **Must pass before any task is marked done** |
 | `make preview` | Serves the production build, where offline support works |
 | `make sim-safari` | Opens the dev server in Safari on the iPhone 15 Pro Max simulator |

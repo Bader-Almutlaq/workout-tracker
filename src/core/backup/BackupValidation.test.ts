@@ -51,7 +51,7 @@ describe('validateBackup', () => {
 
   test('rejects a SQLite file that is not ours', async () => {
     const other = await Database.openInMemory();
-    other.exec('CREATE TABLE notes (text TEXT); INSERT INTO notes VALUES (\'hello\')');
+    other.exec("CREATE TABLE notes (text TEXT); INSERT INTO notes VALUES ('hello')");
     const bytes = other.exportBytes();
     other.close();
     expect(await kindOfFailure(bytes)).toBe('notABackup');
@@ -73,7 +73,9 @@ describe('validateBackup', () => {
   test('rejects a file whose data pages are damaged', async () => {
     const bytes = await backupBytes((db) => {
       for (let index = 0; index < 300; index += 1) {
-        db.run("INSERT INTO workout (startedAt, name, source) VALUES (?, 'Push', 'app')", [`2026-01-01T10:00:${index}`]);
+        db.run("INSERT INTO workout (startedAt, name, source) VALUES (?, 'Push', 'app')", [
+          `2026-01-01T10:00:${index}`,
+        ]);
       }
     });
     const damaged = bytes.slice();

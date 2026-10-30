@@ -15,7 +15,13 @@ function problemWith(json: unknown): string {
   throw new Error('Expected the file to be rejected.');
 }
 
-const FAMILY = { movement: 'Row', pattern: 'horizontal-pull', mechanic: 'compound', primary: ['lats'], variants: ['cable'] };
+const FAMILY = {
+  movement: 'Row',
+  pattern: 'horizontal-pull',
+  mechanic: 'compound',
+  primary: ['lats'],
+  variants: ['cable'],
+};
 
 describe('parseLibraryFile', () => {
   test('reads a bare variant slug and an override object', () => {
@@ -29,7 +35,9 @@ describe('parseLibraryFile', () => {
   });
 
   test('ignores unknown extra keys', () => {
-    expect(parseLibraryFile({ version: 1, comment: 'hi', families: [{ ...FAMILY, note: 'x' }] }).families).toHaveLength(1);
+    expect(parseLibraryFile({ version: 1, comment: 'hi', families: [{ ...FAMILY, note: 'x' }] }).families).toHaveLength(
+      1,
+    );
   });
 
   test('names the path of a missing field', () => {
@@ -42,14 +50,26 @@ describe('parseLibraryFile', () => {
     expect(problemWith({ version: '1', families: [] })).toContain('library.json.version: expected a whole number');
     expect(problemWith({ version: 1, families: {} })).toContain('library.json.families: expected a list');
     expect(problemWith({ version: 1, families: [{ ...FAMILY, movement: 3 }] })).toContain('expected text');
-    expect(problemWith({ version: 1, families: [{ ...FAMILY, lengthened: 'yes' }] })).toContain('expected true or false');
+    expect(problemWith({ version: 1, families: [{ ...FAMILY, lengthened: 'yes' }] })).toContain(
+      'expected true or false',
+    );
   });
 
   test('rejects unknown vocabulary values with the offending value', () => {
-    expect(problemWith({ version: 1, families: [{ ...FAMILY, pattern: 'sideways' }] })).toContain('"sideways" is not a known movement pattern');
-    expect(problemWith({ version: 1, families: [{ ...FAMILY, mechanic: 'both' }] })).toContain('"both" is not a known mechanic');
-    expect(problemWith({ version: 1, families: [{ ...FAMILY, tracking: 'reps' }] })).toContain('"reps" is not a known tracking kind');
-    expect(problemWith({ version: 1, families: [{ ...FAMILY, variants: ['rope'] }] })).toContain('families[0].variants[0]');
-    expect(problemWith({ version: 1, families: [{ ...FAMILY, variants: [{ name: 'No equipment' }] }] })).toContain('"equipment" is missing');
+    expect(problemWith({ version: 1, families: [{ ...FAMILY, pattern: 'sideways' }] })).toContain(
+      '"sideways" is not a known movement pattern',
+    );
+    expect(problemWith({ version: 1, families: [{ ...FAMILY, mechanic: 'both' }] })).toContain(
+      '"both" is not a known mechanic',
+    );
+    expect(problemWith({ version: 1, families: [{ ...FAMILY, tracking: 'reps' }] })).toContain(
+      '"reps" is not a known tracking kind',
+    );
+    expect(problemWith({ version: 1, families: [{ ...FAMILY, variants: ['rope'] }] })).toContain(
+      'families[0].variants[0]',
+    );
+    expect(problemWith({ version: 1, families: [{ ...FAMILY, variants: [{ name: 'No equipment' }] }] })).toContain(
+      '"equipment" is missing',
+    );
   });
 });

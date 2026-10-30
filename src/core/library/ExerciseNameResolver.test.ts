@@ -7,9 +7,13 @@ async function databaseWithExercises(): Promise<{ db: Database; benchId: number;
   const db = await Database.openInMemory();
   migrate(db);
   const createdAt = '2026-10-30T10:00:00.000Z';
-  const benchId = db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('Bench Press (Barbell)', 'library', ?)", [createdAt])
-    .lastInsertRowId;
-  const rowId = db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('Row (Cable)', 'library', ?)", [createdAt]).lastInsertRowId;
+  const benchId = db.run(
+    "INSERT INTO exercise (name, source, createdAt) VALUES ('Bench Press (Barbell)', 'library', ?)",
+    [createdAt],
+  ).lastInsertRowId;
+  const rowId = db.run("INSERT INTO exercise (name, source, createdAt) VALUES ('Row (Cable)', 'library', ?)", [
+    createdAt,
+  ]).lastInsertRowId;
   db.run("INSERT INTO exerciseAlias (alias, exerciseId) VALUES ('Seated Row', ?)", [rowId]);
   return { db, benchId, rowId };
 }

@@ -12,7 +12,11 @@ function plan(text: string = OLDER_LAYOUT, options: StrongImportOptions = makeIm
 }
 
 /** The exercise entry at `[workout][exercise]`, failing the test if absent. */
-function entry(result: StrongImportPlan, workout: number, exercise: number): StrongImportPlan['workouts'][number]['exercises'][number] {
+function entry(
+  result: StrongImportPlan,
+  workout: number,
+  exercise: number,
+): StrongImportPlan['workouts'][number]['exercises'][number] {
   const found = result.workouts[workout]?.exercises[exercise];
   if (found === undefined) throw new Error(`No exercise ${exercise} in workout ${workout}`);
   return found;
@@ -64,7 +68,10 @@ describe('Import plan', () => {
   });
 
   test('An owner override changes the column unit', () => {
-    const result = plan(OLDER_LAYOUT, makeImportOptions({ unitOverrides: new Map([['Seated Leg Curl (Machine)', 'kg']]) }));
+    const result = plan(
+      OLDER_LAYOUT,
+      makeImportOptions({ unitOverrides: new Map([['Seated Leg Curl (Machine)', 'kg']]) }),
+    );
     expect(setAt(result, 0, 1, 0).weightKilograms).toBe(99.21);
     const curl = result.exercises.find((exercise) => exercise.name === 'Seated Leg Curl (Machine)');
     expect(curl?.isOverridden).toBe(true);
@@ -103,7 +110,10 @@ describe('Import plan', () => {
 
     const corrected = plan(text, makeImportOptions({ corrections: new Map([[line, { weightKilograms: 100 }]]) }));
     expect(corrected.findings).toEqual([]);
-    const set = corrected.workouts.flatMap((workout) => workout.exercises).flatMap((exercise) => exercise.sets).find((s) => s.line === line);
+    const set = corrected.workouts
+      .flatMap((workout) => workout.exercises)
+      .flatMap((exercise) => exercise.sets)
+      .find((s) => s.line === line);
     expect(set?.weightKilograms).toBe(100);
     expect(set?.isCorrected).toBe(true);
 
@@ -112,7 +122,8 @@ describe('Import plan', () => {
 });
 
 describe('Import plan details beyond the native tests', () => {
-  const HEADER = 'Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE';
+  const HEADER =
+    'Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE';
 
   test('A rep correction replaces the reps and keeps the weight', () => {
     const result = plan(OLDER_LAYOUT, makeImportOptions({ corrections: new Map([[3, { reps: 5 }]]) }));
@@ -161,10 +172,12 @@ describe('Import plan details beyond the native tests', () => {
         '2024-01-01 10:00:00,A,Press,1,20,5,',
       ].join('\n'),
     );
-    expect(result.workouts[0]?.exercises.map((exercise) => [exercise.name, exercise.position, exercise.notes])).toEqual([
-      ['Curl', 0, 'first\nsecond'],
-      ['Press', 2, null],
-    ]);
+    expect(result.workouts[0]?.exercises.map((exercise) => [exercise.name, exercise.position, exercise.notes])).toEqual(
+      [
+        ['Curl', 0, 'first\nsecond'],
+        ['Press', 2, null],
+      ],
+    );
   });
 
   test('The same exercise twice in a row is one entry; after another exercise it is a new entry', () => {
@@ -184,7 +197,7 @@ describe('Import plan details beyond the native tests', () => {
     ]);
   });
 
-  test('Rest-timer rows between a workout\'s rows do not split it or add exercises', () => {
+  test("Rest-timer rows between a workout's rows do not split it or add exercises", () => {
     const result = plan(NEWER_LAYOUT);
     expect(result.workouts).toHaveLength(1);
     expect(result.workouts[0]?.exercises).toHaveLength(1);

@@ -45,6 +45,9 @@ export function applyAppearance(appearance: Appearance): void {
   } else {
     root.dataset['theme'] = appearance;
   }
-  const isDark = appearance === 'dark' || (appearance === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? THEME_COLOR.dark : THEME_COLOR.light);
+  const isDark =
+    appearance === 'dark' || (appearance === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', isDark ? THEME_COLOR.dark : THEME_COLOR.light);
 }

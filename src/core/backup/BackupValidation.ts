@@ -31,7 +31,11 @@ export async function validateBackup(bytes: Uint8Array, migrations: readonly Mig
   try {
     backup = await Database.fromBytes(bytes);
   } catch (error) {
-    throw new BackupError('notABackup', 'This file is not a Workout Tracker backup (it is not a SQLite database).', error);
+    throw new BackupError(
+      'notABackup',
+      'This file is not a Workout Tracker backup (it is not a SQLite database).',
+      error,
+    );
   }
 
   try {

@@ -32,11 +32,7 @@ function words(text: string): string[] {
  * "raises" → "raise", "triceps" → "tricep", but "press" and "abs" are unchanged.
  */
 function singularised(token: string): string {
-  if (
-    [...token].length <= SearchTextRules.maximumLengthKeptPlural ||
-    !token.endsWith('s') ||
-    token.endsWith('ss')
-  ) {
+  if ([...token].length <= SearchTextRules.maximumLengthKeptPlural || !token.endsWith('s') || token.endsWith('ss')) {
     return token;
   }
   return token.slice(0, -1);
@@ -92,11 +88,7 @@ function editDistance(a: string, b: string, limit: number): number | null {
     let rowMinimum = i;
     for (let j = 1; j <= right.length; j += 1) {
       const substitutionCost = left[i - 1] === right[j - 1] ? 0 : 1;
-      let value = Math.min(
-        cell(previous, j) + 1,
-        cell(current, j - 1) + 1,
-        cell(previous, j - 1) + substitutionCost,
-      );
+      let value = Math.min(cell(previous, j) + 1, cell(current, j - 1) + 1, cell(previous, j - 1) + substitutionCost);
       if (i > 1 && j > 1 && left[i - 1] === right[j - 2] && left[i - 2] === right[j - 1]) {
         value = Math.min(value, cell(beforePrevious, j - 2) + 1);
       }

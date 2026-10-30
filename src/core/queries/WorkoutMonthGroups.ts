@@ -25,10 +25,7 @@ function calendarMonth(isoTimestamp: string, timeZone: string | undefined): { ye
  * @param summaries Workouts newest first, as `workoutSummaries` returns them.
  * @param timeZone An IANA zone such as `Asia/Riyadh`; the phone's own zone when omitted.
  */
-export function groupWorkoutsByMonth(
-  summaries: readonly WorkoutSummary[],
-  timeZone?: string,
-): WorkoutMonthGroup[] {
+export function groupWorkoutsByMonth(summaries: readonly WorkoutSummary[], timeZone?: string): WorkoutMonthGroup[] {
   const groups = new Map<string, { year: number; month: number; workouts: WorkoutSummary[] }>();
   for (const summary of summaries) {
     const { year, month } = calendarMonth(summary.startedAt, timeZone);

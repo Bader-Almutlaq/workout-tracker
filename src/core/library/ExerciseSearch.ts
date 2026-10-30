@@ -174,7 +174,8 @@ function matchKindOf(queryToken: string, fieldToken: string): MatchKind | null {
   const length = [...queryToken].length;
   if (length >= SearchTuning.minimumPrefixLength && fieldToken.startsWith(queryToken)) return 'prefix';
   if (length < SearchTuning.minimumFuzzyLength) return null;
-  const limit = length <= SearchTuning.singleTypoMaximumLength ? SearchTuning.shortTokenTypos : SearchTuning.longTokenTypos;
+  const limit =
+    length <= SearchTuning.singleTypoMaximumLength ? SearchTuning.shortTokenTypos : SearchTuning.longTokenTypos;
   if (SearchText.editDistance(queryToken, fieldToken, limit) !== null) return 'fuzzy';
   if (
     [...fieldToken].length > length &&
@@ -265,7 +266,11 @@ function compareScored(left: Scored, right: Scored): number {
 /** The first run of two unused adjacent field tokens whose concatenation is `token`, or `undefined`. */
 function joinedFieldSlot(fieldTokens: readonly string[], used: readonly boolean[], token: string): number | undefined {
   for (let slot = 0; slot + 1 < fieldTokens.length; slot += 1) {
-    if (used[slot] !== true && used[slot + 1] !== true && `${fieldTokens[slot] ?? ''}${fieldTokens[slot + 1] ?? ''}` === token) {
+    if (
+      used[slot] !== true &&
+      used[slot + 1] !== true &&
+      `${fieldTokens[slot] ?? ''}${fieldTokens[slot + 1] ?? ''}` === token
+    ) {
       return slot;
     }
   }
@@ -383,7 +388,8 @@ export class ExerciseSearch {
         const score = fieldScore(field, queryTokens, queryJoined);
         if (score !== null && (relevance === null || score > relevance)) relevance = score;
       }
-      if (relevance !== null) scored.push({ indexed: candidate, score: relevance + popularityScore(candidate.entry, now) });
+      if (relevance !== null)
+        scored.push({ indexed: candidate, score: relevance + popularityScore(candidate.entry, now) });
     }
     return scored.sort(compareScored).map((item) => item.indexed.entry);
   }
@@ -406,7 +412,8 @@ export class ExerciseSearch {
     for (const candidate of this.indexed) {
       let score = 0;
       for (const field of candidate.fields) {
-        const fieldCoverage = coverage(queryTokens, field.tokens) * (field.isName ? 1 : SearchTuning.aliasSuggestionFactor);
+        const fieldCoverage =
+          coverage(queryTokens, field.tokens) * (field.isName ? 1 : SearchTuning.aliasSuggestionFactor);
         score = Math.max(score, fieldCoverage);
       }
       if (score >= SearchTuning.minimumSuggestionScore) scored.push({ indexed: candidate, score });

@@ -60,9 +60,18 @@ describe('Strong measurements file', () => {
   });
 
   test('Missing columns, bad dates and bad values are reported with their line', () => {
-    expectImportError(() => parseStrongMeasurementsFile('Date,Value\n'), { kind: 'missingColumn', column: 'Measurement Type' });
-    expectImportError(() => parseStrongMeasurementsFile('Measurement Type,Value\n'), { kind: 'missingColumn', column: 'Date' });
-    expectImportError(() => parseStrongMeasurementsFile('Date,Measurement Type\n'), { kind: 'missingColumn', column: 'Value' });
+    expectImportError(() => parseStrongMeasurementsFile('Date,Value\n'), {
+      kind: 'missingColumn',
+      column: 'Measurement Type',
+    });
+    expectImportError(() => parseStrongMeasurementsFile('Measurement Type,Value\n'), {
+      kind: 'missingColumn',
+      column: 'Date',
+    });
+    expectImportError(() => parseStrongMeasurementsFile('Date,Measurement Type\n'), {
+      kind: 'missingColumn',
+      column: 'Value',
+    });
     expectImportError(() => parseStrongMeasurementsFile('Date,Measurement Type,Value\nyesterday,Neck,38'), {
       kind: 'invalidValue',
       column: 'Date',

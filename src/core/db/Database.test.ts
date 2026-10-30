@@ -13,7 +13,9 @@ describe('migrations', () => {
   test('a new database gets every table and all 23 muscles', async () => {
     const db = await migratedDatabase();
     const tables = db
-      .all<{ name: string }>("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
+      .all<{ name: string }>(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+      )
       .map((row) => row.name);
     expect(tables).toEqual([
       'appSetting',
@@ -52,14 +54,15 @@ describe('migrations', () => {
 
   test('foreign keys are enforced', async () => {
     const db = await migratedDatabase();
-    expect(() =>
-      db.run("INSERT INTO workoutExercise (workoutId, exerciseId, position) VALUES (999, 999, 0)"),
-    ).toThrow(DatabaseError);
+    expect(() => db.run('INSERT INTO workoutExercise (workoutId, exerciseId, position) VALUES (999, 999, 0)')).toThrow(
+      DatabaseError,
+    );
   });
 
   test('only one workout can be in progress', async () => {
     const db = await migratedDatabase();
-    const insert = "INSERT INTO workout (startedAt, name, source, isInProgress) VALUES ('2026-10-30T10:00:00.000Z', 'A', 'app', 1)";
+    const insert =
+      "INSERT INTO workout (startedAt, name, source, isInProgress) VALUES ('2026-10-30T10:00:00.000Z', 'A', 'app', 1)";
     db.run(insert);
     expect(() => db.run(insert)).toThrow(DatabaseError);
   });
