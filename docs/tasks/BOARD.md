@@ -77,7 +77,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-047](T-047-library-expansion.md) | Bigger library: free-exercise-db merge, instructions, pictures, smaller muscles | done (852 exercises) | Codex Sol (high), reviewed by lead | merged |
 | [T-048](T-048-export-strong-csv.md) | Export workouts as Strong CSV (Hevy/Strong) and measurements CSV | done | Codex Terra (high), reviewed by lead | merged |
 | [T-049](T-049-import-other-apps.md) | Import from Hevy, FitNotes and Fitbod through the Strong review | done (needs real-file check) | Codex Sol (high), reviewed by lead | merged |
-| [T-050](T-050-edit-past-workouts.md) | Edit and delete past workouts in History (R12) | doing | Codex Sol (high) | `task/T-050-edit-history` |
+| [T-050](T-050-edit-past-workouts.md) | Edit and delete past workouts in History (R12) | done | Codex Sol (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
