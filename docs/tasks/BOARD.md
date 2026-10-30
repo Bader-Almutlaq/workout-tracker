@@ -70,7 +70,8 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-041](T-041-backup-on-finish-and-one-tap-clean.md) | Backup button on every finish; leave out all flagged sets in one tap | done | Codex Terra (high), reviewed by lead | merged |
 | [T-042](T-042-dropbox-backup.md) | Automatic backup to Dropbox (R11) | done (live Dropbox connect checked by owner) | Codex Sol + Terra (high), reviewed by lead | merged |
 | [T-043](T-043-measurements.md) | Body measurements: sites with how-to notes, flexed/relaxed, history and change (R1) | done (polish in T-043b) | Codex Sol (high), reviewed by lead | merged |
-| [T-044](T-044-loadable-weights-and-warmups.md) | Loadable weights + auto warm-up sets | todo (after T-043: migration v5) | | |
+| [T-044](T-044-loadable-weights-and-warmups.md) | Loadable weights + auto warm-up sets | doing | Codex Sol (high) | `task/T-044-warmups` |
+| [T-043b](T-043b-body-polish.md) | Body screen polish | doing | Codex Terra (high) | `task/T-043b-body-polish` |
 | [T-045](T-045-finish-comparison-and-bests.md) | Finish screen: compared with last time, personal bests | done | Codex Terra (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
