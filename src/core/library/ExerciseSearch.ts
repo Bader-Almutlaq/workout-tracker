@@ -87,6 +87,25 @@ export const SearchTuning = {
   recencyBonus: 6,
   /** Heuristic: how recent counts as "recently used", in days. */
   recencyWindowDays: 30,
+  /** Heuristic: typical commercial-gym availability determines ties; no published source applies. */
+  equipmentOrder: [
+    'barbell',
+    'dumbbell',
+    'machine',
+    'cable',
+    'smith-machine',
+    'bodyweight',
+    'weighted',
+    'assisted',
+    'plate-loaded',
+    'ez-bar',
+    'plate',
+    'landmine',
+    'trap-bar',
+    'safety-bar',
+    'band',
+    'kettlebell',
+  ] satisfies readonly Equipment[],
 
   /** Heuristic: soft-mode weight of an exact word. */
   exactSuggestionWeight: 1,
@@ -136,7 +155,7 @@ interface Field {
 interface Indexed {
   readonly entry: ExerciseSearchEntry;
   readonly fields: readonly Field[];
-  /** Length of the display name in code points, the first tie-breaker. */
+  /** Length of the display name in code points, used to break ties. */
   readonly nameLength: number;
 }
 
@@ -263,6 +282,20 @@ function compareScored(left: Scored, right: Scored): number {
   return NAME_COLLATOR.compare(left.indexed.entry.name, right.indexed.entry.name);
 }
 
+/** Search results prefer common equipment only when the combined relevance and usage scores tie. */
+function compareResults(left: Scored, right: Scored, now: Date): number {
+  if (left.score !== right.score) return right.score - left.score;
+  const popularityDifference = popularityScore(right.indexed.entry, now) - popularityScore(left.indexed.entry, now);
+  if (popularityDifference !== 0) return popularityDifference;
+  const equipmentRank = (equipment: Equipment | null): number => {
+    const rank = equipment === null ? -1 : SearchTuning.equipmentOrder.indexOf(equipment);
+    return rank < 0 ? SearchTuning.equipmentOrder.length : rank;
+  };
+  const equipmentDifference =
+    equipmentRank(left.indexed.entry.equipment) - equipmentRank(right.indexed.entry.equipment);
+  return equipmentDifference !== 0 ? equipmentDifference : compareScored(left, right);
+}
+
 /** The first run of two unused adjacent field tokens whose concatenation is `token`, or `undefined`. */
 function joinedFieldSlot(fieldTokens: readonly string[], used: readonly boolean[], token: string): number | undefined {
   for (let slot = 0; slot + 1 < fieldTokens.length; slot += 1) {
@@ -362,7 +395,7 @@ export class ExerciseSearch {
    *
    * Ranking: exact name, then name starting with the query, then name over alias matches, then
    * exact over prefix over typo matches, then a boost for usage count and recent use (`now`
-   * decides what is recent). Ties go to the shorter name, then alphabetical order.
+   * decides what is recent). Ties go to common equipment, then the shorter name, then alphabetical order.
    *
    * @param filter Use `{}` for no filter.
    * @param now The current time, passed in so core never reads the clock.
@@ -391,7 +424,7 @@ export class ExerciseSearch {
       if (relevance !== null)
         scored.push({ indexed: candidate, score: relevance + popularityScore(candidate.entry, now) });
     }
-    return scored.sort(compareScored).map((item) => item.indexed.entry);
+    return scored.sort((left, right) => compareResults(left, right, now)).map((item) => item.indexed.entry);
   }
 
   /**

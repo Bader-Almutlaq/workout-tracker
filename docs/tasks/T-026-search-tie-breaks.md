@@ -26,4 +26,9 @@ When several variants match a query equally well, the common one comes first. To
 
 ## Handoff
 
-- **Status:** · **What was done:** · **Files touched:** · **Decisions taken:** · **Open questions / left over:** · **How it was verified:**
+- **Status:** ready for review; changes uncommitted as requested.
+- **What was done:** Added equipment preference after the combined match and usage score and popularity, before name length, for nonempty searches. Added bundled bench-press and usage regressions and a better-match regression.
+- **Files touched:** `src/core/library/ExerciseSearch.ts`, `src/core/library/ExerciseSearch.test.ts`, and this handoff.
+- **Decisions taken:** Unknown or unspecified equipment follows the ranked equipment; empty searches and import suggestions retain their existing ordering. Updated the unused curl expectation from Band before Cable to Cable before Band because it encoded the former name-length tie-break; the usage example now uses Band to prove usage overrides equipment.
+- **Open questions / left over:** None.
+- **How it was verified:** `make format` and `make verify` passed (61 test files, 408 tests, production build).
