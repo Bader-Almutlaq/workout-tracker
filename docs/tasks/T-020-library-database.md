@@ -33,11 +33,9 @@ The library's 421 exercises are copied into the database (linking any same-name 
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Partially implemented; review and integration work remain.
+- **What was done:** Ported seeding, custom editing, archive and transactional merge, and catalog queries. Added database-backed tests for the native cases that do not require the missing importer.
+- **Files touched:** The five specified core modules and their five adjacent test files; this handoff.
+- **Decisions taken:** Creation and seeding accept an explicit clock; merge callers must snapshot first. Catalog detail accepts an optional library for native built-in aliases. Batch merges use a `ReadonlyMap` and preserve native source-ID ordering.
+- **Open questions / left over:** The Strong importer and ExerciseNameResolver are absent on this branch and owned by parallel work. The two native importer integration cases (import after seed and re-import after merge) could not be ported or run. Seeder and editor currently repeat the native name/alias lookup SQL; replace those lookups with the shared ExerciseNameResolver after it lands, to restore single ownership. Snapshot assertions are intentionally omitted because the worker owns snapshots in the web specification. The lead should complete these integration cases and resolve shared ownership before marking the task done.
+- **How it was verified:** `make verify` passed: lint, type checks, 119 tests and production build. An earlier run hit the existing search timing test at 5.02 ms against its 5 ms threshold; the subsequent full run passed.
