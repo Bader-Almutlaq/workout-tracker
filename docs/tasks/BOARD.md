@@ -74,7 +74,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-043b](T-043b-body-polish.md) | Body screen polish | done | Codex Terra (high), reviewed by lead | merged |
 | [T-045](T-045-finish-comparison-and-bests.md) | Finish screen: compared with last time, personal bests | done | Codex Terra (high), reviewed by lead | merged |
 | [T-046](T-046-search-by-muscle-words.md) | Plain-language exercise search (muscles, movements, equipment words) | done | Codex Terra (high), reviewed by lead | merged |
-| [T-047](T-047-library-expansion.md) | Bigger library: free-exercise-db merge, instructions, pictures, smaller muscles | doing | Codex Sol (high) | `task/T-047-library` |
+| [T-047](T-047-library-expansion.md) | Bigger library: free-exercise-db merge, instructions, pictures, smaller muscles | done (852 exercises) | Codex Sol (high), reviewed by lead | merged |
 | [T-048](T-048-export-strong-csv.md) | Export workouts as Strong CSV (Hevy/Strong) and measurements CSV | done | Codex Terra (high), reviewed by lead | merged |
 | [T-049](T-049-import-other-apps.md) | Import from Hevy, FitNotes and Fitbod through the Strong review | done (needs real-file check) | Codex Sol (high), reviewed by lead | merged |
 
