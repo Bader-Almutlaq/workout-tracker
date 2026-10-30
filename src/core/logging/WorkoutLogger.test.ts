@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { Database } from '../db/Database';
+import { DataSafetyFixture } from '../db/fixtures/DataSafetyFixture';
 import { migrate } from '../db/migrations';
 import { workoutDetail, workoutSummaries, workoutSummary } from '../queries/WorkoutHistory';
 import { liveWorkoutSnapshot } from '../queries/LiveWorkout';
@@ -208,4 +209,110 @@ test('Starting a template for a timed exercise puts the target in seconds, not r
   const workout = logger.startFromTemplate(1, now);
   const entry = db.value<number>('SELECT id FROM workoutExercise WHERE workoutId = ?', [workout]) ?? -1;
   expect(sets(db, entry)[0]).toMatchObject({ reps: 0, durationSeconds: 45 });
+});
+
+describe('data safety regressions', () => {
+  test('finishing twice keeps the original end time and every stored row', async () => {
+    const { db, logger } = await fixture();
+    const { workout, entry } = setup(logger);
+    logger.setCompleted(idAt(db, entry, 1), true, now);
+    logger.finish(workout, now);
+    const before = db.exportBytes();
+    expect(logger.finish(workout, new Date('2026-02-02T00:00:00Z'))).toEqual({
+      workoutId: workout,
+      completedSets: 1,
+      droppedSets: 0,
+    });
+    expect(db.exportBytes()).toEqual(before);
+  });
+
+  test('finishing an empty workout twice is harmless', async () => {
+    const { db, logger } = await fixture();
+    const { workout } = setup(logger);
+    logger.finish(workout, now);
+    const before = db.exportBytes();
+    expect(logger.finish(workout, now)).toEqual({ workoutId: null, completedSets: 0, droppedSets: 0 });
+    expect(db.exportBytes()).toEqual(before);
+  });
+});
+
+test('each live mutation survives reopening, and discard touches only its own workout tree', async () => {
+  let db = await Database.openInMemory();
+  migrate(db);
+  DataSafetyFixture.seed(db);
+  const unrelated = DataSafetyFixture.read(db);
+  let logger = new WorkoutLogger(db);
+  const reload = async () => {
+    const before = DataSafetyFixture.read(db);
+    const bytes = db.exportBytes();
+    db.close();
+    db = await Database.fromBytes(bytes);
+    logger = new WorkoutLogger(db);
+    expect(DataSafetyFixture.read(db)).toEqual(before);
+    expect(logger.activeWorkoutId()).toBe(2);
+  };
+  logger.update(2, 'Live name', 'Live notes');
+  await reload();
+  const entry = logger.addExercise(1, 2);
+  await reload();
+  logger.moveExercise(entry, 0);
+  await reload();
+  const set = logger.addSet(entry);
+  await reload();
+  logger.updateSet(set, 63.123456789, 'lb', 9, 8.5, 'drop', 73.25);
+  await reload();
+  logger.setCompleted(set, true, now);
+  await reload();
+  logger.setEntryUnit('kg', entry);
+  await reload();
+  logger.deleteSet(set);
+  await reload();
+  logger.removeExercise(entry);
+  await reload();
+  logger.discard(2);
+  const discarded = await Database.fromBytes(db.exportBytes());
+  expect(new WorkoutLogger(discarded).activeWorkoutId()).toBeUndefined();
+  const expected = {
+    ...unrelated,
+    workout: unrelated.workout?.filter((row) => row.id !== 2),
+    workoutExercise: unrelated.workoutExercise?.filter((row) => row.workoutId !== 2),
+    workoutSet: unrelated.workoutSet?.filter((row) => row.workoutExerciseId !== 2),
+  };
+  const actual = DataSafetyFixture.read(discarded);
+  for (const [name, rows] of Object.entries(expected)) {
+    // AUTOINCREMENT ids remain consumed after explicit deletions; an exercise's chosen unit is intentionally remembered.
+    if (name === 'sqlite_sequence' || name === 'exercise') continue;
+    expect(actual[name]).toEqual(rows);
+  }
+  expect(actual.exercise).toEqual(
+    unrelated.exercise?.map((row) => (row.id === 1 ? { ...row, defaultEntryUnit: 'kg' } : row)),
+  );
+  db.close();
+  discarded.close();
+});
+
+test('invalid durations cannot replace an existing set or silently become NULL in SQLite', async () => {
+  const { db, logger } = await fixture();
+  const { entry } = setup(logger);
+  const id = idAt(db, entry, 0);
+  logger.updateSet(id, 50, 'kg', 8, 8, 'working', 65.5);
+  const before = DataSafetyFixture.read(db);
+  for (const duration of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1]) {
+    expect(() => logger.updateSet(id, 60, 'lb', 9, 9, 'drop', duration)).toThrow(
+      new WorkoutLoggerError('invalidDuration', duration),
+    );
+    expect(DataSafetyFixture.read(db)).toEqual(before);
+  }
+  db.close();
+});
+
+test('repeating a completion request preserves its original timestamp and rest', async () => {
+  const { db, logger } = await fixture();
+  const { entry } = setup(logger);
+  const id = idAt(db, entry, 0);
+  logger.setCompleted(id, true, now);
+  const before = DataSafetyFixture.read(db);
+  logger.setCompleted(id, true, new Date(now.getTime() + 60000));
+  expect(DataSafetyFixture.read(db)).toEqual(before);
+  db.close();
 });

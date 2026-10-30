@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { Database } from '../db/Database';
 import { migrate } from '../db/migrations';
 import { ExerciseEditor } from './ExerciseEditor';
+import { DataSafetyFixture } from '../db/fixtures/DataSafetyFixture';
+import { importStrongPlan } from '../import/StrongImporter';
+import { makeStrongImportPlan } from '../import/StrongImportPlan';
+import { parseStrongWorkoutsFile } from '../import/StrongWorkoutsFile';
+import { NEWER_LAYOUT } from '../import/fixtures/StrongFixtures';
 import type { CustomExerciseDraft } from './CustomExerciseDraft';
 
 const now = new Date('2026-01-01T00:00:00Z');
@@ -88,4 +93,50 @@ it('moves template exercise references when merging', async () => {
     INSERT INTO templateExercise (templateId, exerciseId, position) VALUES (1, 1, 0);`);
   ExerciseEditor.merge(db, 1, 2);
   expect(db.value('SELECT exerciseId FROM templateExercise')).toBe(2);
+});
+
+it('renaming an exercise keeps its old import name resolving to the same exercise', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  const id = ExerciseEditor.create(db, { name: 'Lat Pulldown (Cable)', primaryMuscles: ['lats'] }, now);
+  ExerciseEditor.update(db, id, { name: 'My pulldown', primaryMuscles: ['lats'] });
+  const imported = importStrongPlan(db, makeStrongImportPlan(parseStrongWorkoutsFile(NEWER_LAYOUT)), now);
+  expect(imported.exercisesCreated).toBe(0);
+  expect(db.value('SELECT exerciseId FROM workoutExercise')).toBe(id);
+  db.close();
+});
+
+it('merge moves every history entry, template entry and alias without changing any set field', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  DataSafetyFixture.seed(db);
+  const before = DataSafetyFixture.read(db);
+  expect(ExerciseEditor.merge(db, 1, 2)).toBe(1);
+  const after = DataSafetyFixture.read(db);
+  expect(after.workoutSet).toEqual(before.workoutSet);
+  expect(after.templateSet).toEqual(before.templateSet);
+  expect(after.workout).toEqual(before.workout);
+  expect(after.workoutExercise).toEqual(before.workoutExercise?.map((row) => ({ ...row, exerciseId: 2 })));
+  expect(after.templateExercise).toEqual(before.templateExercise?.map((row) => ({ ...row, exerciseId: 2 })));
+  expect(db.all('SELECT alias, exerciseId FROM exerciseAlias ORDER BY alias')).toEqual([
+    { alias: 'Alternate α', exerciseId: 2 },
+    { alias: 'Custom α', exerciseId: 2 },
+    { alias: 'Old merged name', exerciseId: 2 },
+  ]);
+  expect(db.all('PRAGMA foreign_key_check')).toEqual([]);
+  db.close();
+});
+
+it('foreign keys refuse deletion of an exercise used by history or only by a template', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  DataSafetyFixture.seed(db);
+  const before = DataSafetyFixture.read(db);
+  expect(() => db.run('DELETE FROM exercise WHERE id = 1')).toThrow();
+  expect(DataSafetyFixture.read(db)).toEqual(before);
+  db.run('DELETE FROM workoutExercise WHERE exerciseId = 1');
+  const templateOnly = DataSafetyFixture.read(db);
+  expect(() => db.run('DELETE FROM exercise WHERE id = 1')).toThrow();
+  expect(DataSafetyFixture.read(db)).toEqual(templateOnly);
+  db.close();
 });

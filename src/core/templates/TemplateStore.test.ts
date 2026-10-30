@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Database } from '../db/Database';
+import { DataSafetyFixture } from '../db/fixtures/DataSafetyFixture';
 import { migrate } from '../db/migrations';
 import { TemplateCatalog } from '../queries/TemplateCatalog';
 import { TemplateStore } from './TemplateStore';
@@ -96,4 +97,47 @@ describe('template store', () => {
     ]);
     expect(() => TemplateStore.createFromWorkout(db, 99, 'Missing', null, now)).toThrow();
   });
+});
+
+it('deleting a folder preserves template children; deleting its template preserves workout history', async () => {
+  db.close();
+  db = await Database.openInMemory();
+  migrate(db);
+  DataSafetyFixture.seed(db);
+  const before = DataSafetyFixture.read(db);
+  TemplateStore.deleteFolder(db, 1);
+  const afterFolder = DataSafetyFixture.read(db);
+  expect(afterFolder.templateExercise).toEqual(before.templateExercise);
+  expect(afterFolder.templateSet).toEqual(before.templateSet);
+  expect(afterFolder.workout).toEqual(before.workout);
+  expect(afterFolder.template).toEqual(before.template?.map((row) => ({ ...row, folderId: null })));
+  TemplateStore.delete(db, 1);
+  const afterTemplate = DataSafetyFixture.read(db);
+  expect(afterTemplate.workout).toEqual(before.workout?.map((row) => ({ ...row, templateId: null })));
+  for (const name of ['workoutExercise', 'workoutSet', 'exercise', 'exerciseAlias', 'bodyMeasurement', 'appSetting']) {
+    expect(afterTemplate[name]).toEqual(before[name]);
+  }
+  expect(afterTemplate.templateExercise).toEqual([]);
+  expect(afterTemplate.templateSet).toEqual([]);
+  db.close();
+});
+
+it('a replacement template that fails after deleting its children rolls back every original field', () => {
+  const id = TemplateStore.save(db, draft, now);
+  const before = DataSafetyFixture.read(db);
+  const entry = draft.exercises[0];
+  if (entry === undefined) throw new Error('Missing fixture exercise');
+  expect(() =>
+    TemplateStore.save(
+      db,
+      {
+        ...draft,
+        id,
+        name: 'Must roll back',
+        exercises: [entry, { ...entry, exerciseId: -1 }],
+      },
+      now,
+    ),
+  ).toThrow();
+  expect(DataSafetyFixture.read(db)).toEqual(before);
 });

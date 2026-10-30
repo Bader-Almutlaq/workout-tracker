@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { Database } from './Database';
+import { DataSafetyFixture } from './fixtures/DataSafetyFixture';
 import { DatabaseError } from './DatabaseError';
 import { MIGRATIONS, migrate, pendingMigrationIds } from './migrations';
 
@@ -109,5 +110,73 @@ describe('Database', () => {
   test('bytes that are not SQLite are refused', async () => {
     const notSqlite = Uint8Array.from({ length: 4096 }, (_, index) => index % 251);
     await expect(Database.fromBytes(notSqlite)).rejects.toThrow(DatabaseError);
+  });
+});
+
+describe('populated migration safety audit', () => {
+  test('v1 to v3 preserves every old table, row and column, and rerunning is byte-for-byte unchanged', async () => {
+    const current = await migratedDatabase();
+    DataSafetyFixture.seed(current);
+    const original = DataSafetyFixture.read(current);
+    const legacy = await Database.openInMemory();
+    migrate(legacy, new Date('2026-01-01T00:00:00Z'), MIGRATIONS.slice(0, 1));
+    const tables = legacy.all<{ name: string }>(`
+      SELECT name FROM sqlite_master
+      WHERE type = 'table' AND name NOT IN ('migration', 'sqlite_sequence', 'muscle')
+    `);
+    for (const { name } of tables) {
+      const columns = legacy.all<{ name: string }>(`PRAGMA table_info("${name}")`).map((row) => row.name);
+      for (const row of original[name] ?? []) {
+        legacy.run(
+          `INSERT INTO "${name}" (${columns.map((column) => `"${column}"`).join(', ')})
+           VALUES (${columns.map(() => '?').join(', ')})`,
+          columns.map((column) => row[column] ?? null),
+        );
+      }
+    }
+    const before = DataSafetyFixture.read(legacy);
+    const snapshot = legacy.exportBytes();
+    expect(migrate(legacy)).toEqual(MIGRATIONS.slice(1).map(({ id }) => id));
+    const after = DataSafetyFixture.read(legacy);
+    for (const [name, rows] of Object.entries(before)) {
+      if (name === 'migration') continue;
+      expect(
+        after[name]?.map((row) => Object.fromEntries(Object.keys(rows[0] ?? {}).map((key) => [key, row[key]]))),
+      ).toEqual(rows);
+    }
+    const unchanged = legacy.exportBytes();
+    expect(migrate(legacy)).toEqual([]);
+    expect(legacy.exportBytes()).toEqual(unchanged);
+    const restoredSnapshot = await Database.fromBytes(snapshot);
+    expect(DataSafetyFixture.read(restoredSnapshot)).toEqual(before);
+    current.close();
+    legacy.close();
+    restoredSnapshot.close();
+  });
+
+  test('a failing pending migration leaves populated data and its snapshot unchanged', async () => {
+    const db = await migratedDatabase();
+    DataSafetyFixture.seed(db);
+    const before = DataSafetyFixture.read(db);
+    const snapshot = db.exportBytes();
+    expect(() =>
+      migrate(db, new Date(), [
+        ...MIGRATIONS,
+        {
+          id: 'audit-failing',
+          sql: `
+        UPDATE workoutSet SET notes = 'Must roll back';
+        DELETE FROM bodyMeasurement;
+        CREATE TABLE partial_migration (value TEXT);
+        SELECT * FROM nonexistent_table;
+      `,
+        },
+      ]),
+    ).toThrow(DatabaseError);
+    expect(DataSafetyFixture.read(db)).toEqual(before);
+    const recovered = await Database.fromBytes(snapshot);
+    expect(DataSafetyFixture.read(recovered)).toEqual(before);
+    db.close();
+    recovered.close();
   });
 });

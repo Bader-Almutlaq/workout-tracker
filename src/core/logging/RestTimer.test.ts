@@ -106,3 +106,15 @@ describe('setRestTarget', () => {
     expect(() => setRestTarget(db, 99, 120)).toThrow(WorkoutLoggerError);
   });
 });
+
+test('nonfinite rest targets cannot silently clear or replace the owner choice', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  db.exec(`INSERT INTO exercise (id, name, source, createdAt, restTargetSeconds)
+    VALUES (1, 'Synthetic', 'custom', 'a', 135)`);
+  for (const seconds of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+    expect(() => setRestTarget(db, 1, seconds)).toThrow(new WorkoutLoggerError('invalidRestTarget', seconds));
+    expect(db.value('SELECT restTargetSeconds FROM exercise WHERE id = 1')).toBe(135);
+  }
+  db.close();
+});

@@ -69,6 +69,10 @@ export const ExerciseEditor = {
           id,
         ],
       );
+      if (exercise.name !== validated.name) {
+        // Future Strong exports still contain the old name; renaming must not split its history.
+        db.run('INSERT OR IGNORE INTO exerciseAlias (alias, exerciseId) VALUES (?, ?)', [exercise.name, id]);
+      }
       replaceExerciseMuscles(db, id, validated.primary, validated.secondary);
     });
   },

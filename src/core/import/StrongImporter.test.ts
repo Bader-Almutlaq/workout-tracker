@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 import { Database } from '../db/Database';
+import { DataSafetyFixture } from '../db/fixtures/DataSafetyFixture';
 import { DatabaseError } from '../db/DatabaseError';
 import { migrate } from '../db/migrations';
 import { NEWER_LAYOUT, OLDER_LAYOUT, WAIST } from './fixtures/StrongFixtures';
@@ -174,4 +175,23 @@ describe('Importing details beyond the native tests', () => {
       expect(count(db, table)).toBe(0);
     }
   });
+});
+
+test('import and reimport preserve app history, active work, templates, measurements and settings', async () => {
+  const db = await migratedDatabase();
+  DataSafetyFixture.seed(db);
+  const before = DataSafetyFixture.read(db);
+  importStrongPlan(db, plan(), NOW);
+  const after = DataSafetyFixture.read(db);
+  for (const [name, rows] of Object.entries(before)) {
+    if (name === 'sqlite_sequence') continue;
+    expect(after[name]).toEqual(expect.arrayContaining(rows));
+  }
+  importStrongPlan(db, plan(), NOW);
+  const reimported = DataSafetyFixture.read(db);
+  for (const [name, rows] of Object.entries(after)) {
+    // INSERT OR IGNORE may consume AUTOINCREMENT ids; gaps do not change or duplicate any owner record.
+    if (name !== 'sqlite_sequence') expect(reimported[name]).toEqual(rows);
+  }
+  db.close();
 });

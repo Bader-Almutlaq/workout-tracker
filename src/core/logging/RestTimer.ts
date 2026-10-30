@@ -31,8 +31,9 @@ export function restTarget(exercise: Pick<Exercise, 'restTargetSeconds'>): numbe
   return exercise.restTargetSeconds ?? RestTimerDefaults.targetSeconds;
 }
 
-/** `seconds` rounded to a whole second and kept within the limits in `RestTimerDefaults`. */
+/** Finite `seconds` rounded and clamped to `RestTimerDefaults`; nonfinite input throws `invalidRestTarget`. */
 export function clampedRestTarget(seconds: number): number {
+  if (!Number.isFinite(seconds)) throw new WorkoutLoggerError('invalidRestTarget', seconds);
   return Math.min(RestTimerDefaults.maximumSeconds, Math.max(RestTimerDefaults.minimumSeconds, Math.round(seconds)));
 }
 
@@ -43,7 +44,8 @@ export function steppedRestTarget(currentSeconds: number, direction: 1 | -1): nu
 
 /**
  * Remembers the owner's rest target for an exercise. The value is rounded to whole seconds and kept
- * within the limits in `RestTimerDefaults`. Throws `WorkoutLoggerError('exerciseNotFound')` when the
+ * within the limits in `RestTimerDefaults`; nonfinite input throws `invalidRestTarget`.
+ * Throws `WorkoutLoggerError('exerciseNotFound')` when the
  * exercise doesn't exist.
  */
 export function setRestTarget(db: Database, exerciseId: number, seconds: number): void {

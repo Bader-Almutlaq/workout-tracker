@@ -100,3 +100,31 @@ describe('validateBackup', () => {
     expect(bytes).toEqual(before);
   });
 });
+
+test('rejects a backup missing a required column even when every table exists', async () => {
+  const bytes = await backupBytes((db) => db.exec('ALTER TABLE workoutSet DROP COLUMN notes'));
+  expect(await kindOfFailure(bytes)).toBe('damaged');
+});
+
+test('rejects orphaned rows even when SQLite quick_check passes', async () => {
+  const bytes = await backupBytes((db) => {
+    db.exec(`
+      PRAGMA foreign_keys = OFF;
+      INSERT INTO workoutExercise (workoutId, exerciseId, position) VALUES (999, 999, 0);
+      PRAGMA foreign_keys = ON;
+    `);
+    expect(db.value('PRAGMA quick_check')).toBe('ok');
+  });
+  expect(await kindOfFailure(bytes)).toBe('damaged');
+});
+
+test('rejects a backup containing an unexpected trigger that could delete history on the next setting write', async () => {
+  const bytes = await backupBytes((db) =>
+    db.exec(`
+    CREATE TRIGGER unexpected_delete AFTER INSERT ON appSetting BEGIN
+      DELETE FROM workout;
+    END;
+  `),
+  );
+  expect(await kindOfFailure(bytes)).toBe('damaged');
+});
