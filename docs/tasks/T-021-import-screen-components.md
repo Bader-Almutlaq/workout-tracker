@@ -33,11 +33,9 @@ The Strong import flow keeps working exactly as it does now, but its code become
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Implemented; ready for review (uncommitted).
+- **What was done:** Split the import flow into step and card components and extracted finding helpers with tests. Preserved existing compact token-based button styles.
+- **Files touched:** `src/app/features/import/` components, `importFindingText.ts`, `importFindingText.test.ts`; this handoff.
+- **Decisions taken:** Kept phase state and import actions in the screen; reused the existing button styles, which already use design tokens.
+- **Open questions / left over:** No simulator or visual comparison was performed.
+- **How it was verified:** `make format` and `make verify`.
