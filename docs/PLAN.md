@@ -138,6 +138,14 @@ Short entries from the owner's review; each gets a design pass with the owner be
   - The app proposes a deload from the research report (volume and intensity reductions, length), opt-in and editable.
   - Charts colour the deload weeks so a planned dip reads as a deload, not a loss of performance.
 
+### Build waves (lead plan, 2026-10-31)
+
+Proposals and details: `docs/design/PROPOSALS.md`.
+- **Wave 1 (building):** T-042 Dropbox backup (with a bring-your-own-key setting); T-043 measurements (Analytics → Body, flexed/relaxed, how-to notes, change).
+- **Wave 2:** T-044 loadable weights + warm-up generator; T-045 finish comparison + personal bests; T-046 exercise search.
+- **Wave 3:** T-047 library expansion (free-exercise-db + wger, descriptions, pictures, smaller muscles; migration after T-043's v4); T-048 exports (Strong/Hevy CSV); T-049 imports (Hevy, FitNotes, Jefit, Fitbod).
+- **Waiting for the owner:** analytics structure, machines/attachments, exercise-quality tags, deload, progression, RPE/RIR (PROPOSALS 7–11, 13); workout-screen layout (needs Strong screenshots).
+
 ## Needed from the user
 
 - [x] Strong export (in `export_data/`, git-ignored).
