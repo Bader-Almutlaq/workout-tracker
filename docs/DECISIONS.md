@@ -107,3 +107,11 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 - **Limits:**
   - Disconnecting or clearing website data removes the token, so the owner must connect again.
   - The manual "Back up now" (share sheet) stays as a fallback.
+
+## 2026-10-31: Body bookkeeping lives under Analytics → Body
+- **Placement:** a Training · Body switch keeps the five-tab layout; Training content and chart behaviour are unchanged. Body detail navigation stays inside the tab, without adding routes.
+- **Model:** relaxed and flexed are independent observations of one site, unique per timestamp/site/state. Biceps, forearms, thighs and calves support both; other seeded sites are relaxed only. Unknown slugs are preserved as custom length sites. Custom sites explicitly choose whether they support flexed entries.
+- **Preservation:** v4 rebuilds measurements transactionally after the worker's existing snapshot. Old rows retain every field and become relaxed. A nullable entry-unit column retains units typed into new entries without inventing original units for imports.
+- **Display:** Body owns length and weight display pickers in app settings. No global weight setting existed before this task; exercise entry units and kg training analytics retain their existing meaning.
+- **Changes:** lookbacks anchor to each state's latest measurement, so old history remains readable. Monthly rate is a least-squares descriptive heuristic over 12 elapsed weeks, scaled to a mean Gregorian month. Missing baselines stay absent, rather than interpolated.
+- **Charts:** reuse the shared frame, scales, trend/comparison lines, dots, touch rule and table with their default styling. The two-state legend identifies the existing thick accent relaxed series and thin ink flexed series.

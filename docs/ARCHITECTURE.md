@@ -146,6 +146,10 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Hard sets; fractional sets per muscle; volume zones | `src/core/analytics/HardSets.ts`, `MuscleVolume.ts`; weekly via `src/core/queries/WeeklyMuscleVolume.ts` |
 | Daily hard sets, zero-filled local days, all training or one muscle | `src/core/queries/DailyHardSets.ts` |
 | Recent vs baseline (signature chart math), range statistics | `src/core/analytics/RecentVsBaseline.ts` |
+| Measurement sites, guides, states, exact cm/in conversion and Body unit settings | `src/core/measurements/MeasurementSite.ts`, `MeasurementStore.ts`, `MeasurementUnits.ts` |
+| Measurement site groups and complete per-site history | `src/core/measurements/MeasurementQueries.ts` |
+| Measurement change (4/12 weeks, since-first, least-squares monthly rate) | `src/core/measurements/MeasurementChange.ts` |
+| Body list, detail, chart rendering and entry/guide/custom-site sheets | `src/app/features/body/` |
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` |
 | The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` |
 

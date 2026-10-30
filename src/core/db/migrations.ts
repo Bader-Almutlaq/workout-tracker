@@ -202,6 +202,69 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE workout ADD COLUMN templateId INTEGER REFERENCES template(id) ON DELETE SET NULL;
     `,
   },
+  {
+    id: 'v4-measurement-sites',
+    sql: `
+      CREATE TABLE measurementSite (
+        key TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK (kind IN ('length', 'mass')),
+        groupKey TEXT NOT NULL,
+        side TEXT CHECK (side IN ('left', 'right')),
+        supportsFlexed INTEGER NOT NULL CHECK (supportsFlexed IN (0, 1)),
+        guide TEXT NOT NULL,
+        position INTEGER NOT NULL,
+        isCustom INTEGER NOT NULL CHECK (isCustom IN (0, 1))
+      );
+      -- Frozen defaults are bookkeeping guides, not training recommendations.
+      INSERT INTO measurementSite
+        (key, name, kind, groupKey, side, supportsFlexed, guide, position, isCustom)
+      VALUES
+        ('bodyweight', 'Bodyweight', 'mass', 'bodyweight', NULL, 0, 'Use the same scale, at the same time of day, before eating.', 0, 0),
+        ('chest', 'Chest', 'length', 'chest', NULL, 0, 'Chest: tape around the fullest part, level and snug, arms down, after a normal exhale.', 1, 0),
+        ('shoulders', 'Shoulders', 'length', 'shoulders', NULL, 0, 'Shoulders: around the widest part of both shoulders, arms down and relaxed; keep the tape level.', 2, 0),
+        ('neck', 'Neck', 'length', 'neck', NULL, 0, 'Neck: just below the larynx, head upright, tape snug without compressing the skin.', 3, 0),
+        ('waist', 'Waist', 'length', 'waist', NULL, 0, 'Waist: at the belly button, tape level and snug, relaxed, after a normal exhale.', 4, 0),
+        ('hips', 'Hips', 'length', 'hips', NULL, 0, 'Hips: around the widest part of the buttocks, feet together, tape level and snug.', 5, 0),
+        ('upper-abs', 'Upper abs', 'length', 'upper-abs', NULL, 0, 'Upper abs: halfway between the belly button and the bottom of the breastbone, relaxed, after a normal exhale.', 6, 0),
+        ('lower-abs', 'Lower abs', 'length', 'lower-abs', NULL, 0, 'Lower abs: halfway between the belly button and the pubic bone, tape level, relaxed, after a normal exhale.', 7, 0),
+        ('left-bicep', 'Left bicep', 'length', 'biceps', 'left', 1, 'Biceps: at the peak, arm at 90 degrees; relaxed: release the muscle; flexed: clench the fist and contract the biceps hard.', 8, 0),
+        ('right-bicep', 'Right bicep', 'length', 'biceps', 'right', 1, 'Biceps: at the peak, arm at 90 degrees; relaxed: release the muscle; flexed: clench the fist and contract the biceps hard.', 8, 0),
+        ('left-forearm', 'Left forearm', 'length', 'forearms', 'left', 1, 'Forearms: at the widest part, arm straight; relaxed: open hand; flexed: clench the fist and contract the forearm.', 10, 0),
+        ('right-forearm', 'Right forearm', 'length', 'forearms', 'right', 1, 'Forearms: at the widest part, arm straight; relaxed: open hand; flexed: clench the fist and contract the forearm.', 10, 0),
+        ('left-thigh', 'Left thigh', 'length', 'thighs', 'left', 1, 'Thighs: at the widest part, standing; relaxed: release the thigh; flexed: contract it without moving the tape.', 12, 0),
+        ('right-thigh', 'Right thigh', 'length', 'thighs', 'right', 1, 'Thighs: at the widest part, standing; relaxed: release the thigh; flexed: contract it without moving the tape.', 12, 0),
+        ('left-calf', 'Left calf', 'length', 'calves', 'left', 1, 'Calves: at the widest part, standing; relaxed: release the calf; flexed: rise onto the toes and contract it.', 14, 0),
+        ('right-calf', 'Right calf', 'length', 'calves', 'right', 1, 'Calves: at the widest part, standing; relaxed: release the calf; flexed: rise onto the toes and contract it.', 14, 0);
+
+      INSERT INTO measurementSite
+        (key, name, kind, groupKey, side, supportsFlexed, guide, position, isCustom)
+      SELECT DISTINCT site, site, 'length', site, NULL, 0, '',
+        (SELECT MAX(position) + 1 FROM measurementSite), 1
+      FROM bodyMeasurement WHERE site NOT IN (SELECT key FROM measurementSite);
+
+      -- Preserve the high-water mark even if the largest old id was deleted.
+      CREATE TEMP TABLE measurementSequence AS
+        SELECT seq FROM sqlite_sequence WHERE name = 'bodyMeasurement';
+      CREATE TABLE bodyMeasurementV4 (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        takenAt TEXT NOT NULL,
+        site TEXT NOT NULL REFERENCES measurementSite(key),
+        value REAL NOT NULL,
+        source TEXT NOT NULL CHECK (source IN ('app', 'strong')),
+        state TEXT NOT NULL DEFAULT 'relaxed' CHECK (state IN ('relaxed', 'flexed')),
+        entryUnit TEXT CHECK (entryUnit IN ('cm', 'in', 'kg', 'lb')),
+        UNIQUE (takenAt, site, state)
+      );
+      INSERT INTO bodyMeasurementV4 (id, takenAt, site, value, source)
+        SELECT id, takenAt, site, value, source FROM bodyMeasurement;
+      DROP TABLE bodyMeasurement;
+      ALTER TABLE bodyMeasurementV4 RENAME TO bodyMeasurement;
+      UPDATE sqlite_sequence SET seq = MAX(seq, COALESCE((SELECT seq FROM measurementSequence), 0))
+        WHERE name = 'bodyMeasurement';
+      DROP TABLE measurementSequence;
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `
