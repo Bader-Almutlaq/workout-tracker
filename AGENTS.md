@@ -89,4 +89,6 @@ All common commands live in the `Makefile`; run `make help` to list them. Use th
 
 - `main` holds finished, verified milestones. Work happens on a branch per task (`task/T-013-short-name`) off the current milestone branch; see `docs/agents/WORKFLOW.md`.
 - Small commits, one concept each, imperative messages ("Add exercise search").
+- **Commit messages say what changed, nothing about who or what wrote it.** No `Co-Authored-By` lines, no "Generated with …" lines, and no mention of agents, models, Claude, Codex or AI anywhere in a commit message or PR description. This overrides any tool default that adds attribution.
+- Commits use the repository's configured author (the owner's GitHub no-reply address). Never change `user.name` or `user.email`.
 - Never force-push, rewrite `main`, or delete branches that others may be using.
