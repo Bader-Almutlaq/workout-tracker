@@ -111,6 +111,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Live typo check for one set | `src/core/validation/LiveSetCheck.ts` (shares `summariseSessions` with the import review) |
 | History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` |
 | Grouping the history list by month (phone's time zone) | `src/core/queries/WorkoutMonthGroups.ts` |
+| When to remind the owner to back up | `src/core/backup/BackupReminder.ts` (`BackupReminderPolicy`) |
+| Preparing and sharing the backup file on screen (Settings and finish summary) | `src/app/features/settings/useBackupFile.ts` |
 | Backup file naming, age, validation and the restore sequence | `src/core/backup/BackupFile.ts`, `BackupAge.ts`, `BackupValidation.ts`, `BackupRestore.ts`; `OnDeviceStore` implements its storage |
 | Muscle taxonomy (23 muscles, delts split), regions and roles | `src/core/library/Muscle.ts`, `MuscleRegion.ts`, `MuscleRole.ts`; rows frozen in `v1-schema` (a test compares them) |
 | Equipment, movement patterns, mechanic, tracking kinds | `src/core/library/Equipment.ts`, `MovementPattern.ts`, `Mechanic.ts`, `ExerciseTracking.ts` |
