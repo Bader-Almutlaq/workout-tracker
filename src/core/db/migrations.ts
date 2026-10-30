@@ -148,6 +148,12 @@ export const MIGRATIONS: readonly Migration[] = [
         ('neck', 'Neck', 'neck');
     `,
   },
+  {
+    // The rest the owner chose for an exercise's timer, in seconds. NULL = the app default
+    // (RestTimerDefaults in src/core/logging). Remembered per exercise, like the entry unit.
+    id: 'v2-exercise-rest-target',
+    sql: `ALTER TABLE exercise ADD COLUMN restTargetSeconds INTEGER CHECK (restTargetSeconds IS NULL OR restTargetSeconds > 0);`,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

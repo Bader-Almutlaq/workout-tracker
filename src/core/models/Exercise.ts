@@ -31,6 +31,8 @@ export interface Exercise {
   readonly tracking: ExerciseTracking;
   /** Unit the logging screen uses for this exercise (see `docs/DESIGN.md` → Units). */
   readonly defaultEntryUnit: WeightUnit;
+  /** Rest timer length the owner chose for this exercise, in seconds; `null` uses the app default. */
+  readonly restTargetSeconds: number | null;
   /** Hidden from search and pickers; history is kept. */
   readonly isArchived: boolean;
   /** UTC ISO 8601 timestamp. */

@@ -36,6 +36,7 @@ export function makeExercise(overrides: Partial<Exercise> = {}): Exercise {
     isLengthenedBiased: false,
     tracking: 'weight-reps',
     defaultEntryUnit: 'kg',
+    restTargetSeconds: null,
     isArchived: false,
     createdAt: '2026-01-01T00:00:00.000Z',
     ...overrides,

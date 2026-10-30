@@ -30,6 +30,7 @@ function imported(id: number, name: string, workoutCount: number): ExerciseCatal
       isLengthenedBiased: false,
       tracking: 'weight-reps',
       defaultEntryUnit: 'kg',
+      restTargetSeconds: null,
       isArchived: false,
       createdAt: '2026-01-01T00:00:00.000Z',
     },
