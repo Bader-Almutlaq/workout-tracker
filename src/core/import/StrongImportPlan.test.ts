@@ -29,6 +29,41 @@ function setAt(result: StrongImportPlan, workout: number, exercise: number, inde
 }
 
 describe('Import plan', () => {
+  test('A finite but unrepresentable duration cannot crash the plan or invent an end time', () => {
+    const result = plan(
+      'Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps\n2024-01-01 10:00:00,A,1e308,B,1,100,5',
+    );
+    // 10^308 seconds exceeds the ECMAScript calendar range; the performed 100×5 still contributes 500 kg.
+    expect(result.workouts[0]?.endedAt).toBeNull();
+    expect(result.totals).toMatchObject({ workouts: 1, sets: 1, volumeKilograms: 500 });
+  });
+
+  test('BOM/CRLF, quoted multiline notes and identical drop rows preserve performed work', () => {
+    const text =
+      '\uFEFF' +
+      [
+        'Date,Workout Name,Duration,Exercise Name,Set Order,Weight,Reps,Distance,Seconds,Notes,Workout Notes,RPE',
+        '2024-01-01 23:50:00,"Push, heavy",1h 7m,Bench,W,20,10,0,0,,,',
+        '2024-01-01 23:50:00,"Push, heavy",1h 7m,Bench,1,100,5,0,0,"line 1\r\nline 2","felt ""good""",8',
+        '2024-01-01 23:50:00,"Push, heavy",1h 7m,Bench,D,80,8,0,0,,,',
+        '2024-01-01 23:50:00,"Push, heavy",1h 7m,Bench,D,80,8,0,0,,,',
+        '2024-01-01 23:50:00,"Push, heavy",1h 7m,Bench,F,70,6,0,0,,,10',
+        '2024-01-01 23:50:00,"Push, heavy",1h 7m,Run,1,0,0,1500.5,90,,,',
+      ].join('\r\n');
+    const result = plan(text);
+    // Warmup contributes no tonnage: 100×5 + 2×80×8 + 70×6 = 2200 kg.
+    expect(result.totals).toMatchObject({ workouts: 1, sets: 6, workSets: 5, volumeKilograms: 2200 });
+    expect(result.workouts[0]).toMatchObject({
+      startedAt: '2024-01-01T23:50:00.000Z',
+      endedAt: '2024-01-02T00:57:00.000Z',
+      notes: 'felt "good"',
+    });
+    expect(entry(result, 0, 0).sets.map((set) => set.kind)).toEqual(['warmup', 'working', 'drop', 'drop', 'failure']);
+    expect(setAt(result, 0, 0, 1).notes).toBe('line 1\r\nline 2');
+    expect(setAt(result, 0, 0, 2).rpe).toBeNull();
+    expect(setAt(result, 0, 1, 0)).toMatchObject({ distanceMeters: 1500.5, durationSeconds: 90 });
+  });
+
   test('Rows group into workouts and exercise entries in file order', () => {
     const result = plan();
     expect(result.workouts.map((workout) => workout.name)).toEqual(['Push, heavy', 'Legs']);

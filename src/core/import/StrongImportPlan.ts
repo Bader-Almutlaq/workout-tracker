@@ -51,7 +51,7 @@ export interface PlannedWorkout {
   readonly sourceKey: string;
   /** UTC ISO 8601 timestamp. */
   readonly startedAt: string;
-  /** UTC ISO 8601 timestamp, or `null` when the export has no duration. */
+  /** UTC ISO 8601 timestamp, or `null` when duration is missing or exceeds the supported calendar range. */
   readonly endedAt: string | null;
   readonly name: string;
   readonly notes: string | null;
@@ -254,14 +254,18 @@ function makeWorkout(
   return {
     sourceKey: SOURCE_KEY_PREFIX + first.workoutKey,
     startedAt: first.startedAt,
-    endedAt:
-      first.durationSeconds === null
-        ? null
-        : new Date(Date.parse(first.startedAt) + first.durationSeconds * MILLISECONDS_PER_SECOND).toISOString(),
+    endedAt: workoutEnd(first.startedAt, first.durationSeconds),
     name: first.workoutName,
     notes: rows.find((row) => row.workoutNotes !== null)?.workoutNotes ?? null,
     exercises: exercises.filter((exercise) => exercise.sets.length > 0 || exercise.notes !== null),
   };
+}
+
+function workoutEnd(startedAt: string, durationSeconds: number | null): string | null {
+  if (durationSeconds === null) return null;
+  const end = new Date(Date.parse(startedAt) + durationSeconds * MILLISECONDS_PER_SECOND);
+  // Duration is informational: an unrepresentable end must not prevent preserving performed sets.
+  return Number.isFinite(end.getTime()) ? end.toISOString() : null;
 }
 
 /** The kind a "Set Order" value stands for: W warm-up, D drop, F failure, anything else working. */

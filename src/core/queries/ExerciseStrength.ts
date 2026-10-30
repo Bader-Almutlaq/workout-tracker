@@ -72,7 +72,10 @@ function series(db: Database, exerciseId: number, now: Date): ExerciseStrengthSe
     }
   }
   const sessions = [...days.values()];
-  const result = strengthTrend(sessions, now);
+  // Sessions use civil dates indexed at UTC midnight. Compare against today's civil date too:
+  // east of UTC, today's label can otherwise appear to be in the future just after midnight.
+  const today = new Date(`${localDateKey(now)}T00:00:00.000Z`);
+  const result = strengthTrend(sessions, today);
   return {
     sessions: sessions.map(({ workoutId, date, e1rmKilograms, bestSet }) => ({
       workoutId,

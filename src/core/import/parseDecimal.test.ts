@@ -2,6 +2,10 @@ import { describe, expect, test } from 'vitest';
 import { parseDecimal } from './parseDecimal';
 
 describe('parseDecimal', () => {
+  test.each(['1e309', '-1e309'])('rejects decimal overflow %s instead of returning an infinite weight', (text) => {
+    expect(parseDecimal(text)).toBeUndefined();
+  });
+
   test.each([
     ['12', 12],
     ['-3.5', -3.5],
