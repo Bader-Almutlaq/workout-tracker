@@ -10,3 +10,4 @@ reports
 research_notes
 *.md
 .claude
+data/sources

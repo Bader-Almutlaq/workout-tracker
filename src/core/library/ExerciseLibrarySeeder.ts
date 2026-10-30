@@ -29,6 +29,7 @@ export interface ExerciseLibrarySeedResult {
  * equipment, pattern, mechanic, tracking, muscles) are overwritten; the owner's fields
  * (`defaultEntryUnit`, `isArchived`) and all history are kept.
  *
+ * Custom rows whose names collide with new library entries are preserved; those entries are not seeded.
  * Runs in one transaction. Needs no snapshot: it only adds rows and refreshes library-owned fields.
  */
 export const ExerciseLibrarySeeder = {
@@ -41,6 +42,7 @@ export const ExerciseLibrarySeeder = {
       const counts = { inserted: 0, linked: 0, updated: 0 };
       for (const entry of library.exercises) {
         const exercise = rowFor(db, entry, now, counts);
+        if (exercise === undefined) continue;
         writeLibraryFields(db, exercise, entry);
         replaceExerciseMuscles(db, exercise.id, entry.primaryMuscles, entry.secondaryMuscles);
       }
@@ -56,7 +58,7 @@ function rowFor(
   entry: LibraryExercise,
   now: Date,
   counts: { inserted: number; linked: number; updated: number },
-): ExerciseRow {
+): ExerciseRow | undefined {
   const tied = db.get<ExerciseRow>('SELECT * FROM exercise WHERE libraryKey = ?', [entry.key]);
   if (tied !== undefined) {
     counts.updated += 1;
@@ -65,6 +67,8 @@ function rowFor(
 
   const sameNameId = exerciseIdNamed(db, entry.name);
   const sameName = sameNameId === undefined ? undefined : exerciseById(db, sameNameId);
+  // A newly added library name must never take over an owner's custom exercise.
+  if (sameName?.source === 'custom' && sameName.libraryKey === null) return undefined;
   if (sameName !== undefined && sameName.libraryKey === null) {
     db.run("UPDATE exercise SET source = 'library', libraryKey = ? WHERE id = ?", [entry.key, sameName.id]);
     counts.linked += 1;
@@ -95,7 +99,8 @@ function writeLibraryFields(db: Database, exercise: ExerciseRow, entry: LibraryE
   }
   db.run(
     `UPDATE exercise
-        SET name = ?, equipment = ?, movementPattern = ?, mechanic = ?, isLengthenedBiased = ?, tracking = ?
+        SET name = ?, equipment = ?, movementPattern = ?, mechanic = ?, isLengthenedBiased = ?, tracking = ?,
+            instructions = ?, imageKeys = ?
       WHERE id = ?`,
     [
       nameTaken ? exercise.name : entry.name,
@@ -104,6 +109,8 @@ function writeLibraryFields(db: Database, exercise: ExerciseRow, entry: LibraryE
       entry.mechanic,
       Number(entry.isLengthenedBiased),
       entry.tracking,
+      entry.instructions,
+      entry.imageKeys.length === 0 ? null : JSON.stringify(entry.imageKeys),
       exercise.id,
     ],
   );

@@ -27,6 +27,10 @@ export interface LibraryExercise {
   readonly isLengthenedBiased: boolean;
   /** What a set of this exercise records. */
   readonly tracking: ExerciseTracking;
+  /** Newline-separated source steps, or null when unavailable. */
+  readonly instructions: string | null;
+  /** Source image paths, empty when unavailable. */
+  readonly imageKeys: readonly string[];
   /** Other names and gym slang that should find this exercise in search. */
   readonly aliases: readonly string[];
 }

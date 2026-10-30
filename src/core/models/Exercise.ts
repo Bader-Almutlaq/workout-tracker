@@ -39,6 +39,10 @@ export interface Exercise {
   readonly barWeightKilograms?: number | null;
   /** Suggested warm-up count, 0–4; null/omitted uses the equipment default. */
   readonly warmupSetCount?: number | null;
+  /** Newline-separated library instructions; null when unavailable. Omitted by older in-memory callers. */
+  readonly instructions?: string | null;
+  /** JSON array of pinned source image paths; null when unavailable. Omitted by older in-memory callers. */
+  readonly imageKeys?: string | null;
   /** Hidden from search and pickers; history is kept. */
   readonly isArchived: boolean;
   /** UTC ISO 8601 timestamp. */

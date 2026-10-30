@@ -1,0 +1,5840 @@
+{
+  "version": 2,
+  "baseFamilies": [
+    {
+      "movement": "Bench Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps", "front-delt"],
+      "aliases": ["bp", "flat bench", "flat press"],
+      "variants": ["barbell", "dumbbell", "smith-machine", "cable", "band"]
+    },
+    {
+      "movement": "Bench Press - Close Grip",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["triceps", "chest"],
+      "secondary": ["front-delt"],
+      "aliases": ["cgbp", "close grip bench"],
+      "variants": ["barbell", "smith-machine"]
+    },
+    {
+      "movement": "Bench Press - Paused",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps", "front-delt"],
+      "aliases": ["pause bench", "competition bench"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Larsen Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps", "front-delt"],
+      "aliases": ["feet up bench"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Spoto Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps", "front-delt"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Floor Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest", "triceps"],
+      "secondary": ["front-delt"],
+      "variants": ["barbell", "dumbbell"]
+    },
+    {
+      "movement": "Incline Bench Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["front-delt", "triceps"],
+      "aliases": ["incline press", "upper chest press"],
+      "variants": ["barbell", "dumbbell", "smith-machine"]
+    },
+    {
+      "movement": "Decline Bench Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps"],
+      "aliases": ["decline press"],
+      "variants": ["barbell", "dumbbell", "smith-machine"]
+    },
+    {
+      "movement": "Chest Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps", "front-delt"],
+      "aliases": ["machine press", "seated chest press"],
+      "variants": ["machine", "plate-loaded", "cable", "band"]
+    },
+    {
+      "movement": "Incline Chest Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["front-delt", "triceps"],
+      "aliases": ["incline machine press"],
+      "variants": ["machine", "plate-loaded", "cable"]
+    },
+    {
+      "movement": "Decline Chest Press",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps"],
+      "aliases": ["decline machine press"],
+      "variants": ["machine", "plate-loaded"]
+    },
+    {
+      "movement": "Push Up",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps", "front-delt"],
+      "aliases": ["press up"],
+      "variants": ["bodyweight", "weighted", "assisted"]
+    },
+    {
+      "movement": "Deficit Push Up",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps", "front-delt"],
+      "lengthened": true,
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Chest Dip",
+      "pattern": "horizontal-push",
+      "mechanic": "compound",
+      "primary": ["chest"],
+      "secondary": ["triceps", "front-delt"],
+      "aliases": ["dip", "parallel bar dip"],
+      "variants": ["bodyweight", "weighted", "assisted"]
+    },
+    {
+      "movement": "Chest Fly",
+      "pattern": "chest-fly",
+      "mechanic": "isolation",
+      "primary": ["chest"],
+      "secondary": ["front-delt"],
+      "aliases": ["flye", "pec fly"],
+      "variants": [
+        "dumbbell",
+        "cable",
+        {
+          "equipment": "machine",
+          "aliases": ["pec deck", "butterfly"]
+        },
+        "band"
+      ]
+    },
+    {
+      "movement": "Incline Chest Fly",
+      "pattern": "chest-fly",
+      "mechanic": "isolation",
+      "primary": ["chest"],
+      "secondary": ["front-delt"],
+      "aliases": ["incline flye"],
+      "variants": ["dumbbell", "cable", "machine"]
+    },
+    {
+      "movement": "Cable Crossover",
+      "pattern": "chest-fly",
+      "mechanic": "isolation",
+      "primary": ["chest"],
+      "secondary": ["front-delt"],
+      "aliases": ["cable fly", "high to low crossover"],
+      "variants": [
+        {
+          "equipment": "cable",
+          "name": "Cable Crossover"
+        }
+      ]
+    },
+    {
+      "movement": "Low to High Cable Crossover",
+      "pattern": "chest-fly",
+      "mechanic": "isolation",
+      "primary": ["chest"],
+      "secondary": ["front-delt"],
+      "aliases": ["low to high fly", "upper chest fly", "low cable fly"],
+      "variants": [
+        {
+          "equipment": "cable",
+          "name": "Low to High Cable Crossover"
+        }
+      ]
+    },
+    {
+      "movement": "Svend Press",
+      "pattern": "chest-fly",
+      "mechanic": "isolation",
+      "primary": ["chest"],
+      "secondary": ["front-delt"],
+      "variants": ["plate"]
+    },
+    {
+      "movement": "Overhead Press",
+      "pattern": "vertical-push",
+      "mechanic": "compound",
+      "primary": ["front-delt"],
+      "secondary": ["side-delt", "triceps"],
+      "aliases": ["ohp", "military press", "standing press", "shoulder press"],
+      "variants": ["barbell", "dumbbell", "smith-machine", "kettlebell", "cable", "band"]
+    },
+    {
+      "movement": "Seated Overhead Press",
+      "pattern": "vertical-push",
+      "mechanic": "compound",
+      "primary": ["front-delt"],
+      "secondary": ["side-delt", "triceps"],
+      "aliases": ["seated shoulder press", "seated military press"],
+      "variants": ["barbell", "dumbbell", "smith-machine"]
+    },
+    {
+      "movement": "Shoulder Press",
+      "pattern": "vertical-push",
+      "mechanic": "compound",
+      "primary": ["front-delt"],
+      "secondary": ["side-delt", "triceps"],
+      "aliases": ["machine shoulder press", "overhead press machine"],
+      "variants": ["machine", "plate-loaded"]
+    },
+    {
+      "movement": "Arnold Press",
+      "pattern": "vertical-push",
+      "mechanic": "compound",
+      "primary": ["front-delt"],
+      "secondary": ["side-delt", "triceps"],
+      "variants": ["dumbbell"]
+    },
+    {
+      "movement": "Z Press",
+      "pattern": "vertical-push",
+      "mechanic": "compound",
+      "primary": ["front-delt"],
+      "secondary": ["side-delt", "triceps", "abs"],
+      "variants": ["barbell", "dumbbell"]
+    },
+    {
+      "movement": "Push Press",
+      "pattern": "vertical-push",
+      "mechanic": "compound",
+      "primary": ["front-delt"],
+      "secondary": ["triceps", "side-delt", "quads"],
+      "variants": ["barbell", "dumbbell"]
+    },
+    {
+      "movement": "Landmine Press",
+      "pattern": "vertical-push",
+      "mechanic": "compound",
+      "primary": ["front-delt", "chest"],
+      "secondary": ["triceps"],
+      "aliases": ["single arm landmine press"],
+      "variants": ["landmine"]
+    },
+    {
+      "movement": "Handstand Push Up",
+      "pattern": "vertical-push",
+      "mechanic": "compound",
+      "primary": ["front-delt"],
+      "secondary": ["triceps", "side-delt"],
+      "aliases": ["hspu"],
+      "variants": ["bodyweight"]
+    },
+    {
+      "movement": "Lateral Raise",
+      "pattern": "shoulder-abduction",
+      "mechanic": "isolation",
+      "primary": ["side-delt"],
+      "aliases": ["side raise", "side lateral raise", "lat raise", "delt raise"],
+      "variants": [
+        "dumbbell",
+        {
+          "equipment": "cable",
+          "aliases": ["double cable lateral raise", "single arm cable lateral raise"]
+        },
+        {
+          "equipment": "machine",
+          "aliases": ["panatta lateral raise"]
+        },
+        "plate-loaded",
+        "band"
+      ]
+    },
+    {
+      "movement": "Lean-Away Lateral Raise",
+      "pattern": "shoulder-abduction",
+      "mechanic": "isolation",
+      "primary": ["side-delt"],
+      "lengthened": true,
+      "aliases": ["leaning lateral raise"],
+      "variants": ["cable", "dumbbell"]
+    },
+    {
+      "movement": "Seated Lateral Raise",
+      "pattern": "shoulder-abduction",
+      "mechanic": "isolation",
+      "primary": ["side-delt"],
+      "variants": ["dumbbell", "cable"]
+    },
+    {
+      "movement": "Cross-Body Y-Raise",
+      "pattern": "shoulder-abduction",
+      "mechanic": "isolation",
+      "primary": ["side-delt"],
+      "secondary": ["rear-delt"],
+      "lengthened": true,
+      "aliases": ["y raise", "cable y raise"],
+      "variants": ["cable"]
+    },
+    {
+      "movement": "Upright Row",
+      "pattern": "shoulder-abduction",
+      "mechanic": "compound",
+      "primary": ["side-delt", "upper-traps"],
+      "secondary": ["biceps"],
+      "variants": ["barbell", "dumbbell", "cable", "ez-bar", "smith-machine"]
+    },
+    {
+      "movement": "Front Raise",
+      "pattern": "shoulder-flexion",
+      "mechanic": "isolation",
+      "primary": ["front-delt"],
+      "aliases": ["front delt raise"],
+      "variants": ["dumbbell", "cable", "barbell", "plate", "band"]
+    },
+    {
+      "movement": "Reverse Fly",
+      "pattern": "rear-delt-fly",
+      "mechanic": "isolation",
+      "primary": ["rear-delt"],
+      "secondary": ["upper-back"],
+      "aliases": ["rear delt fly", "rear fly", "reverse flye", "bent over reverse fly"],
+      "variants": [
+        "dumbbell",
+        {
+          "equipment": "cable",
+          "aliases": ["cable rear delt fly", "single arm reverse fly"]
+        },
+        {
+          "equipment": "machine",
+          "aliases": ["reverse pec deck", "rear delt machine"]
+        },
+        "band"
+      ]
+    },
+    {
+      "movement": "Chest-Supported Reverse Fly",
+      "pattern": "rear-delt-fly",
+      "mechanic": "isolation",
+      "primary": ["rear-delt"],
+      "secondary": ["upper-back"],
+      "aliases": ["incline reverse fly", "45 degree reverse fly", "prone reverse fly"],
+      "variants": ["dumbbell"]
+    },
+    {
+      "movement": "Face Pull",
+      "pattern": "rear-delt-fly",
+      "mechanic": "compound",
+      "primary": ["rear-delt"],
+      "secondary": ["upper-back", "rotator-cuff"],
+      "variants": ["cable", "band"]
+    },
+    {
+      "movement": "Rear Delt Row",
+      "pattern": "rear-delt-fly",
+      "mechanic": "compound",
+      "primary": ["rear-delt"],
+      "secondary": ["upper-back", "biceps"],
+      "variants": ["dumbbell", "cable", "barbell"]
+    },
+    {
+      "movement": "Band Pull Apart",
+      "pattern": "rear-delt-fly",
+      "mechanic": "isolation",
+      "primary": ["rear-delt"],
+      "secondary": ["upper-back"],
+      "variants": [
+        {
+          "equipment": "band",
+          "name": "Band Pull Apart"
+        }
+      ]
+    },
+    {
+      "movement": "External Rotation",
+      "pattern": "shoulder-rotation",
+      "mechanic": "isolation",
+      "primary": ["rotator-cuff"],
+      "secondary": ["rear-delt"],
+      "aliases": ["rotator cuff"],
+      "variants": ["cable", "dumbbell", "band"]
+    },
+    {
+      "movement": "Internal Rotation",
+      "pattern": "shoulder-rotation",
+      "mechanic": "isolation",
+      "primary": ["rotator-cuff"],
+      "variants": ["cable", "band"]
+    },
+    {
+      "movement": "Pull Up",
+      "pattern": "vertical-pull",
+      "mechanic": "compound",
+      "primary": ["lats"],
+      "secondary": ["biceps", "upper-back"],
+      "aliases": ["pullup", "wide grip pull up"],
+      "variants": ["bodyweight", "weighted", "assisted"]
+    },
+    {
+      "movement": "Chin Up",
+      "pattern": "vertical-pull",
+      "mechanic": "compound",
+      "primary": ["lats", "biceps"],
+      "secondary": ["upper-back"],
+      "aliases": ["chinup", "underhand pull up"],
+      "variants": ["bodyweight", "weighted", "assisted"]
+    },
+    {
+      "movement": "Neutral Grip Pull Up",
+      "pattern": "vertical-pull",
+      "mechanic": "compound",
+      "primary": ["lats"],
+      "secondary": ["biceps", "upper-back"],
+      "aliases": ["hammer grip pull up"],
+      "variants": ["bodyweight", "weighted", "assisted"]
+    },
+    {
+      "movement": "Lat Pulldown",
+      "pattern": "vertical-pull",
+      "mechanic": "compound",
+      "primary": ["lats"],
+      "secondary": ["biceps", "upper-back"],
+      "aliases": ["pulldown", "wide grip pulldown"],
+      "variants": ["cable", "machine", "plate-loaded", "band"]
+    },
+    {
+      "movement": "Lat Pulldown - Underhand",
+      "pattern": "vertical-pull",
+      "mechanic": "compound",
+      "primary": ["lats"],
+      "secondary": ["biceps", "upper-back"],
+      "aliases": ["reverse grip pulldown", "underhand lat pull down", "supinated pulldown"],
+      "variants": ["cable", "machine"]
+    },
+    {
+      "movement": "Lat Pulldown - Close Grip",
+      "pattern": "vertical-pull",
+      "mechanic": "compound",
+      "primary": ["lats"],
+      "secondary": ["biceps", "upper-back"],
+      "aliases": ["neutral grip pulldown", "v bar pulldown"],
+      "variants": ["cable", "machine"]
+    },
+    {
+      "movement": "Single Arm Lat Pulldown",
+      "pattern": "vertical-pull",
+      "mechanic": "compound",
+      "primary": ["lats"],
+      "secondary": ["biceps"],
+      "aliases": ["one arm pulldown"],
+      "variants": ["cable", "machine"]
+    },
+    {
+      "movement": "Straight Arm Pulldown",
+      "pattern": "shoulder-extension",
+      "mechanic": "isolation",
+      "primary": ["lats"],
+      "aliases": ["straight arm pushdown", "lat prayer"],
+      "variants": ["cable", "band"]
+    },
+    {
+      "movement": "Pullover",
+      "pattern": "shoulder-extension",
+      "mechanic": "isolation",
+      "primary": ["lats"],
+      "secondary": ["chest", "triceps"],
+      "lengthened": true,
+      "aliases": ["lat pullover", "pull over"],
+      "variants": [
+        "dumbbell",
+        {
+          "equipment": "machine",
+          "aliases": ["lat machine pull over", "nautilus pullover"]
+        },
+        "cable"
+      ]
+    },
+    {
+      "movement": "Bent Over Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["rear-delt", "biceps", "lower-back"],
+      "aliases": ["barbell row", "bb row", "overhand row"],
+      "variants": ["barbell", "dumbbell", "smith-machine"]
+    },
+    {
+      "movement": "Bent Over Row - Underhand",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["lats", "upper-back"],
+      "secondary": ["biceps", "rear-delt", "lower-back"],
+      "aliases": ["yates row", "reverse grip row", "under grip row", "underhand row"],
+      "variants": ["barbell", "smith-machine"]
+    },
+    {
+      "movement": "Pendlay Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["rear-delt", "biceps", "lower-back"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "One Arm Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["lats", "upper-back"],
+      "secondary": ["rear-delt", "biceps"],
+      "aliases": ["single arm row", "db row", "kroc row"],
+      "variants": ["dumbbell", "cable", "kettlebell"]
+    },
+    {
+      "movement": "Seated Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["rear-delt", "biceps"],
+      "aliases": ["cable row", "low row", "seated cable row"],
+      "variants": ["cable", "machine", "plate-loaded"]
+    },
+    {
+      "movement": "High Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["rear-delt", "biceps"],
+      "aliases": ["upper row", "upper seated row", "high seated row"],
+      "variants": ["machine", "plate-loaded", "cable"]
+    },
+    {
+      "movement": "Iso-Lateral Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["rear-delt", "biceps"],
+      "aliases": ["hammer strength row", "isolateral row"],
+      "variants": ["machine", "plate-loaded"]
+    },
+    {
+      "movement": "Chest-Supported Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["rear-delt", "biceps"],
+      "aliases": ["incline row", "prone row"],
+      "variants": ["dumbbell", "machine", "plate-loaded"]
+    },
+    {
+      "movement": "T-Bar Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["rear-delt", "biceps", "lower-back"],
+      "variants": ["landmine", "plate-loaded", "machine"]
+    },
+    {
+      "movement": "Seal Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["rear-delt", "biceps"],
+      "variants": ["barbell", "dumbbell"]
+    },
+    {
+      "movement": "Meadows Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["lats", "upper-back"],
+      "secondary": ["rear-delt", "biceps"],
+      "variants": ["landmine"]
+    },
+    {
+      "movement": "Inverted Row",
+      "pattern": "horizontal-pull",
+      "mechanic": "compound",
+      "primary": ["upper-back", "lats"],
+      "secondary": ["biceps", "rear-delt"],
+      "aliases": ["australian pull up", "body row"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Shrug",
+      "pattern": "shrug",
+      "mechanic": "isolation",
+      "primary": ["upper-traps"],
+      "secondary": ["forearm-flexors"],
+      "aliases": ["trap shrug"],
+      "variants": ["barbell", "dumbbell", "machine", "smith-machine", "trap-bar", "cable", "plate-loaded"]
+    },
+    {
+      "movement": "Kelso Shrug",
+      "pattern": "shrug",
+      "mechanic": "isolation",
+      "primary": ["upper-back"],
+      "aliases": ["chest supported shrug", "scapular retraction"],
+      "variants": ["dumbbell", "barbell", "machine"]
+    },
+    {
+      "movement": "Back Extension",
+      "pattern": "spinal-extension",
+      "mechanic": "compound",
+      "primary": ["lower-back", "glutes"],
+      "secondary": ["hamstrings"],
+      "aliases": ["hyperextension", "45 degree back extension", "roman chair"],
+      "variants": ["bodyweight", "weighted", "machine"]
+    },
+    {
+      "movement": "Reverse Hyper",
+      "pattern": "hip-thrust",
+      "mechanic": "isolation",
+      "primary": ["glutes", "hamstrings"],
+      "secondary": ["lower-back"],
+      "aliases": ["reverse hyperextension"],
+      "variants": ["machine"]
+    },
+    {
+      "movement": "Good Morning",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["hamstrings", "lower-back"],
+      "secondary": ["glutes"],
+      "lengthened": true,
+      "variants": ["barbell", "safety-bar", "smith-machine"]
+    },
+    {
+      "movement": "Jefferson Curl",
+      "pattern": "spinal-flexion",
+      "mechanic": "compound",
+      "primary": ["lower-back"],
+      "secondary": ["hamstrings"],
+      "lengthened": true,
+      "variants": ["barbell", "dumbbell", "kettlebell"]
+    },
+    {
+      "movement": "Squat",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors", "lower-back"],
+      "aliases": ["back squat", "high bar squat", "low bar squat"],
+      "variants": [
+        "barbell",
+        "dumbbell",
+        "smith-machine",
+        {
+          "equipment": "safety-bar",
+          "aliases": ["ssb squat"]
+        },
+        "bodyweight"
+      ]
+    },
+    {
+      "movement": "Squat - Paused",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors", "lower-back"],
+      "aliases": ["pause squat"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Box Squat",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors", "hamstrings"],
+      "variants": ["barbell", "safety-bar"]
+    },
+    {
+      "movement": "Front Squat",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads"],
+      "secondary": ["glutes", "upper-back", "adductors"],
+      "variants": ["barbell", "smith-machine"]
+    },
+    {
+      "movement": "Goblet Squat",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "variants": ["dumbbell", "kettlebell"]
+    },
+    {
+      "movement": "Hack Squat",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads"],
+      "secondary": ["glutes", "adductors"],
+      "variants": ["machine", "plate-loaded", "barbell"]
+    },
+    {
+      "movement": "Pendulum Squat",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads"],
+      "secondary": ["glutes", "adductors"],
+      "variants": ["machine", "plate-loaded"]
+    },
+    {
+      "movement": "Belt Squat",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "variants": ["machine", "plate-loaded"]
+    },
+    {
+      "movement": "V-Squat",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "variants": ["machine", "plate-loaded"]
+    },
+    {
+      "movement": "Leg Press",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "aliases": ["45 degree leg press", "sled leg press"],
+      "variants": [
+        {
+          "equipment": "plate-loaded",
+          "name": "Leg Press"
+        },
+        "machine"
+      ]
+    },
+    {
+      "movement": "Seated Leg Press",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "aliases": ["horizontal leg press"],
+      "variants": ["machine"]
+    },
+    {
+      "movement": "Single Leg Press",
+      "pattern": "squat",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "aliases": ["one leg press"],
+      "variants": ["machine", "plate-loaded"]
+    },
+    {
+      "movement": "Sissy Squat",
+      "pattern": "knee-extension",
+      "mechanic": "isolation",
+      "primary": ["quads"],
+      "lengthened": true,
+      "variants": ["bodyweight", "weighted", "machine"]
+    },
+    {
+      "movement": "Reverse Nordic",
+      "pattern": "knee-extension",
+      "mechanic": "isolation",
+      "primary": ["quads"],
+      "lengthened": true,
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Leg Extension",
+      "pattern": "knee-extension",
+      "mechanic": "isolation",
+      "primary": ["quads"],
+      "aliases": ["quad extension"],
+      "variants": ["machine", "plate-loaded", "band"]
+    },
+    {
+      "movement": "Single Leg Extension",
+      "pattern": "knee-extension",
+      "mechanic": "isolation",
+      "primary": ["quads"],
+      "variants": ["machine"]
+    },
+    {
+      "movement": "Bulgarian Split Squat",
+      "pattern": "lunge",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "aliases": ["bss", "rfess", "rear foot elevated split squat"],
+      "variants": ["dumbbell", "barbell", "smith-machine", "bodyweight", "kettlebell"]
+    },
+    {
+      "movement": "Split Squat",
+      "pattern": "lunge",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "variants": ["dumbbell", "barbell", "smith-machine", "bodyweight"]
+    },
+    {
+      "movement": "Lunge",
+      "pattern": "lunge",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "aliases": ["forward lunge"],
+      "variants": ["dumbbell", "barbell", "bodyweight", "smith-machine"]
+    },
+    {
+      "movement": "Reverse Lunge",
+      "pattern": "lunge",
+      "mechanic": "compound",
+      "primary": ["glutes", "quads"],
+      "secondary": ["adductors", "hamstrings"],
+      "variants": ["dumbbell", "barbell", "bodyweight", "smith-machine"]
+    },
+    {
+      "movement": "Walking Lunge",
+      "pattern": "lunge",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "variants": ["dumbbell", "barbell", "bodyweight"]
+    },
+    {
+      "movement": "Step Up",
+      "pattern": "lunge",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes"],
+      "secondary": ["adductors"],
+      "variants": ["dumbbell", "barbell", "bodyweight"]
+    },
+    {
+      "movement": "Deadlift",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["glutes", "hamstrings", "lower-back"],
+      "secondary": ["quads", "upper-back", "upper-traps", "forearm-flexors"],
+      "aliases": ["dl", "conventional deadlift"],
+      "variants": [
+        "barbell",
+        "dumbbell",
+        "smith-machine",
+        {
+          "equipment": "trap-bar",
+          "primary": ["quads", "glutes"],
+          "secondary": ["hamstrings", "lower-back", "upper-traps", "forearm-flexors"],
+          "aliases": ["hex bar deadlift"]
+        }
+      ]
+    },
+    {
+      "movement": "Sumo Deadlift",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["glutes", "adductors", "quads"],
+      "secondary": ["hamstrings", "lower-back", "upper-traps", "forearm-flexors"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Deficit Deadlift",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["glutes", "hamstrings", "lower-back"],
+      "secondary": ["quads", "upper-back", "forearm-flexors"],
+      "lengthened": true,
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Rack Pull",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["lower-back", "glutes"],
+      "secondary": ["hamstrings", "upper-traps", "upper-back", "forearm-flexors"],
+      "aliases": ["block pull"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Romanian Deadlift",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["hamstrings", "glutes"],
+      "secondary": ["lower-back", "forearm-flexors"],
+      "lengthened": true,
+      "aliases": ["rdl"],
+      "variants": ["barbell", "dumbbell", "smith-machine", "trap-bar", "cable"]
+    },
+    {
+      "movement": "Stiff Leg Deadlift",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["hamstrings", "glutes"],
+      "secondary": ["lower-back", "forearm-flexors"],
+      "lengthened": true,
+      "aliases": ["sldl", "stiff legged deadlift"],
+      "variants": ["barbell", "dumbbell", "smith-machine"]
+    },
+    {
+      "movement": "Single Leg Romanian Deadlift",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["hamstrings", "glutes"],
+      "secondary": ["lower-back", "hip-abductors"],
+      "lengthened": true,
+      "aliases": ["single leg rdl", "sl rdl"],
+      "variants": ["dumbbell", "kettlebell", "cable"]
+    },
+    {
+      "movement": "Kettlebell Swing",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["glutes", "hamstrings"],
+      "secondary": ["lower-back"],
+      "variants": [
+        {
+          "equipment": "kettlebell",
+          "name": "Kettlebell Swing"
+        }
+      ]
+    },
+    {
+      "movement": "Pull Through",
+      "pattern": "hinge",
+      "mechanic": "compound",
+      "primary": ["glutes", "hamstrings"],
+      "variants": ["cable", "band"]
+    },
+    {
+      "movement": "Hip Thrust",
+      "pattern": "hip-thrust",
+      "mechanic": "compound",
+      "primary": ["glutes"],
+      "secondary": ["hamstrings", "quads"],
+      "aliases": ["glute thrust"],
+      "variants": ["barbell", "machine", "smith-machine", "plate-loaded", "dumbbell", "band"]
+    },
+    {
+      "movement": "Glute Bridge",
+      "pattern": "hip-thrust",
+      "mechanic": "compound",
+      "primary": ["glutes"],
+      "secondary": ["hamstrings"],
+      "variants": ["barbell", "dumbbell", "bodyweight"]
+    },
+    {
+      "movement": "Glute Kickback",
+      "pattern": "hip-thrust",
+      "mechanic": "isolation",
+      "primary": ["glutes"],
+      "secondary": ["hamstrings"],
+      "aliases": ["cable kickback", "donkey kick"],
+      "variants": ["cable", "machine", "band"]
+    },
+    {
+      "movement": "Seated Leg Curl",
+      "pattern": "knee-flexion",
+      "mechanic": "isolation",
+      "primary": ["hamstrings"],
+      "lengthened": true,
+      "aliases": ["seated hamstring curl"],
+      "variants": ["machine", "plate-loaded"]
+    },
+    {
+      "movement": "Lying Leg Curl",
+      "pattern": "knee-flexion",
+      "mechanic": "isolation",
+      "primary": ["hamstrings"],
+      "secondary": ["calves"],
+      "aliases": ["prone leg curl", "lying hamstring curl"],
+      "variants": ["machine", "plate-loaded", "dumbbell"]
+    },
+    {
+      "movement": "Standing Leg Curl",
+      "pattern": "knee-flexion",
+      "mechanic": "isolation",
+      "primary": ["hamstrings"],
+      "aliases": ["single leg curl"],
+      "variants": ["machine", "cable", "band"]
+    },
+    {
+      "movement": "Nordic Curl",
+      "pattern": "knee-flexion",
+      "mechanic": "isolation",
+      "primary": ["hamstrings"],
+      "aliases": ["nordic hamstring curl"],
+      "variants": ["bodyweight", "assisted", "weighted"]
+    },
+    {
+      "movement": "Glute Ham Raise",
+      "pattern": "knee-flexion",
+      "mechanic": "compound",
+      "primary": ["hamstrings"],
+      "secondary": ["glutes"],
+      "aliases": ["ghr"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Hip Abductor",
+      "pattern": "hip-abduction",
+      "mechanic": "isolation",
+      "primary": ["hip-abductors"],
+      "secondary": ["glutes"],
+      "aliases": ["hip abduction", "outer thigh", "abduction machine"],
+      "variants": ["machine", "cable", "band"]
+    },
+    {
+      "movement": "Hip Adductor",
+      "pattern": "hip-adduction",
+      "mechanic": "isolation",
+      "primary": ["adductors"],
+      "aliases": ["hip adduction", "inner thigh", "adduction machine"],
+      "variants": ["machine", "cable"]
+    },
+    {
+      "movement": "Copenhagen Plank",
+      "pattern": "hip-adduction",
+      "mechanic": "isolation",
+      "primary": ["adductors"],
+      "secondary": ["obliques"],
+      "tracking": "duration",
+      "variants": ["bodyweight"]
+    },
+    {
+      "movement": "Standing Calf Raise",
+      "pattern": "calf-raise",
+      "mechanic": "isolation",
+      "primary": ["calves"],
+      "aliases": ["calf raise"],
+      "variants": ["machine", "bodyweight", "dumbbell", "smith-machine", "barbell", "plate-loaded"]
+    },
+    {
+      "movement": "Seated Calf Raise",
+      "pattern": "calf-raise",
+      "mechanic": "isolation",
+      "primary": ["calves"],
+      "aliases": ["soleus raise"],
+      "variants": ["machine", "plate-loaded", "dumbbell"]
+    },
+    {
+      "movement": "Single Leg Calf Raise",
+      "pattern": "calf-raise",
+      "mechanic": "isolation",
+      "primary": ["calves"],
+      "variants": ["bodyweight", "dumbbell", "machine"]
+    },
+    {
+      "movement": "Donkey Calf Raise",
+      "pattern": "calf-raise",
+      "mechanic": "isolation",
+      "primary": ["calves"],
+      "lengthened": true,
+      "variants": ["bodyweight", "machine", "plate-loaded"]
+    },
+    {
+      "movement": "Calf Press on Leg Press",
+      "pattern": "calf-raise",
+      "mechanic": "isolation",
+      "primary": ["calves"],
+      "aliases": ["leg press calf raise", "calf press"],
+      "variants": [
+        {
+          "equipment": "plate-loaded",
+          "name": "Calf Press on Leg Press"
+        }
+      ]
+    },
+    {
+      "movement": "Calf Press on Seated Leg Press",
+      "pattern": "calf-raise",
+      "mechanic": "isolation",
+      "primary": ["calves"],
+      "aliases": ["seated leg press calf raise"],
+      "variants": [
+        {
+          "equipment": "machine",
+          "name": "Calf Press on Seated Leg Press"
+        }
+      ]
+    },
+    {
+      "movement": "Bicep Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "secondary": ["forearm-flexors"],
+      "aliases": ["biceps curl", "curl", "standing curl"],
+      "variants": ["barbell", "dumbbell", "ez-bar", "cable", "machine", "band"]
+    },
+    {
+      "movement": "Incline Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "lengthened": true,
+      "aliases": ["incline dumbbell curl", "incline bicep curl"],
+      "variants": ["dumbbell"]
+    },
+    {
+      "movement": "Bayesian Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "lengthened": true,
+      "aliases": ["bayesian cable curl", "behind the back cable curl"],
+      "variants": ["cable"]
+    },
+    {
+      "movement": "Preacher Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "aliases": ["scott curl"],
+      "variants": [
+        "barbell",
+        "dumbbell",
+        "ez-bar",
+        "machine",
+        {
+          "equipment": "cable",
+          "aliases": ["single arm preacher curl"]
+        }
+      ]
+    },
+    {
+      "movement": "Spider Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "variants": ["dumbbell", "barbell", "ez-bar", "cable"]
+    },
+    {
+      "movement": "Concentration Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "variants": ["dumbbell", "cable"]
+    },
+    {
+      "movement": "Drag Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "variants": ["barbell", "ez-bar", "dumbbell"]
+    },
+    {
+      "movement": "Hammer Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "secondary": ["forearm-extensors"],
+      "aliases": ["neutral grip curl"],
+      "variants": [
+        "dumbbell",
+        {
+          "equipment": "cable",
+          "aliases": ["rope hammer curl"]
+        }
+      ]
+    },
+    {
+      "movement": "Cross-Body Hammer Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["biceps"],
+      "secondary": ["forearm-extensors"],
+      "variants": ["dumbbell"]
+    },
+    {
+      "movement": "Reverse Curl",
+      "pattern": "elbow-flexion",
+      "mechanic": "isolation",
+      "primary": ["forearm-extensors"],
+      "secondary": ["biceps"],
+      "aliases": ["overhand curl", "pronated curl"],
+      "variants": ["barbell", "dumbbell", "ez-bar", "cable"]
+    },
+    {
+      "movement": "Triceps Pushdown",
+      "pattern": "elbow-extension",
+      "mechanic": "isolation",
+      "primary": ["triceps"],
+      "aliases": ["tricep pushdown", "pressdown", "push down"],
+      "variants": [
+        {
+          "equipment": "cable",
+          "name": "Triceps Pushdown (Cable - Straight Bar)",
+          "aliases": ["straight bar pushdown"]
+        },
+        {
+          "equipment": "cable",
+          "name": "Triceps Pushdown (Cable - Rope)",
+          "aliases": ["rope pushdown", "triceps rope push down"]
+        },
+        {
+          "equipment": "cable",
+          "name": "Triceps Pushdown (Cable - V-Bar)",
+          "aliases": ["v bar pushdown"]
+        },
+        "band"
+      ]
+    },
+    {
+      "movement": "Single Arm Triceps Pushdown",
+      "pattern": "elbow-extension",
+      "mechanic": "isolation",
+      "primary": ["triceps"],
+      "aliases": ["one arm pushdown"],
+      "variants": ["cable"]
+    },
+    {
+      "movement": "Triceps Extension",
+      "pattern": "elbow-extension",
+      "mechanic": "isolation",
+      "primary": ["triceps"],
+      "lengthened": true,
+      "aliases": ["overhead triceps extension", "overhead extension", "french press"],
+      "variants": [
+        "dumbbell",
+        {
+          "equipment": "cable",
+          "aliases": ["double cable triceps extension", "single arm overhead cable extension"]
+        },
+        "ez-bar",
+        "barbell",
+        "band",
+        {
+          "equipment": "machine",
+          "lengthened": false
+        }
+      ]
+    },
+    {
+      "movement": "Cross-Body Triceps Extension",
+      "pattern": "elbow-extension",
+      "mechanic": "isolation",
+      "primary": ["triceps"],
+      "aliases": ["katana extension", "cross body triceps extension"],
+      "variants": [
+        {
+          "equipment": "cable",
+          "name": "Cross-Body Triceps Extension (Cable)"
+        }
+      ]
+    },
+    {
+      "movement": "Skullcrusher",
+      "pattern": "elbow-extension",
+      "mechanic": "isolation",
+      "primary": ["triceps"],
+      "aliases": ["skull crusher", "lying triceps extension"],
+      "variants": ["barbell", "dumbbell", "ez-bar", "cable"]
+    },
+    {
+      "movement": "JM Press",
+      "pattern": "elbow-extension",
+      "mechanic": "compound",
+      "primary": ["triceps"],
+      "secondary": ["chest"],
+      "variants": ["barbell", "smith-machine", "ez-bar"]
+    },
+    {
+      "movement": "Triceps Kickback",
+      "pattern": "elbow-extension",
+      "mechanic": "isolation",
+      "primary": ["triceps"],
+      "variants": ["dumbbell", "cable"]
+    },
+    {
+      "movement": "Triceps Dip",
+      "pattern": "elbow-extension",
+      "mechanic": "compound",
+      "primary": ["triceps"],
+      "secondary": ["chest", "front-delt"],
+      "aliases": ["bench dip", "seated dip"],
+      "variants": ["bodyweight", "weighted", "assisted", "machine", "plate-loaded"]
+    },
+    {
+      "movement": "Diamond Push Up",
+      "pattern": "elbow-extension",
+      "mechanic": "compound",
+      "primary": ["triceps"],
+      "secondary": ["chest", "front-delt"],
+      "aliases": ["close grip push up"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Wrist Curl",
+      "pattern": "wrist-flexion",
+      "mechanic": "isolation",
+      "primary": ["forearm-flexors"],
+      "aliases": ["palms up wrist curl", "seated palms up wrist curl", "forearm curl"],
+      "variants": ["barbell", "dumbbell", "cable", "ez-bar"]
+    },
+    {
+      "movement": "Reverse Wrist Curl",
+      "pattern": "wrist-extension",
+      "mechanic": "isolation",
+      "primary": ["forearm-extensors"],
+      "aliases": ["wrist extension", "forearm extension", "reverse forearm extension", "palms down wrist curl"],
+      "variants": ["barbell", "dumbbell", "cable", "ez-bar"]
+    },
+    {
+      "movement": "Hand Gripper",
+      "pattern": "grip",
+      "mechanic": "isolation",
+      "primary": ["forearm-flexors"],
+      "aliases": ["grip", "gripper", "captains of crush"],
+      "tracking": "bodyweight-reps",
+      "variants": [
+        {
+          "equipment": "machine",
+          "name": "Hand Gripper"
+        }
+      ]
+    },
+    {
+      "movement": "Plate Pinch",
+      "pattern": "grip",
+      "mechanic": "isolation",
+      "primary": ["forearm-flexors"],
+      "tracking": "weight-duration",
+      "variants": [
+        {
+          "equipment": "plate",
+          "name": "Plate Pinch"
+        }
+      ]
+    },
+    {
+      "movement": "Dead Hang",
+      "pattern": "grip",
+      "mechanic": "isolation",
+      "primary": ["forearm-flexors"],
+      "secondary": ["lats"],
+      "aliases": ["bar hang"],
+      "tracking": "duration",
+      "variants": [
+        "bodyweight",
+        {
+          "equipment": "weighted",
+          "tracking": "weight-duration"
+        }
+      ]
+    },
+    {
+      "movement": "Farmer's Walk",
+      "pattern": "carry",
+      "mechanic": "compound",
+      "primary": ["forearm-flexors", "upper-traps"],
+      "secondary": ["abs", "obliques"],
+      "aliases": ["farmers carry", "farmer carry"],
+      "tracking": "weight-duration",
+      "variants": ["dumbbell", "trap-bar", "kettlebell"]
+    },
+    {
+      "movement": "Suitcase Carry",
+      "pattern": "carry",
+      "mechanic": "compound",
+      "primary": ["obliques", "forearm-flexors"],
+      "tracking": "weight-duration",
+      "variants": ["dumbbell", "kettlebell"]
+    },
+    {
+      "movement": "Crunch",
+      "pattern": "spinal-flexion",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "aliases": ["ab crunch", "ab machine"],
+      "variants": ["bodyweight", "weighted", "machine", "plate-loaded"]
+    },
+    {
+      "movement": "Cable Crunch",
+      "pattern": "spinal-flexion",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "aliases": ["kneeling cable crunch", "rope crunch"],
+      "variants": [
+        {
+          "equipment": "cable",
+          "name": "Cable Crunch"
+        }
+      ]
+    },
+    {
+      "movement": "Decline Crunch",
+      "pattern": "spinal-flexion",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Sit Up",
+      "pattern": "spinal-flexion",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "secondary": ["hip-flexors"],
+      "aliases": ["situp"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Hanging Leg Raise",
+      "pattern": "spinal-flexion",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "secondary": ["hip-flexors"],
+      "aliases": ["toes to bar"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Hanging Knee Raise",
+      "pattern": "spinal-flexion",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "secondary": ["hip-flexors"],
+      "aliases": ["captains chair", "knee raise"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Lying Leg Raise",
+      "pattern": "spinal-flexion",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "secondary": ["hip-flexors"],
+      "aliases": ["leg raise"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Ab Wheel Rollout",
+      "pattern": "anti-movement",
+      "mechanic": "compound",
+      "primary": ["abs"],
+      "secondary": ["lats"],
+      "aliases": ["ab roller", "rollout"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Plank",
+      "pattern": "anti-movement",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "secondary": ["obliques"],
+      "tracking": "duration",
+      "variants": [
+        "bodyweight",
+        {
+          "equipment": "weighted",
+          "tracking": "weight-duration"
+        }
+      ]
+    },
+    {
+      "movement": "Side Plank",
+      "pattern": "anti-movement",
+      "mechanic": "isolation",
+      "primary": ["obliques"],
+      "secondary": ["hip-abductors"],
+      "tracking": "duration",
+      "variants": [
+        "bodyweight",
+        {
+          "equipment": "weighted",
+          "tracking": "weight-duration"
+        }
+      ]
+    },
+    {
+      "movement": "Dead Bug",
+      "pattern": "anti-movement",
+      "mechanic": "isolation",
+      "primary": ["abs"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Pallof Press",
+      "pattern": "anti-movement",
+      "mechanic": "isolation",
+      "primary": ["obliques", "abs"],
+      "aliases": ["anti rotation press"],
+      "variants": ["cable", "band"]
+    },
+    {
+      "movement": "Cable Woodchopper",
+      "pattern": "rotation",
+      "mechanic": "compound",
+      "primary": ["obliques"],
+      "secondary": ["abs"],
+      "aliases": ["wood chop", "woodchop"],
+      "variants": [
+        {
+          "equipment": "cable",
+          "name": "Cable Woodchopper"
+        }
+      ]
+    },
+    {
+      "movement": "Russian Twist",
+      "pattern": "rotation",
+      "mechanic": "isolation",
+      "primary": ["obliques"],
+      "secondary": ["abs"],
+      "variants": ["bodyweight", "weighted"]
+    },
+    {
+      "movement": "Torso Rotation",
+      "pattern": "rotation",
+      "mechanic": "isolation",
+      "primary": ["obliques"],
+      "aliases": ["rotary torso"],
+      "variants": ["machine"]
+    },
+    {
+      "movement": "Side Bend",
+      "pattern": "spinal-flexion",
+      "mechanic": "isolation",
+      "primary": ["obliques"],
+      "variants": ["dumbbell", "cable"]
+    },
+    {
+      "movement": "Neck Curl",
+      "pattern": "neck",
+      "mechanic": "isolation",
+      "primary": ["neck"],
+      "aliases": ["neck flexion"],
+      "variants": ["plate", "machine", "band"]
+    },
+    {
+      "movement": "Neck Extension",
+      "pattern": "neck",
+      "mechanic": "isolation",
+      "primary": ["neck"],
+      "variants": ["plate", "machine", "band"]
+    },
+    {
+      "movement": "Neck Side Flexion",
+      "pattern": "neck",
+      "mechanic": "isolation",
+      "primary": ["neck"],
+      "aliases": ["lateral neck flexion"],
+      "variants": ["plate", "machine", "band"]
+    },
+    {
+      "movement": "Power Clean",
+      "pattern": "olympic",
+      "mechanic": "compound",
+      "primary": ["glutes", "quads", "upper-traps"],
+      "secondary": ["hamstrings", "lower-back", "upper-back"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Hang Clean",
+      "pattern": "olympic",
+      "mechanic": "compound",
+      "primary": ["glutes", "upper-traps"],
+      "secondary": ["quads", "hamstrings", "lower-back"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Clean and Jerk",
+      "pattern": "olympic",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes", "front-delt"],
+      "secondary": ["upper-traps", "triceps", "hamstrings", "lower-back"],
+      "variants": ["barbell"]
+    },
+    {
+      "movement": "Snatch",
+      "pattern": "olympic",
+      "mechanic": "compound",
+      "primary": ["quads", "glutes", "upper-traps"],
+      "secondary": ["hamstrings", "lower-back", "front-delt"],
+      "variants": ["barbell", "dumbbell"]
+    },
+    {
+      "movement": "Thruster",
+      "pattern": "olympic",
+      "mechanic": "compound",
+      "primary": ["quads", "front-delt"],
+      "secondary": ["glutes", "triceps"],
+      "variants": ["barbell", "dumbbell", "kettlebell"]
+    }
+  ],
+  "sources": {
+    "3_4_Sit-Up": {
+      "action": "new",
+      "movement": "3/4 Sit Up",
+      "pattern": "spinal-flexion"
+    },
+    "90_90_Hamstring": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Ab_Crunch_Machine": {
+      "action": "match",
+      "movement": "Crunch",
+      "equipment": "machine"
+    },
+    "Ab_Roller": {
+      "action": "match",
+      "movement": "Ab Wheel Rollout",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Adductor": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Adductor_Groin": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Advanced_Kettlebell_Windmill": {
+      "action": "new",
+      "movement": "Advanced Windmill",
+      "pattern": "rotation",
+      "primary": ["obliques"]
+    },
+    "Air_Bike": {
+      "action": "new",
+      "movement": "Air Bike",
+      "pattern": "spinal-flexion"
+    },
+    "All_Fours_Quad_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Alternate_Hammer_Curl": {
+      "action": "new",
+      "movement": "Alternate Hammer Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Alternate_Heel_Touchers": {
+      "action": "new",
+      "movement": "Alternate Heel Touchers",
+      "pattern": "spinal-flexion"
+    },
+    "Alternate_Incline_Dumbbell_Curl": {
+      "action": "new",
+      "movement": "Alternate Incline Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Alternate_Leg_Diagonal_Bound": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Alternating_Cable_Shoulder_Press": {
+      "action": "new",
+      "movement": "Alternating Shoulder Press",
+      "pattern": "vertical-push"
+    },
+    "Alternating_Deltoid_Raise": {
+      "action": "new",
+      "movement": "Alternating Deltoid Raise",
+      "pattern": "shoulder-flexion"
+    },
+    "Alternating_Floor_Press": {
+      "action": "new",
+      "movement": "Alternating Floor Press",
+      "pattern": "horizontal-push"
+    },
+    "Alternating_Hang_Clean": {
+      "action": "new",
+      "movement": "Alternating Hang Clean",
+      "pattern": "olympic"
+    },
+    "Alternating_Kettlebell_Press": {
+      "action": "new",
+      "movement": "Alternating Press",
+      "pattern": "horizontal-push"
+    },
+    "Alternating_Kettlebell_Row": {
+      "action": "new",
+      "movement": "Alternating Row",
+      "pattern": "horizontal-pull"
+    },
+    "Alternating_Renegade_Row": {
+      "action": "new",
+      "movement": "Alternating Renegade Row",
+      "pattern": "horizontal-pull"
+    },
+    "Ankle_Circles": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Ankle_On_The_Knee": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Anterior_Tibialis-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Anti-Gravity_Press": {
+      "action": "new",
+      "movement": "Anti-Gravity Press",
+      "pattern": "horizontal-push"
+    },
+    "Arm_Circles": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Arnold_Dumbbell_Press": {
+      "action": "match",
+      "movement": "Arnold Press"
+    },
+    "Around_The_Worlds": {
+      "action": "new",
+      "movement": "Around The Worlds",
+      "pattern": "chest-fly"
+    },
+    "Atlas_Stone_Trainer": {
+      "action": "new",
+      "movement": "Atlas Stone Trainer",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Atlas_Stones": {
+      "action": "new",
+      "movement": "Atlas Stones",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Axle_Deadlift": {
+      "action": "new",
+      "movement": "Axle Deadlift",
+      "pattern": "hinge",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Back_Flyes_-_With_Bands": {
+      "action": "match",
+      "movement": "Reverse Fly"
+    },
+    "Backward_Drag": {
+      "action": "new",
+      "movement": "Backward Drag",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Backward_Medicine_Ball_Throw": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Balance_Board": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Ball_Leg_Curl": {
+      "action": "new",
+      "movement": "Ball Leg Curl",
+      "pattern": "knee-flexion",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance. Source uses a ball for resistance, not conditioning.",
+      "resistanceException": true
+    },
+    "Band_Assisted_Pull-Up": {
+      "action": "match",
+      "movement": "Pull Up",
+      "equipment": "assisted",
+      "reason": "Reviewed implement: Assisted."
+    },
+    "Band_Good_Morning": {
+      "action": "new",
+      "movement": "Band Good Morning",
+      "pattern": "hinge"
+    },
+    "Band_Good_Morning_Pull_Through": {
+      "action": "new",
+      "movement": "Band Good Morning (Pull Through)",
+      "pattern": "hinge"
+    },
+    "Band_Hip_Adductions": {
+      "action": "new",
+      "movement": "Hip Adductor",
+      "pattern": "hip-adduction"
+    },
+    "Band_Pull_Apart": {
+      "action": "match",
+      "movement": "Band Pull Apart",
+      "name": "Band Pull Apart"
+    },
+    "Band_Skull_Crusher": {
+      "action": "new",
+      "movement": "Band Skull Crusher",
+      "pattern": "elbow-extension"
+    },
+    "Barbell_Ab_Rollout": {
+      "action": "new",
+      "movement": "Ab Rollout",
+      "pattern": "anti-movement"
+    },
+    "Barbell_Ab_Rollout_-_On_Knees": {
+      "action": "new",
+      "movement": "Ab Rollout - On Knees",
+      "pattern": "anti-movement"
+    },
+    "Barbell_Bench_Press_-_Medium_Grip": {
+      "action": "match",
+      "movement": "Bench Press"
+    },
+    "Barbell_Curl": {
+      "action": "match",
+      "movement": "Bicep Curl"
+    },
+    "Barbell_Curls_Lying_Against_An_Incline": {
+      "action": "new",
+      "movement": "Curls Lying Against An Incline",
+      "pattern": "elbow-flexion"
+    },
+    "Barbell_Deadlift": {
+      "action": "match",
+      "movement": "Deadlift"
+    },
+    "Barbell_Full_Squat": {
+      "action": "match",
+      "movement": "Squat"
+    },
+    "Barbell_Glute_Bridge": {
+      "action": "match",
+      "movement": "Glute Bridge"
+    },
+    "Barbell_Guillotine_Bench_Press": {
+      "action": "new",
+      "movement": "Guillotine Bench Press",
+      "pattern": "horizontal-push"
+    },
+    "Barbell_Hack_Squat": {
+      "action": "match",
+      "movement": "Hack Squat"
+    },
+    "Barbell_Hip_Thrust": {
+      "action": "match",
+      "movement": "Hip Thrust"
+    },
+    "Barbell_Incline_Bench_Press_-_Medium_Grip": {
+      "action": "match",
+      "movement": "Incline Bench Press"
+    },
+    "Barbell_Incline_Shoulder_Raise": {
+      "action": "new",
+      "movement": "Incline Serratus Punch",
+      "pattern": "shoulder-flexion",
+      "primary": ["serratus"],
+      "secondary": ["front-delt"]
+    },
+    "Barbell_Lunge": {
+      "action": "match",
+      "movement": "Lunge"
+    },
+    "Barbell_Rear_Delt_Row": {
+      "action": "match",
+      "movement": "Rear Delt Row"
+    },
+    "Barbell_Rollout_from_Bench": {
+      "action": "new",
+      "movement": "Rollout from Bench",
+      "pattern": "anti-movement"
+    },
+    "Barbell_Seated_Calf_Raise": {
+      "action": "new",
+      "movement": "Seated Calf Raise",
+      "pattern": "calf-raise"
+    },
+    "Barbell_Shoulder_Press": {
+      "action": "match",
+      "movement": "Overhead Press"
+    },
+    "Barbell_Shrug": {
+      "action": "match",
+      "movement": "Shrug"
+    },
+    "Barbell_Shrug_Behind_The_Back": {
+      "action": "new",
+      "movement": "Shrug Behind The Back",
+      "pattern": "shrug"
+    },
+    "Barbell_Side_Bend": {
+      "action": "new",
+      "movement": "Side Bend",
+      "pattern": "rotation",
+      "primary": ["obliques"]
+    },
+    "Barbell_Side_Split_Squat": {
+      "action": "new",
+      "movement": "Side Split Squat",
+      "pattern": "lunge"
+    },
+    "Barbell_Squat": {
+      "action": "match",
+      "movement": "Squat"
+    },
+    "Barbell_Squat_To_A_Bench": {
+      "action": "match",
+      "movement": "Box Squat"
+    },
+    "Barbell_Step_Ups": {
+      "action": "match",
+      "movement": "Step Up"
+    },
+    "Barbell_Walking_Lunge": {
+      "action": "match",
+      "movement": "Walking Lunge"
+    },
+    "Battling_Ropes": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Bear_Crawl_Sled_Drags": {
+      "action": "new",
+      "movement": "Bear Crawl Sled Drags",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Behind_Head_Chest_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Bench_Dips": {
+      "action": "new",
+      "movement": "Bench Dips",
+      "pattern": "elbow-extension"
+    },
+    "Bench_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Bench_Press_-_Powerlifting": {
+      "action": "new",
+      "movement": "Bench Press - Powerlifting",
+      "pattern": "horizontal-push"
+    },
+    "Bench_Press_-_With_Bands": {
+      "action": "match",
+      "movement": "Bench Press"
+    },
+    "Bench_Press_with_Chains": {
+      "action": "new",
+      "movement": "Bench Press with Chains",
+      "pattern": "horizontal-push"
+    },
+    "Bench_Sprint": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Bent-Arm_Barbell_Pullover": {
+      "action": "new",
+      "movement": "Bent-Arm Pullover",
+      "pattern": "vertical-pull"
+    },
+    "Bent-Arm_Dumbbell_Pullover": {
+      "action": "match",
+      "movement": "Pullover"
+    },
+    "Bent-Knee_Hip_Raise": {
+      "action": "new",
+      "movement": "Bent-Knee Hip Raise",
+      "pattern": "shoulder-flexion"
+    },
+    "Bent_Over_Barbell_Row": {
+      "action": "match",
+      "movement": "Bent Over Row"
+    },
+    "Bent_Over_Dumbbell_Rear_Delt_Raise_With_Head_On_Bench": {
+      "action": "new",
+      "movement": "Bent Over Rear Delt Raise With Head On Bench",
+      "pattern": "rear-delt-fly"
+    },
+    "Bent_Over_Low-Pulley_Side_Lateral": {
+      "action": "new",
+      "movement": "Bent Over Low-Pulley Side Lateral",
+      "pattern": "shoulder-abduction"
+    },
+    "Bent_Over_One-Arm_Long_Bar_Row": {
+      "action": "new",
+      "movement": "Bent Over One-Arm Long Bar Row",
+      "pattern": "horizontal-pull"
+    },
+    "Bent_Over_Two-Arm_Long_Bar_Row": {
+      "action": "match",
+      "movement": "T-Bar Row",
+      "equipment": "landmine"
+    },
+    "Bent_Over_Two-Dumbbell_Row": {
+      "action": "match",
+      "movement": "Bent Over Row"
+    },
+    "Bent_Over_Two-Dumbbell_Row_With_Palms_In": {
+      "action": "new",
+      "movement": "Bent Over Two- Row With Palms In",
+      "pattern": "horizontal-pull"
+    },
+    "Bent_Press": {
+      "action": "new",
+      "movement": "Bent Press",
+      "pattern": "horizontal-push"
+    },
+    "Bicycling": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Bicycling_Stationary": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Board_Press": {
+      "action": "new",
+      "movement": "Board Press",
+      "pattern": "horizontal-push"
+    },
+    "Body-Up": {
+      "action": "new",
+      "movement": "Body-Up",
+      "pattern": "elbow-extension"
+    },
+    "Body_Tricep_Press": {
+      "action": "new",
+      "movement": "Body Tricep Press",
+      "pattern": "elbow-extension"
+    },
+    "Bodyweight_Flyes": {
+      "action": "new",
+      "movement": "Bodyweight Fly",
+      "pattern": "chest-fly",
+      "equipment": "bodyweight",
+      "reason": "The bars roll under the hands; the resistance is bodyweight."
+    },
+    "Bodyweight_Mid_Row": {
+      "action": "match",
+      "movement": "Inverted Row",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Bodyweight_Squat": {
+      "action": "match",
+      "movement": "Squat"
+    },
+    "Bodyweight_Walking_Lunge": {
+      "action": "match",
+      "movement": "Walking Lunge",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Bosu_Ball_Cable_Crunch_With_Side_Bends": {
+      "action": "new",
+      "movement": "Bosu Ball Crunch With Side Bends",
+      "pattern": "spinal-flexion",
+      "primary": ["obliques"]
+    },
+    "Bottoms-Up_Clean_From_The_Hang_Position": {
+      "action": "new",
+      "movement": "Bottoms-Up Clean From The Hang Position",
+      "pattern": "wrist-flexion"
+    },
+    "Bottoms_Up": {
+      "action": "new",
+      "movement": "Bottoms Up",
+      "pattern": "spinal-flexion"
+    },
+    "Box_Jump_Multiple_Response": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Box_Skip": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Box_Squat": {
+      "action": "match",
+      "movement": "Box Squat"
+    },
+    "Box_Squat_with_Bands": {
+      "action": "match",
+      "movement": "Box Squat"
+    },
+    "Box_Squat_with_Chains": {
+      "action": "new",
+      "movement": "Box Squat with Chains",
+      "pattern": "squat"
+    },
+    "Brachialis-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Bradford_Rocky_Presses": {
+      "action": "new",
+      "movement": "Bradford/Rocky Presses",
+      "pattern": "vertical-push"
+    },
+    "Butt-Ups": {
+      "action": "new",
+      "movement": "Butt-Ups",
+      "pattern": "spinal-flexion"
+    },
+    "Butt_Lift_Bridge": {
+      "action": "match",
+      "movement": "Glute Bridge"
+    },
+    "Butterfly": {
+      "action": "match",
+      "movement": "Chest Fly",
+      "equipment": "machine"
+    },
+    "Cable_Chest_Press": {
+      "action": "match",
+      "movement": "Chest Press"
+    },
+    "Cable_Crossover": {
+      "action": "match",
+      "movement": "Cable Crossover",
+      "equipment": "cable",
+      "name": "Cable Crossover"
+    },
+    "Cable_Crunch": {
+      "action": "match",
+      "movement": "Cable Crunch",
+      "equipment": "cable",
+      "name": "Cable Crunch"
+    },
+    "Cable_Deadlifts": {
+      "action": "new",
+      "movement": "Deadlifts",
+      "pattern": "hinge"
+    },
+    "Cable_Hammer_Curls_-_Rope_Attachment": {
+      "action": "match",
+      "movement": "Hammer Curl"
+    },
+    "Cable_Hip_Adduction": {
+      "action": "match",
+      "movement": "Hip Adductor",
+      "primary": ["adductors"]
+    },
+    "Cable_Incline_Pushdown": {
+      "action": "new",
+      "movement": "Incline Pushdown",
+      "pattern": "vertical-pull"
+    },
+    "Cable_Incline_Triceps_Extension": {
+      "action": "new",
+      "movement": "Incline Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Cable_Internal_Rotation": {
+      "action": "match",
+      "movement": "Internal Rotation"
+    },
+    "Cable_Iron_Cross": {
+      "action": "new",
+      "movement": "Iron Cross",
+      "pattern": "horizontal-push"
+    },
+    "Cable_Judo_Flip": {
+      "action": "new",
+      "movement": "Judo Flip",
+      "pattern": "spinal-flexion"
+    },
+    "Cable_Lying_Triceps_Extension": {
+      "action": "match",
+      "movement": "Skullcrusher"
+    },
+    "Cable_One_Arm_Tricep_Extension": {
+      "action": "new",
+      "movement": "One Arm Tricep Extension",
+      "pattern": "elbow-extension"
+    },
+    "Cable_Preacher_Curl": {
+      "action": "match",
+      "movement": "Preacher Curl"
+    },
+    "Cable_Rear_Delt_Fly": {
+      "action": "match",
+      "movement": "Reverse Fly"
+    },
+    "Cable_Reverse_Crunch": {
+      "action": "new",
+      "movement": "Reverse Crunch",
+      "pattern": "spinal-flexion"
+    },
+    "Cable_Rope_Overhead_Triceps_Extension": {
+      "action": "match",
+      "movement": "Triceps Extension"
+    },
+    "Cable_Rope_Rear-Delt_Rows": {
+      "action": "match",
+      "movement": "Rear Delt Row"
+    },
+    "Cable_Russian_Twists": {
+      "action": "new",
+      "movement": "Russian Twists",
+      "pattern": "rotation",
+      "primary": ["obliques"]
+    },
+    "Cable_Seated_Crunch": {
+      "action": "new",
+      "movement": "Seated Crunch",
+      "pattern": "spinal-flexion"
+    },
+    "Cable_Seated_Lateral_Raise": {
+      "action": "match",
+      "movement": "Seated Lateral Raise"
+    },
+    "Cable_Shoulder_Press": {
+      "action": "match",
+      "movement": "Overhead Press"
+    },
+    "Cable_Shrugs": {
+      "action": "match",
+      "movement": "Shrug"
+    },
+    "Cable_Wrist_Curl": {
+      "action": "match",
+      "movement": "Wrist Curl"
+    },
+    "Calf-Machine_Shoulder_Shrug": {
+      "action": "new",
+      "movement": "Calf-Machine Shoulder Shrug",
+      "pattern": "shrug"
+    },
+    "Calf_Press": {
+      "action": "new",
+      "movement": "Calf Press",
+      "pattern": "calf-raise"
+    },
+    "Calf_Press_On_The_Leg_Press_Machine": {
+      "action": "match",
+      "movement": "Calf Press on Leg Press",
+      "equipment": "machine",
+      "name": "Calf Press on Leg Press"
+    },
+    "Calf_Raise_On_A_Dumbbell": {
+      "action": "new",
+      "movement": "Calf Raise On A",
+      "pattern": "calf-raise"
+    },
+    "Calf_Raises_-_With_Bands": {
+      "action": "new",
+      "movement": "Calf Raises",
+      "pattern": "calf-raise"
+    },
+    "Calf_Stretch_Elbows_Against_Wall": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Calf_Stretch_Hands_Against_Wall": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Calves-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Car_Deadlift": {
+      "action": "new",
+      "movement": "Car Deadlift",
+      "pattern": "hinge",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Car_Drivers": {
+      "action": "new",
+      "movement": "Car Drivers",
+      "pattern": "shoulder-flexion"
+    },
+    "Carioca_Quick_Step": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Cat_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Catch_and_Overhead_Throw": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chain_Handle_Extension": {
+      "action": "new",
+      "movement": "Chain Handle Extension",
+      "pattern": "elbow-extension",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Chain_Press": {
+      "action": "new",
+      "movement": "Chain Press",
+      "pattern": "horizontal-push",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Chair_Leg_Extended_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chair_Lower_Back_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chair_Squat": {
+      "action": "new",
+      "movement": "Chair Squat",
+      "pattern": "squat"
+    },
+    "Chair_Upper_Body_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chest_And_Front_Of_Shoulder_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chest_Push_from_3_point_stance": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chest_Push_multiple_response": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chest_Push_single_response": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chest_Push_with_Run_Release": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chest_Stretch_on_Stability_Ball": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Childs_Pose": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Chin-Up": {
+      "action": "match",
+      "movement": "Chin Up"
+    },
+    "Chin_To_Chest_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Circus_Bell": {
+      "action": "new",
+      "movement": "Circus Bell",
+      "pattern": "vertical-push",
+      "equipment": "kettlebell",
+      "reason": "Reviewed implement: Kettlebell."
+    },
+    "Clean": {
+      "action": "new",
+      "movement": "Clean",
+      "pattern": "olympic"
+    },
+    "Clean_Deadlift": {
+      "action": "new",
+      "movement": "Clean Deadlift",
+      "pattern": "olympic"
+    },
+    "Clean_Pull": {
+      "action": "new",
+      "movement": "Clean Pull",
+      "pattern": "olympic"
+    },
+    "Clean_Shrug": {
+      "action": "new",
+      "movement": "Clean Shrug",
+      "pattern": "olympic"
+    },
+    "Clean_and_Jerk": {
+      "action": "match",
+      "movement": "Clean and Jerk"
+    },
+    "Clean_and_Press": {
+      "action": "new",
+      "movement": "Clean and Press",
+      "pattern": "olympic"
+    },
+    "Clean_from_Blocks": {
+      "action": "new",
+      "movement": "Clean from Blocks",
+      "pattern": "olympic"
+    },
+    "Clock_Push-Up": {
+      "action": "new",
+      "movement": "Clock Push Up",
+      "pattern": "horizontal-push"
+    },
+    "Close-Grip_Barbell_Bench_Press": {
+      "action": "match",
+      "movement": "Bench Press - Close Grip"
+    },
+    "Close-Grip_Dumbbell_Press": {
+      "action": "new",
+      "movement": "Close-Grip Press",
+      "pattern": "horizontal-push"
+    },
+    "Close-Grip_EZ-Bar_Curl_with_Band": {
+      "action": "new",
+      "movement": "Close-Grip Curl with Band",
+      "pattern": "elbow-flexion"
+    },
+    "Close-Grip_EZ-Bar_Press": {
+      "action": "new",
+      "movement": "Close-Grip Press",
+      "pattern": "horizontal-push"
+    },
+    "Close-Grip_EZ_Bar_Curl": {
+      "action": "new",
+      "movement": "Close-Grip EZ Bar Curl",
+      "pattern": "elbow-flexion",
+      "equipment": "ez-bar"
+    },
+    "Close-Grip_Front_Lat_Pulldown": {
+      "action": "match",
+      "movement": "Lat Pulldown - Close Grip"
+    },
+    "Close-Grip_Push-Up_off_of_a_Dumbbell": {
+      "action": "new",
+      "movement": "Close-Grip Push Up off of a",
+      "pattern": "horizontal-push"
+    },
+    "Close-Grip_Standing_Barbell_Curl": {
+      "action": "new",
+      "movement": "Close-Grip Standing Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Cocoons": {
+      "action": "new",
+      "movement": "Cocoons",
+      "pattern": "spinal-flexion"
+    },
+    "Conans_Wheel": {
+      "action": "new",
+      "movement": "Conan's Wheel",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Concentration_Curls": {
+      "action": "match",
+      "movement": "Concentration Curl"
+    },
+    "Cross-Body_Crunch": {
+      "action": "new",
+      "movement": "Cross-Body Crunch",
+      "pattern": "spinal-flexion"
+    },
+    "Cross_Body_Hammer_Curl": {
+      "action": "match",
+      "movement": "Cross-Body Hammer Curl"
+    },
+    "Cross_Over_-_With_Bands": {
+      "action": "match",
+      "movement": "Chest Fly"
+    },
+    "Crossover_Reverse_Lunge": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Crucifix": {
+      "action": "new",
+      "movement": "Crucifix",
+      "pattern": "shoulder-abduction",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Crunch_-_Hands_Overhead": {
+      "action": "new",
+      "movement": "Crunch - Hands Overhead",
+      "pattern": "vertical-push"
+    },
+    "Crunch_-_Legs_On_Exercise_Ball": {
+      "action": "new",
+      "movement": "Crunch - Legs On Exercise Ball",
+      "pattern": "spinal-flexion"
+    },
+    "Crunches": {
+      "action": "match",
+      "movement": "Crunch"
+    },
+    "Cuban_Press": {
+      "action": "new",
+      "movement": "Cuban Press",
+      "pattern": "shoulder-rotation"
+    },
+    "Dancers_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Dead_Bug": {
+      "action": "match",
+      "movement": "Dead Bug"
+    },
+    "Deadlift_with_Bands": {
+      "action": "match",
+      "movement": "Deadlift"
+    },
+    "Deadlift_with_Chains": {
+      "action": "new",
+      "movement": "Deadlift with Chains",
+      "pattern": "hinge"
+    },
+    "Decline_Barbell_Bench_Press": {
+      "action": "match",
+      "movement": "Decline Bench Press"
+    },
+    "Decline_Close-Grip_Bench_To_Skull_Crusher": {
+      "action": "new",
+      "movement": "Decline Close-Grip Bench To Skull Crusher",
+      "pattern": "elbow-extension"
+    },
+    "Decline_Crunch": {
+      "action": "match",
+      "movement": "Decline Crunch"
+    },
+    "Decline_Dumbbell_Bench_Press": {
+      "action": "match",
+      "movement": "Decline Bench Press"
+    },
+    "Decline_Dumbbell_Flyes": {
+      "action": "new",
+      "movement": "Decline Fly",
+      "pattern": "chest-fly"
+    },
+    "Decline_Dumbbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "Decline Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Decline_EZ_Bar_Triceps_Extension": {
+      "action": "new",
+      "movement": "Decline EZ Bar Triceps Extension",
+      "pattern": "elbow-extension",
+      "equipment": "ez-bar"
+    },
+    "Decline_Oblique_Crunch": {
+      "action": "new",
+      "movement": "Decline Oblique Crunch",
+      "pattern": "spinal-flexion",
+      "primary": ["obliques"]
+    },
+    "Decline_Push-Up": {
+      "action": "new",
+      "movement": "Decline Push Up",
+      "pattern": "horizontal-push",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Decline_Reverse_Crunch": {
+      "action": "new",
+      "movement": "Decline Reverse Crunch",
+      "pattern": "spinal-flexion"
+    },
+    "Decline_Smith_Press": {
+      "action": "match",
+      "movement": "Decline Bench Press",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Deficit_Deadlift": {
+      "action": "match",
+      "movement": "Deficit Deadlift"
+    },
+    "Depth_Jump_Leap": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Dip_Machine": {
+      "action": "match",
+      "movement": "Triceps Dip",
+      "equipment": "machine"
+    },
+    "Dips_-_Chest_Version": {
+      "action": "match",
+      "movement": "Chest Dip",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Dips_-_Triceps_Version": {
+      "action": "match",
+      "movement": "Triceps Dip",
+      "equipment": "bodyweight"
+    },
+    "Donkey_Calf_Raises": {
+      "action": "match",
+      "movement": "Donkey Calf Raise",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Double_Kettlebell_Alternating_Hang_Clean": {
+      "action": "new",
+      "movement": "Double Alternating Hang Clean",
+      "pattern": "olympic"
+    },
+    "Double_Kettlebell_Jerk": {
+      "action": "new",
+      "movement": "Double Jerk",
+      "pattern": "olympic"
+    },
+    "Double_Kettlebell_Push_Press": {
+      "action": "new",
+      "movement": "Double Push Press",
+      "pattern": "vertical-push"
+    },
+    "Double_Kettlebell_Snatch": {
+      "action": "new",
+      "movement": "Double Snatch",
+      "pattern": "olympic"
+    },
+    "Double_Kettlebell_Windmill": {
+      "action": "new",
+      "movement": "Double Windmill",
+      "pattern": "rotation",
+      "primary": ["obliques"]
+    },
+    "Double_Leg_Butt_Kick": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Downward_Facing_Balance": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Drag_Curl": {
+      "action": "match",
+      "movement": "Drag Curl"
+    },
+    "Drop_Push": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Dumbbell_Alternate_Bicep_Curl": {
+      "action": "new",
+      "movement": "Alternating Bicep Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Dumbbell_Bench_Press": {
+      "action": "match",
+      "movement": "Bench Press"
+    },
+    "Dumbbell_Bench_Press_with_Neutral_Grip": {
+      "action": "new",
+      "movement": "Bench Press with Neutral Grip",
+      "pattern": "horizontal-push"
+    },
+    "Dumbbell_Bicep_Curl": {
+      "action": "match",
+      "movement": "Bicep Curl"
+    },
+    "Dumbbell_Clean": {
+      "action": "new",
+      "movement": "Clean",
+      "pattern": "olympic"
+    },
+    "Dumbbell_Floor_Press": {
+      "action": "match",
+      "movement": "Floor Press"
+    },
+    "Dumbbell_Flyes": {
+      "action": "match",
+      "movement": "Chest Fly"
+    },
+    "Dumbbell_Incline_Row": {
+      "action": "match",
+      "movement": "Chest-Supported Row"
+    },
+    "Dumbbell_Incline_Shoulder_Raise": {
+      "action": "new",
+      "movement": "Incline Serratus Punch",
+      "pattern": "shoulder-flexion",
+      "primary": ["serratus"],
+      "secondary": ["front-delt"]
+    },
+    "Dumbbell_Lunges": {
+      "action": "match",
+      "movement": "Lunge"
+    },
+    "Dumbbell_Lying_One-Arm_Rear_Lateral_Raise": {
+      "action": "new",
+      "movement": "Lying One-Arm Rear Lateral Raise",
+      "pattern": "shoulder-abduction"
+    },
+    "Dumbbell_Lying_Pronation": {
+      "action": "new",
+      "movement": "Lying Pronation",
+      "pattern": "wrist-flexion"
+    },
+    "Dumbbell_Lying_Rear_Lateral_Raise": {
+      "action": "new",
+      "movement": "Lying Rear Lateral Raise",
+      "pattern": "shoulder-abduction"
+    },
+    "Dumbbell_Lying_Supination": {
+      "action": "new",
+      "movement": "Lying Supination",
+      "pattern": "wrist-flexion"
+    },
+    "Dumbbell_One-Arm_Shoulder_Press": {
+      "action": "new",
+      "movement": "One-Arm Shoulder Press",
+      "pattern": "vertical-push"
+    },
+    "Dumbbell_One-Arm_Triceps_Extension": {
+      "action": "new",
+      "movement": "One-Arm Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Dumbbell_One-Arm_Upright_Row": {
+      "action": "new",
+      "movement": "One-Arm Upright Row",
+      "pattern": "horizontal-pull"
+    },
+    "Dumbbell_Prone_Incline_Curl": {
+      "action": "new",
+      "movement": "Prone Incline Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Dumbbell_Raise": {
+      "action": "new",
+      "movement": "Raise",
+      "pattern": "shoulder-flexion"
+    },
+    "Dumbbell_Rear_Lunge": {
+      "action": "match",
+      "movement": "Reverse Lunge"
+    },
+    "Dumbbell_Scaption": {
+      "action": "new",
+      "movement": "Scaption",
+      "pattern": "shoulder-abduction"
+    },
+    "Dumbbell_Seated_Box_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Dumbbell_Seated_One-Leg_Calf_Raise": {
+      "action": "new",
+      "movement": "Seated One-Leg Calf Raise",
+      "pattern": "calf-raise"
+    },
+    "Dumbbell_Shoulder_Press": {
+      "action": "match",
+      "movement": "Overhead Press"
+    },
+    "Dumbbell_Shrug": {
+      "action": "match",
+      "movement": "Shrug"
+    },
+    "Dumbbell_Side_Bend": {
+      "action": "match",
+      "movement": "Side Bend"
+    },
+    "Dumbbell_Squat": {
+      "action": "match",
+      "movement": "Squat"
+    },
+    "Dumbbell_Squat_To_A_Bench": {
+      "action": "new",
+      "movement": "Squat To A Bench",
+      "pattern": "squat"
+    },
+    "Dumbbell_Step_Ups": {
+      "action": "match",
+      "movement": "Step Up"
+    },
+    "Dumbbell_Tricep_Extension_-Pronated_Grip": {
+      "action": "new",
+      "movement": "Tricep Extension -Pronated Grip",
+      "pattern": "elbow-extension"
+    },
+    "Dynamic_Back_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Dynamic_Chest_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "EZ-Bar_Curl": {
+      "action": "match",
+      "movement": "Bicep Curl"
+    },
+    "EZ-Bar_Skullcrusher": {
+      "action": "match",
+      "movement": "Skullcrusher"
+    },
+    "Elbow_Circles": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Elbow_to_Knee": {
+      "action": "new",
+      "movement": "Elbow to Knee",
+      "pattern": "spinal-flexion"
+    },
+    "Elbows_Back": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Elevated_Back_Lunge": {
+      "action": "new",
+      "movement": "Elevated Back Lunge",
+      "pattern": "lunge"
+    },
+    "Elevated_Cable_Rows": {
+      "action": "new",
+      "movement": "Elevated Rows",
+      "pattern": "horizontal-pull"
+    },
+    "Elliptical_Trainer": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Exercise_Ball_Crunch": {
+      "action": "new",
+      "movement": "Exercise Ball Crunch",
+      "pattern": "spinal-flexion",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance. Source uses a ball for resistance, not conditioning.",
+      "resistanceException": true
+    },
+    "Exercise_Ball_Pull-In": {
+      "action": "new",
+      "movement": "Exercise Ball Pull-In",
+      "pattern": "spinal-flexion",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance. Source uses a ball for resistance, not conditioning.",
+      "resistanceException": true
+    },
+    "Extended_Range_One-Arm_Kettlebell_Floor_Press": {
+      "action": "new",
+      "movement": "Extended Range One-Arm Floor Press",
+      "pattern": "horizontal-push"
+    },
+    "External_Rotation": {
+      "action": "match",
+      "movement": "External Rotation"
+    },
+    "External_Rotation_with_Band": {
+      "action": "match",
+      "movement": "External Rotation"
+    },
+    "External_Rotation_with_Cable": {
+      "action": "match",
+      "movement": "External Rotation"
+    },
+    "Face_Pull": {
+      "action": "match",
+      "movement": "Face Pull"
+    },
+    "Farmers_Walk": {
+      "action": "new",
+      "movement": "Farmer's Walk",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Fast_Skipping": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Finger_Curls": {
+      "action": "new",
+      "movement": "Finger Curls",
+      "pattern": "grip"
+    },
+    "Flat_Bench_Cable_Flyes": {
+      "action": "match",
+      "movement": "Chest Fly"
+    },
+    "Flat_Bench_Leg_Pull-In": {
+      "action": "new",
+      "movement": "Flat Bench Leg Pull-In",
+      "pattern": "spinal-flexion"
+    },
+    "Flat_Bench_Lying_Leg_Raise": {
+      "action": "new",
+      "movement": "Flat Bench Lying Leg Raise",
+      "pattern": "shoulder-flexion"
+    },
+    "Flexor_Incline_Dumbbell_Curls": {
+      "action": "new",
+      "movement": "Flexor Incline Curls",
+      "pattern": "elbow-flexion"
+    },
+    "Floor_Glute-Ham_Raise": {
+      "action": "match",
+      "movement": "Nordic Curl",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Floor_Press": {
+      "action": "match",
+      "movement": "Floor Press"
+    },
+    "Floor_Press_with_Chains": {
+      "action": "new",
+      "movement": "Floor Press with Chains",
+      "pattern": "horizontal-push"
+    },
+    "Flutter_Kicks": {
+      "action": "new",
+      "movement": "Flutter Kicks",
+      "pattern": "anti-movement",
+      "primary": ["abs", "hip-flexors"],
+      "secondary": []
+    },
+    "Foot-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Forward_Drag_with_Press": {
+      "action": "new",
+      "movement": "Forward Drag with Press",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Frankenstein_Squat": {
+      "action": "new",
+      "movement": "Frankenstein Squat",
+      "pattern": "squat"
+    },
+    "Freehand_Jump_Squat": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Frog_Hops": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Frog_Sit-Ups": {
+      "action": "new",
+      "movement": "Frog Sit Ups",
+      "pattern": "spinal-flexion"
+    },
+    "Front_Barbell_Squat": {
+      "action": "match",
+      "movement": "Front Squat"
+    },
+    "Front_Barbell_Squat_To_A_Bench": {
+      "action": "new",
+      "movement": "Front Squat To A Bench",
+      "pattern": "squat"
+    },
+    "Front_Box_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Front_Cable_Raise": {
+      "action": "match",
+      "movement": "Front Raise"
+    },
+    "Front_Cone_Hops_or_hurdle_hops": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Front_Dumbbell_Raise": {
+      "action": "match",
+      "movement": "Front Raise"
+    },
+    "Front_Incline_Dumbbell_Raise": {
+      "action": "new",
+      "movement": "Front Incline Raise",
+      "pattern": "shoulder-flexion"
+    },
+    "Front_Leg_Raises": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Front_Plate_Raise": {
+      "action": "match",
+      "movement": "Front Raise",
+      "equipment": "plate",
+      "reason": "Reviewed implement: Plate."
+    },
+    "Front_Raise_And_Pullover": {
+      "action": "new",
+      "movement": "Front Raise And Pullover",
+      "pattern": "shoulder-flexion"
+    },
+    "Front_Squat_Clean_Grip": {
+      "action": "match",
+      "movement": "Front Squat"
+    },
+    "Front_Squats_With_Two_Kettlebells": {
+      "action": "new",
+      "movement": "Front Squats With Two Kettlebells",
+      "pattern": "squat"
+    },
+    "Front_Two-Dumbbell_Raise": {
+      "action": "new",
+      "movement": "Front Two- Raise",
+      "pattern": "shoulder-flexion"
+    },
+    "Full_Range-Of-Motion_Lat_Pulldown": {
+      "action": "new",
+      "movement": "Full Range-Of-Motion Lat Pulldown",
+      "pattern": "vertical-pull"
+    },
+    "Gironda_Sternum_Chins": {
+      "action": "new",
+      "movement": "Gironda Sternum Chins",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Glute_Ham_Raise": {
+      "action": "match",
+      "movement": "Glute Ham Raise",
+      "equipment": "bodyweight"
+    },
+    "Glute_Kickback": {
+      "action": "new",
+      "movement": "Glute Kickback",
+      "pattern": "elbow-extension"
+    },
+    "Goblet_Squat": {
+      "action": "match",
+      "movement": "Goblet Squat"
+    },
+    "Good_Morning": {
+      "action": "match",
+      "movement": "Good Morning"
+    },
+    "Good_Morning_off_Pins": {
+      "action": "new",
+      "movement": "Good Morning off Pins",
+      "pattern": "hinge"
+    },
+    "Gorilla_Chin_Crunch": {
+      "action": "new",
+      "movement": "Gorilla Chin/Crunch",
+      "pattern": "vertical-pull"
+    },
+    "Groin_and_Back_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Groiners": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Hack_Squat": {
+      "action": "match",
+      "movement": "Hack Squat"
+    },
+    "Hammer_Curls": {
+      "action": "match",
+      "movement": "Hammer Curl"
+    },
+    "Hammer_Grip_Incline_DB_Bench_Press": {
+      "action": "new",
+      "movement": "Hammer Grip Incline DB Bench Press",
+      "pattern": "horizontal-push"
+    },
+    "Hamstring-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Hamstring_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Handstand_Push-Ups": {
+      "action": "match",
+      "movement": "Handstand Push Up"
+    },
+    "Hang_Clean": {
+      "action": "match",
+      "movement": "Hang Clean"
+    },
+    "Hang_Clean_-_Below_the_Knees": {
+      "action": "new",
+      "movement": "Hang Clean - Below the Knees",
+      "pattern": "olympic"
+    },
+    "Hang_Snatch": {
+      "action": "new",
+      "movement": "Hang Snatch",
+      "pattern": "olympic"
+    },
+    "Hang_Snatch_-_Below_Knees": {
+      "action": "new",
+      "movement": "Hang Snatch - Below Knees",
+      "pattern": "olympic"
+    },
+    "Hanging_Bar_Good_Morning": {
+      "action": "new",
+      "movement": "Hanging Bar Good Morning",
+      "pattern": "hinge"
+    },
+    "Hanging_Leg_Raise": {
+      "action": "match",
+      "movement": "Hanging Leg Raise"
+    },
+    "Hanging_Pike": {
+      "action": "new",
+      "movement": "Hanging Pike",
+      "pattern": "spinal-flexion"
+    },
+    "Heaving_Snatch_Balance": {
+      "action": "new",
+      "movement": "Heaving Snatch Balance",
+      "pattern": "olympic"
+    },
+    "Heavy_Bag_Thrust": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "High_Cable_Curls": {
+      "action": "new",
+      "movement": "High Curls",
+      "pattern": "elbow-flexion"
+    },
+    "Hip_Circles_prone": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Hip_Extension_with_Bands": {
+      "action": "new",
+      "movement": "Hip Extension with Bands",
+      "pattern": "hip-thrust"
+    },
+    "Hip_Flexion_with_Band": {
+      "action": "new",
+      "movement": "Hip Flexion with Band",
+      "pattern": "spinal-flexion",
+      "primary": ["hip-flexors"],
+      "secondary": ["quads"]
+    },
+    "Hip_Lift_with_Band": {
+      "action": "new",
+      "movement": "Hip Lift with Band",
+      "pattern": "hip-thrust"
+    },
+    "Hug_A_Ball": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Hug_Knees_To_Chest": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Hurdle_Hops": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Hyperextensions_Back_Extensions": {
+      "action": "match",
+      "movement": "Back Extension",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Hyperextensions_With_No_Hyperextension_Bench": {
+      "action": "new",
+      "movement": "Hyperextensions With No Hyperextension Bench",
+      "pattern": "spinal-extension"
+    },
+    "IT_Band_and_Glute_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Iliotibial_Tract-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Inchworm": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Incline_Barbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "Incline Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Incline_Bench_Pull": {
+      "action": "new",
+      "movement": "Incline Bench Pull",
+      "pattern": "horizontal-pull"
+    },
+    "Incline_Cable_Chest_Press": {
+      "action": "match",
+      "movement": "Incline Chest Press"
+    },
+    "Incline_Cable_Flye": {
+      "action": "match",
+      "movement": "Incline Chest Fly"
+    },
+    "Incline_Dumbbell_Bench_With_Palms_Facing_In": {
+      "action": "new",
+      "movement": "Incline Bench With Palms Facing In",
+      "pattern": "horizontal-push"
+    },
+    "Incline_Dumbbell_Curl": {
+      "action": "match",
+      "movement": "Incline Curl"
+    },
+    "Incline_Dumbbell_Flyes": {
+      "action": "match",
+      "movement": "Incline Chest Fly"
+    },
+    "Incline_Dumbbell_Flyes_-_With_A_Twist": {
+      "action": "new",
+      "movement": "Incline Fly - With A Twist",
+      "pattern": "chest-fly"
+    },
+    "Incline_Dumbbell_Press": {
+      "action": "match",
+      "movement": "Incline Bench Press"
+    },
+    "Incline_Hammer_Curls": {
+      "action": "new",
+      "movement": "Incline Hammer Curls",
+      "pattern": "elbow-flexion"
+    },
+    "Incline_Inner_Biceps_Curl": {
+      "action": "new",
+      "movement": "Incline Inner Biceps Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Incline_Push-Up": {
+      "action": "new",
+      "movement": "Incline Push Up",
+      "pattern": "horizontal-push"
+    },
+    "Incline_Push-Up_Close-Grip": {
+      "action": "new",
+      "movement": "Incline Push Up Close-Grip",
+      "pattern": "horizontal-push"
+    },
+    "Incline_Push-Up_Depth_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Incline_Push-Up_Medium": {
+      "action": "new",
+      "movement": "Incline Push Up Medium",
+      "pattern": "horizontal-push"
+    },
+    "Incline_Push-Up_Reverse_Grip": {
+      "action": "new",
+      "movement": "Incline Push Up Reverse Grip",
+      "pattern": "horizontal-push"
+    },
+    "Incline_Push-Up_Wide": {
+      "action": "new",
+      "movement": "Incline Push Up Wide",
+      "pattern": "horizontal-push"
+    },
+    "Intermediate_Groin_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Intermediate_Hip_Flexor_and_Quad_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Internal_Rotation_with_Band": {
+      "action": "match",
+      "movement": "Internal Rotation"
+    },
+    "Inverted_Row": {
+      "action": "match",
+      "movement": "Inverted Row",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Inverted_Row_with_Straps": {
+      "action": "new",
+      "movement": "Inverted Row with Straps",
+      "pattern": "horizontal-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Iron_Cross": {
+      "action": "new",
+      "movement": "Iron Cross",
+      "pattern": "shoulder-flexion"
+    },
+    "Iron_Crosses_stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Isometric_Chest_Squeezes": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Isometric_Neck_Exercise_-_Front_And_Back": {
+      "action": "new",
+      "movement": "Isometric Neck Exercise - Front And Back",
+      "pattern": "neck",
+      "tracking": "duration"
+    },
+    "Isometric_Neck_Exercise_-_Sides": {
+      "action": "new",
+      "movement": "Isometric Neck Exercise - Sides",
+      "pattern": "neck",
+      "tracking": "duration"
+    },
+    "Isometric_Wipers": {
+      "action": "new",
+      "movement": "Isometric Wipers",
+      "pattern": "horizontal-push"
+    },
+    "JM_Press": {
+      "action": "match",
+      "movement": "JM Press"
+    },
+    "Jackknife_Sit-Up": {
+      "action": "new",
+      "movement": "Jackknife Sit Up",
+      "pattern": "spinal-flexion"
+    },
+    "Janda_Sit-Up": {
+      "action": "new",
+      "movement": "Janda Sit Up",
+      "pattern": "spinal-flexion"
+    },
+    "Jefferson_Squats": {
+      "action": "new",
+      "movement": "Jefferson Squats",
+      "pattern": "squat"
+    },
+    "Jerk_Balance": {
+      "action": "new",
+      "movement": "Jerk Balance",
+      "pattern": "olympic"
+    },
+    "Jerk_Dip_Squat": {
+      "action": "new",
+      "movement": "Jerk Dip Squat",
+      "pattern": "olympic"
+    },
+    "Jogging_Treadmill": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Keg_Load": {
+      "action": "new",
+      "movement": "Keg Load",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Kettlebell_Arnold_Press": {
+      "action": "new",
+      "movement": "Arnold Press",
+      "pattern": "vertical-push"
+    },
+    "Kettlebell_Dead_Clean": {
+      "action": "new",
+      "movement": "Dead Clean",
+      "pattern": "olympic"
+    },
+    "Kettlebell_Figure_8": {
+      "action": "new",
+      "movement": "Figure 8",
+      "pattern": "spinal-flexion"
+    },
+    "Kettlebell_Halo": {
+      "action": "new",
+      "movement": "Halo",
+      "pattern": "shoulder-rotation"
+    },
+    "Kettlebell_Halo_With_Overhead_Extension": {
+      "action": "new",
+      "movement": "Halo with Overhead Extension",
+      "pattern": "shoulder-rotation"
+    },
+    "Kettlebell_Hang_Clean": {
+      "action": "new",
+      "movement": "Hang Clean",
+      "pattern": "olympic"
+    },
+    "Kettlebell_One-Legged_Deadlift": {
+      "action": "match",
+      "movement": "Single Leg Romanian Deadlift"
+    },
+    "Kettlebell_Overhead_Triceps_Extension": {
+      "action": "new",
+      "movement": "Overhead Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Kettlebell_Pass_Between_The_Legs": {
+      "action": "new",
+      "movement": "Pass Between The Legs",
+      "pattern": "spinal-flexion"
+    },
+    "Kettlebell_Pirate_Ships": {
+      "action": "new",
+      "movement": "Pirate Ships",
+      "pattern": "shoulder-flexion"
+    },
+    "Kettlebell_Pistol_Squat": {
+      "action": "new",
+      "movement": "Pistol Squat",
+      "pattern": "squat"
+    },
+    "Kettlebell_Seated_Press": {
+      "action": "new",
+      "movement": "Seated Press",
+      "pattern": "horizontal-push"
+    },
+    "Kettlebell_Seesaw_Press": {
+      "action": "new",
+      "movement": "Seesaw Press",
+      "pattern": "horizontal-push"
+    },
+    "Kettlebell_Sumo_High_Pull": {
+      "action": "new",
+      "movement": "Sumo High Pull",
+      "pattern": "shrug"
+    },
+    "Kettlebell_Thruster": {
+      "action": "match",
+      "movement": "Thruster"
+    },
+    "Kettlebell_Turkish_Get-Up_Lunge_style": {
+      "action": "new",
+      "movement": "Turkish Get-Up (Lunge style)",
+      "pattern": "lunge"
+    },
+    "Kettlebell_Turkish_Get-Up_Squat_style": {
+      "action": "new",
+      "movement": "Turkish Get-Up (Squat style)",
+      "pattern": "squat"
+    },
+    "Kettlebell_Windmill": {
+      "action": "new",
+      "movement": "Windmill",
+      "pattern": "rotation",
+      "primary": ["obliques"]
+    },
+    "Kipping_Muscle_Up": {
+      "action": "new",
+      "movement": "Kipping Muscle Up",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Knee_Across_The_Body": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Knee_Circles": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Knee_Hip_Raise_On_Parallel_Bars": {
+      "action": "new",
+      "movement": "Knee/Hip Raise On Parallel Bars",
+      "pattern": "spinal-flexion",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Knee_Tuck_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Kneeling_Arm_Drill": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Kneeling_Cable_Crunch_With_Alternating_Oblique_Twists": {
+      "action": "new",
+      "movement": "Kneeling Crunch With Alternating Oblique Twists",
+      "pattern": "spinal-flexion",
+      "primary": ["obliques"]
+    },
+    "Kneeling_Cable_Triceps_Extension": {
+      "action": "new",
+      "movement": "Kneeling Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Kneeling_Forearm_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Kneeling_High_Pulley_Row": {
+      "action": "new",
+      "movement": "Kneeling High Pulley Row",
+      "pattern": "horizontal-pull"
+    },
+    "Kneeling_Hip_Flexor": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Kneeling_Jump_Squat": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Kneeling_Single-Arm_High_Pulley_Row": {
+      "action": "new",
+      "movement": "Kneeling Single-Arm High Pulley Row",
+      "pattern": "horizontal-pull"
+    },
+    "Kneeling_Squat": {
+      "action": "new",
+      "movement": "Kneeling Squat",
+      "pattern": "squat"
+    },
+    "Landmine_180s": {
+      "action": "new",
+      "movement": "Landmine 180's",
+      "pattern": "rotation"
+    },
+    "Landmine_Linear_Jammer": {
+      "action": "new",
+      "movement": "Landmine Linear Jammer",
+      "pattern": "shoulder-flexion"
+    },
+    "Lateral_Bound": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lateral_Box_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lateral_Cone_Hops": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lateral_Raise_-_With_Bands": {
+      "action": "match",
+      "movement": "Lateral Raise"
+    },
+    "Latissimus_Dorsi-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Leg-Over_Floor_Press": {
+      "action": "new",
+      "movement": "Leg-Over Floor Press",
+      "pattern": "horizontal-push"
+    },
+    "Leg-Up_Hamstring_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Leg_Extensions": {
+      "action": "match",
+      "movement": "Leg Extension"
+    },
+    "Leg_Lift": {
+      "action": "new",
+      "movement": "Leg Lift",
+      "pattern": "hip-thrust"
+    },
+    "Leg_Press": {
+      "action": "match",
+      "movement": "Leg Press"
+    },
+    "Leg_Pull-In": {
+      "action": "new",
+      "movement": "Leg Pull-In",
+      "pattern": "spinal-flexion"
+    },
+    "Leverage_Chest_Press": {
+      "action": "match",
+      "movement": "Chest Press",
+      "equipment": "plate-loaded"
+    },
+    "Leverage_Deadlift": {
+      "action": "new",
+      "movement": "Leverage Deadlift",
+      "pattern": "hinge"
+    },
+    "Leverage_Decline_Chest_Press": {
+      "action": "match",
+      "movement": "Decline Chest Press",
+      "equipment": "plate-loaded"
+    },
+    "Leverage_High_Row": {
+      "action": "match",
+      "movement": "High Row",
+      "equipment": "plate-loaded"
+    },
+    "Leverage_Incline_Chest_Press": {
+      "action": "match",
+      "movement": "Incline Chest Press",
+      "equipment": "plate-loaded"
+    },
+    "Leverage_Iso_Row": {
+      "action": "match",
+      "movement": "Iso-Lateral Row",
+      "equipment": "plate-loaded"
+    },
+    "Leverage_Shoulder_Press": {
+      "action": "match",
+      "movement": "Shoulder Press",
+      "equipment": "plate-loaded"
+    },
+    "Leverage_Shrug": {
+      "action": "match",
+      "movement": "Shrug",
+      "equipment": "plate-loaded"
+    },
+    "Linear_3-Part_Start_Technique": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Linear_Acceleration_Wall_Drill": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Linear_Depth_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Log_Lift": {
+      "action": "new",
+      "movement": "Log Lift",
+      "pattern": "olympic",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "London_Bridges": {
+      "action": "new",
+      "movement": "London Bridges",
+      "pattern": "horizontal-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Looking_At_Ceiling": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Low_Cable_Crossover": {
+      "action": "match",
+      "movement": "Low to High Cable Crossover",
+      "equipment": "cable",
+      "name": "Low to High Cable Crossover"
+    },
+    "Low_Cable_Triceps_Extension": {
+      "action": "new",
+      "movement": "Low Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Low_Pulley_Row_To_Neck": {
+      "action": "new",
+      "movement": "Low Pulley Row To Neck",
+      "pattern": "horizontal-pull"
+    },
+    "Lower_Back-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lower_Back_Curl": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lunge_Pass_Through": {
+      "action": "new",
+      "movement": "Lunge Pass Through",
+      "pattern": "lunge"
+    },
+    "Lunge_Sprint": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lying_Bent_Leg_Groin": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lying_Cable_Curl": {
+      "action": "new",
+      "movement": "Lying Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Lying_Cambered_Barbell_Row": {
+      "action": "new",
+      "movement": "Lying Cambered Row",
+      "pattern": "horizontal-pull"
+    },
+    "Lying_Close-Grip_Bar_Curl_On_High_Pulley": {
+      "action": "new",
+      "movement": "Lying Close-Grip Bar Curl On High Pulley",
+      "pattern": "elbow-flexion"
+    },
+    "Lying_Close-Grip_Barbell_Triceps_Extension_Behind_The_Head": {
+      "action": "new",
+      "movement": "Lying Close-Grip Triceps Extension Behind The Head",
+      "pattern": "elbow-extension"
+    },
+    "Lying_Close-Grip_Barbell_Triceps_Press_To_Chin": {
+      "action": "new",
+      "movement": "Lying Close-Grip Triceps Press To Chin",
+      "pattern": "elbow-extension"
+    },
+    "Lying_Crossover": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lying_Dumbbell_Tricep_Extension": {
+      "action": "match",
+      "movement": "Skullcrusher"
+    },
+    "Lying_Face_Down_Plate_Neck_Resistance": {
+      "action": "match",
+      "movement": "Neck Extension",
+      "equipment": "plate",
+      "reason": "Reviewed implement: Plate."
+    },
+    "Lying_Face_Up_Plate_Neck_Resistance": {
+      "action": "match",
+      "movement": "Neck Curl",
+      "equipment": "plate",
+      "reason": "Reviewed implement: Plate."
+    },
+    "Lying_Glute": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lying_Hamstring": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lying_High_Bench_Barbell_Curl": {
+      "action": "new",
+      "movement": "Lying High Bench Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Lying_Leg_Curls": {
+      "action": "match",
+      "movement": "Lying Leg Curl"
+    },
+    "Lying_Machine_Squat": {
+      "action": "new",
+      "movement": "Lying Machine Squat",
+      "pattern": "squat"
+    },
+    "Lying_One-Arm_Lateral_Raise": {
+      "action": "new",
+      "movement": "Lying One-Arm Lateral Raise",
+      "pattern": "shoulder-abduction"
+    },
+    "Lying_Prone_Quadriceps": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Lying_Rear_Delt_Raise": {
+      "action": "new",
+      "movement": "Lying Rear Delt Raise",
+      "pattern": "rear-delt-fly"
+    },
+    "Lying_Supine_Dumbbell_Curl": {
+      "action": "new",
+      "movement": "Lying Supine Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Lying_T-Bar_Row": {
+      "action": "match",
+      "movement": "T-Bar Row",
+      "equipment": "machine"
+    },
+    "Lying_Triceps_Press": {
+      "action": "match",
+      "movement": "Skullcrusher"
+    },
+    "Machine_Bench_Press": {
+      "action": "match",
+      "movement": "Chest Press"
+    },
+    "Machine_Bicep_Curl": {
+      "action": "match",
+      "movement": "Bicep Curl"
+    },
+    "Machine_Preacher_Curls": {
+      "action": "match",
+      "movement": "Preacher Curl"
+    },
+    "Machine_Shoulder_Military_Press": {
+      "action": "match",
+      "movement": "Shoulder Press"
+    },
+    "Machine_Triceps_Extension": {
+      "action": "match",
+      "movement": "Triceps Extension"
+    },
+    "Medicine_Ball_Chest_Pass": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Medicine_Ball_Full_Twist": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Medicine_Ball_Scoop_Throw": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Middle_Back_Shrug": {
+      "action": "match",
+      "movement": "Kelso Shrug"
+    },
+    "Middle_Back_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Mixed_Grip_Chin": {
+      "action": "new",
+      "movement": "Mixed Grip Chin",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Monster_Walk": {
+      "action": "new",
+      "movement": "Monster Walk",
+      "pattern": "hip-abduction"
+    },
+    "Mountain_Climbers": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Moving_Claw_Series": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Muscle_Snatch": {
+      "action": "new",
+      "movement": "Muscle Snatch",
+      "pattern": "olympic"
+    },
+    "Muscle_Up": {
+      "action": "new",
+      "movement": "Muscle Up",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Narrow_Stance_Hack_Squats": {
+      "action": "new",
+      "movement": "Narrow Stance Hack Squats",
+      "pattern": "squat"
+    },
+    "Narrow_Stance_Leg_Press": {
+      "action": "new",
+      "movement": "Narrow Stance Leg Press",
+      "pattern": "squat"
+    },
+    "Narrow_Stance_Squats": {
+      "action": "new",
+      "movement": "Narrow Stance Squats",
+      "pattern": "squat"
+    },
+    "Natural_Glute_Ham_Raise": {
+      "action": "match",
+      "movement": "Nordic Curl",
+      "equipment": "bodyweight"
+    },
+    "Neck-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Neck_Press": {
+      "action": "new",
+      "movement": "Neck Press",
+      "pattern": "horizontal-push"
+    },
+    "Oblique_Crunches": {
+      "action": "new",
+      "movement": "Oblique Crunches",
+      "pattern": "spinal-flexion",
+      "primary": ["obliques"]
+    },
+    "Oblique_Crunches_-_On_The_Floor": {
+      "action": "new",
+      "movement": "Oblique Crunches - On The Floor",
+      "pattern": "spinal-flexion",
+      "primary": ["obliques"]
+    },
+    "Olympic_Squat": {
+      "action": "new",
+      "movement": "Olympic Squat",
+      "pattern": "squat"
+    },
+    "On-Your-Back_Quad_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "On_Your_Side_Quad_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "One-Arm_Dumbbell_Row": {
+      "action": "match",
+      "movement": "One Arm Row"
+    },
+    "One-Arm_Flat_Bench_Dumbbell_Flye": {
+      "action": "new",
+      "movement": "One-Arm Flat Bench Fly",
+      "pattern": "chest-fly"
+    },
+    "One-Arm_High-Pulley_Cable_Side_Bends": {
+      "action": "new",
+      "movement": "One-Arm High-Pulley Side Bends",
+      "pattern": "rotation",
+      "primary": ["obliques"]
+    },
+    "One-Arm_Incline_Lateral_Raise": {
+      "action": "new",
+      "movement": "One-Arm Incline Lateral Raise",
+      "pattern": "shoulder-abduction"
+    },
+    "One-Arm_Kettlebell_Clean": {
+      "action": "new",
+      "movement": "One-Arm Clean",
+      "pattern": "olympic"
+    },
+    "One-Arm_Kettlebell_Clean_and_Jerk": {
+      "action": "new",
+      "movement": "One-Arm Clean and Jerk",
+      "pattern": "olympic"
+    },
+    "One-Arm_Kettlebell_Floor_Press": {
+      "action": "new",
+      "movement": "One-Arm Floor Press",
+      "pattern": "horizontal-push"
+    },
+    "One-Arm_Kettlebell_Jerk": {
+      "action": "new",
+      "movement": "One-Arm Jerk",
+      "pattern": "olympic"
+    },
+    "One-Arm_Kettlebell_Military_Press_To_The_Side": {
+      "action": "new",
+      "movement": "One-Arm Military Press To The Side",
+      "pattern": "vertical-push"
+    },
+    "One-Arm_Kettlebell_Para_Press": {
+      "action": "new",
+      "movement": "One-Arm Para Press",
+      "pattern": "vertical-push"
+    },
+    "One-Arm_Kettlebell_Push_Press": {
+      "action": "new",
+      "movement": "One-Arm Push Press",
+      "pattern": "vertical-push"
+    },
+    "One-Arm_Kettlebell_Row": {
+      "action": "match",
+      "movement": "One Arm Row"
+    },
+    "One-Arm_Kettlebell_Snatch": {
+      "action": "new",
+      "movement": "One-Arm Snatch",
+      "pattern": "olympic"
+    },
+    "One-Arm_Kettlebell_Split_Jerk": {
+      "action": "new",
+      "movement": "One-Arm Split Jerk",
+      "pattern": "olympic"
+    },
+    "One-Arm_Kettlebell_Split_Snatch": {
+      "action": "new",
+      "movement": "One-Arm Split Snatch",
+      "pattern": "olympic"
+    },
+    "One-Arm_Kettlebell_Swings": {
+      "action": "new",
+      "movement": "One-Arm Swings",
+      "pattern": "hinge"
+    },
+    "One-Arm_Long_Bar_Row": {
+      "action": "new",
+      "movement": "One-Arm Long Bar Row",
+      "pattern": "horizontal-pull"
+    },
+    "One-Arm_Medicine_Ball_Slam": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "One-Arm_Open_Palm_Kettlebell_Clean": {
+      "action": "new",
+      "movement": "One-Arm Open Palm Clean",
+      "pattern": "olympic"
+    },
+    "One-Arm_Overhead_Kettlebell_Squats": {
+      "action": "new",
+      "movement": "One-Arm Overhead Squats",
+      "pattern": "squat"
+    },
+    "One-Arm_Side_Deadlift": {
+      "action": "new",
+      "movement": "One-Arm Side Deadlift",
+      "pattern": "hinge"
+    },
+    "One-Arm_Side_Laterals": {
+      "action": "match",
+      "movement": "Lateral Raise"
+    },
+    "One-Legged_Cable_Kickback": {
+      "action": "match",
+      "movement": "Glute Kickback"
+    },
+    "One_Arm_Against_Wall": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "One_Arm_Chin-Up": {
+      "action": "new",
+      "movement": "One Arm Chin-Up",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "One_Arm_Dumbbell_Bench_Press": {
+      "action": "new",
+      "movement": "One Arm Bench Press",
+      "pattern": "horizontal-push"
+    },
+    "One_Arm_Dumbbell_Preacher_Curl": {
+      "action": "new",
+      "movement": "One Arm Preacher Curl",
+      "pattern": "elbow-flexion"
+    },
+    "One_Arm_Floor_Press": {
+      "action": "new",
+      "movement": "One Arm Floor Press",
+      "pattern": "horizontal-push"
+    },
+    "One_Arm_Lat_Pulldown": {
+      "action": "match",
+      "movement": "Single Arm Lat Pulldown"
+    },
+    "One_Arm_Pronated_Dumbbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "One Arm Pronated Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "One_Arm_Supinated_Dumbbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "One Arm Supinated Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "One_Half_Locust": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "One_Handed_Hang": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "One_Knee_To_Chest": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "One_Leg_Barbell_Squat": {
+      "action": "match",
+      "movement": "Bulgarian Split Squat"
+    },
+    "Open_Palm_Kettlebell_Clean": {
+      "action": "new",
+      "movement": "Open Palm Clean",
+      "pattern": "olympic"
+    },
+    "Otis-Up": {
+      "action": "new",
+      "movement": "Otis-Up",
+      "pattern": "spinal-flexion",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Overhead_Cable_Curl": {
+      "action": "new",
+      "movement": "Overhead Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Overhead_Lat": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Overhead_Slam": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Overhead_Squat": {
+      "action": "new",
+      "movement": "Overhead Squat",
+      "pattern": "squat"
+    },
+    "Overhead_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Overhead_Triceps": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Pallof_Press": {
+      "action": "match",
+      "movement": "Pallof Press"
+    },
+    "Pallof_Press_With_Rotation": {
+      "action": "new",
+      "movement": "Pallof Press With Rotation",
+      "pattern": "shoulder-rotation"
+    },
+    "Palms-Down_Dumbbell_Wrist_Curl_Over_A_Bench": {
+      "action": "match",
+      "movement": "Reverse Wrist Curl"
+    },
+    "Palms-Down_Wrist_Curl_Over_A_Bench": {
+      "action": "match",
+      "movement": "Reverse Wrist Curl"
+    },
+    "Palms-Up_Barbell_Wrist_Curl_Over_A_Bench": {
+      "action": "match",
+      "movement": "Wrist Curl"
+    },
+    "Palms-Up_Dumbbell_Wrist_Curl_Over_A_Bench": {
+      "action": "match",
+      "movement": "Wrist Curl"
+    },
+    "Parallel_Bar_Dip": {
+      "action": "match",
+      "movement": "Triceps Dip",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Pelvic_Tilt_Into_Bridge": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Peroneals-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Peroneals_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Physioball_Hip_Bridge": {
+      "action": "new",
+      "movement": "Physioball Hip Bridge",
+      "pattern": "hip-thrust",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance. Source uses a ball for resistance, not conditioning.",
+      "resistanceException": true
+    },
+    "Pin_Presses": {
+      "action": "new",
+      "movement": "Pin Presses",
+      "pattern": "horizontal-push"
+    },
+    "Piriformis-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Plank": {
+      "action": "match",
+      "movement": "Plank"
+    },
+    "Plate_Pinch": {
+      "action": "match",
+      "movement": "Plate Pinch",
+      "equipment": "plate",
+      "name": "Plate Pinch",
+      "reason": "Reviewed implement: Plate."
+    },
+    "Plate_Twist": {
+      "action": "new",
+      "movement": "Plate Twist",
+      "pattern": "rotation",
+      "equipment": "plate",
+      "reason": "Reviewed implement: Plate."
+    },
+    "Platform_Hamstring_Slides": {
+      "action": "new",
+      "movement": "Platform Hamstring Slides",
+      "pattern": "knee-flexion",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Plie_Dumbbell_Squat": {
+      "action": "new",
+      "movement": "Plie Squat",
+      "pattern": "squat"
+    },
+    "Plyo_Kettlebell_Pushups": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Plyo_Push-up": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Posterior_Tibialis_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Power_Clean": {
+      "action": "match",
+      "movement": "Power Clean"
+    },
+    "Power_Clean_from_Blocks": {
+      "action": "new",
+      "movement": "Power Clean from Blocks",
+      "pattern": "olympic"
+    },
+    "Power_Jerk": {
+      "action": "new",
+      "movement": "Power Jerk",
+      "pattern": "olympic"
+    },
+    "Power_Partials": {
+      "action": "new",
+      "movement": "Power Partials",
+      "pattern": "shoulder-flexion"
+    },
+    "Power_Snatch": {
+      "action": "new",
+      "movement": "Power Snatch",
+      "pattern": "olympic"
+    },
+    "Power_Snatch_from_Blocks": {
+      "action": "new",
+      "movement": "Power Snatch from Blocks",
+      "pattern": "olympic"
+    },
+    "Power_Stairs": {
+      "action": "new",
+      "movement": "Power Stairs",
+      "pattern": "hinge",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Preacher_Curl": {
+      "action": "match",
+      "movement": "Preacher Curl"
+    },
+    "Preacher_Hammer_Dumbbell_Curl": {
+      "action": "new",
+      "movement": "Preacher Hammer Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Press_Sit-Up": {
+      "action": "new",
+      "movement": "Press Sit Up",
+      "pattern": "horizontal-push"
+    },
+    "Prone_Manual_Hamstring": {
+      "action": "new",
+      "movement": "Prone Manual Hamstring",
+      "pattern": "knee-flexion",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Prowler_Sprint": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Pull_Through": {
+      "action": "match",
+      "movement": "Pull Through"
+    },
+    "Pullups": {
+      "action": "match",
+      "movement": "Pull Up"
+    },
+    "Push-Up_Wide": {
+      "action": "new",
+      "movement": "Push Up Wide",
+      "pattern": "horizontal-push"
+    },
+    "Push-Ups_-_Close_Triceps_Position": {
+      "action": "new",
+      "movement": "Push Up - Close Triceps Position",
+      "pattern": "elbow-extension"
+    },
+    "Push-Ups_With_Feet_Elevated": {
+      "action": "new",
+      "movement": "Push Up With Feet Elevated",
+      "pattern": "horizontal-push"
+    },
+    "Push-Ups_With_Feet_On_An_Exercise_Ball": {
+      "action": "new",
+      "movement": "Push Up With Feet On An Exercise Ball",
+      "pattern": "horizontal-push",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance. Source uses a ball for resistance, not conditioning.",
+      "resistanceException": true
+    },
+    "Push_Press": {
+      "action": "match",
+      "movement": "Push Press"
+    },
+    "Push_Press_-_Behind_the_Neck": {
+      "action": "new",
+      "movement": "Push Press - Behind the Neck",
+      "pattern": "vertical-push"
+    },
+    "Push_Up_to_Side_Plank": {
+      "action": "new",
+      "movement": "Push Up to Side Plank",
+      "pattern": "horizontal-push"
+    },
+    "Pushups": {
+      "action": "match",
+      "movement": "Push Up"
+    },
+    "Pushups_Close_and_Wide_Hand_Positions": {
+      "action": "new",
+      "movement": "Pushups (Close and Wide Hand Positions)",
+      "pattern": "horizontal-push"
+    },
+    "Pyramid": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Quad_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Quadriceps-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Quick_Leap": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Rack_Delivery": {
+      "action": "new",
+      "movement": "Rack Delivery",
+      "pattern": "shoulder-flexion"
+    },
+    "Rack_Pull_with_Bands": {
+      "action": "match",
+      "movement": "Rack Pull"
+    },
+    "Rack_Pulls": {
+      "action": "match",
+      "movement": "Rack Pull"
+    },
+    "Rear_Leg_Raises": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Recumbent_Bike": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Return_Push_from_Stance": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Reverse_Band_Bench_Press": {
+      "action": "new",
+      "movement": "Reverse Band Bench Press",
+      "pattern": "horizontal-push"
+    },
+    "Reverse_Band_Box_Squat": {
+      "action": "new",
+      "movement": "Reverse Band Box Squat",
+      "pattern": "squat"
+    },
+    "Reverse_Band_Deadlift": {
+      "action": "new",
+      "movement": "Reverse Band Deadlift",
+      "pattern": "hinge"
+    },
+    "Reverse_Band_Power_Squat": {
+      "action": "new",
+      "movement": "Reverse Band Power Squat",
+      "pattern": "squat"
+    },
+    "Reverse_Band_Sumo_Deadlift": {
+      "action": "new",
+      "movement": "Reverse Band Sumo Deadlift",
+      "pattern": "hinge"
+    },
+    "Reverse_Barbell_Curl": {
+      "action": "match",
+      "movement": "Reverse Curl"
+    },
+    "Reverse_Barbell_Preacher_Curls": {
+      "action": "new",
+      "movement": "Reverse Preacher Curls",
+      "pattern": "elbow-flexion",
+      "equipment": "ez-bar"
+    },
+    "Reverse_Cable_Curl": {
+      "action": "match",
+      "movement": "Reverse Curl"
+    },
+    "Reverse_Crunch": {
+      "action": "new",
+      "movement": "Reverse Crunch",
+      "pattern": "spinal-flexion"
+    },
+    "Reverse_Flyes": {
+      "action": "match",
+      "movement": "Reverse Fly"
+    },
+    "Reverse_Flyes_With_External_Rotation": {
+      "action": "new",
+      "movement": "Reverse Fly With External Rotation",
+      "pattern": "rear-delt-fly",
+      "primary": ["rear-delt"],
+      "secondary": ["rotator-cuff"]
+    },
+    "Reverse_Grip_Bent-Over_Rows": {
+      "action": "match",
+      "movement": "Bent Over Row - Underhand"
+    },
+    "Reverse_Grip_Triceps_Pushdown": {
+      "action": "new",
+      "movement": "Reverse Grip Triceps Pushdown",
+      "pattern": "elbow-extension"
+    },
+    "Reverse_Hyperextension": {
+      "action": "match",
+      "movement": "Reverse Hyper"
+    },
+    "Reverse_Machine_Flyes": {
+      "action": "match",
+      "movement": "Reverse Fly"
+    },
+    "Reverse_Plate_Curls": {
+      "action": "new",
+      "movement": "Reverse Plate Curls",
+      "pattern": "elbow-flexion",
+      "equipment": "plate",
+      "reason": "Reviewed implement: Plate."
+    },
+    "Reverse_Triceps_Bench_Press": {
+      "action": "new",
+      "movement": "Reverse Triceps Bench Press",
+      "pattern": "elbow-extension"
+    },
+    "Rhomboids-SMR": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Rickshaw_Carry": {
+      "action": "new",
+      "movement": "Rickshaw Carry",
+      "pattern": "carry",
+      "equipment": "trap-bar",
+      "reason": "Reviewed implement: Trap Bar."
+    },
+    "Rickshaw_Deadlift": {
+      "action": "new",
+      "movement": "Rickshaw Deadlift",
+      "pattern": "hinge",
+      "equipment": "trap-bar",
+      "reason": "Reviewed implement: Trap Bar."
+    },
+    "Ring_Dips": {
+      "action": "new",
+      "movement": "Ring Dips",
+      "pattern": "horizontal-push",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Rocket_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Rocking_Standing_Calf_Raise": {
+      "action": "new",
+      "movement": "Rocking Standing Calf Raise",
+      "pattern": "calf-raise"
+    },
+    "Rocky_Pull-Ups_Pulldowns": {
+      "action": "new",
+      "movement": "Rocky Pull Ups/Pulldowns",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Romanian_Deadlift": {
+      "action": "match",
+      "movement": "Romanian Deadlift"
+    },
+    "Romanian_Deadlift_from_Deficit": {
+      "action": "new",
+      "movement": "Romanian Deadlift from Deficit",
+      "pattern": "hinge"
+    },
+    "Rope_Climb": {
+      "action": "new",
+      "movement": "Rope Climb",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Rope_Crunch": {
+      "action": "match",
+      "movement": "Cable Crunch",
+      "equipment": "cable",
+      "name": "Cable Crunch"
+    },
+    "Rope_Jumping": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Rope_Straight-Arm_Pulldown": {
+      "action": "match",
+      "movement": "Straight Arm Pulldown"
+    },
+    "Round_The_World_Shoulder_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Rowing_Stationary": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Runners_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Running_Treadmill": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Russian_Twist": {
+      "action": "match",
+      "movement": "Russian Twist",
+      "primary": ["obliques"]
+    },
+    "Sandbag_Load": {
+      "action": "new",
+      "movement": "Sandbag Load",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Scapular_Pull-Up": {
+      "action": "new",
+      "movement": "Scapular Pull Up",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Scissor_Kick": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Scissors_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Band_Hamstring_Curl": {
+      "action": "new",
+      "movement": "Seated Band Hamstring Curl",
+      "pattern": "knee-flexion",
+      "equipment": "band",
+      "reason": "Reviewed implement: Band."
+    },
+    "Seated_Barbell_Military_Press": {
+      "action": "match",
+      "movement": "Seated Overhead Press"
+    },
+    "Seated_Barbell_Twist": {
+      "action": "new",
+      "movement": "Seated Twist",
+      "pattern": "rotation"
+    },
+    "Seated_Bent-Over_One-Arm_Dumbbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "Seated Bent-Over One-Arm Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Seated_Bent-Over_Rear_Delt_Raise": {
+      "action": "new",
+      "movement": "Seated Bent-Over Rear Delt Raise",
+      "pattern": "rear-delt-fly"
+    },
+    "Seated_Bent-Over_Two-Arm_Dumbbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "Seated Bent-Over Two-Arm Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Seated_Biceps": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Cable_Rows": {
+      "action": "match",
+      "movement": "Seated Row"
+    },
+    "Seated_Cable_Shoulder_Press": {
+      "action": "new",
+      "movement": "Seated Shoulder Press",
+      "pattern": "vertical-push"
+    },
+    "Seated_Calf_Raise": {
+      "action": "match",
+      "movement": "Seated Calf Raise"
+    },
+    "Seated_Calf_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Close-Grip_Concentration_Barbell_Curl": {
+      "action": "new",
+      "movement": "Seated Close-Grip Concentration Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Seated_Dumbbell_Curl": {
+      "action": "new",
+      "movement": "Seated Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Seated_Dumbbell_Inner_Biceps_Curl": {
+      "action": "new",
+      "movement": "Seated Inner Biceps Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Seated_Dumbbell_Palms-Down_Wrist_Curl": {
+      "action": "new",
+      "movement": "Seated Palms-Down Wrist Curl",
+      "pattern": "wrist-extension"
+    },
+    "Seated_Dumbbell_Palms-Up_Wrist_Curl": {
+      "action": "match",
+      "movement": "Wrist Curl"
+    },
+    "Seated_Dumbbell_Press": {
+      "action": "match",
+      "movement": "Seated Overhead Press"
+    },
+    "Seated_Flat_Bench_Leg_Pull-In": {
+      "action": "new",
+      "movement": "Seated Flat Bench Leg Pull-In",
+      "pattern": "spinal-flexion"
+    },
+    "Seated_Floor_Hamstring_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Front_Deltoid": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Glute": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Good_Mornings": {
+      "action": "new",
+      "movement": "Seated Good Mornings",
+      "pattern": "hinge"
+    },
+    "Seated_Hamstring": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Hamstring_and_Calf_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Head_Harness_Neck_Resistance": {
+      "action": "new",
+      "movement": "Seated Head Harness Neck Resistance",
+      "pattern": "neck",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Seated_Leg_Curl": {
+      "action": "match",
+      "movement": "Seated Leg Curl"
+    },
+    "Seated_Leg_Tucks": {
+      "action": "new",
+      "movement": "Seated Leg Tucks",
+      "pattern": "spinal-flexion"
+    },
+    "Seated_One-Arm_Dumbbell_Palms-Down_Wrist_Curl": {
+      "action": "new",
+      "movement": "Seated One-Arm Palms-Down Wrist Curl",
+      "pattern": "wrist-extension"
+    },
+    "Seated_One-Arm_Dumbbell_Palms-Up_Wrist_Curl": {
+      "action": "new",
+      "movement": "Seated One-Arm Palms-Up Wrist Curl",
+      "pattern": "wrist-flexion"
+    },
+    "Seated_One-arm_Cable_Pulley_Rows": {
+      "action": "match",
+      "movement": "One Arm Row"
+    },
+    "Seated_Overhead_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Seated_Palm-Up_Barbell_Wrist_Curl": {
+      "action": "new",
+      "movement": "Seated Palm-Up Wrist Curl",
+      "pattern": "wrist-flexion"
+    },
+    "Seated_Palms-Down_Barbell_Wrist_Curl": {
+      "action": "new",
+      "movement": "Seated Palms-Down Wrist Curl",
+      "pattern": "wrist-extension"
+    },
+    "Seated_Side_Lateral_Raise": {
+      "action": "match",
+      "movement": "Seated Lateral Raise"
+    },
+    "Seated_Triceps_Press": {
+      "action": "new",
+      "movement": "Seated Triceps Press",
+      "pattern": "elbow-extension"
+    },
+    "Seated_Two-Arm_Palms-Up_Low-Pulley_Wrist_Curl": {
+      "action": "new",
+      "movement": "Seated Two-Arm Palms-Up Low-Pulley Wrist Curl",
+      "pattern": "wrist-flexion"
+    },
+    "See-Saw_Press_Alternating_Side_Press": {
+      "action": "new",
+      "movement": "See-Saw Press (Alternating Side Press)",
+      "pattern": "horizontal-push"
+    },
+    "Shotgun_Row": {
+      "action": "new",
+      "movement": "Shotgun Row",
+      "pattern": "horizontal-pull"
+    },
+    "Shoulder_Circles": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Shoulder_Press_-_With_Bands": {
+      "action": "match",
+      "movement": "Overhead Press"
+    },
+    "Shoulder_Raise": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Shoulder_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Side-Lying_Floor_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Side_Bridge": {
+      "action": "match",
+      "movement": "Side Plank"
+    },
+    "Side_Hop-Sprint": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Side_Jackknife": {
+      "action": "new",
+      "movement": "Side Jackknife",
+      "pattern": "spinal-flexion"
+    },
+    "Side_Lateral_Raise": {
+      "action": "match",
+      "movement": "Lateral Raise"
+    },
+    "Side_Laterals_to_Front_Raise": {
+      "action": "new",
+      "movement": "Side Laterals to Front Raise",
+      "pattern": "shoulder-abduction"
+    },
+    "Side_Leg_Raises": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Side_Lying_Groin_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Side_Neck_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Side_Standing_Long_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Side_To_Side_Chins": {
+      "action": "new",
+      "movement": "Side To Side Chins",
+      "pattern": "vertical-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Side_Wrist_Pull": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Side_to_Side_Box_Shuffle": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Single-Arm_Cable_Crossover": {
+      "action": "new",
+      "movement": "Single-Arm Crossover",
+      "pattern": "chest-fly"
+    },
+    "Single-Arm_Linear_Jammer": {
+      "action": "new",
+      "movement": "Single-Arm Linear Jammer",
+      "pattern": "shoulder-flexion"
+    },
+    "Single-Arm_Push-Up": {
+      "action": "new",
+      "movement": "Single-Arm Push Up",
+      "pattern": "horizontal-push"
+    },
+    "Single-Cone_Sprint_Drill": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Single-Leg_High_Box_Squat": {
+      "action": "new",
+      "movement": "Single-Leg High Box Squat",
+      "pattern": "squat",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Single-Leg_Hop_Progression": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Single-Leg_Lateral_Hop": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Single-Leg_Leg_Extension": {
+      "action": "match",
+      "movement": "Single Leg Extension"
+    },
+    "Single-Leg_Stride_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Single_Dumbbell_Raise": {
+      "action": "new",
+      "movement": "Single Raise",
+      "pattern": "shoulder-flexion"
+    },
+    "Single_Leg_Butt_Kick": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Single_Leg_Glute_Bridge": {
+      "action": "new",
+      "movement": "Single Leg Glute Bridge",
+      "pattern": "hip-thrust"
+    },
+    "Single_Leg_Push-off": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Sit-Up": {
+      "action": "match",
+      "movement": "Sit Up"
+    },
+    "Sit_Squats": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Skating": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Sled_Drag_-_Harness": {
+      "action": "new",
+      "movement": "Sled Drag - Harness",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Sled_Overhead_Backward_Walk": {
+      "action": "new",
+      "movement": "Sled Overhead Backward Walk",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Sled_Overhead_Triceps_Extension": {
+      "action": "new",
+      "movement": "Sled Overhead Triceps Extension",
+      "pattern": "elbow-extension",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Sled_Push": {
+      "action": "new",
+      "movement": "Sled Push",
+      "pattern": "squat",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Sled_Reverse_Flye": {
+      "action": "new",
+      "movement": "Sled Reverse Fly",
+      "pattern": "rear-delt-fly",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Sled_Row": {
+      "action": "new",
+      "movement": "Sled Row",
+      "pattern": "horizontal-pull",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Sledgehammer_Swings": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Smith_Incline_Shoulder_Raise": {
+      "action": "new",
+      "movement": "Incline Serratus Punch",
+      "pattern": "shoulder-flexion",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine.",
+      "primary": ["serratus"],
+      "secondary": ["front-delt"]
+    },
+    "Smith_Machine_Behind_the_Back_Shrug": {
+      "action": "new",
+      "movement": "Behind the Back Shrug",
+      "pattern": "shrug",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Bench_Press": {
+      "action": "match",
+      "movement": "Bench Press",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Bent_Over_Row": {
+      "action": "match",
+      "movement": "Bent Over Row",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Calf_Raise": {
+      "action": "match",
+      "movement": "Standing Calf Raise",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Close-Grip_Bench_Press": {
+      "action": "match",
+      "movement": "Bench Press - Close Grip",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Decline_Press": {
+      "action": "match",
+      "movement": "Decline Bench Press",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Hang_Power_Clean": {
+      "action": "new",
+      "movement": "Hang Power Clean",
+      "pattern": "olympic",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Hip_Raise": {
+      "action": "new",
+      "movement": "Hip Raise",
+      "pattern": "vertical-pull",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Incline_Bench_Press": {
+      "action": "match",
+      "movement": "Incline Bench Press",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Leg_Press": {
+      "action": "new",
+      "movement": "Leg Press",
+      "pattern": "squat",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_One-Arm_Upright_Row": {
+      "action": "new",
+      "movement": "One-Arm Upright Row",
+      "pattern": "vertical-pull",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Overhead_Shoulder_Press": {
+      "action": "match",
+      "movement": "Overhead Press",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Pistol_Squat": {
+      "action": "new",
+      "movement": "Pistol Squat",
+      "pattern": "squat",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Reverse_Calf_Raises": {
+      "action": "new",
+      "movement": "Tibialis Raise",
+      "pattern": "calf-raise",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine.",
+      "primary": ["tibialis"],
+      "secondary": []
+    },
+    "Smith_Machine_Squat": {
+      "action": "match",
+      "movement": "Squat",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Stiff-Legged_Deadlift": {
+      "action": "match",
+      "movement": "Stiff Leg Deadlift",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Machine_Upright_Row": {
+      "action": "new",
+      "movement": "Upright Row",
+      "pattern": "vertical-pull",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Smith_Single-Leg_Split_Squat": {
+      "action": "new",
+      "movement": "Single-Leg Split Squat",
+      "pattern": "lunge",
+      "equipment": "smith-machine",
+      "reason": "Reviewed implement: Smith Machine."
+    },
+    "Snatch": {
+      "action": "match",
+      "movement": "Snatch"
+    },
+    "Snatch_Balance": {
+      "action": "new",
+      "movement": "Snatch Balance",
+      "pattern": "olympic"
+    },
+    "Snatch_Deadlift": {
+      "action": "new",
+      "movement": "Snatch Deadlift",
+      "pattern": "olympic"
+    },
+    "Snatch_Pull": {
+      "action": "new",
+      "movement": "Snatch Pull",
+      "pattern": "olympic"
+    },
+    "Snatch_Shrug": {
+      "action": "new",
+      "movement": "Snatch Shrug",
+      "pattern": "olympic"
+    },
+    "Snatch_from_Blocks": {
+      "action": "new",
+      "movement": "Snatch from Blocks",
+      "pattern": "olympic"
+    },
+    "Speed_Band_Overhead_Triceps": {
+      "action": "new",
+      "movement": "Speed Band Overhead Triceps",
+      "pattern": "elbow-extension"
+    },
+    "Speed_Box_Squat": {
+      "action": "new",
+      "movement": "Speed Box Squat",
+      "pattern": "squat"
+    },
+    "Speed_Squats": {
+      "action": "new",
+      "movement": "Speed Squats",
+      "pattern": "squat"
+    },
+    "Spell_Caster": {
+      "action": "new",
+      "movement": "Spell Caster",
+      "pattern": "rotation"
+    },
+    "Spider_Crawl": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Spider_Curl": {
+      "action": "match",
+      "movement": "Spider Curl"
+    },
+    "Spinal_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Split_Clean": {
+      "action": "new",
+      "movement": "Split Clean",
+      "pattern": "olympic"
+    },
+    "Split_Jerk": {
+      "action": "new",
+      "movement": "Split Jerk",
+      "pattern": "olympic"
+    },
+    "Split_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Split_Snatch": {
+      "action": "new",
+      "movement": "Split Snatch",
+      "pattern": "olympic"
+    },
+    "Split_Squat_with_Dumbbells": {
+      "action": "match",
+      "movement": "Split Squat"
+    },
+    "Split_Squats": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Squat_Jerk": {
+      "action": "new",
+      "movement": "Squat Jerk",
+      "pattern": "olympic"
+    },
+    "Squat_with_Bands": {
+      "action": "match",
+      "movement": "Squat"
+    },
+    "Squat_with_Chains": {
+      "action": "new",
+      "movement": "Squat with Chains",
+      "pattern": "squat"
+    },
+    "Squat_with_Plate_Movers": {
+      "action": "new",
+      "movement": "Squat with Plate Movers",
+      "pattern": "squat"
+    },
+    "Squats_-_With_Bands": {
+      "action": "new",
+      "movement": "Squats",
+      "pattern": "squat"
+    },
+    "Stairmaster": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Alternating_Dumbbell_Press": {
+      "action": "new",
+      "movement": "Standing Alternating Press",
+      "pattern": "horizontal-push"
+    },
+    "Standing_Barbell_Calf_Raise": {
+      "action": "match",
+      "movement": "Standing Calf Raise"
+    },
+    "Standing_Barbell_Press_Behind_Neck": {
+      "action": "new",
+      "movement": "Standing Press Behind Neck",
+      "pattern": "horizontal-push"
+    },
+    "Standing_Bent-Over_One-Arm_Dumbbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "Standing Bent-Over One-Arm Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Standing_Bent-Over_Two-Arm_Dumbbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "Standing Bent-Over Two-Arm Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Standing_Biceps_Cable_Curl": {
+      "action": "match",
+      "movement": "Bicep Curl"
+    },
+    "Standing_Biceps_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Bradford_Press": {
+      "action": "new",
+      "movement": "Standing Bradford Press",
+      "pattern": "vertical-push"
+    },
+    "Standing_Cable_Chest_Press": {
+      "action": "new",
+      "movement": "Standing Chest Press",
+      "pattern": "horizontal-push"
+    },
+    "Standing_Cable_Lift": {
+      "action": "new",
+      "movement": "Standing Lift",
+      "pattern": "spinal-flexion"
+    },
+    "Standing_Cable_Wood_Chop": {
+      "action": "match",
+      "movement": "Cable Woodchopper",
+      "equipment": "cable",
+      "name": "Cable Woodchopper"
+    },
+    "Standing_Calf_Raises": {
+      "action": "match",
+      "movement": "Standing Calf Raise"
+    },
+    "Standing_Concentration_Curl": {
+      "action": "new",
+      "movement": "Standing Concentration Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Standing_Dumbbell_Calf_Raise": {
+      "action": "match",
+      "movement": "Standing Calf Raise"
+    },
+    "Standing_Dumbbell_Press": {
+      "action": "match",
+      "movement": "Overhead Press"
+    },
+    "Standing_Dumbbell_Reverse_Curl": {
+      "action": "match",
+      "movement": "Reverse Curl"
+    },
+    "Standing_Dumbbell_Straight-Arm_Front_Delt_Raise_Above_Head": {
+      "action": "new",
+      "movement": "Standing Straight-Arm Front Delt Raise Above Head",
+      "pattern": "shoulder-flexion"
+    },
+    "Standing_Dumbbell_Triceps_Extension": {
+      "action": "match",
+      "movement": "Triceps Extension"
+    },
+    "Standing_Dumbbell_Upright_Row": {
+      "action": "new",
+      "movement": "Standing Upright Row",
+      "pattern": "horizontal-pull"
+    },
+    "Standing_Elevated_Quad_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Front_Barbell_Raise_Over_Head": {
+      "action": "new",
+      "movement": "Standing Front Raise Over Head",
+      "pattern": "shoulder-flexion"
+    },
+    "Standing_Gastrocnemius_Calf_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Hamstring_and_Calf_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Hip_Circles": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Hip_Flexors": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Inner-Biceps_Curl": {
+      "action": "new",
+      "movement": "Standing Inner-Biceps Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Standing_Lateral_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Leg_Curl": {
+      "action": "match",
+      "movement": "Standing Leg Curl"
+    },
+    "Standing_Long_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Low-Pulley_Deltoid_Raise": {
+      "action": "match",
+      "movement": "Lateral Raise"
+    },
+    "Standing_Low-Pulley_One-Arm_Triceps_Extension": {
+      "action": "new",
+      "movement": "Standing Low-Pulley One-Arm Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Standing_Military_Press": {
+      "action": "match",
+      "movement": "Overhead Press"
+    },
+    "Standing_Olympic_Plate_Hand_Squeeze": {
+      "action": "new",
+      "movement": "Standing Olympic Plate Hand Squeeze",
+      "pattern": "grip",
+      "equipment": "plate",
+      "reason": "Reviewed implement: Plate."
+    },
+    "Standing_One-Arm_Cable_Curl": {
+      "action": "new",
+      "movement": "Standing One-Arm Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Standing_One-Arm_Dumbbell_Curl_Over_Incline_Bench": {
+      "action": "new",
+      "movement": "Standing One-Arm Curl Over Incline Bench",
+      "pattern": "elbow-flexion"
+    },
+    "Standing_One-Arm_Dumbbell_Triceps_Extension": {
+      "action": "new",
+      "movement": "Standing One-Arm Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Standing_Overhead_Barbell_Triceps_Extension": {
+      "action": "match",
+      "movement": "Triceps Extension"
+    },
+    "Standing_Palm-In_One-Arm_Dumbbell_Press": {
+      "action": "new",
+      "movement": "Standing Palm-In One-Arm Press",
+      "pattern": "horizontal-push"
+    },
+    "Standing_Palms-In_Dumbbell_Press": {
+      "action": "new",
+      "movement": "Standing Palms-In Press",
+      "pattern": "horizontal-push"
+    },
+    "Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl": {
+      "action": "new",
+      "movement": "Standing Palms-Up Behind The Back Wrist Curl",
+      "pattern": "wrist-flexion"
+    },
+    "Standing_Pelvic_Tilt": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Rope_Crunch": {
+      "action": "new",
+      "movement": "Standing Rope Crunch",
+      "pattern": "spinal-flexion"
+    },
+    "Standing_Soleus_And_Achilles_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Toe_Touches": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Standing_Towel_Triceps_Extension": {
+      "action": "new",
+      "movement": "Standing Towel Triceps Extension",
+      "pattern": "elbow-extension"
+    },
+    "Standing_Two-Arm_Overhead_Throw": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Star_Jump": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Step-up_with_Knee_Raise": {
+      "action": "new",
+      "movement": "Step-up with Knee Raise",
+      "pattern": "lunge"
+    },
+    "Step_Mill": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Stiff-Legged_Barbell_Deadlift": {
+      "action": "match",
+      "movement": "Stiff Leg Deadlift"
+    },
+    "Stiff-Legged_Dumbbell_Deadlift": {
+      "action": "match",
+      "movement": "Stiff Leg Deadlift"
+    },
+    "Stiff_Leg_Barbell_Good_Morning": {
+      "action": "new",
+      "movement": "Stiff Leg Good Morning",
+      "pattern": "hinge"
+    },
+    "Stomach_Vacuum": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Straight-Arm_Dumbbell_Pullover": {
+      "action": "match",
+      "movement": "Pullover"
+    },
+    "Straight-Arm_Pulldown": {
+      "action": "match",
+      "movement": "Straight Arm Pulldown"
+    },
+    "Straight_Bar_Bench_Mid_Rows": {
+      "action": "new",
+      "movement": "Straight Bar Bench Mid Rows",
+      "pattern": "horizontal-pull"
+    },
+    "Straight_Raises_on_Incline_Bench": {
+      "action": "new",
+      "movement": "Straight Raises on Incline Bench",
+      "pattern": "shoulder-flexion"
+    },
+    "Stride_Jump_Crossover": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Sumo_Deadlift": {
+      "action": "match",
+      "movement": "Sumo Deadlift"
+    },
+    "Sumo_Deadlift_with_Bands": {
+      "action": "match",
+      "movement": "Sumo Deadlift"
+    },
+    "Sumo_Deadlift_with_Chains": {
+      "action": "new",
+      "movement": "Sumo Deadlift with Chains",
+      "pattern": "hinge"
+    },
+    "Superman": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Supine_Chest_Throw": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Supine_One-Arm_Overhead_Throw": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Supine_Two-Arm_Overhead_Throw": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Suspended_Fallout": {
+      "action": "new",
+      "movement": "Suspended Fallout",
+      "pattern": "anti-movement",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Suspended_Push-Up": {
+      "action": "new",
+      "movement": "Suspended Push Up",
+      "pattern": "horizontal-push",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Suspended_Reverse_Crunch": {
+      "action": "new",
+      "movement": "Suspended Reverse Crunch",
+      "pattern": "spinal-flexion",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Suspended_Row": {
+      "action": "new",
+      "movement": "Suspended Row",
+      "pattern": "horizontal-pull",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Suspended_Split_Squat": {
+      "action": "new",
+      "movement": "Suspended Split Squat",
+      "pattern": "lunge",
+      "equipment": "bodyweight",
+      "reason": "Reviewed implement: body-supported resistance."
+    },
+    "Svend_Press": {
+      "action": "match",
+      "movement": "Svend Press",
+      "equipment": "plate",
+      "reason": "Reviewed implement: Plate."
+    },
+    "T-Bar_Row_with_Handle": {
+      "action": "match",
+      "movement": "T-Bar Row",
+      "equipment": "landmine"
+    },
+    "Tate_Press": {
+      "action": "new",
+      "movement": "Tate Press",
+      "pattern": "elbow-extension"
+    },
+    "The_Straddle": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Thigh_Abductor": {
+      "action": "match",
+      "movement": "Hip Abductor"
+    },
+    "Thigh_Adductor": {
+      "action": "match",
+      "movement": "Hip Adductor"
+    },
+    "Tire_Flip": {
+      "action": "new",
+      "movement": "Tire Flip",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Toe_Touchers": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Torso_Rotation": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Trail_Running_Walking": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Trap_Bar_Deadlift": {
+      "action": "match",
+      "movement": "Deadlift",
+      "equipment": "trap-bar",
+      "reason": "Reviewed implement: Trap Bar."
+    },
+    "Tricep_Dumbbell_Kickback": {
+      "action": "match",
+      "movement": "Triceps Kickback"
+    },
+    "Tricep_Side_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Triceps_Overhead_Extension_with_Rope": {
+      "action": "match",
+      "movement": "Triceps Extension"
+    },
+    "Triceps_Pushdown": {
+      "action": "match",
+      "movement": "Triceps Pushdown",
+      "equipment": "cable",
+      "name": "Triceps Pushdown (Cable - Straight Bar)"
+    },
+    "Triceps_Pushdown_-_Rope_Attachment": {
+      "action": "match",
+      "movement": "Triceps Pushdown",
+      "equipment": "cable",
+      "name": "Triceps Pushdown (Cable - Rope)"
+    },
+    "Triceps_Pushdown_-_V-Bar_Attachment": {
+      "action": "match",
+      "movement": "Triceps Pushdown",
+      "equipment": "cable",
+      "name": "Triceps Pushdown (Cable - V-Bar)"
+    },
+    "Triceps_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Tuck_Crunch": {
+      "action": "new",
+      "movement": "Tuck Crunch",
+      "pattern": "spinal-flexion"
+    },
+    "Two-Arm_Dumbbell_Preacher_Curl": {
+      "action": "match",
+      "movement": "Preacher Curl"
+    },
+    "Two-Arm_Kettlebell_Clean": {
+      "action": "new",
+      "movement": "Two-Arm Clean",
+      "pattern": "olympic"
+    },
+    "Two-Arm_Kettlebell_Jerk": {
+      "action": "new",
+      "movement": "Two-Arm Jerk",
+      "pattern": "olympic"
+    },
+    "Two-Arm_Kettlebell_Military_Press": {
+      "action": "new",
+      "movement": "Two-Arm Military Press",
+      "pattern": "vertical-push"
+    },
+    "Two-Arm_Kettlebell_Row": {
+      "action": "new",
+      "movement": "Two-Arm Row",
+      "pattern": "horizontal-pull"
+    },
+    "Underhand_Cable_Pulldowns": {
+      "action": "match",
+      "movement": "Lat Pulldown - Underhand"
+    },
+    "Upper_Back-Leg_Grab": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Upper_Back_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Upright_Barbell_Row": {
+      "action": "match",
+      "movement": "Upright Row"
+    },
+    "Upright_Cable_Row": {
+      "action": "match",
+      "movement": "Upright Row"
+    },
+    "Upright_Row_-_With_Bands": {
+      "action": "new",
+      "movement": "Upright Row",
+      "pattern": "horizontal-pull"
+    },
+    "Upward_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "V-Bar_Pulldown": {
+      "action": "match",
+      "movement": "Lat Pulldown - Close Grip"
+    },
+    "V-Bar_Pullup": {
+      "action": "match",
+      "movement": "Neutral Grip Pull Up"
+    },
+    "Vertical_Swing": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Walking_Treadmill": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Weighted_Ball_Hyperextension": {
+      "action": "new",
+      "movement": "Weighted Ball Hyperextension",
+      "pattern": "spinal-extension",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted. Source uses a ball for resistance, not conditioning.",
+      "resistanceException": true,
+      "tracking": "weight-reps"
+    },
+    "Weighted_Ball_Side_Bend": {
+      "action": "new",
+      "movement": "Weighted Ball Side Bend",
+      "pattern": "rotation",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted. Source uses a ball for resistance, not conditioning.",
+      "resistanceException": true,
+      "primary": ["obliques"],
+      "tracking": "weight-reps"
+    },
+    "Weighted_Bench_Dip": {
+      "action": "new",
+      "movement": "Weighted Bench Dip",
+      "pattern": "horizontal-push",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Weighted_Crunches": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Weighted_Jump_Squat": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Weighted_Pull_Ups": {
+      "action": "match",
+      "movement": "Pull Up",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted."
+    },
+    "Weighted_Sissy_Squat": {
+      "action": "new",
+      "movement": "Weighted Sissy Squat",
+      "pattern": "squat"
+    },
+    "Weighted_Sit-Ups_-_With_Bands": {
+      "action": "new",
+      "movement": "Weighted Sit Ups",
+      "pattern": "spinal-flexion",
+      "equipment": "band",
+      "reason": "Reviewed implement: Band."
+    },
+    "Weighted_Squat": {
+      "action": "new",
+      "movement": "Weighted Squat",
+      "pattern": "squat",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-reps"
+    },
+    "Wide-Grip_Barbell_Bench_Press": {
+      "action": "new",
+      "movement": "Wide-Grip Bench Press",
+      "pattern": "horizontal-push"
+    },
+    "Wide-Grip_Decline_Barbell_Bench_Press": {
+      "action": "new",
+      "movement": "Wide-Grip Decline Bench Press",
+      "pattern": "horizontal-push"
+    },
+    "Wide-Grip_Decline_Barbell_Pullover": {
+      "action": "new",
+      "movement": "Wide-Grip Decline Pullover",
+      "pattern": "horizontal-push"
+    },
+    "Wide-Grip_Lat_Pulldown": {
+      "action": "match",
+      "movement": "Lat Pulldown"
+    },
+    "Wide-Grip_Pulldown_Behind_The_Neck": {
+      "action": "new",
+      "movement": "Wide-Grip Pulldown Behind The Neck",
+      "pattern": "vertical-pull"
+    },
+    "Wide-Grip_Rear_Pull-Up": {
+      "action": "new",
+      "movement": "Wide-Grip Rear Pull Up",
+      "pattern": "vertical-pull"
+    },
+    "Wide-Grip_Standing_Barbell_Curl": {
+      "action": "new",
+      "movement": "Wide-Grip Standing Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Wide_Stance_Barbell_Squat": {
+      "action": "new",
+      "movement": "Wide Stance Squat",
+      "pattern": "squat"
+    },
+    "Wide_Stance_Stiff_Legs": {
+      "action": "new",
+      "movement": "Wide Stance Stiff Legs",
+      "pattern": "hinge"
+    },
+    "Wind_Sprints": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Windmills": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Worlds_Greatest_Stretch": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Wrist_Circles": {
+      "action": "skip",
+      "reason": "Outside resistance categories, conditioning/balance/jump, or excluded ball/roller equipment."
+    },
+    "Wrist_Roller": {
+      "action": "new",
+      "movement": "Wrist Roller",
+      "pattern": "grip",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Wrist_Rotations_with_Straight_Bar": {
+      "action": "new",
+      "movement": "Wrist Rotations with Straight Bar",
+      "pattern": "wrist-flexion"
+    },
+    "Yoke_Walk": {
+      "action": "new",
+      "movement": "Yoke Walk",
+      "pattern": "carry",
+      "equipment": "weighted",
+      "reason": "Reviewed implement: Weighted.",
+      "tracking": "weight-duration"
+    },
+    "Zercher_Squats": {
+      "action": "new",
+      "movement": "Zercher Squats",
+      "pattern": "squat"
+    },
+    "Zottman_Curl": {
+      "action": "new",
+      "movement": "Zottman Curl",
+      "pattern": "elbow-flexion"
+    },
+    "Zottman_Preacher_Curl": {
+      "action": "new",
+      "movement": "Zottman Preacher Curl",
+      "pattern": "elbow-flexion"
+    }
+  }
+}

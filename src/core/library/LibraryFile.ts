@@ -47,6 +47,10 @@ export interface LibraryVariant {
   readonly aliases: readonly string[] | undefined;
   /** Replaces the family's `lengthened`. */
   readonly lengthened: boolean | undefined;
+  /** Source instruction steps; absent for exercises without a source match. */
+  readonly instructions: readonly string[] | undefined;
+  /** Pinned source image paths, never arbitrary URLs. */
+  readonly imageKeys: readonly string[] | undefined;
   /** Replaces the family's tracking. */
   readonly tracking: ExerciseTracking | undefined;
 }
@@ -56,8 +60,8 @@ export interface LibraryVariant {
  * done with.
  *
  * A family states the muscles and pattern once; each variant inherits them and may override any
- * field. `ExerciseLibrary` expands families into `LibraryExercise` values. Edit the JSON, not
- * this type, to add exercises, and bump `version` so installed apps re-seed.
+ * field. `ExerciseLibrary` expands families into `LibraryExercise` values. Edit the source
+ * mapping and regenerate the JSON; bump its version so installed apps re-seed.
  */
 export interface LibraryFile {
   /** Increment on every change to the file. Seeding is skipped when the stored version matches. */
@@ -134,6 +138,8 @@ function parseVariant(value: unknown, path: string): LibraryVariant {
   if (typeof value === 'string') {
     return {
       equipment: readEquipment(value, path),
+      instructions: undefined,
+      imageKeys: undefined,
       name: undefined,
       primary: undefined,
       secondary: undefined,
@@ -145,6 +151,8 @@ function parseVariant(value: unknown, path: string): LibraryVariant {
   const record = readRecord(value, path);
   return {
     equipment: required(record, 'equipment', path, readEquipment),
+    instructions: optional(record, 'instructions', path, readStringList),
+    imageKeys: optional(record, 'imageKeys', path, readStringList),
     name: optional(record, 'name', path, readString),
     primary: optional(record, 'primary', path, readMuscleList),
     secondary: optional(record, 'secondary', path, readMuscleList),

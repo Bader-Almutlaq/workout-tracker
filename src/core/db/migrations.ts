@@ -273,6 +273,20 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE exercise ADD COLUMN warmupSetCount INTEGER CHECK (warmupSetCount BETWEEN 0 AND 4);
     `,
   },
+  {
+    id: 'v6-library-details',
+    sql: `
+      ALTER TABLE exercise ADD COLUMN instructions TEXT;
+      ALTER TABLE exercise ADD COLUMN imageKeys TEXT;
+      -- Frozen taxonomy additions from T-047; existing muscle rows stay unchanged.
+      INSERT INTO muscle (id, name, region) VALUES
+        ('serratus', 'Serratus', 'chest'),
+        ('brachialis', 'Brachialis', 'arms'),
+        ('brachioradialis', 'Brachioradialis', 'arms'),
+        ('tibialis', 'Tibialis', 'legs'),
+        ('lower-traps', 'Lower traps', 'back');
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

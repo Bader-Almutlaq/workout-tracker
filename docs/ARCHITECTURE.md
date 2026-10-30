@@ -26,7 +26,7 @@ workout-tracker/
 │   │   ├── queries/         Read-only queries behind screens               (W1–W3)
 │   │   ├── backup/          Validating and restoring backup files          (W1)
 │   │   ├── library/         Exercise library, muscles, search, edits       (W2)
-│   │   │   └── library.json The curated library (edit this to add exercises)
+│   │   │   └── library.json Generated catalog (edit the source mapping)
 │   │   ├── logging/         Writing a workout as it happens, rest timer    (W3)
 │   │   ├── templates/       Workout templates and folders                  (W4)
 │   │   ├── analytics/       e1RM, trend, volume, intensity…                (W5)
@@ -85,6 +85,10 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Concept | Owner |
 |---|---|
 | SQLite access (queries, transactions, export/import bytes) | `src/core/db/Database.ts` |
+| Deterministic library conversion and reviewed source decisions | `tools/build-library.ts`, `data/sources/library-mapping.json` (frozen original families plus every source id) |
+| Library instruction steps and optional pinned picture frames | `LibraryFile.ts` → `LibraryExercise.ts` → `ExerciseLibrarySeeder.ts`; nullable `Exercise.instructions`/`imageKeys` |
+| Exercise picture display preference, safe URLs and frame visibility | `src/app/features/exercises/picturePreference.ts`, `ExercisePictures.tsx`, `ExercisePicture.tsx`; cache policy in `vite.config.ts` |
+| Library source credits | `src/app/features/settings/CreditsScreen.tsx` |
 | Schema and migrations | `src/core/db/migrations.ts` |
 | Opening the database on the phone; safety snapshots | `src/worker/OnDeviceStore.ts` |
 | What the screen can ask of the database | `src/worker/WorkerApi.ts` |

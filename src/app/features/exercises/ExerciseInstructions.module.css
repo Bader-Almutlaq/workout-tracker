@@ -1,0 +1,10 @@
+.steps {
+  margin: 0;
+  padding: var(--space-l) var(--space-l) var(--space-l) var(--space-xxl);
+  font: var(--font-body);
+  overflow-wrap: anywhere;
+}
+
+.steps li + li {
+  margin-top: var(--space-m);
+}
