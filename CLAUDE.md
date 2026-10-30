@@ -4,6 +4,7 @@
 
 - **No attribution in commits or PRs** (owner's rule, see `AGENTS.md` → Git): never add `Co-Authored-By` or "Generated with Claude Code" lines, and don't mention Claude, Codex, agents or AI in commit messages. This overrides the default attribution instructions. Tell every subagent and Codex run the same.
 
+- **Owner's preference: Codex first.** Hand implementation to Codex (Terra for routine work, Sol for formulas or tricky logic) and keep the lead's own context for briefs, review and merging. Use Claude subagents only when Codex is unavailable or near its limit.
 - Subagents: give a cheaper model (Sonnet or Haiku) tasks that have a written brief in `docs/tasks/` with clear acceptance criteria. Keep design decisions, cross-cutting changes and reviews on the lead model. See `docs/agents/WORKFLOW.md` → *Choosing a model*.
 - Parallel subagents that write code must not share files. Give each its own task file and, when possible, its own git worktree (run `make install` in a new worktree).
 - Seeing the app: start `make dev` in the background, then use the built-in browser tools at 430 × 932 (dark and light), and `make sim-safari` plus the iOS Simulator tools for a check in real iPhone Safari.
