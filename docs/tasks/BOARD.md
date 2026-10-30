@@ -63,8 +63,8 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
-| [T-037](T-037-audit-data-safety.md) | Audit: no data loss | doing | Codex Sol (high) | `task/T-037-audit-data-safety` |
-| [T-038](T-038-audit-data-accuracy.md) | Audit: data accuracy | doing | Codex Sol (high) | `task/T-038-audit-data-accuracy` |
+| [T-037](T-037-audit-data-safety.md) | Audit: no data loss | done (9 fixes, 34 tests) | Codex Sol (high), reviewed by lead | merged |
+| [T-038](T-038-audit-data-accuracy.md) | Audit: data accuracy | done (6 fixes, 21 tests) | Codex Sol (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
