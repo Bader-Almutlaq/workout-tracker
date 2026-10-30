@@ -73,7 +73,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-044](T-044-loadable-weights-and-warmups.md) | Loadable weights + auto warm-up sets | doing | Codex Sol (high) | `task/T-044-warmups` |
 | [T-043b](T-043b-body-polish.md) | Body screen polish | done | Codex Terra (high), reviewed by lead | merged |
 | [T-045](T-045-finish-comparison-and-bests.md) | Finish screen: compared with last time, personal bests | done | Codex Terra (high), reviewed by lead | merged |
-| [T-046](T-046-search-by-muscle-words.md) | Plain-language exercise search (muscles, movements, equipment words) | doing | Codex Terra (high) | `task/T-046-search` |
+| [T-046](T-046-search-by-muscle-words.md) | Plain-language exercise search (muscles, movements, equipment words) | done | Codex Terra (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
