@@ -53,11 +53,17 @@ Unknown or missing required columns → a readable `ImportError` naming the miss
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
+- **Status:** Implementation complete; ready for lead review. Changes left uncommitted; board unchanged as instructed.
+- **What was done:** Added header detection and three tolerant CSV adapters feeding the existing Strong review/import pipeline. Explicit units bypass Strong's numerical inference; review overrides, corrections, exclusion/reset and re-import work through the existing plan. Worker detection retains measurement files and snapshot-before-import. Updated visible import copy and detected-format label. Documented mappings and real-file limitations in DATA.md.
 - **Files touched:**
+  - New `src/core/import/formats/`: `detectWorkoutFileFormat.ts`, `HevyWorkoutsFile.ts`, `FitNotesWorkoutsFile.ts`, `FitbodWorkoutsFile.ts` and adjacent tests; shared `WorkoutFileTable.ts`, `WorkoutFileUnits.ts`, `parseWorkoutTimestamp.ts`; synthetic `fixtures/WorkoutFileFixtures.ts`; end-to-end `WorkoutFormats.test.ts`.
+  - `src/core/import/StrongRow.ts`, `StrongImportPlan.ts`, `ImportError.ts`; `src/worker/WorkerApi.ts` and new `WorkerApi.importFormats.test.ts`.
+  - `src/app/features/import/{StrongImportScreen,ImportPickStep,ImportReviewStep,PoundExercisesSection}.tsx`; `src/app/features/settings/SettingsScreen.tsx`; `docs/DATA.md`; this Handoff only.
+- **Public API:** `detectWorkoutFileFormat(text): WorkoutFileFormat`; `parseHevyWorkoutsFile`, `parseFitNotesWorkoutsFile`, `parseFitbodWorkoutsFile` each return `StrongRow[]`. Optional `StrongRow.sourceFormat`/`exportUnit`, optional `StrongImportPlan.sourceFormat`, and `ImportError.kind = unsupportedWorkoutFile`. Existing worker method names and importer signatures are retained. Shared adapter helpers export `WorkoutFileTable`, `WorkoutFileUnits` and `parseWorkoutTimestamp` for reuse within formats.
 - **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+  - Required columns are identity columns: Hevy title/start_time/exercise_title; FitNotes and Fitbod Date/Exercise. Optional numeric columns may be absent for bodyweight/timed rows. Header signatures distinguish formats, including sufficiently recognizable damaged exports so adapters can name a missing column.
+  - Explicit kg/lb values retain their column unit as entryUnit, even when Strong's numerical heuristic would infer another unit. With both variants present, populated kg wins, otherwise lb; per-row units are retained. A user override applies to the whole exercise.
+  - Hevy uses raw start_time as key, deduplicates repeated exercise notes and defaults unknown set labels to working. FitNotes groups all rows per date at local noon. Fitbod groups by the parsed start minute (date-only fallback at local noon), does not apply multiplier, and accepts true/false, 1/0 and yes/no warmup flags. Set order follows file order; no supersets/incline/resistance fields are invented.
+  - Source-key prefixes isolate apps; existing schema source=`strong` remains the external-import category so exercise matching continues unchanged. No migration, library, matching internals, charts or export changes.
+- **Open questions / left over:** All three formats remain **unverified against a real file**. Fitbod minute grouping can merge sessions sharing a minute; cross-app duplicate workouts are intentionally separate. Visual dark/light/430 × 932 inspection could not run: `make dev` fails with sandbox `listen EPERM` and the browser tool reports its access host unavailable. Lead should inspect the revised copy in Settings, pick/review and error states. Lead owns any concept-table/decision-log additions outside this task's scope; adapter ownership is `src/core/import/formats/`.
+- **How it was verified:** `make format` then `make verify` passed: **932 tests in 126 files**, lint, strict type checks and production build. New coverage includes all detector headers/lookalikes, per-adapter kinds/units/notes/quoting/missing columns, pinned-TZ DST gaps/folds/noon, CSV → plan → migrated real in-memory SQLite per app, idempotency, source-key isolation, review decisions, worker dispatch, measurement coexistence, snapshot failure and stale-plan rejection. Existing Strong tests were untouched and pass. Build emits a nonfatal chunk-size warning (main bundle just over 500 kB).
