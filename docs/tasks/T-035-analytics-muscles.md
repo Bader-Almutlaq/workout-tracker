@@ -31,4 +31,9 @@ The Analytics tab shows, for a chosen week (default: this week), the fractional 
 
 ## Handoff
 
-- **Status:** · **What was done:** · **Files touched:** · **Decisions taken:** · **Open questions / left over:** · **How it was verified:**
+- **Status:** Implementation complete; visual acceptance remains open.
+- **What was done:** Added weekly muscle-volume chart, period choices, 12-week muscle history, table view, and worker range query.
+- **Files touched:** `src/app/features/analytics/`, `src/worker/WorkerApi.ts`, and this handoff.
+- **Decisions taken:** Four-week average includes the current calendar week and three preceding weeks, including zero weeks. A period with workouts but no qualifying muscle sets shows the zero-volume list; the empty state is reserved for no finished workouts.
+- **Open questions / left over:** Check the screen at 430 × 932 in both themes with synthetic workouts spanning at least three weeks, including all period choices, history, table, and empty state. This visual acceptance was not performed in this session.
+- **How it was verified:** `make format`; `make verify` (85 test files, 619 tests passing, including the final changes).

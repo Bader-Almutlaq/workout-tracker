@@ -1,3 +1,4 @@
+import { weeklyMuscleVolume, type WeeklyMuscleVolume } from '../core/queries/WeeklyMuscleVolume';
 import { workoutDaysInMonth, type WorkoutCalendarDay } from '../core/queries/WorkoutCalendar';
 import { CsvTable } from '../core/import/CsvTable';
 import { makeStrongImportPlan, type StrongImportPlan } from '../core/import/StrongImportPlan';
@@ -143,6 +144,13 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         snapshotCount: store.snapshotNames().length,
         openReport: store.openReport,
       };
+    },
+
+    // Analytics (T-035)
+
+    /** Fractional hard sets for each local week in the inclusive date range. */
+    async weeklyMuscleVolume(from: string, to: string): Promise<WeeklyMuscleVolume[]> {
+      return weeklyMuscleVolume((await liveStore()).database, new Date(from), new Date(to));
     },
 
     // Backup (T-016)

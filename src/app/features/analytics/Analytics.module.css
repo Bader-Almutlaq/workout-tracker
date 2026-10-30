@@ -1,0 +1,164 @@
+.chips {
+  display: flex;
+  gap: var(--space-s);
+  overflow-x: auto;
+}
+.chip,
+.toggle {
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font: var(--font-callout);
+  padding: var(--space-s) var(--space-m);
+  white-space: nowrap;
+}
+.chip[aria-pressed='true'] {
+  background: var(--color-accent-subtle);
+  border-color: var(--color-accent);
+}
+.toggle {
+  margin: var(--space-l) 0;
+}
+.legend,
+.quiet {
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+}
+.legend {
+  margin-bottom: var(--space-m);
+}
+.indirectLegend {
+  margin-left: var(--space-m);
+  opacity: 0.65;
+}
+.chart {
+  position: relative;
+  padding-top: var(--space-xl);
+}
+.bands {
+  position: absolute;
+  inset: 0 calc(var(--space-xxl) + var(--space-xs)) 0 0;
+  pointer-events: none;
+}
+.band,
+.bandAlternate {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--color-accent-subtle);
+  opacity: 0.35;
+}
+.bandAlternate {
+  background: var(--color-surface-raised);
+  opacity: 0.6;
+}
+.band span,
+.bandAlternate span {
+  position: absolute;
+  top: 0;
+  left: var(--space-xs);
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+  white-space: nowrap;
+}
+.barRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--space-xxl);
+  grid-template-rows: auto var(--space-s);
+  gap: var(--space-xs);
+  width: 100%;
+  padding: var(--space-s) 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  text-align: left;
+  font: var(--font-callout);
+}
+.muscleName {
+  grid-column: 1;
+}
+.track {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+}
+.segments {
+  display: flex;
+  height: 100%;
+  gap: 2px;
+}
+.direct,
+.indirect {
+  flex-basis: 0;
+  min-width: 0;
+  background: var(--color-accent);
+}
+.indirect {
+  opacity: 0.45;
+}
+.value {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  align-self: center;
+  text-align: right;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.quiet {
+  line-height: 1.5;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--font-callout);
+  font-variant-numeric: tabular-nums;
+}
+.table th,
+.table td {
+  padding: var(--space-s) var(--space-xs);
+  border-bottom: var(--hairline) solid var(--color-border);
+  text-align: right;
+}
+.table th:first-child {
+  text-align: left;
+}
+.tableButton {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: left;
+}
+.dialogHeader {
+  display: flex;
+  justify-content: flex-end;
+}
+.dialogHeader button {
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: var(--font-callout);
+}
+.history {
+  display: grid;
+  gap: var(--space-m);
+}
+.historyRow {
+  display: grid;
+  grid-template-columns: auto 1fr var(--space-xxl);
+  align-items: center;
+  gap: var(--space-s);
+  font: var(--font-caption);
+  font-variant-numeric: tabular-nums;
+}
+.historyTrack {
+  height: var(--space-s);
+}
+.historyBar {
+  display: block;
+  height: 100%;
+  background: var(--color-accent);
+}
