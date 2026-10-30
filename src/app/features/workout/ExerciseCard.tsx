@@ -1,3 +1,4 @@
+import { WorkoutTextField } from './WorkoutTextField';
 import { database, useDatabaseQuery } from '../../data/database';
 import { Plus } from 'lucide-react';
 import { matchPreviousSets } from '../../../core/queries/PreviousPerformance';
@@ -17,6 +18,7 @@ export function ExerciseCard({
   count,
   editing,
   actions,
+  notes,
 }: {
   readonly entry: LiveWorkoutEntry;
   readonly index: number;
@@ -24,22 +26,34 @@ export function ExerciseCard({
   /** The cell being edited, if it is in this exercise. */
   readonly editing: EditedCell | undefined;
   readonly actions: ExerciseCardActions;
+  /** History supplies note writers; live logging keeps its existing card. */
+  readonly notes?: {
+    readonly exercise: (notes: string) => void;
+    readonly set: (setId: number, notes: string) => void;
+  };
 }) {
   const suggestions = useDatabaseQuery(`warmup-suggestions-${entry.entry.id}`, () =>
     database.suggestedWarmupSetIds(entry.entry.id),
   );
   const suggestedIds = suggestions.status === 'ready' ? suggestions.value : [];
+  const unit =
+    notes === undefined
+      ? entry.exercise.defaultEntryUnit
+      : (entry.sets[0]?.entryUnit ?? entry.exercise.defaultEntryUnit);
   const labels = setLabels(entry.sets);
   const previousSets = matchPreviousSets(entry.sets, entry.previous);
   return (
     <section className={styles.card} aria-label={entry.exercise.name}>
-      <ExerciseCardHeader entry={entry} index={index} count={count} actions={actions} />
+      <ExerciseCardHeader entry={entry} index={index} count={count} actions={actions} unit={unit} />
       {suggestions.status === 'failed' && (
         <p className={styles.error} role="alert">
           {suggestions.message}
         </p>
       )}
-      <SetColumnHeader tracking={entry.exercise.tracking} unit={entry.exercise.defaultEntryUnit} />
+      {notes !== undefined && (
+        <WorkoutTextField isMultiline label="Exercise notes" value={entry.entry.notes ?? ''} onSave={notes.exercise} />
+      )}
+      <SetColumnHeader tracking={entry.exercise.tracking} unit={unit} />
       {entry.sets.map((set, position) => (
         <SetRow
           key={set.id}
@@ -47,10 +61,14 @@ export function ExerciseCard({
           set={set}
           label={labels[position] ?? ''}
           isSuggested={suggestedIds.includes(set.id)}
+          displayUnit={unit}
           separatesWarmups={set.kind !== 'warmup' && entry.sets[position - 1]?.kind === 'warmup'}
           previous={previousSets[position]}
           editing={editing?.set.id === set.id ? editing : undefined}
           actions={actions}
+          {...(notes === undefined
+            ? {}
+            : { onNotesChange: (value: string) => notes.set(set.id, value), isPastWorkout: true })}
         />
       ))}
       <button type="button" className={styles.addSet} onClick={() => actions.addSet(entry.entry.id)}>

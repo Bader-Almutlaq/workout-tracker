@@ -1,3 +1,4 @@
+import { WorkoutLogger } from '../logging/WorkoutLogger';
 import type { Database } from '../db/Database';
 import { exerciseIdNamed } from '../library/ExerciseNameResolver';
 import { log } from '../support/log';
@@ -7,7 +8,7 @@ import type { PlannedWorkout, StrongImportPlan } from './StrongImportPlan';
 /** Counts of what an import added and skipped. */
 export interface ImportResult {
   readonly workoutsAdded: number;
-  /** Workouts already imported earlier (same `sourceKey`). */
+  /** Workouts already imported or deliberately deleted earlier (same `sourceKey`). */
   readonly workoutsSkipped: number;
   readonly setsAdded: number;
   /** Sets selected to be left out of this import. */
@@ -31,6 +32,7 @@ interface Counters {
  * Writes a reviewed `StrongImportPlan` into the database in a single transaction (all or
  * nothing), and only ever *adds* rows. Workouts already imported (same `sourceKey`) and
  * measurements already present are skipped, so importing the same file twice changes nothing.
+ * Deleted source keys in appSetting are also skipped, preserving deliberate History deletions.
  *
  * **Safety:** this function does not take a snapshot. The caller (the worker) must write a local
  * safety snapshot of the database before calling it (`docs/DATA.md` → Data safety).
@@ -80,8 +82,9 @@ export function importStrongPlan(db: Database, plan: StrongImportPlan, now: Date
       return id;
     };
 
+    const deleted = WorkoutLogger.deletedSourceKeys(db);
     for (const planned of plan.workouts) {
-      if (workoutExists(db, planned)) {
+      if (workoutExists(db, planned, deleted)) {
         counters.workoutsSkipped += 1;
         continue;
       }
@@ -115,15 +118,16 @@ export function importStrongPlan(db: Database, plan: StrongImportPlan, now: Date
   return result;
 }
 
-/** Counts planned workouts already present by source key and those still new. */
+/** Counts planned workouts already present or tombstoned by source key and those still new. */
 export function strongImportWorkoutCounts(
   db: Database,
   workouts: readonly PlannedWorkout[],
 ): { alreadyImported: number; newWorkouts: number } {
   const existing = new Set<string>();
+  const deleted = WorkoutLogger.deletedSourceKeys(db);
   let alreadyImported = 0;
   for (const workout of workouts) {
-    if (existing.has(workout.sourceKey) || workoutExists(db, workout)) {
+    if (existing.has(workout.sourceKey) || workoutExists(db, workout, deleted)) {
       alreadyImported += 1;
     } else {
       existing.add(workout.sourceKey);
@@ -132,7 +136,8 @@ export function strongImportWorkoutCounts(
   return { alreadyImported, newWorkouts: workouts.length - alreadyImported };
 }
 
-function workoutExists(db: Database, planned: PlannedWorkout): boolean {
+function workoutExists(db: Database, planned: PlannedWorkout, deleted: ReadonlySet<string>): boolean {
+  if (deleted.has(planned.sourceKey)) return true;
   return (db.value<number>('SELECT count(*) FROM workout WHERE sourceKey = ?', [planned.sourceKey]) ?? 0) > 0;
 }
 

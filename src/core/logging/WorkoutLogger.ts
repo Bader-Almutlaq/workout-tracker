@@ -31,6 +31,32 @@ export interface FinishResult {
   readonly droppedSets: number;
 }
 
+/** One immediately saved metadata change to a finished workout; duration is in seconds, null keeps an unknown end. */
+export type FinishedWorkoutChange =
+  | { readonly field: 'name' | 'notes'; readonly value: string }
+  | { readonly field: 'startedAt'; readonly value: string }
+  | { readonly field: 'durationSeconds'; readonly value: number | null };
+
+/** Readable failures for finished-only editing and malformed deletion protection. */
+class PastWorkoutError extends Error {
+  override readonly name = 'PastWorkoutError';
+  constructor(readonly kind: 'notFinished' | 'invalidTime' | 'invalidDeletedKeys') {
+    const messages = {
+      notFinished: 'Open the workout in progress from the Workout tab.',
+      invalidTime: 'Enter a valid start time and a finite duration of zero or more seconds.',
+      invalidDeletedKeys:
+        'Deleted import records could not be read. Restore a safety copy before importing or deleting.',
+    };
+    super(messages[kind]);
+  }
+}
+
+/** Setting key owned here because deletion and re-import share the same protection. */
+const DELETED_SOURCE_KEYS = 'deletedSourceKeys';
+
+/** SI time conversion; database timestamps use milliseconds and logged durations use seconds. */
+const TIME_UNITS = { millisecondsPerSecond: 1000 } as const;
+
 /** Each logging action is a transaction; positions stay dense and zero-based. */
 export class WorkoutLogger {
   private readonly warmupState = new Map<
@@ -164,6 +190,103 @@ export class WorkoutLogger {
       warmupIds.push(id);
     }
     this.assignPositions([...warmupIds, ...order.filter((id) => !warmupIds.includes(id))], 'workoutSet');
+  }
+
+  /** Deleted imported source keys; malformed protection fails closed rather than resurrecting history. */
+  static deletedSourceKeys(db: Database): ReadonlySet<string> {
+    const value = db.value<string>('SELECT value FROM appSetting WHERE key = ?', [DELETED_SOURCE_KEYS]);
+    if (value === undefined) return new Set();
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      throw new PastWorkoutError('invalidDeletedKeys');
+    }
+    if (!Array.isArray(parsed) || !parsed.every((key: unknown) => typeof key === 'string'))
+      throw new PastWorkoutError('invalidDeletedKeys');
+    return new Set(parsed);
+  }
+
+  /** Rejects missing or live workouts before a History snapshot or write. */
+  requireFinished(workoutId: number): void {
+    this.requireWorkout(workoutId);
+    if (this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [workoutId]) !== 0)
+      throw new PastWorkoutError('notFinished');
+  }
+
+  /** Deletes only a finished workout tree, atomically preserving its import source key; caller snapshots first. */
+  deleteFinished(workoutId: number): void {
+    this.db.transaction(() => {
+      this.requireFinished(workoutId);
+      const sourceKey = this.db.value<string | null>('SELECT sourceKey FROM workout WHERE id = ?', [workoutId]);
+      if (sourceKey !== undefined && sourceKey !== null) {
+        const deleted = new Set(WorkoutLogger.deletedSourceKeys(this.db));
+        deleted.add(sourceKey);
+        this.db.run(
+          `
+          INSERT INTO appSetting (key, value) VALUES (?, ?)
+          ON CONFLICT(key) DO UPDATE SET value = excluded.value
+        `,
+          [DELETED_SOURCE_KEYS, JSON.stringify([...deleted])],
+        );
+      }
+      this.discard(workoutId);
+    });
+  }
+
+  /** Saves one finished-workout field; changing start preserves elapsed duration and all import identity. */
+  updateFinished(workoutId: number, change: FinishedWorkoutChange): void {
+    this.db.transaction(() => {
+      this.requireFinished(workoutId);
+      const workout = this.db.get<{ name: string; notes: string | null; startedAt: string; endedAt: string | null }>(
+        'SELECT name, notes, startedAt, endedAt FROM workout WHERE id = ?',
+        [workoutId],
+      );
+      if (workout === undefined) throw new WorkoutLoggerError('workoutNotFound');
+      if (change.field === 'name' || change.field === 'notes') {
+        this.update(
+          workoutId,
+          change.field === 'name' ? change.value : workout.name,
+          change.field === 'notes' ? change.value : workout.notes,
+        );
+        return;
+      }
+      const started = new Date(change.field === 'startedAt' ? change.value : workout.startedAt);
+      const duration =
+        change.field === 'durationSeconds'
+          ? change.value
+          : workout.endedAt === null
+            ? null
+            : (new Date(workout.endedAt).getTime() - new Date(workout.startedAt).getTime()) /
+              TIME_UNITS.millisecondsPerSecond;
+      const ended =
+        duration === null ? null : new Date(started.getTime() + duration * TIME_UNITS.millisecondsPerSecond);
+      if (
+        !Number.isFinite(started.getTime()) ||
+        (duration !== null && (!Number.isFinite(duration) || duration < 0)) ||
+        (ended !== null && !Number.isFinite(ended.getTime()))
+      )
+        throw new PastWorkoutError('invalidTime');
+      this.db.run('UPDATE workout SET startedAt = ?, endedAt = ? WHERE id = ?', [
+        started.toISOString(),
+        ended?.toISOString() ?? null,
+        workoutId,
+      ]);
+    });
+  }
+
+  /** Saves exercise notes; an empty string clears them without changing the exercise definition. */
+  updateExerciseNotes(entryId: number, notes: string): void {
+    this.db.transaction(() => {
+      this.requireEntry(entryId);
+      this.db.run('UPDATE workoutExercise SET notes = ? WHERE id = ?', [notes === '' ? null : notes, entryId]);
+    });
+  }
+
+  /** Saves one set's notes; an empty string clears them and all performance fields stay intact. */
+  updateSetNotes(setId: number, notes: string): void {
+    if (this.db.run('UPDATE workoutSet SET notes = ? WHERE id = ?', [notes === '' ? null : notes, setId]).changes === 0)
+      throw new WorkoutLoggerError('setNotFound');
   }
 
   /** The workout currently being logged, if any. */
@@ -331,10 +454,12 @@ export class WorkoutLogger {
     });
   }
 
-  /** Appends an exercise, copying the last session into planned sets, or one empty set. */
+  /** Appends an exercise copied from last session, or one empty set; live sets are planned, historical sets performed. */
   addExercise(exerciseId: number, workoutId: number): number {
     return this.db.transaction(() => {
       this.requireWorkout(workoutId);
+      const completed =
+        this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [workoutId]) === 0 ? 1 : 0;
       const exercise = this.db.get<{ defaultEntryUnit: WeightUnit }>(
         'SELECT defaultEntryUnit FROM exercise WHERE id = ?',
         [exerciseId],
@@ -350,15 +475,15 @@ export class WorkoutLogger {
       const previous = previousPerformance(this.db, exerciseId, workoutId);
       if (previous.length === 0) {
         this.db.run(
-          `INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, isCompleted) VALUES (?, 0, 'working', 0, ?, 0, 0)`,
-          [entryId, exercise.defaultEntryUnit],
+          `INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, isCompleted) VALUES (?, 0, 'working', 0, ?, 0, ?)`,
+          [entryId, exercise.defaultEntryUnit, completed],
         );
       } else {
         previous.forEach((set, index) => {
           this.db.run(
             `
             INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, rpe, durationSeconds, side, isCompleted)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `,
             [
               entryId,
@@ -370,6 +495,7 @@ export class WorkoutLogger {
               set.rpe,
               set.durationSeconds,
               set.side,
+              completed,
             ],
           );
         });
@@ -402,7 +528,7 @@ export class WorkoutLogger {
     });
   }
 
-  /** Appends a planned set copying the last set; a warm-up becomes a working set. */
+  /** Appends a set copying the last; historical additions are performed, live additions planned, warm-ups become working. */
   addSet(entryId: number): number {
     return this.db.transaction(() => {
       const entry = this.requireEntry(entryId);
@@ -418,7 +544,7 @@ export class WorkoutLogger {
       const id = this.db.run(
         `
         INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, durationSeconds, side, isCompleted)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
         [
           entryId,
@@ -429,6 +555,7 @@ export class WorkoutLogger {
           last?.reps ?? 0,
           last?.durationSeconds ?? null,
           last?.side ?? 'both',
+          this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) === 0 ? 1 : 0,
         ],
       ).lastInsertRowId;
       this.refreshEntryWarmups(entryId);
@@ -480,15 +607,18 @@ export class WorkoutLogger {
     });
   }
 
-  /** Changes the exercise default and this entry's planned units without changing kg values. */
+  /** Live: changes the default and planned units. History: changes only this entry's units. Kilograms stay exact. */
   setEntryUnit(unit: WeightUnit, entryId: number): void {
     this.db.transaction(() => {
       const entry = this.requireEntry(entryId);
-      this.db.run('UPDATE exercise SET defaultEntryUnit = ? WHERE id = ?', [unit, entry.exerciseId]);
-      this.db.run('UPDATE workoutSet SET entryUnit = ? WHERE workoutExerciseId = ? AND isCompleted = 0', [
-        unit,
-        entryId,
-      ]);
+      const finished = this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) === 0;
+      if (!finished) this.db.run('UPDATE exercise SET defaultEntryUnit = ? WHERE id = ?', [unit, entry.exerciseId]);
+      this.db.run(
+        `
+        UPDATE workoutSet SET entryUnit = ? WHERE workoutExerciseId = ? ${finished ? '' : 'AND isCompleted = 0'}
+      `,
+        [unit, entryId],
+      );
       this.refreshEntryWarmups(entryId);
     });
   }
@@ -536,6 +666,15 @@ export class WorkoutLogger {
       );
       if (set === undefined) throw new WorkoutLoggerError('setNotFound');
       this.db.run('DELETE FROM workoutSet WHERE id = ?', [setId]);
+      const entry = this.requireEntry(set.workoutExerciseId);
+      const finished = this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) === 0;
+      const remainingSets = this.db.value<number>('SELECT COUNT(*) FROM workoutSet WHERE workoutExerciseId = ?', [
+        set.workoutExerciseId,
+      ]);
+      if (finished && remainingSets === 0) {
+        this.removeExercise(set.workoutExerciseId);
+        return;
+      }
       this.renumberSets(set.workoutExerciseId);
       if (set.kind === 'warmup') {
         const state = this.warmupState.get(set.workoutExerciseId);

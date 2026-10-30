@@ -5,7 +5,7 @@
 | Copy | Location | Written when |
 |---|---|---|
 | **Live database** | On the phone, in the Home Screen app's private file system (OPFS), file `/workouts.sqlite` in SQLite's storage pool named `workout-tracker` | Every change |
-| **Local safety snapshots** | Same pool, `/snapshot-<UTC time>.sqlite`; the newest 3 are kept | Automatically before any schema migration runs and before any restore |
+| **Local safety snapshots** | Same pool, `/snapshot-<UTC time>.sqlite`; the newest 3 are kept | Before migrations, restore, import, merges, History edit entry and History workout deletion |
 | **Manual backups** | Wherever the owner saves them, normally a folder in iCloud Drive | When the owner taps **Back up** |
 | **Dropbox backups (optional)** | The owner's Dropbox, in this app's folder only | After connecting, every finished workout, and pending retries |
 
@@ -146,7 +146,7 @@ Exercise names use the existing matching flow; no library or matching behavior c
 Implemented once in WorkoutCore and used in two places:
 - **Import review:** sets whose weight or reps are far outside that exercise's typical range near that date (likely a missed digit or extra zero) are listed for confirm / fix / ignore before the import commits. **Leave out all flagged sets** excludes them in one tap; Undo restores the previous exclusions. Individual controls remain available.
 - **Live logging:** the same check asks "Is this right?" before saving a suspicious set.
-A set left out of an imported workout can be brought back only by deleting that workout and importing the export again. If every set was left out, the workout was not imported and can be imported later. The original export remains unchanged.
+An imported workout keeps its source key after edits. Re-importing never replaces its edited values. Deleting it records a tombstone, so re-importing will not bring it or its omitted sets back; add missing sets through History edit instead. If every set was left out of the original import, no workout or tombstone was created, and it can be imported later. The original export remains unchanged.
 
 
 ## Body measurements (T-043)
@@ -202,3 +202,14 @@ CSV is an interchange format, not a complete backup. `StrongCsvRoundTripLosses` 
 - Body measurement: `id`, `source`, `entryUnit`.
 
 The importer reads optional `State` values (`relaxed` or `flexed`); missing or empty state defaults to relaxed, so flexed and relaxed entries at the same time remain separate. Custom site names become slugs. Empty workouts and exercises have no rows, and incomplete sets and in-progress workouts are excluded. Timestamps have local whole-second precision and are ambiguous at daylight-saving transitions. Select kg explicitly for every exercise during import review: otherwise unit inference can misinterpret kg values. The importer trims surrounding whitespace in notes, converts zero duration or distance to missing, and accepts only RPE in its supported range. Adjacent occurrences of the same exercise name and workouts with identical local start times can merge on import. Use a database backup to preserve all data.
+
+
+### Editing and deleting finished workouts (T-050)
+
+History detail offers **Edit** only for finished workouts. Entering edit mode takes one complete local safety snapshot before enabling edits; subsequent field changes use the existing logging transactions and do not take additional snapshots. **Delete workout** confirms first, then takes a fresh snapshot immediately before deleting the workout tree. Snapshot failure blocks both entry and deletion, logs the underlying error, and shows a readable message. The existing pool keeps the newest three snapshots. Snapshots remain safety files, not an in-app Undo feature.
+
+Metadata and notes save when leaving their field, matching the live number pad's commit-on-cell-change / Done behavior. Changes to the start preserve the exact elapsed duration, including across dates; a missing imported end remains unknown until a duration is entered. The UI edits local start time and elapsed minutes, while core validates timestamps and seconds. Notes keep line breaks. Set edits retain completion timestamps, rest, side and distance. Historical set additions are immediately performed with no invented completion timestamp; no automatic warm-ups are generated. Removing the last set removes its exercise entry and closes positions; removing all exercises leaves the finished workout available for editing or explicit deletion. Historical unit switches change only that entry's units and preserve exact kg and the exercise's future default. Live logging behavior is unchanged.
+
+Imported edits retain `workout.sourceKey`, even when the name or start time changes. Deleting any externally imported workout writes its non-null source key to **`appSetting.deletedSourceKeys`**, a JSON array of strings, in the same transaction as the cascading delete. `WorkoutLogger` owns reading/writing this protection; the shared importer and its preview counts treat tombstoned keys as already imported. This applies to Strong and the other supported source prefixes without a schema change. Malformed JSON or non-string elements block import and imported deletion instead of silently losing protection. Database backups include tombstones; restoring a backup restores the tombstone state from that backup, so restoring a copy from before deletion intentionally restores that earlier history.
+
+History weight and rep commits run the existing live typo check, excluding the edited workout from its own baseline. The value is already saved, consistently with immediate editing; **Save anyway** acknowledges it and **Fix** reopens the doubtful cell. Done waits for queued writes and stays in edit mode if a check needs an answer or a save failed. Each successful database write sends one notification, refreshing history, bests, comparisons and analytics through their existing queries.

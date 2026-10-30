@@ -138,7 +138,10 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Exercise list, detail and unmatched-import queries | `src/core/queries/ExerciseCatalog.ts` |
 | Loadable weight ladders, equipment defaults, kg/lb overrides and rounding | `src/core/units/LoadableWeight.ts` |
 | Warm-up schemes, default counts and protected-slot refresh | `src/core/logging/WarmupPlan.ts`; provenance in `WorkoutLogger`, retained per database connection by `WorkerApi` |
-| Logging a workout live | `src/core/logging/WorkoutLogger.ts` (`WorkoutLoggerLimits`) |
+| Logging live and editing finished workouts, notes, timing, dense positions and historical completion semantics | `src/core/logging/WorkoutLogger.ts` (`WorkoutLoggerLimits`, `FinishedWorkoutChange`) |
+| Deleted imported source keys (appSetting JSON tombstones), shared with importer duplicate detection | `WorkoutLogger.deletedSourceKeys` / `deleteFinished`; `StrongImporter` skips these keys in import and preview counts |
+| History edit-entry and delete snapshot boundaries | `WorkerApi.ts` → Edit past workouts (T-050) block; existing `OnDeviceStore.takeSnapshot` |
+| History edit view state and metadata presentation | `src/app/features/history/` (`PastWorkoutEditor`, `usePastWorkoutEditor`, `pastWorkoutFields`); existing live cards, pad, queue and typo prompt |
 | Rest timer: default and limits, per-exercise target, elapsed and remaining | `src/core/logging/RestTimer.ts` (`RestTimerDefaults`); bar in `src/app/features/workout/RestBar.tsx` |
 | Templates and folders: save, edit, reorder, duplicate, delete, save a workout as a template | `src/core/templates/TemplateStore.ts` (`TemplateDraft`, `TemplateStoreError`) |
 | Template list and editor data | `src/core/queries/TemplateCatalog.ts` |

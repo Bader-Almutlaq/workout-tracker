@@ -1,3 +1,4 @@
+import type { TypoPrompt } from './typoPrompt';
 import { useState } from 'react';
 import type { LiveWorkoutSnapshot } from '../../../core/queries/LiveWorkout';
 import { isSameCell, type Cell, type Field } from './Cell';
@@ -18,9 +19,10 @@ interface EditState {
 /**
  * The number pad's state for the workout on screen. The only local state is the cell being typed
  * into and its draft; a value is written when the owner moves to another cell or closes the pad,
- * not on every key. What the rows show always comes from the database.
+ * not on every key. What the rows show always comes from the database. History supplies
+ * `onSuspicious` to check edited weights and reps without changing completion.
  */
-export function useCellEditor(snapshot: LiveWorkoutSnapshot): CellEditor {
+export function useCellEditor(snapshot: LiveWorkoutSnapshot, onSuspicious?: (prompt: TypoPrompt) => void): CellEditor {
   const [state, setState] = useState<EditState | undefined>(undefined);
   const location = state === undefined ? undefined : locateSet(snapshot.entries, state.cell.setId);
   const workoutId = snapshot.workout.id;
@@ -35,7 +37,7 @@ export function useCellEditor(snapshot: LiveWorkoutSnapshot): CellEditor {
 
   const save = () => {
     if (editing === undefined || state?.typed === undefined || !draftHasChanged(state.typed)) return;
-    saveCell(workoutId, editing.cell, draftValue(state.typed), editing.entry.exercise.tracking);
+    saveCell(workoutId, editing.cell, draftValue(state.typed), editing.entry.exercise.tracking, onSuspicious);
   };
 
   const edit = (change: (current: NumberDraft, edited: EditedCell) => NumberDraft) => {

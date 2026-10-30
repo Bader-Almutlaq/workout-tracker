@@ -1,3 +1,5 @@
+import type { WeightUnit } from '../../../core/units/WeightUnit';
+import { WorkoutTextField } from './WorkoutTextField';
 import { useEffect, useRef } from 'react';
 import type { WorkoutSet } from '../../../core/models/WorkoutSet';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
@@ -25,6 +27,9 @@ export function SetRow({
   actions,
   isSuggested = false,
   separatesWarmups = false,
+  onNotesChange,
+  isPastWorkout = false,
+  displayUnit,
 }: {
   readonly entry: LiveWorkoutEntry;
   readonly set: WorkoutSet;
@@ -37,8 +42,14 @@ export function SetRow({
   readonly actions: ExerciseCardActions;
   readonly isSuggested?: boolean;
   readonly separatesWarmups?: boolean;
+  /** History retains completed state and exposes per-set notes without a logging toggle. */
+  readonly isPastWorkout?: boolean;
+  /** The card header unit, so mixed imported units are always identified correctly. */
+  readonly displayUnit?: WeightUnit;
+  readonly onNotesChange?: (notes: string) => void;
 }) {
-  const { tracking, defaultEntryUnit } = entry.exercise;
+  const { tracking } = entry.exercise;
+  const defaultEntryUnit = displayUnit ?? entry.exercise.defaultEntryUnit;
   const row = useRef<HTMLDivElement>(null);
   const isEditingRow = editing !== undefined;
 
@@ -91,8 +102,15 @@ export function SetRow({
           onPress={edit('reps')}
         />
         <SetCell set={set} field="rpe" tracking={tracking} editing={editing} onPress={edit('rpe')} />
-        <CheckButton isCompleted={set.isCompleted} onPress={() => actions.toggleCompleted(entry, set)} />
+        <CheckButton
+          isCompleted={set.isCompleted}
+          isDisabled={isPastWorkout}
+          onPress={() => actions.toggleCompleted(entry, set)}
+        />
       </div>
+      {onNotesChange !== undefined && (
+        <WorkoutTextField isMultiline label={`Set ${label} notes`} value={set.notes ?? ''} onSave={onNotesChange} />
+      )}
     </SwipeToDelete>
   );
 }

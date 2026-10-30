@@ -1,3 +1,4 @@
+import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { ArrowDown, ArrowUp, Ellipsis, Trash2 } from 'lucide-react';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import { ActionMenu } from '../../design/components/ActionMenu';
@@ -12,12 +13,15 @@ export function ExerciseCardHeader({
   index,
   count,
   actions,
+  unit,
 }: {
   readonly entry: LiveWorkoutEntry;
   /** Position in the workout (0-based) and the number of exercises, to disable Move up / Move down at the ends. */
   readonly index: number;
   readonly count: number;
   readonly actions: ExerciseCardActions;
+  /** History shows the edited entry unit without changing the exercise default. */
+  readonly unit?: WeightUnit;
 }) {
   const { exercise } = entry;
   const entryId = entry.entry.id;
@@ -25,7 +29,7 @@ export function ExerciseCardHeader({
     <div className={styles.header}>
       <h2 className={styles.name}>{exercise.name}</h2>
       {recordsWeight(exercise.tracking) && (
-        <UnitChip unit={exercise.defaultEntryUnit} onSwitch={(unit) => actions.switchUnit(entryId, unit)} />
+        <UnitChip unit={unit ?? exercise.defaultEntryUnit} onSwitch={(unit) => actions.switchUnit(entryId, unit)} />
       )}
       <ActionMenu
         label="Exercise options"
