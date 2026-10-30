@@ -9,7 +9,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
-| [T-013](T-013-units-models-settings.md) | Port units, row types and app settings to WorkoutCore | todo | | |
+| [T-013](T-013-units-models-settings.md) | Port units, row types and app settings to WorkoutCore | review | Claude Sonnet (subagent) | task/T-013-units-models-settings |
 | [T-014](T-014-strong-import-core.md) | Port the Strong importer and typo checks; `make import-report` | todo (after T-013) | | |
 | [T-015](T-015-history.md) | Port history queries; History list and workout detail screens | todo (after T-013) | | |
 | [T-016](T-016-backup-restore.md) | Back up through the share sheet; restore with a safety snapshot | todo | lead | |

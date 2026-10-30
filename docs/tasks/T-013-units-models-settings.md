@@ -41,9 +41,18 @@ WorkoutCore gets the small building blocks every later task uses: kg/lb conversi
 
 _Filled in by the implementer when stopping or finishing._
 
-- **Status:**
-- **What was done:**
-- **Files touched:**
+- **Status:** done, in review. Branch `task/T-013-units-models-settings`.
+- **What was done:** Ported `WeightUnit` and `Weight` to plain functions (`toKilograms`, `valueIn`, `displayValue`, `inferEntryUnit`, `toggledWeightUnit`, constants `KILOGRAMS_PER_POUND`, `WEIGHT_UNITS`, `WeightTolerance`). One row type per table with a `from<Type>Row` converter (0/1 to boolean), the enums `RecordSource`, `SetKind` (+ `isWorkSetKind`) and `SetSide`, and `getSetting`/`setSetting`/`AppSettingKey`. Every Swift `WeightTests` case is ported with the same inputs and expected values (the Swift suite has no `AppSetting` tests, so those three are new).
+- **Files touched:** `src/core/units/{WeightUnit,Weight}.ts` + `.test.ts`; `src/core/models/{Exercise,ExerciseMuscle,ExerciseAlias,Workout,WorkoutExercise,WorkoutSet,BodyMeasurement,RecordSource,SetKind,SetSide}.ts` + `Models.test.ts`; `src/core/db/AppSetting.ts` + `.test.ts`; this file; `docs/tasks/BOARD.md`.
 - **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+  - `inferEntryUnit(value, columnUnit)` keeps the Swift signature (it needs the column unit; the brief's `inferEntryUnit(kilograms)` was only an example) and returns `undefined` for Swift's `nil`.
+  - Swift's `rounded()` rounds halves away from zero; JS `Math.round` does not for negatives, so a private helper reproduces Swift. Results are identical for all non-negative weights.
+  - `WeightUnit.symbol` (identity on the raw value) is not ported; with a string union it would be dead code.
+  - `Exercise.equipment/movementPattern/mechanic/tracking` and `ExerciseMuscle.muscleId/role` are plain `string`: their enums belong to the W2 library port (concept table), and duplicating them here would break "one concept, one place". W2 should narrow these types.
+  - Nullable columns are `T | null` (what SQLite returns), not `undefined`. Row ids are `number`, not optional (a read row always has one).
+  - `AppSettingKey.seededLibraryVersion` stores the string `'seededLibraryVersion'` as the brief says; the Swift file used `'seeded-library-version'`. No web data uses either yet.
+  - Swift `BodyMeasurement.bodyweightSite` became `BodyMeasurementSite.bodyweight`. The Swift enums had no `displayName`, so there are none to port.
+  - `RecordSource` lists all four values; the schema CHECKs accept `library/custom/strong` on `exercise` and `app/strong` on `workout` and `bodyMeasurement`.
+  - The row-conversion tests are in one file, `src/core/models/Models.test.ts`, because they share seeding helpers.
+- **Open questions / left over:** none blocking. Concept-table rows in `docs/ARCHITECTURE.md` to change from *(to port)* to done: "Key–value app settings", "kg ↔ lb conversion, display rounding, original-unit inference", and "Stored record types (one per table)".
+- **How it was verified:** `make verify` passes (eslint, `tsc -b`, 48 Vitest tests across 5 files, production build).
