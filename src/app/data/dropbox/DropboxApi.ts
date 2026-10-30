@@ -1,0 +1,231 @@
+import type { CloudBackupFile } from '../../../core/backup/CloudRetention';
+import { DropboxError } from './DropboxError';
+import { DropboxTokenStore } from './DropboxTokenStore';
+
+/**
+ * Dropbox HTTP API limits: single uploads are at most 150 MB; token expires_in is seconds.
+ * Heuristic: refresh 30 seconds early and time out requests after 30 seconds to allow an offline retry.
+ * https://www.dropbox.com/developers/documentation/http/documentation
+ */
+const DropboxHttp = {
+  api: 'https://api.dropboxapi.com',
+  content: 'https://content.dropboxapi.com',
+  millisecondsPerSecond: 1000,
+  expiryMarginMilliseconds: 30_000,
+  timeoutMilliseconds: 30_000,
+  maximumUploadBytes: 150 * 1024 * 1024,
+} as const;
+
+interface AccessToken {
+  readonly value: string;
+  readonly expiresAt: number;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function responseError(status: number): DropboxError {
+  if (status === 401) return new DropboxError('revoked', 'Reconnect Dropbox to continue automatic backups.');
+  if (status === 403)
+    return new DropboxError('response', 'Dropbox refused access. Check the app permissions and available storage.');
+  if (status === 409)
+    return new DropboxError(
+      'response',
+      'Dropbox could not save or manage that file. Try again in a moment and check available storage.',
+    );
+  if (status === 429) return new DropboxError('response', 'Dropbox is busy. Try again in a few minutes.');
+  return new DropboxError('response', 'Dropbox could not finish the request. Check your connection and try again.');
+}
+
+/** Minimal browser-only Dropbox HTTP client; short-lived access credentials remain in this instance's memory. */
+export class DropboxApi {
+  private accessToken: AccessToken | undefined;
+
+  constructor(
+    private readonly appKey: string,
+    private readonly tokens: DropboxTokenStore,
+    private readonly request: typeof fetch = fetch,
+    private readonly now: () => number = Date.now,
+  ) {}
+
+  /** Exchange the pasted code and in-memory verifier; requires Dropbox to return an offline refresh token. */
+  async exchange(code: string, verifier: string): Promise<void> {
+    const result = await this.tokenRequest({ grant_type: 'authorization_code', code, code_verifier: verifier });
+    if (typeof result['refresh_token'] !== 'string' || result['refresh_token'].length === 0) {
+      throw new DropboxError('response', 'Dropbox did not allow automatic backups. Try Connect again.');
+    }
+    const accessToken = this.parseAccessToken(result);
+    this.tokens.write(result['refresh_token']);
+    this.accessToken = accessToken;
+  }
+
+  /** Upload the existing validated export, without overwriting or renaming another backup. */
+  async upload(fileName: string, bytes: Uint8Array): Promise<void> {
+    if (bytes.byteLength > DropboxHttp.maximumUploadBytes) {
+      throw new DropboxError(
+        'response',
+        'This backup is too large for a Dropbox upload. Use Back up now to save it to Files.',
+      );
+    }
+    await this.authorizedRequest(`${DropboxHttp.content}/2/files/upload`, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Dropbox-API-Arg': JSON.stringify({ path: `/${fileName}`, mode: 'add', autorename: false, mute: true }),
+      },
+      // Copy into an ordinary ArrayBuffer: Blob/fetch must not receive a SharedArrayBuffer-backed view.
+      body: new Uint8Array(bytes).buffer,
+    });
+  }
+
+  /** Enumerate all file pages in the app-folder root; folders and deleted entries cannot become deletion candidates. */
+  async list(): Promise<CloudBackupFile[]> {
+    const files: CloudBackupFile[] = [];
+    let cursor: string | undefined;
+    do {
+      const response = await this.authorizedRequest(
+        `${DropboxHttp.api}/2/files/${cursor === undefined ? 'list_folder' : 'list_folder/continue'}`,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(
+            cursor === undefined ? { path: '', recursive: false, include_deleted: false } : { cursor },
+          ),
+        },
+      );
+      const page = await this.json(response);
+      if (!isRecord(page) || !Array.isArray(page['entries']) || typeof page['has_more'] !== 'boolean') {
+        throw new DropboxError('response', 'Dropbox returned an unreadable file list. Try again.');
+      }
+      for (const entry of page['entries']) {
+        if (
+          isRecord(entry) &&
+          entry['.tag'] === 'file' &&
+          typeof entry['name'] === 'string' &&
+          typeof entry['path_display'] === 'string' &&
+          typeof entry['server_modified'] === 'string'
+        ) {
+          files.push({ name: entry['name'], path: entry['path_display'], serverTime: entry['server_modified'] });
+        }
+      }
+      if (!page['has_more']) break;
+      if (typeof page['cursor'] !== 'string' || page['cursor'].length === 0 || page['cursor'] === cursor) {
+        throw new DropboxError('response', 'Dropbox returned an incomplete file list. Try again.');
+      }
+      cursor = page['cursor'];
+    } while (cursor !== undefined);
+    return files;
+  }
+
+  /** Delete one retention-selected path; callers must only use this after a successful upload. */
+  async delete(path: string): Promise<void> {
+    await this.authorizedRequest(`${DropboxHttp.api}/2/files/delete_v2`, {
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path }),
+    });
+  }
+
+  /** Revoke the app grant, including its refresh token. A previously revoked grant is already disconnected. */
+  async revoke(): Promise<void> {
+    try {
+      await this.authorizedRequest(`${DropboxHttp.api}/2/auth/token/revoke`, {});
+    } catch (error) {
+      if (!(error instanceof DropboxError) || error.kind !== 'revoked') throw error;
+    }
+    this.clear();
+  }
+
+  /** Clear both credential lifetimes after disconnect or a rejected refresh token. */
+  clear(): void {
+    this.accessToken = undefined;
+    this.tokens.clear();
+  }
+
+  private async tokenRequest(parameters: Record<string, string>): Promise<Record<string, unknown>> {
+    const response = await this.send(`${DropboxHttp.api}/oauth2/token`, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ ...parameters, client_id: this.appKey }).toString(),
+    });
+    const result = await this.json(response);
+    if (!response.ok) {
+      if (parameters['grant_type'] === 'authorization_code' && response.status === 400) {
+        throw new DropboxError('code', "That code didn't work; codes expire after a few minutes. Try Connect again.");
+      }
+      if (isRecord(result) && result['error'] === 'invalid_grant' && parameters['grant_type'] === 'refresh_token') {
+        this.clear();
+        throw new DropboxError('revoked', 'Reconnect Dropbox to continue automatic backups.');
+      }
+      throw responseError(response.status);
+    }
+    if (!isRecord(result))
+      throw new DropboxError('response', 'Dropbox returned unreadable credentials. Try Connect again.');
+    return result;
+  }
+
+  private parseAccessToken(result: Record<string, unknown>): AccessToken {
+    if (
+      typeof result['access_token'] !== 'string' ||
+      result['access_token'].length === 0 ||
+      typeof result['expires_in'] !== 'number' ||
+      !Number.isFinite(result['expires_in']) ||
+      result['expires_in'] <= 0
+    ) {
+      throw new DropboxError('response', 'Dropbox returned unreadable credentials. Try Connect again.');
+    }
+    return {
+      value: result['access_token'],
+      expiresAt: this.now() + result['expires_in'] * DropboxHttp.millisecondsPerSecond,
+    };
+  }
+
+  private async access(forceRefresh = false): Promise<string> {
+    if (
+      !forceRefresh &&
+      this.accessToken !== undefined &&
+      this.accessToken.expiresAt > this.now() + DropboxHttp.expiryMarginMilliseconds
+    ) {
+      return this.accessToken.value;
+    }
+    const refreshToken = this.tokens.read();
+    if (refreshToken === undefined)
+      throw new DropboxError('revoked', 'Reconnect Dropbox to continue automatic backups.');
+    const result = await this.tokenRequest({ grant_type: 'refresh_token', refresh_token: refreshToken });
+    this.accessToken = this.parseAccessToken(result);
+    return this.accessToken.value;
+  }
+
+  private async authorizedRequest(url: string, options: RequestInit): Promise<Response> {
+    let token = await this.access();
+    const send = () =>
+      this.send(url, { ...options, headers: { ...options.headers, Authorization: `Bearer ${token}` } });
+    let response = await send();
+    if (response.status === 401) {
+      token = await this.access(true);
+      response = await send();
+    }
+    if (!response.ok) {
+      if (response.status === 401) this.clear();
+      throw responseError(response.status);
+    }
+    return response;
+  }
+
+  private async send(url: string, options: RequestInit): Promise<Response> {
+    try {
+      return await this.request(url, {
+        ...options,
+        method: 'POST',
+        signal: AbortSignal.timeout(DropboxHttp.timeoutMilliseconds),
+      });
+    } catch {
+      throw new DropboxError('connection', 'Check your connection and try again when you are online.');
+    }
+  }
+
+  private async json(response: Response): Promise<unknown> {
+    try {
+      return await response.json();
+    } catch {
+      throw new DropboxError('response', 'Dropbox returned an unreadable response. Try again.');
+    }
+  }
+}

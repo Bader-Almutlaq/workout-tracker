@@ -102,7 +102,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Logging screen: writes applied in tap order, number-pad draft and steps, set cell text | `src/app/features/workout/` (write queue, number draft, pad steps, set cell text helpers) |
 | Clock text (elapsed workout time, rest) | `src/app/format/clockText.ts` |
 | Which Strong names to merge into which exercises (matching screen) | `src/app/features/matching/matchingPlan.ts`; merges run through `ExerciseEditor.mergeAll` after a snapshot |
-| Key–value app settings | `src/core/db/AppSetting.ts` (`AppSettingKey` lists every key) |
+| Key–value app settings | `src/core/db/AppSetting.ts` (`AppSettingKey` lists core keys; cloud keys are in the T-042 worker block) |
 | kg ↔ lb conversion, display rounding, original-unit inference | `src/core/units/WeightUnit.ts`, `src/core/units/Weight.ts` |
 | Stored record types (one per table), 0/1 → boolean conversion | `src/core/models/` (`from<Type>Row`) |
 | CSV reading | `src/core/import/CsvTable.ts` |
@@ -113,6 +113,9 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Live typo check for one set | `src/core/validation/LiveSetCheck.ts` (shares `summariseSessions` with the import review) |
 | History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` |
 | Grouping the history list by month (phone's time zone) | `src/core/queries/WorkoutMonthGroups.ts` |
+| Cloud backup orchestration, PKCE, token lifetime, Dropbox HTTP calls and retry status | `src/app/data/dropbox/DropboxBackup.ts`, `pkce.ts`, `DropboxTokenStore.ts`, `DropboxApi.ts`; singleton in `cloudBackup.ts`, disabled by empty `src/app/data/dropboxConfig.ts` key |
+| Cloud backup retention (newest 14 plus earliest local-month server timestamp, exact root backup filenames only) | `src/core/backup/CloudRetention.ts` (`cloudBackupPathsToDelete`) |
+| Non-secret cloud backup settings and pending flag committed with Finish | `src/worker/WorkerApi.ts` → Dropbox backup (T-042) blocks; upload completion checks the export write revision before clearing pending |
 | When to remind the owner to back up | `src/core/backup/BackupReminder.ts` (`BackupReminderPolicy`) |
 | Preparing and sharing the backup file on screen (Settings and finish summary) | `src/app/features/settings/useBackupFile.ts` |
 | Backup file naming, age, validation and the restore sequence | `src/core/backup/BackupFile.ts`, `BackupAge.ts`, `BackupValidation.ts`, `BackupRestore.ts`; `OnDeviceStore` implements its storage |

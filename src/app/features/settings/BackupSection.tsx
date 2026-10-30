@@ -7,6 +7,7 @@ import { database, messageOf, useDatabaseQuery } from '../../data/database';
 import { Section, SectionRow } from '../../design/components/Section';
 import styles from './BackupSection.module.css';
 import { useBackupFile } from './useBackupFile';
+import { DropboxBackupSection } from './DropboxBackupSection';
 
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 
@@ -107,6 +108,7 @@ export function BackupSection() {
         </button>
         <input ref={fileInput} type="file" accept=".sqlite" hidden onChange={(event) => void pick(event)} />
       </Section>
+      <DropboxBackupSection />
       {backupFile.status === 'failed' && (
         <Message tone="bad" text={`A backup could not be prepared: ${backupFile.message}`} />
       )}

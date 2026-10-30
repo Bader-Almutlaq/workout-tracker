@@ -4,6 +4,7 @@ import type { WorkoutSet } from '../../../core/models/WorkoutSet';
 import { WorkoutLoggerError } from '../../../core/logging/WorkoutLoggerError';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { database } from '../../data/database';
+import { dropboxBackup } from '../../data/dropbox/cloudBackup';
 import type { Cell } from './Cell';
 import { loggingQueue } from './loggingQueue';
 import { setValuesOf, withTypedValue, type SetValues } from './setValues';
@@ -132,7 +133,11 @@ export function discardWorkout(workoutId: number): void {
 
 /** Finishes the workout. Resolves to the id of the saved workout, `null` when nothing was completed, or `undefined` if it failed. */
 export function finishWorkout(workoutId: number): Promise<number | null | undefined> {
-  return loggingQueue.enqueue(async () => (await database.finishWorkout(workoutId)).workoutId);
+  return loggingQueue.enqueue(async () => {
+    const { workoutId: savedId } = await database.finishWorkout(workoutId);
+    if (savedId !== null) void dropboxBackup.afterWorkout();
+    return savedId;
+  });
 }
 
 /** Marks the set done (recording the rest since the previous one). */
