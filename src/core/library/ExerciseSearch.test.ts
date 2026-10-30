@@ -3,6 +3,8 @@ import type { Equipment } from './Equipment';
 import { ExerciseLibrary } from './ExerciseLibrary';
 import { ExerciseSearch, type ExerciseSearchEntry } from './ExerciseSearch';
 import type { Muscle } from './Muscle';
+import type { Mechanic } from './Mechanic';
+import type { MovementPattern } from './MovementPattern';
 
 // Core has neither DOM nor Node types; the tests run in Node, where `performance` exists.
 declare const performance: { now(): number };
@@ -15,6 +17,8 @@ interface EntryOptions {
   readonly equipment?: Equipment;
   readonly primary?: readonly Muscle[];
   readonly secondary?: readonly Muscle[];
+  readonly pattern?: MovementPattern | null;
+  readonly mechanic?: Mechanic | null;
   readonly custom?: boolean;
   readonly usage?: number;
   readonly lastUsed?: Date;
@@ -28,6 +32,8 @@ function entry(id: number, name: string, options: EntryOptions = {}): ExerciseSe
     equipment: options.equipment ?? null,
     primaryMuscles: options.primary ?? [],
     secondaryMuscles: options.secondary ?? [],
+    pattern: options.pattern ?? null,
+    mechanic: options.mechanic ?? null,
     isCustom: options.custom ?? false,
     usageCount: options.usage ?? 0,
     lastUsedAt: options.lastUsed ?? null,
@@ -223,6 +229,8 @@ describe('ExerciseSearch on the bundled library', () => {
       equipment: exercise.equipment,
       primaryMuscles: exercise.primaryMuscles,
       secondaryMuscles: exercise.secondaryMuscles,
+      pattern: exercise.pattern,
+      mechanic: exercise.mechanic,
       isCustom: false,
       usageCount: 0,
       lastUsedAt: null,
@@ -239,6 +247,56 @@ describe('ExerciseSearch on the bundled library', () => {
     expect(pulldowns.length).toBeGreaterThan(0);
   });
 
+  test('plain language searches use muscle, movement and equipment metadata', () => {
+    const chest = bundled.results('chest machine', {}, NOW);
+    expect(chest.length).toBeGreaterThanOrEqual(5);
+    expect(
+      chest.slice(0, 5).every((item) => item.equipment === 'machine' && item.primaryMuscles.includes('chest')),
+    ).toBe(true);
+    const rear = bundled.results('rear delt cable', {}, NOW);
+    expect(rear.length).toBeGreaterThanOrEqual(3);
+    expect(
+      rear.slice(0, 3).every((item) => item.equipment === 'cable' && item.primaryMuscles.includes('rear-delt')),
+    ).toBe(true);
+    expect(top('bay', 1, bundled)).toEqual(['Bayesian Curl (Cable)']);
+    expect(top('rdl', 3, bundled)).toContain('Romanian Deadlift (Barbell)');
+    expect(top('hamstring curl', 5, bundled).some((name) => name.includes('Leg Curl'))).toBe(true);
+    expect(top('quad isolation', 5, bundled).some((name) => name.includes('Leg Extension'))).toBe(true);
+    expect(names(bundled.results('lat pull', {}, NOW)).some((name) => name.includes('Pulldown'))).toBe(true);
+    expect(bundled.results('chest machine', { equipment: 'cable' }, NOW)).toEqual([]);
+    expect(
+      bundled
+        .results('quad', { mechanic: 'isolation' }, NOW)
+        .every((item) => library.exercises.find((exercise) => exercise.name === item.name)?.mechanic === 'isolation'),
+    ).toBe(true);
+  });
+
+  test('searches 1500 synthetic entries in under 5 ms per keystroke', () => {
+    const entries = library.exercises
+      .flatMap((exercise, index) =>
+        Array.from({ length: 4 }, (_, copy) => ({
+          id: index * 4 + copy,
+          name: exercise.name,
+          aliases: exercise.aliases,
+          equipment: exercise.equipment,
+          primaryMuscles: exercise.primaryMuscles,
+          secondaryMuscles: exercise.secondaryMuscles,
+          pattern: exercise.pattern,
+          mechanic: exercise.mechanic,
+          isCustom: false,
+          usageCount: 0,
+          lastUsedAt: null,
+        })),
+      )
+      .slice(0, 1500);
+    const large = new ExerciseSearch(entries);
+    const queries = ['chest', 'chest machine', 'rear delt cable', 'quad isolation'];
+    for (const query of queries) large.results(query, {}, NOW);
+    const start = performance.now();
+    for (const query of queries) large.results(query, {}, NOW);
+    expect((performance.now() - start) / queries.length).toBeLessThan(5);
+  });
+
   test('common equipment breaks equal bench press matches, after usage', () => {
     for (const query of ['bench prss', 'bench press']) {
       expect(top(query, 1, bundled)).toEqual(['Bench Press (Barbell)']);
@@ -251,6 +309,8 @@ describe('ExerciseSearch on the bundled library', () => {
         equipment: exercise.equipment,
         primaryMuscles: exercise.primaryMuscles,
         secondaryMuscles: exercise.secondaryMuscles,
+        pattern: exercise.pattern,
+        mechanic: exercise.mechanic,
         isCustom: false,
         usageCount: exercise.name === 'Bench Press (Dumbbell)' ? 1 : 0,
         lastUsedAt: null,

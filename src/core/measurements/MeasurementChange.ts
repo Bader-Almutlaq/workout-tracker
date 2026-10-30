@@ -17,6 +17,9 @@ export interface MeasurementChange {
   readonly fourWeeks: number | null;
   readonly twelveWeeks: number | null;
   readonly perMonth: number | null;
+  readonly first: BodyMeasurement | null;
+  readonly fourWeeksReference: BodyMeasurement | null;
+  readonly twelveWeeksReference: BodyMeasurement | null;
 }
 
 /**
@@ -31,16 +34,25 @@ export function measurementChange(entries: readonly BodyMeasurement[], state: Me
     .filter((entry) => entry.state === state)
     .sort((a, b) => Date.parse(a.takenAt) - Date.parse(b.takenAt));
   const latest = series.at(-1) ?? null;
-  const empty = { latest, sinceFirst: null, fourWeeks: null, twelveWeeks: null, perMonth: null };
   const first = series[0];
+  const empty = {
+    latest,
+    first: first ?? null,
+    sinceFirst: null,
+    fourWeeks: null,
+    twelveWeeks: null,
+    perMonth: null,
+    fourWeeksReference: null,
+    twelveWeeksReference: null,
+  };
   if (latest === null || first === undefined || series.length < 2) return empty;
   const policy = MeasurementChangePolicy;
   const latestTime = Date.parse(latest.takenAt);
   const cutoff = (weeks: number) => latestTime - weeks * policy.daysPerWeek * policy.millisecondsPerDay;
-  const delta = (weeks: number): number | null => {
-    const baseline = series.filter((entry) => Date.parse(entry.takenAt) <= cutoff(weeks)).at(-1);
-    return baseline === undefined ? null : latest.value - baseline.value;
-  };
+  const reference = (weeks: number) =>
+    series.filter((entry) => Date.parse(entry.takenAt) <= cutoff(weeks)).at(-1) ?? null;
+  const fourWeeksReference = reference(policy.shortWeeks);
+  const twelveWeeksReference = reference(policy.longWeeks);
   const window = series.filter((entry) => Date.parse(entry.takenAt) >= cutoff(policy.longWeeks));
   const times = window.map((entry) => (Date.parse(entry.takenAt) - latestTime) / policy.millisecondsPerDay);
   const meanTime = times.reduce((sum, time) => sum + time, 0) / window.length;
@@ -54,9 +66,12 @@ export function measurementChange(entries: readonly BodyMeasurement[], state: Me
   });
   return {
     latest,
+    first,
+    fourWeeksReference,
+    twelveWeeksReference,
     sinceFirst: latest.value - first.value,
-    fourWeeks: delta(policy.shortWeeks),
-    twelveWeeks: delta(policy.longWeeks),
+    fourWeeks: fourWeeksReference === null ? null : latest.value - fourWeeksReference.value,
+    twelveWeeks: twelveWeeksReference === null ? null : latest.value - twelveWeeksReference.value,
     perMonth: denominator === 0 ? null : (numerator / denominator) * policy.daysPerMonth,
   };
 }

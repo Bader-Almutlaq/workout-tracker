@@ -1,5 +1,8 @@
 import { EQUIPMENT_DISPLAY_NAMES, type Equipment } from './Equipment';
 import type { Muscle } from './Muscle';
+import type { Mechanic } from './Mechanic';
+import type { MovementPattern } from './MovementPattern';
+import { SearchVocabulary, type SearchConstraint } from './SearchVocabulary';
 import { SearchText } from './SearchText';
 
 /** One searchable exercise: the library or custom exercise as it exists in the database. */
@@ -16,6 +19,10 @@ export interface ExerciseSearchEntry {
   readonly primaryMuscles: readonly Muscle[];
   /** Synergists; shown but not filtered on. */
   readonly secondaryMuscles: readonly Muscle[];
+  /** Movement pattern, or null when unknown. */
+  readonly pattern: MovementPattern | null;
+  /** Joint mechanic, or null when unknown. */
+  readonly mechanic: Mechanic | null;
   /** True for exercises the user created. */
   readonly isCustom: boolean;
   /** Number of workouts the exercise appears in; drives ordering of otherwise equal matches. */
@@ -30,6 +37,8 @@ export interface ExerciseSearchFilter {
   readonly muscle?: Muscle;
   /** Keeps entries performed with this equipment. */
   readonly equipment?: Equipment;
+  /** Keeps entries with this joint mechanic. */
+  readonly mechanic?: Mechanic;
   /** Keeps only user-created exercises when true. */
   readonly customOnly?: boolean;
 }
@@ -60,6 +69,11 @@ export const SearchTuning = {
   longTokenTypos: 2,
   /** Heuristic: a multi-word query must have at least this many letters once joined to match inside a name ("pull down" in "pulldown"). */
   minimumSubstringLength: 4,
+
+  /** Heuristic: a matching primary muscle or other attribute materially improves relevance. */
+  vocabularyPrimaryBonus: 80,
+  /** Heuristic: a secondary muscle is relevant but less direct. */
+  vocabularySecondaryBonus: 15,
 
   /** Heuristic: strict-mode score of one query token that matches a field token within the typo allowance. */
   fuzzyMatchScore: 10,
@@ -155,6 +169,8 @@ interface Field {
 interface Indexed {
   readonly entry: ExerciseSearchEntry;
   readonly fields: readonly Field[];
+  readonly pattern: MovementPattern | null;
+  readonly mechanic: Mechanic | null;
   /** Length of the display name in code points, used to break ties. */
   readonly nameLength: number;
 }
@@ -173,11 +189,30 @@ function makeField(text: string, equipmentTokens: readonly string[], isName: boo
   return { tokens, ownTokenCount: own.length, joined: tokens.join(''), ownJoined: own.join(''), isName };
 }
 
-function entryAllowedBy(entry: ExerciseSearchEntry, filter: ExerciseSearchFilter): boolean {
+function entryAllowedBy(indexed: Indexed, filter: ExerciseSearchFilter): boolean {
+  const entry = indexed.entry;
+  if (filter.mechanic !== undefined && indexed.mechanic !== filter.mechanic) return false;
   if (filter.muscle !== undefined && !entry.primaryMuscles.includes(filter.muscle)) return false;
   if (filter.equipment !== undefined && entry.equipment !== filter.equipment) return false;
   if (filter.customOnly === true && !entry.isCustom) return false;
   return true;
+}
+
+function constraintMatch(indexed: Indexed, constraint: SearchConstraint): number {
+  const primary = SearchTuning.vocabularyPrimaryBonus;
+  switch (constraint.kind) {
+    case 'muscle':
+      if (constraint.values.some((muscle) => indexed.entry.primaryMuscles.includes(muscle))) return primary;
+      return constraint.values.some((muscle) => indexed.entry.secondaryMuscles.includes(muscle))
+        ? SearchTuning.vocabularySecondaryBonus
+        : 0;
+    case 'equipment':
+      return indexed.entry.equipment !== null && constraint.values.includes(indexed.entry.equipment) ? primary : 0;
+    case 'pattern':
+      return indexed.pattern !== null && constraint.values.includes(indexed.pattern) ? primary : 0;
+    case 'mechanic':
+      return indexed.mechanic !== null && constraint.values.includes(indexed.mechanic) ? primary : 0;
+  }
 }
 
 function sameTokens(left: readonly string[], right: readonly string[]): boolean {
@@ -378,7 +413,13 @@ export class ExerciseSearch {
         makeField(entry.name, equipmentTokens, true),
         ...entry.aliases.map((alias) => makeField(alias, equipmentTokens, false)),
       ];
-      return { entry, fields, nameLength: [...entry.name].length };
+      return {
+        entry,
+        fields,
+        pattern: entry.pattern,
+        mechanic: entry.mechanic,
+        nameLength: [...entry.name].length,
+      };
     });
   }
 
@@ -401,7 +442,7 @@ export class ExerciseSearch {
    * @param now The current time, passed in so core never reads the clock.
    */
   results(query: string, filter: ExerciseSearchFilter, now: Date): ExerciseSearchEntry[] {
-    const candidates = this.indexed.filter((candidate) => entryAllowedBy(candidate.entry, filter));
+    const candidates = this.indexed.filter((candidate) => entryAllowedBy(candidate, filter));
     const queryTokens = SearchText.tokens(query);
     if (queryTokens.length === 0) {
       return candidates
@@ -414,15 +455,62 @@ export class ExerciseSearch {
     }
 
     const queryJoined = queryTokens.join('');
+    const constraints: SearchConstraint[] = [];
+    const remaining: string[] = [];
+    for (let index = 0; index < queryTokens.length; index += 1) {
+      const token = queryTokens[index] ?? '';
+      const next = queryTokens[index + 1];
+      const phraseKey = `${token} ${next ?? ''}`;
+      const phrase =
+        next !== undefined && Object.hasOwn(SearchVocabulary, phraseKey) ? SearchVocabulary[phraseKey] : undefined;
+      const constraint = phrase ?? (Object.hasOwn(SearchVocabulary, token) ? SearchVocabulary[token] : undefined);
+      if (constraint === undefined) remaining.push(token);
+      else {
+        constraints.push(constraint);
+        if (phrase !== undefined) index += 1;
+      }
+    }
     const scored: Scored[] = [];
     for (const candidate of candidates) {
-      let relevance: number | null = null;
-      for (const field of candidate.fields) {
-        const score = fieldScore(field, queryTokens, queryJoined);
-        if (score !== null && (relevance === null || score > relevance)) relevance = score;
+      let vocabularyScore = 0;
+      let allMatch = true;
+      for (const constraint of constraints) {
+        const match = constraintMatch(candidate, constraint);
+        if (match === 0) allMatch = false;
+        vocabularyScore += match;
       }
-      if (relevance !== null)
-        scored.push({ indexed: candidate, score: relevance + popularityScore(candidate.entry, now) });
+      const vocabularyOnly = remaining.length === 0 && constraints.length > 0;
+      if (vocabularyOnly && !allMatch) {
+        const missingPattern =
+          constraints.length === 1 && constraints[0]?.kind === 'pattern' && candidate.pattern === null;
+        if (
+          !missingPattern ||
+          !candidate.fields.some((field) => field.tokens.some((token) => token.startsWith(queryJoined)))
+        )
+          continue;
+      }
+      let relevance: number | null = null;
+      if (!vocabularyOnly || (constraints.length === 1 && constraints[0]?.kind !== 'muscle')) {
+        for (const field of candidate.fields) {
+          const score = fieldScore(field, queryTokens, queryJoined);
+          if (score !== null && (relevance === null || score > relevance)) relevance = score;
+        }
+      } else {
+        const name = candidate.fields[0];
+        if (name !== undefined && name.ownJoined === queryJoined) relevance = SearchTuning.exactNameBonus;
+      }
+      if (!vocabularyOnly && constraints.length > 0 && allMatch && relevance === null) {
+        for (const field of candidate.fields) {
+          const score = fieldScore(field, remaining, remaining.join(''));
+          if (score !== null && (relevance === null || score > relevance)) relevance = score + vocabularyScore;
+        }
+      }
+      if (relevance !== null || (vocabularyOnly && allMatch)) {
+        scored.push({
+          indexed: candidate,
+          score: (relevance ?? 0) + (vocabularyOnly ? vocabularyScore : 0) + popularityScore(candidate.entry, now),
+        });
+      }
     }
     return scored.sort((left, right) => compareResults(left, right, now)).map((item) => item.indexed.entry);
   }

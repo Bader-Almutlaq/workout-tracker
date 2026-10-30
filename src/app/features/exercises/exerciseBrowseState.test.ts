@@ -10,7 +10,13 @@ import {
 describe('exercise browse state', () => {
   test('The list is remembered for the next visit', () => {
     expect(rememberedBrowseState()).toEqual(EMPTY_BROWSE_STATE);
-    const state = { query: 'lateral rasie', muscle: 'side-delt', equipment: undefined, customOnly: false } as const;
+    const state = {
+      query: 'lateral rasie',
+      muscle: 'side-delt',
+      equipment: undefined,
+      mechanic: undefined,
+      customOnly: false,
+    } as const;
     rememberBrowseState(state);
     expect(rememberedBrowseState()).toEqual(state);
     rememberBrowseState(EMPTY_BROWSE_STATE);
@@ -29,5 +35,7 @@ describe('exercise browse state', () => {
     expect(isSearching({ ...EMPTY_BROWSE_STATE, query: 'rdl' })).toBe(true);
     expect(isSearching({ ...EMPTY_BROWSE_STATE, equipment: 'cable' })).toBe(true);
     expect(isSearching({ ...EMPTY_BROWSE_STATE, customOnly: true })).toBe(true);
+    expect(isSearching({ ...EMPTY_BROWSE_STATE, mechanic: 'isolation' })).toBe(true);
+    expect(searchFilterOf({ ...EMPTY_BROWSE_STATE, mechanic: 'compound' })).toEqual({ mechanic: 'compound' });
   });
 });

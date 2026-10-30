@@ -3,44 +3,48 @@ import type { MeasurementUnits } from '../../../core/measurements/MeasurementUni
 import { groupValues, measurementChangeText, siteUnit } from './measurementText';
 import styles from './Body.module.css';
 
-/** Paired left/right latest values share one row; side buttons open each full history. */
+/** A compact selectable group, with its latest values and dated comparisons. */
 export function MeasurementGroupRow({
   group,
   units,
   onSelect,
+  empty = false,
 }: {
   readonly group: MeasurementGroup;
   readonly units: MeasurementUnits;
   readonly onSelect: (key: string) => void;
+  readonly empty?: boolean;
 }) {
-  const hasFlexed = group.sites.some((summary) => summary.flexed.latest !== null);
   return (
-    <section className={styles.row}>
-      <h2 className={styles.title}>{group.name}</h2>
-      <p className={styles.values}>{groupValues(group, 'relaxed', units)}</p>
-      {hasFlexed && <p className={styles.values}>Flexed · {groupValues(group, 'flexed', units)}</p>}
-      {group.sites.map((summary) => (
-        <div key={summary.site.key} className={styles.stack}>
-          <button
-            type="button"
-            className={styles.note}
-            onClick={() => onSelect(summary.site.key)}
-            aria-label={`Open ${summary.site.name} history`}
-          >
-            {summary.site.name} · History
-          </button>
-          <p className={styles.caption}>
-            {summary.site.side !== null ? `${summary.site.side === 'left' ? 'L' : 'R'} · ` : ''}
-            {measurementChangeText(summary.relaxed.fourWeeks, siteUnit(summary.site, units), 'in 4 weeks')}
-            {summary.relaxed.latest !== null && summary.site.supportsFlexed ? ' · relaxed' : ''}
-          </p>
-          {summary.flexed.latest !== null && (
-            <p className={styles.caption}>
-              Flexed · {measurementChangeText(summary.flexed.fourWeeks, siteUnit(summary.site, units), 'in 4 weeks')}
-            </p>
-          )}
-        </div>
-      ))}
-    </section>
+    <button type="button" className={styles.rowButton} onClick={() => onSelect(group.key)}>
+      <span className={styles.rowHeading}>
+        <span>{group.name}</span>
+        {!empty && <span>{groupValues(group, 'relaxed', units)}</span>}
+      </span>
+      {!empty &&
+        group.sites.flatMap((summary) =>
+          (['relaxed', 'flexed'] as const).map((state) => {
+            const change = summary[state];
+            if (change.latest === null) return null;
+            const side = summary.site.side === null ? '' : `${summary.site.side === 'left' ? 'L' : 'R'} · `;
+            const label = state === 'flexed' ? 'Flexed · ' : '';
+            return (
+              <span key={`${summary.site.key}-${state}`} className={styles.caption}>
+                {side}
+                {label}
+                {measurementChangeText(
+                  change.fourWeeks,
+                  siteUnit(summary.site, units),
+                  change.fourWeeksReference?.takenAt ?? null,
+                  change.first?.takenAt ?? null,
+                )}
+              </span>
+            );
+          }),
+        )}
+      {!empty && group.sites.some((site) => site.flexed.latest !== null) && (
+        <span className={styles.caption}>Flexed · {groupValues(group, 'flexed', units)}</span>
+      )}
+    </button>
   );
 }

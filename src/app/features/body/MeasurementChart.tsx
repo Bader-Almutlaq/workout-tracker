@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { BodyMeasurement } from '../../../core/models/BodyMeasurement';
-import type { MeasurementUnit } from '../../../core/measurements/MeasurementSite';
+import type { MeasurementSite, MeasurementUnit } from '../../../core/measurements/MeasurementSite';
 import { measurementValueIn } from '../../../core/measurements/MeasurementUnits';
 import { ChartFrame } from '../../design/charts/ChartFrame';
 import { chartScales } from '../../design/charts/chartScales';
@@ -14,51 +14,49 @@ import { measurementText } from './measurementText';
 import { measurementTimestamp } from './measurementTimestamp';
 import styles from './Body.module.css';
 
-/** Both states share the existing chart frame, scale, marks, touch readout and table. */
+/** The selected state uses one series per side on a shared chart. */
 export function MeasurementChart({
   entries,
   unit,
+  sites,
 }: {
   readonly entries: readonly BodyMeasurement[];
   readonly unit: MeasurementUnit;
+  readonly sites: readonly MeasurementSite[];
 }) {
   const { ref, width } = useChartSize();
   const [selected, setSelected] = useState<number | null>(null);
   const points = entries.map((entry) => ({ date: entry.takenAt, value: measurementValueIn(entry.value, unit) }));
-  const relaxed = points.filter((_, index) => entries[index]?.state === 'relaxed');
-  const flexed = points.filter((_, index) => entries[index]?.state === 'flexed');
+  const left = points.filter((_, index) => entries[index]?.site === sites[0]?.key);
+  const right = points.filter((_, index) => entries[index]?.site !== sites[0]?.key);
   const scales = chartScales(points, width);
   const picked = selected === null ? undefined : entries[selected];
-  const bothStates = relaxed.length > 0 && flexed.length > 0;
   return (
     <section className={styles.stack} aria-label="Measurement history chart">
-      <p className={styles.caption}>History · {unit}</p>
-      {bothStates && (
+      {sites.length > 1 && (
         <p className={styles.legend}>
-          <span>Relaxed · thick</span>
-          <span>Flexed · thin</span>
+          <span>L</span>
+          <span>R</span>
         </p>
       )}
-      {!bothStates && entries.length > 0 && (
-        <p className={styles.caption}>{entries[0]?.state === 'flexed' ? 'Flexed' : 'Relaxed'}</p>
+      {picked !== undefined && (
+        <p className={styles.caption} aria-live="polite">
+          {measurementTimestamp(picked.takenAt)} · {sites.find((site) => site.key === picked.site)?.name} ·{' '}
+          {measurementText(picked.value, unit)}
+        </p>
       )}
-      <p className={styles.caption} aria-live="polite">
-        {picked === undefined
-          ? 'Touch the chart to inspect a measurement.'
-          : `${measurementTimestamp(picked.takenAt)} · ${picked.state} · ${measurementText(picked.value, unit)}`}
-      </p>
       <div ref={ref}>
         {entries.length === 0 ? (
           <p className={styles.caption}>Log a measurement to see its history.</p>
         ) : (
-          <ChartFrame width={width} scales={scales} label={`Relaxed and flexed measurements in ${unit}`}>
-            {bothStates ? (
-              <ComparisonLines recent={relaxed} baseline={flexed} scales={scales} />
+          <ChartFrame width={width} scales={scales} label={`Measurement history in ${unit}`}>
+            {sites.length > 1 ? (
+              <ComparisonLines recent={left} baseline={right} scales={scales} />
             ) : (
               <TrendLine points={points} scales={scales} />
             )}
-            <DotSeries points={relaxed} scales={scales} />
-            <DotSeries points={flexed} scales={scales} />
+            <DotSeries points={left} scales={scales} />
+            <DotSeries points={right} scales={scales} />
             <TouchRule
               points={points}
               scales={scales}
@@ -72,10 +70,14 @@ export function MeasurementChart({
       {entries.length > 0 && (
         <ChartTable
           caption={`Measurement history · ${unit}`}
-          columns={['Date', 'State', `Value (${unit})`]}
+          columns={['Date', 'Site', `Value (${unit})`]}
           rows={entries.map((entry) => ({
             key: String(entry.id),
-            cells: [measurementTimestamp(entry.takenAt), entry.state, measurementText(entry.value, unit)],
+            cells: [
+              measurementTimestamp(entry.takenAt),
+              sites.find((site) => site.key === entry.site)?.name ?? entry.site,
+              measurementText(entry.value, unit),
+            ],
           }))}
         />
       )}

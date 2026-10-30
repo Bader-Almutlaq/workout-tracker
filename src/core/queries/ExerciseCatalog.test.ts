@@ -3,6 +3,7 @@ import { Database } from '../db/Database';
 import { migrate } from '../db/migrations';
 import { ExerciseLibrary } from '../library/ExerciseLibrary';
 import { ExerciseLibrarySeeder } from '../library/ExerciseLibrarySeeder';
+import { ExerciseSearch } from '../library/ExerciseSearch';
 import { ExerciseCatalog } from './ExerciseCatalog';
 
 const now = new Date('2026-01-01T00:00:00Z');
@@ -39,11 +40,32 @@ describe('exercise catalog', () => {
       aliases: ['bp', 'Flat Press'],
       primaryMuscles: ['chest'],
       secondaryMuscles: ['triceps'],
+      pattern: 'horizontal-push',
+      mechanic: 'compound',
       usageCount: 2,
       lastUsedAt: new Date('2026-02-01T10:00:00Z'),
       isCustom: false,
     });
-    expect(entries.find((entry) => entry.id === 50)?.isCustom).toBe(true);
+    expect(entries.find((entry) => entry.id === 50)).toMatchObject({ isCustom: true, pattern: null, mechanic: null });
+  });
+  it('searches using stored metadata for custom and edited library exercises', () => {
+    db.exec(`
+      UPDATE exercise SET name = 'Renamed Lift', movementPattern = 'knee-extension', mechanic = 'isolation'
+      WHERE id = 1;
+      INSERT INTO exercise (id, name, source, movementPattern, mechanic, createdAt)
+      VALUES (52, 'My Leg Movement', 'custom', 'knee-extension', 'isolation', '2026-01-01');
+      INSERT INTO exerciseMuscle (exerciseId, muscleId, role)
+      VALUES (52, 'quads', 'primary');
+    `);
+    const entries = ExerciseCatalog.entries(db, library);
+    expect(entries.find((entry) => entry.id === 1)).toMatchObject({
+      pattern: 'knee-extension',
+      mechanic: 'isolation',
+    });
+    const search = new ExerciseSearch(entries);
+    expect(search.results('quad extension', { mechanic: 'isolation' }, now).map((entry) => entry.id)).toContain(52);
+    expect(search.results('', { mechanic: 'isolation' }, now).map((entry) => entry.id)).toEqual([1, 52]);
+    expect(search.results('', { mechanic: 'compound' }, now)).toEqual([]);
   });
   it('summarizes usage and recent top sets', () => {
     const detail = ExerciseCatalog.detail(db, 1, library);

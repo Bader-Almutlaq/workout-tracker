@@ -11,6 +11,8 @@ function library(id: number, name: string): ExerciseSearchEntry {
     equipment: null,
     primaryMuscles: ['biceps'],
     secondaryMuscles: [],
+    pattern: null,
+    mechanic: null,
     isCustom: false,
     usageCount: 0,
     lastUsedAt: null,
