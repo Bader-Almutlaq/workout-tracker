@@ -1,4 +1,5 @@
 import type { OnDeviceStore, OpenReport } from './OnDeviceStore';
+import { workoutDetail, workoutSummaries, type WorkoutDetail, type WorkoutSummary } from '../core/queries/WorkoutHistory';
 
 /** Called after any write, so screens can re-run their queries. */
 export type ChangeListener = () => void;
@@ -54,6 +55,19 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         openReport: store.openReport,
       };
     },
+
+    // History (T-015)
+
+    /** Every finished workout, newest first. */
+    async historySummaries(): Promise<WorkoutSummary[]> {
+      return workoutSummaries((await ready).database);
+    },
+
+    /** One workout with its exercises and sets, or `undefined` when it doesn't exist. */
+    async workoutDetail(workoutId: number): Promise<WorkoutDetail | undefined> {
+      return workoutDetail((await ready).database, workoutId);
+    },
+    // End of History (T-015)
   };
 }
 

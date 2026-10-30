@@ -1,0 +1,11 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  /* The chevron's own padding lines it up with the screen margin. */
+  margin: 0 0 var(--space-m) calc(var(--space-xs) * -1);
+  padding: var(--space-xs) var(--space-s) var(--space-xs) 0;
+  font: var(--font-body);
+  color: var(--color-accent);
+  text-decoration: none;
+}

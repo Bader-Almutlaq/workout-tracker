@@ -4,10 +4,23 @@
     calc(env(safe-area-inset-bottom) + var(--tab-bar-height) + var(--space-xl));
 }
 
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xl);
+}
+
 .title {
   font: var(--font-display);
   letter-spacing: -0.02em;
-  margin-bottom: var(--space-xl);
+  /* A long workout name wraps instead of pushing the screen wider. */
+  overflow-wrap: anywhere;
+}
+
+.subtitle {
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
 }
 
 .content {

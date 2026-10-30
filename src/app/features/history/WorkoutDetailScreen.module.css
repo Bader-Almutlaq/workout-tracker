@@ -1,0 +1,6 @@
+.notes {
+  padding: var(--space-m);
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
