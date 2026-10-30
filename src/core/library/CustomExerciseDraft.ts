@@ -7,6 +7,12 @@ import type { LibraryExercise } from './LibraryExercise';
 
 /** Fields entered for a custom exercise. Omitted fields use the native defaults. */
 export interface CustomExerciseDraft {
+  /** Exact kg increment; null resets to the equipment default. */
+  readonly loadStepKilograms?: number | null;
+  /** Exact kg empty bar/carriage; null resets to the equipment default. */
+  readonly barWeightKilograms?: number | null;
+  /** 0–4 suggested warm-ups; null resets to the equipment default. */
+  readonly warmupSetCount?: number | null;
   readonly name?: string;
   readonly equipment?: Equipment | null;
   readonly pattern?: MovementPattern | null;

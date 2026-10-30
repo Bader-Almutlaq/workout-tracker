@@ -15,3 +15,9 @@
   font: var(--font-callout);
   color: var(--color-accent);
 }
+
+.error {
+  color: var(--color-status-critical);
+  font: var(--font-callout);
+  padding: var(--space-m);
+}

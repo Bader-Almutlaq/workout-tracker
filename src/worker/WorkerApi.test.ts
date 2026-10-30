@@ -252,3 +252,40 @@ test('successful import and merge each snapshot the exact database before any mu
   await checkSnapshot(() => api.runStrongImport(makeImportOptions()));
   store.database.close();
 });
+
+test('warm-up edit protection and deletion suppression survive separate worker API calls', async () => {
+  const { store, api } = await setup(false);
+  try {
+    const exerciseId = await api.createExercise({
+      ...draft,
+      equipment: 'barbell',
+      mechanic: 'compound',
+      pattern: 'horizontal-push',
+    });
+    const workoutId = await api.startWorkout('Warm-up test', [exerciseId]);
+    const entry = (await api.liveWorkout())?.entries[0];
+    const work = entry?.sets[0];
+    if (entry === undefined || work === undefined) throw new Error('Missing workout');
+    await api.updateSet(work.id, 100, 'kg', 8, null, 'working', null);
+    const suggestions = await api.suggestedWarmupSetIds(entry.entry.id);
+    expect(suggestions).toHaveLength(3);
+    const first = suggestions[0];
+    if (first === undefined) throw new Error('Missing suggestion');
+    await api.updateSet(first, 42.5, 'kg', 10, null, 'warmup', null);
+    await api.updateSet(work.id, 120, 'kg', 8, null, 'working', null);
+    expect((await api.workoutDetail(workoutId))?.entries[0]?.sets[0]).toMatchObject({
+      weightKilograms: 42.5,
+      reps: 10,
+    });
+    expect(await api.suggestedWarmupSetIds(entry.entry.id)).not.toContain(first);
+    for (const set of (await api.liveWorkout())?.entries[0]?.sets ?? []) {
+      if (set.kind === 'warmup') await api.deleteSet(set.id);
+    }
+    await api.updateSet(work.id, 130, 'kg', 8, null, 'working', null);
+    expect((await api.liveWorkout())?.entries[0]?.sets).toHaveLength(1);
+    await api.updateExerciseLoading(exerciseId, { warmupSetCount: 0 });
+    expect((await api.exerciseDetail(exerciseId))?.exercise.warmupSetCount).toBe(0);
+  } finally {
+    store.database.close();
+  }
+});

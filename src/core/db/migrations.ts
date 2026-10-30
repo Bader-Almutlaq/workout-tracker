@@ -265,6 +265,14 @@ export const MIGRATIONS: readonly Migration[] = [
       DROP TABLE measurementSequence;
     `,
   },
+  {
+    id: 'v5-exercise-load-settings',
+    sql: `
+      ALTER TABLE exercise ADD COLUMN loadStepKilograms REAL;
+      ALTER TABLE exercise ADD COLUMN barWeightKilograms REAL;
+      ALTER TABLE exercise ADD COLUMN warmupSetCount INTEGER CHECK (warmupSetCount BETWEEN 0 AND 4);
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

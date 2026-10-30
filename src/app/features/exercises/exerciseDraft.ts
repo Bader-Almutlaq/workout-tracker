@@ -20,6 +20,9 @@ export function draftFromDetail(detail: ExerciseCatalogDetail, isCopy: boolean):
     secondaryMuscles: detail.secondaryMuscles,
     isLengthenedBiased: exercise.isLengthenedBiased,
     tracking: exercise.tracking,
+    loadStepKilograms: exercise.loadStepKilograms ?? null,
+    barWeightKilograms: exercise.barWeightKilograms ?? null,
+    warmupSetCount: exercise.warmupSetCount ?? null,
   };
 }
 

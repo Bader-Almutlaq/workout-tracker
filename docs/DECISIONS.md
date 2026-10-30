@@ -115,3 +115,17 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 - **Display:** Body owns length and weight display pickers in app settings. No global weight setting existed before this task; exercise entry units and kg training analytics retain their existing meaning.
 - **Changes:** lookbacks anchor to each state's latest measurement, so old history remains readable. Monthly rate is a least-squares descriptive heuristic over 12 elapsed weeks, scaled to a mean Gregorian month. Missing baselines stay absent, rather than interpolated.
 - **Charts:** reuse the shared frame, scales, trend/comparison lines, dots, touch rule and table with their default styling. The two-state legend identifies the existing thick accent relaxed series and thin ink flexed series.
+
+
+## 2026-10-31: Shared loading ladders and generated warm-ups (T-044)
+
+All suggested loading is owned by `LoadableWeight.ts`: exact kg ladders with a minimum and increment, nearest ties downward, and downward warm-up rounding. No rounding is imposed on manually logged working weights. Standard lb barbells use 45 + 5n lb; other bars keep their specified kg empty weight with lb plate increments because no different lb empty weight was specified. Kettlebells use 4 kg or 5 lb steps. Unsupported equipment returns input loads unchanged even if an override is present.
+
+`WarmupPlan.ts` owns the count schemes, classification defaults and slot reconciliation. Heuristic: Ribeiro 2021, Motricidade's systematic review supports specific warm-ups near working load (40–80% studied); these exact rep/fraction schemes, including the four-set 85% final step, are the owner's chosen heuristic. An unclassified exercise defaults to none and keeps historical/template warm-ups unless a count is explicitly chosen. For classified exercises, inherited planned warm-ups are replaced by the current plan, including count zero; this avoids stacking generated warm-ups on old prefill.
+
+Completed and manually edited warm-ups occupy their original plan slots and are never overwritten. Manual edits to weight or reps stay protected even if later changed back. Existing ids are reused for refreshed slots; obsolete untouched rows are removed. Deleting every warm-up suppresses regeneration for that workout entry. Provenance lives in a persistent logger per worker database connection; a restored connection gets a fresh logger. On reload, preserve existing warm-ups and absent warm-ups on already-loaded entries conservatively, since edit provenance cannot be recovered from the schema.
+
+Loading overrides are editable on built-in exercises separately from their frozen metadata. A warm-up tint token has both light and dark values, and a hairline marks the transition to work; generated weight/reps stay quiet until edited or completed. No analytics formulas change.
+
+
+The brief's 60 kg, three-warm-up example says 20 × 8 for the first set, but 40% × 60 = 24 kg rounds down to 22.5 kg on the specified 20 + 2.5n ladder. The implementation follows the explicit fractions and rounding rule (22.5 × 8, 35 × 5, 47.5 × 2); an empty-bar exception needs an owner decision rather than an invented threshold.

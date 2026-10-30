@@ -1,3 +1,5 @@
+import type { WeightUnit } from '../../../core/units/WeightUnit';
+import { ExerciseLoadingFields } from './ExerciseLoadingFields';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import type { CustomExerciseDraft } from '../../../core/library/CustomExerciseDraft';
@@ -19,10 +21,14 @@ export function ExerciseForm({
   exerciseId,
   initial,
   backPath,
+  unit = 'kg',
+  loadingOnly = false,
 }: {
   readonly exerciseId: number | undefined;
   readonly initial: CustomExerciseDraft;
   readonly backPath: string;
+  readonly unit?: WeightUnit;
+  readonly loadingOnly?: boolean;
 }) {
   const navigate = useNavigate();
   const [draft, setDraft] = useState<CustomExerciseDraft>(initial);
@@ -38,7 +44,8 @@ export function ExerciseForm({
         const createdId = await database.createExercise(draft);
         void navigate(`/exercises/${createdId}`, { replace: true });
       } else {
-        await database.updateExercise(exerciseId, draft);
+        if (loadingOnly) await database.updateExerciseLoading(exerciseId, draft);
+        else await database.updateExercise(exerciseId, draft);
         void navigate(backPath, { replace: true });
       }
     } catch (failure) {
@@ -50,28 +57,44 @@ export function ExerciseForm({
 
   return (
     <>
-      <Section label="Details">
-        <ExerciseDetailsFields draft={draft} onChange={setDraft} />
+      {!loadingOnly && (
+        <>
+          <Section label="Details">
+            <ExerciseDetailsFields draft={draft} onChange={setDraft} />
+          </Section>
+          <MusclePicker
+            label="Primary muscles"
+            footnote="The muscles that do most of the work. Pick at least one."
+            selected={primary}
+            onToggle={(muscle) => setDraft(withPrimaryToggled(draft, muscle))}
+          />
+          <MusclePicker
+            label="Secondary muscles"
+            selected={draft.secondaryMuscles ?? []}
+            unavailable={primary}
+            onToggle={(muscle) => setDraft(withSecondaryToggled(draft, muscle))}
+          />
+        </>
+      )}
+      <Section label="Loading" footnote="Optional. Leave blank to use the equipment default.">
+        <ExerciseLoadingFields
+          settings={draft}
+          equipment={draft.equipment}
+          unit={unit}
+          onChange={(settings) => setDraft({ ...draft, ...settings })}
+        />
       </Section>
-      <MusclePicker
-        label="Primary muscles"
-        footnote="The muscles that do most of the work. Pick at least one."
-        selected={primary}
-        onToggle={(muscle) => setDraft(withPrimaryToggled(draft, muscle))}
-      />
-      <MusclePicker
-        label="Secondary muscles"
-        selected={draft.secondaryMuscles ?? []}
-        unavailable={primary}
-        onToggle={(muscle) => setDraft(withSecondaryToggled(draft, muscle))}
-      />
       <div className={styles.actions}>
         {error !== undefined && (
           <p className={styles.error} role="alert">
             {error}
           </p>
         )}
-        <Button variant="primary" isDisabled={isSaving || !canSaveDraft(draft)} onPress={() => void save()}>
+        <Button
+          variant="primary"
+          isDisabled={isSaving || (!loadingOnly && !canSaveDraft(draft))}
+          onPress={() => void save()}
+        >
           Save
         </Button>
       </div>

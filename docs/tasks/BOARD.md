@@ -70,11 +70,11 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-041](T-041-backup-on-finish-and-one-tap-clean.md) | Backup button on every finish; leave out all flagged sets in one tap | done | Codex Terra (high), reviewed by lead | merged |
 | [T-042](T-042-dropbox-backup.md) | Automatic backup to Dropbox (R11) | done (live Dropbox connect checked by owner) | Codex Sol + Terra (high), reviewed by lead | merged |
 | [T-043](T-043-measurements.md) | Body measurements: sites with how-to notes, flexed/relaxed, history and change (R1) | done (polish in T-043b) | Codex Sol (high), reviewed by lead | merged |
-| [T-044](T-044-loadable-weights-and-warmups.md) | Loadable weights + auto warm-up sets | doing | Codex Sol (high) | `task/T-044-warmups` |
+| [T-044](T-044-loadable-weights-and-warmups.md) | Loadable weights + auto warm-up sets | done | Codex Sol (high), reviewed by lead | merged |
 | [T-043b](T-043b-body-polish.md) | Body screen polish | done | Codex Terra (high), reviewed by lead | merged |
 | [T-045](T-045-finish-comparison-and-bests.md) | Finish screen: compared with last time, personal bests | done | Codex Terra (high), reviewed by lead | merged |
 | [T-046](T-046-search-by-muscle-words.md) | Plain-language exercise search (muscles, movements, equipment words) | done | Codex Terra (high), reviewed by lead | merged |
-| [T-047](T-047-library-expansion.md) | Bigger library: free-exercise-db merge, instructions, pictures, smaller muscles | todo (after T-044: migration v6) | | |
+| [T-047](T-047-library-expansion.md) | Bigger library: free-exercise-db merge, instructions, pictures, smaller muscles | doing | Codex Sol (high) | `task/T-047-library` |
 | [T-048](T-048-export-strong-csv.md) | Export workouts as Strong CSV (Hevy/Strong) and measurements CSV | doing | Codex Terra (high) | `task/T-048-export` |
 
 ## Next milestones (tasks are written when the milestone starts)
