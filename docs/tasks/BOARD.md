@@ -51,6 +51,14 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-032](T-032-e1rm-and-trend.md) | Effective reps, e1RM, session values and trend | done | Codex Sol (high), reviewed by lead | merged |
 | [T-033](T-033-volume-and-baseline.md) | Hard sets per muscle, weekly volume, recent vs baseline | done | Codex Sol (high), reviewed by lead | merged |
 
+## W6: Analytics screens
+
+| ID | Task | Status | Agent | Branch |
+|---|---|---|---|---|
+| [T-034](T-034-strength-chart.md) | Strength chart on exercise detail + shared chart pieces | doing | Codex Sol (high) | `task/T-034-strength-chart` |
+| [T-035](T-035-analytics-muscles.md) | Analytics tab: weekly sets per muscle | doing | Codex Terra (high) | `task/T-035-analytics-muscles` |
+| T-036 | Signature chart (recent vs baseline) on the Analytics tab, using the shared chart pieces | todo (after T-034, T-035) | | |
+
 ## Next milestones (tasks are written when the milestone starts)
 
 - **W3: Logging screens.** Workout tab with number pad (spec in T-010), rest timer.
