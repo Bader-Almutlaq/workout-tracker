@@ -2,7 +2,7 @@
 
 Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest milestone at the top.
 
-**Current milestone:** W1, Strong import, History and backups. Milestone branch: `web`.
+**Current milestone:** W3, logging. Milestone branch: `web` (deployed from `main` with `make deploy`).
 **Lead:** Claude Opus (main chat).
 
 ## W1: Strong import, History and backups
@@ -31,6 +31,9 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 |---|---|---|---|---|
 | [T-023](T-023-logging-core.md) | Port the logging core (live workout, previous performance, live typo check) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-024](T-024-workout-tab.md) | Workout tab: live logging screen | done | Claude Sonnet (subagent), reviewed by lead | merged |
+| T-025 | Finish summary: one quiet "Back up" line when the last backup is over 7 days old (`docs/DATA.md` → Backups) | todo, brief to write | | |
+| T-026 | Search ranking: for "bench prss", Band and Cable rank above Barbell; check the tie-breaks in `SearchTuning` before the owner's usage exists | todo, brief to write | | |
+| T-027 | Rest timer (on screen; plan in T-024 notes) | todo, brief to write | | |
 
 ## Next milestones (tasks are written when the milestone starts)
 
