@@ -103,7 +103,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Typo / outlier detection (import review and live logging) | `src/core/validation/SetPlausibility.ts` *(to port)* |
 | Live typo check for one set | `src/core/validation/LiveSetCheck.ts` *(to port)* |
 | History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` *(to port)* |
-| Backup file naming, validation and restore | `src/core/backup/` and `OnDeviceStore` *(new for web, W1)* |
+| Backup file naming, age, validation and the restore sequence | `src/core/backup/BackupFile.ts`, `BackupAge.ts`, `BackupValidation.ts`, `BackupRestore.ts`; `OnDeviceStore` implements its storage |
 | Muscle taxonomy (23 muscles, delts split), regions and roles | `src/core/library/Muscle.ts`, `MuscleRegion.ts`, `MuscleRole.ts`; rows frozen in `v1-schema` (a test compares them) |
 | Equipment, movement patterns, mechanic, tracking kinds | `src/core/library/Equipment.ts`, `MovementPattern.ts`, `Mechanic.ts`, `ExerciseTracking.ts` |
 | The built-in exercise list (names, muscles, aliases) | `src/core/library/library.json`, parsed by `LibraryFile.ts`, loaded and validated by `ExerciseLibrary.ts` |

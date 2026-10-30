@@ -4,8 +4,9 @@ import { database, useDatabaseQuery } from '../../data/database';
 import { Screen } from '../../design/components/Screen';
 import { Section, SectionRow } from '../../design/components/Section';
 import { SegmentedControl } from '../../design/components/SegmentedControl';
+import { BackupSection } from './BackupSection';
 
-/** Settings: appearance and what's stored on this phone. Import and backups join in milestone W1. */
+/** Settings: appearance and what's stored on this phone. Import joins in milestone W1. */
 export function SettingsScreen() {
   const [appearance, setAppearance] = useState<Appearance>(savedAppearance);
   const summary = useDatabaseQuery('summary', () => database.summary());
@@ -31,6 +32,7 @@ export function SettingsScreen() {
           <SectionRow label="Database" value={summary.status === 'loading' ? 'Opening…' : summary.message} />
         )}
       </Section>
+      <BackupSection />
     </Screen>
   );
 }

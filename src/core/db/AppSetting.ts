@@ -4,6 +4,8 @@ import type { Database } from './Database';
 export const AppSettingKey = {
   /** The library `version` last seeded into the database. */
   seededLibraryVersion: 'seededLibraryVersion',
+  /** UTC ISO time of the last backup the owner completed on this phone. Kept across restores. */
+  lastBackupAt: 'lastBackupAt',
 } as const;
 
 /** A key of the `appSetting` table: one of the values of `AppSettingKey`. */
