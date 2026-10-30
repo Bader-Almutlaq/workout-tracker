@@ -23,4 +23,9 @@ After finishing a workout, if the last backup is more than 7 days old (or there 
 
 ## Handoff
 
-- **Status:** · **What was done:** · **Files touched:** · **Decisions taken:** · **Open questions / left over:** · **How it was verified:**
+- **Status:** Ready for review; changes left uncommitted as requested.
+- **What was done:** Added a stale-backup reminder to the saved workout summary and extracted the Settings backup preparation and sharing flow for reuse.
+- **Files touched:** `src/core/backup/BackupReminder.ts` and its test; `src/app/features/settings/useBackupFile.ts` and `BackupSection.tsx`; `src/app/features/workout/BackupReminderLine.tsx`, its CSS module, and `SavedWorkoutSummary.tsx`.
+- **Decisions taken:** More than seven days means strictly more than seven 24-hour periods. Missing or unreadable dates are treated as never backed up. The existing share cancellation and download behavior is preserved.
+- **Open questions / left over:** The summary and iOS share sheet were not visually exercised in a browser or simulator; verify both themes and the share flow on a device. The concept ownership table is outside this task's scope and can be updated by the lead.
+- **How it was verified:** `make format` and `make verify` passed; 410 tests passed, including missing, invalid, six-day, exact and just-over-seven-day, eight-day, and future dates.

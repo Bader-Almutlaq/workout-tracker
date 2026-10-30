@@ -6,12 +6,7 @@ import { parseBackupFileName } from '../../../core/backup/BackupFile';
 import { database, messageOf, useDatabaseQuery } from '../../data/database';
 import { Section, SectionRow } from '../../design/components/Section';
 import styles from './BackupSection.module.css';
-
-/** Media type for the backup file. iOS Files and the share sheet use it to treat the file as a database. */
-const BACKUP_MEDIA_TYPE = 'application/vnd.sqlite3';
-
-/** How long a download link's temporary address stays valid. Long enough for Safari to start the download. */
-const DOWNLOAD_LINK_LIFETIME_MS = 60_000;
+import { useBackupFile } from './useBackupFile';
 
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 
@@ -37,10 +32,7 @@ interface Notice {
  */
 export function BackupSection() {
   const lastBackupAt = useDatabaseQuery('last-backup', () => database.lastBackupAt());
-  const backupFile = useDatabaseQuery('backup-file', async () => {
-    const { fileName, bytes } = await database.exportBackup();
-    return new File([bytes as BlobPart], fileName, { type: BACKUP_MEDIA_TYPE });
-  });
+  const { file: backupFile, notice: backupNotice, backUp, clearNotice } = useBackupFile();
   const [picked, setPicked] = useState<PickedBackup | undefined>();
   const [isRestoring, setIsRestoring] = useState(false);
   const [notice, setNotice] = useState<Notice | undefined>();
@@ -54,35 +46,12 @@ export function BackupSection() {
     if (picked === undefined && dialog.open) dialog.close();
   }, [picked]);
 
-  const recordBackup = () =>
-    database.recordBackupMade().then(
-      () => setNotice({ tone: 'good', text: 'Backup saved.' }),
-      (error: unknown) =>
-        setNotice({ tone: 'bad', text: `The backup was saved but not recorded: ${messageOf(error)}` }),
-    );
-
-  // No `await` before `navigator.share`: it must run inside the tap (see the component comment).
-  const backUp = () => {
-    if (backupFile.status !== 'ready') return;
-    const file = backupFile.value;
-    setNotice(undefined);
-    if (canShareFile(file)) {
-      navigator.share({ files: [file] }).then(recordBackup, (error: unknown) => {
-        // Closing the share sheet is a cancel, not a failure, and counts as not backed up.
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-        setNotice({ tone: 'bad', text: `The backup was not saved: ${messageOf(error)}` });
-      });
-    } else {
-      download(file);
-      void recordBackup();
-    }
-  };
-
   const pick = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
     if (file === undefined) return;
     setNotice(undefined);
+    clearNotice();
     try {
       setPicked({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) });
     } catch (error) {
@@ -108,6 +77,8 @@ export function BackupSection() {
     }
   };
 
+  const displayedNotice = notice ?? backupNotice;
+
   return (
     <>
       <Section
@@ -119,7 +90,10 @@ export function BackupSection() {
           type="button"
           className={styles.action}
           disabled={backupFile.status !== 'ready' || isRestoring}
-          onClick={backUp}
+          onClick={() => {
+            setNotice(undefined);
+            backUp();
+          }}
         >
           {backupFile.status === 'loading' ? 'Preparing…' : 'Back up'}
         </button>
@@ -136,7 +110,7 @@ export function BackupSection() {
       {backupFile.status === 'failed' && (
         <Message tone="bad" text={`A backup could not be prepared: ${backupFile.message}`} />
       )}
-      {notice !== undefined && <Message tone={notice.tone} text={notice.text} />}
+      {displayedNotice !== undefined && <Message {...displayedNotice} />}
 
       <dialog
         ref={confirmDialog}
@@ -180,27 +154,6 @@ function Message({ tone, text }: Notice) {
       <span>{text}</span>
     </p>
   );
-}
-
-/** Whether this browser can hand `file` to the share sheet (iOS Safari can; most desktop browsers can't). */
-function canShareFile(file: File): boolean {
-  return (
-    typeof navigator.share === 'function' &&
-    typeof navigator.canShare === 'function' &&
-    navigator.canShare({ files: [file] })
-  );
-}
-
-/** Saves `file` through a temporary link, for browsers without a share sheet. */
-function download(file: File): void {
-  const address = URL.createObjectURL(file);
-  const link = document.createElement('a');
-  link.href = address;
-  link.download = file.name;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(address), DOWNLOAD_LINK_LIFETIME_MS);
 }
 
 function describeLastBackup(query: ReturnType<typeof useDatabaseQuery<string | undefined>>): string {
