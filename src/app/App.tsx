@@ -10,7 +10,7 @@ import { WorkoutScreen } from './features/workout/WorkoutScreen';
 /** The app: five tabs, each a route. */
 export function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<WorkoutScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
