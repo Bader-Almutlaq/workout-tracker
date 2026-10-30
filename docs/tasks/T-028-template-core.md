@@ -32,4 +32,9 @@ WorkoutCore can store the owner's workout templates in folders, edit and reorder
 
 ## Handoff
 
-- **Status:** · **What was done:** · **Files touched:** · **Decisions taken:** · **Open questions / left over:** · **How it was verified:**
+- **Status:** Ready for review; changes left uncommitted as requested.
+- **What was done:** Added transactional folder and template operations, catalog and editor queries, starting from templates, and template reference migration during exercise merges.
+- **Files touched:** `src/core/templates/`, four template models, `src/core/queries/TemplateCatalog.ts` and its test, `WorkoutLogger.ts` and its test, `ExerciseEditor.ts` and its test, and this handoff.
+- **Decisions taken:** New drafts omit `id`; saving an existing draft replaces its contents. Folder moves append to the destination, positions are clamped on reorder, names are trimmed, rep targets must be non-negative integers, and copying a workout requires an end time. Planned sets use the exercise default entry unit and preserve prior kg values. Rename accepts a time for `updatedAt`; folder moves and reorders do not update it. Detail returns undefined for a missing template.
+- **Open questions / left over:** The lead should add template concept ownership to `docs/ARCHITECTURE.md` outside this task's scope. No worker or UI integration was included.
+- **How it was verified:** `make format` and `make verify` passed; 434 tests across 66 files, including seven new tests.
