@@ -7,6 +7,7 @@ import { Section, SectionRow } from '../../design/components/Section';
 import { SegmentedControl } from '../../design/components/SegmentedControl';
 import { MatchingRow } from '../matching/MatchingRow';
 import { BackupSection } from './BackupSection';
+import { ExportSection } from './ExportSection';
 import { UnitsSection } from './UnitsSection';
 
 /** Settings: appearance and what's stored on this phone. Import joins in milestone W1. */
@@ -40,6 +41,7 @@ export function SettingsScreen() {
         <LinkRow to="/settings/import">Import from Strong…</LinkRow>
         <MatchingRow />
       </Section>
+      <ExportSection />
       <BackupSection />
     </Screen>
   );
