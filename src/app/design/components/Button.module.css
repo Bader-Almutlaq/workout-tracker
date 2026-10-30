@@ -1,0 +1,33 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-s) var(--space-l);
+  border-radius: var(--radius-small);
+  border: var(--hairline) solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font: var(--font-headline);
+  text-decoration: none;
+  transition: background var(--motion-standard);
+}
+
+.button:active {
+  background: var(--color-surface-raised);
+}
+
+.button[data-variant='primary'] {
+  background: var(--color-accent);
+  border-color: transparent;
+  color: var(--color-on-accent);
+}
+
+.button[data-variant='destructive'] {
+  color: var(--color-status-critical);
+}
+
+.button:disabled {
+  opacity: 0.4;
+}

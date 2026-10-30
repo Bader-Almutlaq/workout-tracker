@@ -23,7 +23,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 |---|---|---|---|---|
 | [T-019](T-019-library-and-search-core.md) | Port the library, muscle taxonomy and search (pure part) | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-020](T-020-library-database.md) | Port library seeding, exercise editing and merge, catalog queries | done | Codex Terra (high), finished by lead | merged |
-| [T-022](T-022-exercises-tab-and-matching.md) | Exercises tab and Strong matching screen | doing | Claude Sonnet (subagent) | `task/T-022-exercises-tab-and-matching` |
+| [T-022](T-022-exercises-tab-and-matching.md) | Exercises tab and Strong matching screen | review | Claude Sonnet (subagent) | `task/T-022-exercises-tab-and-matching` |
 
 ## W3: Logging (started early)
 

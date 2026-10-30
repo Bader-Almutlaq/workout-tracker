@@ -1,0 +1,17 @@
+.note {
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+}
+
+.traits {
+  padding: var(--space-m);
+  border-top: var(--hairline) solid var(--color-border);
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+}
+
+.aliases {
+  font: var(--font-callout);
+  color: var(--color-text-tertiary);
+  overflow-wrap: anywhere;
+}

@@ -1,0 +1,21 @@
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-m);
+}
+
+.group + .group {
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.region {
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}

@@ -1,0 +1,28 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pair {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-wrap: anywhere;
+}
+
+.from {
+  color: var(--color-text-tertiary);
+}
+
+.to {
+  color: var(--color-text-primary);
+}
+
+.to::before {
+  content: '→ ';
+  color: var(--color-text-tertiary);
+}

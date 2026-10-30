@@ -5,6 +5,7 @@ import { LinkRow } from '../../design/components/LinkRow';
 import { Screen } from '../../design/components/Screen';
 import { Section, SectionRow } from '../../design/components/Section';
 import { SegmentedControl } from '../../design/components/SegmentedControl';
+import { MatchingRow } from '../matching/MatchingRow';
 import { BackupSection } from './BackupSection';
 
 /** Settings: appearance and what's stored on this phone. Import joins in milestone W1. */
@@ -35,6 +36,7 @@ export function SettingsScreen() {
       </Section>
       <Section label="Import" footnote="Safe to repeat: workouts already imported are skipped.">
         <LinkRow to="/settings/import">Import from Strong…</LinkRow>
+        <MatchingRow />
       </Section>
       <BackupSection />
     </Screen>

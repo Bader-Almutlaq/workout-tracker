@@ -1,0 +1,35 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name {
+  overflow-wrap: anywhere;
+}
+
+.muscles {
+  font: var(--font-callout);
+  color: var(--color-text-tertiary);
+}
+
+.match {
+  flex: none;
+  min-height: 36px;
+  padding: 0 var(--space-m);
+  background: var(--color-accent-subtle);
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  font: var(--font-callout);
+  color: var(--color-accent);
+}

@@ -52,3 +52,14 @@ export function durationText(startedAt: string, endedAt: string | null): string 
   if (hours === 0) return `${remainder}m`;
   return remainder === 0 ? `${hours}h` : `${hours}h ${remainder}m`;
 }
+
+/**
+ * A calendar day with its year, e.g. "Jan 8, 2024", for dates that can be years apart.
+ *
+ * @param timeZone An IANA zone; the phone's own zone when omitted.
+ */
+export function dayWithYearText(isoTimestamp: string, timeZone?: string): string {
+  return new Intl.DateTimeFormat(FORMAT_LOCALE, { timeZone, year: 'numeric', month: 'short', day: 'numeric' }).format(
+    new Date(isoTimestamp),
+  );
+}
