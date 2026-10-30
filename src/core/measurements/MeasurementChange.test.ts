@@ -18,6 +18,9 @@ describe('measurementChange', () => {
   test('no data or only the other state gives nulls', () => {
     expect(measurementChange([], 'relaxed')).toEqual({
       latest: null,
+      first: null,
+      fourWeeksReference: null,
+      twelveWeeksReference: null,
       sinceFirst: null,
       fourWeeks: null,
       twelveWeeks: null,
@@ -38,6 +41,9 @@ describe('measurementChange', () => {
     expect(result.latest?.value).toBe(24);
     expect(result.sinceFirst).toBe(14);
     expect(result.fourWeeks).toBe(4);
+    expect(result.fourWeeksReference?.value).toBe(20);
+    expect(result.twelveWeeksReference?.value).toBe(10);
+    expect(result.first?.value).toBe(10);
     expect(result.twelveWeeks).toBe(14);
     expect(entries[0]?.value).toBe(10);
   });
