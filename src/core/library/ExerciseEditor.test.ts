@@ -79,3 +79,13 @@ describe('exercise editing', () => {
     expect(db.value('SELECT count(*) FROM exerciseAlias')).toBe(2);
   });
 });
+
+it('moves template exercise references when merging', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  db.exec(`INSERT INTO exercise (id, name, source, createdAt) VALUES (1, 'Source', 'custom', 'a'), (2, 'Target', 'custom', 'a');
+    INSERT INTO template (id, name, position, createdAt, updatedAt) VALUES (1, 'Plan', 0, 'a', 'a');
+    INSERT INTO templateExercise (templateId, exerciseId, position) VALUES (1, 1, 0);`);
+  ExerciseEditor.merge(db, 1, 2);
+  expect(db.value('SELECT exerciseId FROM templateExercise')).toBe(2);
+});

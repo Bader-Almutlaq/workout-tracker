@@ -4,6 +4,7 @@ import type { WorkoutSetRow } from '../models/WorkoutSet';
 import type { WeightUnit } from '../units/WeightUnit';
 import { previousPerformance } from '../queries/PreviousPerformance';
 import { WorkoutLoggerError } from './WorkoutLoggerError';
+import { TemplateStoreError } from '../templates/TemplateStoreError';
 
 /** Limits that catch input mistakes without restricting real training; RPE bounds: Zourdos 2016. */
 export const WorkoutLoggerLimits = {
@@ -40,6 +41,72 @@ export class WorkoutLogger {
         now.toISOString(),
         name,
       ]).lastInsertRowId;
+    });
+  }
+
+  /** Starts a template workout, using its set kinds and the latest performed values. */
+  startFromTemplate(templateId: number, now: Date): number {
+    return this.db.transaction(() => {
+      const active = this.activeWorkoutId();
+      if (active !== undefined) throw new WorkoutLoggerError('workoutAlreadyInProgress', active);
+      const template = this.db.get<{ name: string }>('SELECT name FROM template WHERE id = ?', [templateId]);
+      if (template === undefined) throw new TemplateStoreError('notFound');
+      const workoutId = this.db.run(
+        `
+        INSERT INTO workout (startedAt, name, source, isInProgress, templateId) VALUES (?, ?, 'app', 1, ?)
+      `,
+        [now.toISOString(), template.name, templateId],
+      ).lastInsertRowId;
+      this.db.run('UPDATE template SET lastStartedAt = ? WHERE id = ?', [now.toISOString(), templateId]);
+      const exercises = this.db.all<{
+        id: number;
+        exerciseId: number;
+        position: number;
+        supersetGroup: number | null;
+        notes: string | null;
+        defaultEntryUnit: WeightUnit;
+      }>(
+        `
+        SELECT te.*, e.defaultEntryUnit FROM templateExercise te JOIN exercise e ON e.id = te.exerciseId
+        WHERE te.templateId = ? ORDER BY te.position
+      `,
+        [templateId],
+      );
+      for (const exercise of exercises) {
+        const entry = this.db.run(
+          `
+          INSERT INTO workoutExercise (workoutId, exerciseId, position, supersetGroup, notes) VALUES (?, ?, ?, ?, ?)
+        `,
+          [workoutId, exercise.exerciseId, exercise.position, exercise.supersetGroup, exercise.notes],
+        ).lastInsertRowId;
+        const previous = previousPerformance(this.db, exercise.exerciseId, workoutId);
+        const sets = this.db.all<{ kind: SetKind; targetRepsLow: number | null }>(
+          `
+          SELECT kind, targetRepsLow FROM templateSet WHERE templateExerciseId = ? ORDER BY position
+        `,
+          [exercise.id],
+        );
+        sets.forEach((set, index) => {
+          const prior = previous[index];
+          this.db.run(
+            `
+            INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, rpe, durationSeconds, isCompleted)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+          `,
+            [
+              entry,
+              index,
+              set.kind,
+              prior?.weightKilograms ?? 0,
+              exercise.defaultEntryUnit,
+              prior?.reps ?? set.targetRepsLow ?? 0,
+              prior?.rpe ?? null,
+              prior?.durationSeconds ?? null,
+            ],
+          );
+        });
+      }
+      return workoutId;
     });
   }
 

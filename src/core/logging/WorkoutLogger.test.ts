@@ -171,3 +171,30 @@ describe('Logging a workout live', () => {
     expect(workoutSummary(db, 999)).toBeUndefined();
   });
 });
+
+test('Starting from a template uses template set counts and kinds with history and defaults', async () => {
+  const { db, logger } = await fixture();
+  db.exec(`INSERT INTO template (id, name, position, createdAt, updatedAt) VALUES (1, 'Plan', 0, 'a', 'a');
+    INSERT INTO templateExercise (id, templateId, exerciseId, position, supersetGroup) VALUES (1, 1, 1, 0, 4), (2, 1, 2, 1, 4);
+    INSERT INTO templateSet (templateExerciseId, position, kind, targetRepsLow) VALUES (1, 0, 'drop', 5), (1, 1, 'failure', 6), (2, 0, 'working', 12);`);
+  const workout = logger.startFromTemplate(1, now);
+  const entries = db.all<{ id: number; supersetGroup: number }>(
+    'SELECT id, supersetGroup FROM workoutExercise WHERE workoutId = ? ORDER BY position',
+    [workout],
+  );
+  expect(entries.map((entry) => entry.supersetGroup)).toEqual([4, 4]);
+  const first = entries[0];
+  const second = entries[1];
+  if (first === undefined || second === undefined) throw new Error('Missing entries');
+  expect(sets(db, first.id).map((set) => [set.kind, set.reps])).toEqual([
+    ['drop', 10],
+    ['failure', 8],
+  ]);
+  expect(sets(db, second.id)[0]).toMatchObject({ weightKilograms: 0, reps: 12 });
+  expect(db.get('SELECT name, templateId FROM workout WHERE id = ?', [workout])).toEqual({
+    name: 'Plan',
+    templateId: 1,
+  });
+  expect(db.value('SELECT lastStartedAt FROM template WHERE id = 1')).toBe(now.toISOString());
+  expect(() => logger.startFromTemplate(1, now)).toThrow(new WorkoutLoggerError('workoutAlreadyInProgress', workout));
+});

@@ -98,6 +98,7 @@ export const ExerciseEditor = {
           db.run('UPDATE exercise SET defaultEntryUnit = ? WHERE id = ?', [source.defaultEntryUnit, targetId]);
         }
         moved += db.run('UPDATE workoutExercise SET exerciseId = ? WHERE exerciseId = ?', [targetId, sourceId]).changes;
+        db.run('UPDATE templateExercise SET exerciseId = ? WHERE exerciseId = ?', [targetId, sourceId]);
         db.run('UPDATE exerciseAlias SET exerciseId = ? WHERE exerciseId = ?', [targetId, sourceId]);
         // The old name keeps working for imports and search.
         db.run('INSERT OR REPLACE INTO exerciseAlias (alias, exerciseId) VALUES (?, ?)', [source.name, targetId]);
