@@ -1,0 +1,12 @@
+.recent,
+.baseline {
+  fill: none;
+}
+.recent {
+  stroke: var(--color-accent);
+  stroke-width: 3;
+}
+.baseline {
+  stroke: var(--color-text-primary);
+  stroke-width: 1.5;
+}

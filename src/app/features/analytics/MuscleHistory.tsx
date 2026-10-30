@@ -1,8 +1,11 @@
+import { FORMAT_LOCALE } from '../../format/formatLocale';
 import { BottomSheet } from '../../design/components/BottomSheet';
 import { MUSCLE_DISPLAY_NAMES, type Muscle } from '../../../core/library/Muscle';
 import type { WeeklyMuscleVolume } from '../../../core/queries/WeeklyMuscleVolume';
 import { formatVolume } from './MuscleBars';
 import styles from './Analytics.module.css';
+
+const weekFormat = new Intl.DateTimeFormat(FORMAT_LOCALE, { timeZone: 'UTC', month: 'short', day: 'numeric' });
 
 /** Modal showing twelve calendar weeks of one muscle's fractional hard sets. */
 export function MuscleHistory({
@@ -30,7 +33,7 @@ export function MuscleHistory({
       <div className={styles.history}>
         {values.map((item) => (
           <div className={styles.historyRow} key={item.week}>
-            <span>{item.week}</span>
+            <span>{weekFormat.format(new Date(item.week))}</span>
             <span className={styles.historyTrack}>
               <span className={styles.historyBar} style={{ width: `${(item.value / maximum) * 100}%` }} />
             </span>

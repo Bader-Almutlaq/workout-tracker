@@ -54,11 +54,21 @@ Run `make format`; `make verify` must pass.
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
+- **Status:** Implementation complete; verification passes. Ready for lead review, with the required browser checks still pending because the sandbox cannot run the app/browser. Changes are uncommitted per owner instruction; BOARD.md was not edited.
+- **What was done:** Added zero-filled local-day hard-set queries and a worker method; placed the signature card above weekly volume, with all-training/muscle selection, 1M/3M/6M ranges, descriptive headline, two smooth lines, diverging dots, latest ring/glow, touch/keyboard inspection, loading/error/empty states and a table. Polished shared scale ticks/date labels, strength headline precision and muscle-history week labels. Added the concept ownership row.
 - **Files touched:**
+  - Core: `src/core/queries/DailyHardSets.ts`, `DailyHardSets.test.ts`.
+  - Worker: `src/worker/WorkerApi.ts` (dedicated T-036 block).
+  - Analytics UI: `SignatureCard.tsx`, `SignatureCard.module.css`, `signatureReadout.ts`, `signatureReadout.test.ts`, `AnalyticsScreen.tsx`, `MuscleHistory.tsx`.
+  - Shared charts: `chartScales.ts`, `chartScales.test.ts`, `ChartFrame.tsx`, `ChartFrame.module.css`, `TouchRule.tsx`; new `ComparisonLines`, `ClassifiedDots`, and `ChartTable` components, each with a CSS module.
+  - Strength UI: `StrengthCard.tsx`, `strengthReadout.ts`, `strengthReadout.test.ts`.
+  - Docs: `docs/ARCHITECTURE.md` concept ownership; this Handoff only.
+- **Public API:** `dailyHardSets(database, { from, to, muscleId? }): SeriesPoint[]` with YYYY-MM-DD endpoints, `DailyHardSetsOptions`, `DailyHardSetsError`; worker `dailyHardSets(from, to, muscleId?)`; `SignatureCard`, `signatureHeadline`, `signatureReadout`, `signatureDifferenceText`, `signatureSetsText`; chart `chartScales` optional `{ zeroBaseline }`, `chartDateLabels`, `ChartFrame` optional `signature`, `TouchRule` optional `label`, new `ComparisonLines`, `ClassifiedDots`, `ChartTable`; `strengthHeadlineText`.
 - **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+  - Daily grouping uses the workout start's local date and only finished workouts, matching WeeklyMuscleVolume, including imports without end/completion timestamps. All training also counts unmatched exercises; optional muscle counts call the existing `muscleVolume` helper, without duplicating weights.
+  - Month ranges use calendar months with month-end clamping. Every request includes 34 prior civil days; the existing overlapping 7/28 windows are calculated before trimming. Missing days, including leading days, are explicit zeros as specified.
+  - The task's select/range controls supersede the older design's scope chips. Signature plots use the design's weekly dashed vertical rules, in-plot date labels and no horizontal/y-axis labels. Other charts retain their horizontal grid with nice ticks.
+  - Chart blue/magenta tokens are scoped in `ClassifiedDots.module.css` with DESIGN.md's exact dark/light palette because global `tokens.css` is outside scope and currently has no palette tokens. The lead can move them into global tokens later.
+  - Strength rounding applies to the headline only (0.5 kg / 1 lb); session readouts and original set text retain their existing precision. Whole percentages use a typographic minus, and rounded negative zero is suppressed.
+- **Open questions / left over:** Required visual/touch checks at 430 × 932 in dark/light remain pending: all three ranges, muscle selection, drag/release, table, empty/loading/error states, strength headline and muscle-history labels. `make dev` fails with `listen EPERM` on port 5173. Playwright's bundled browser is absent; installed Chrome aborts on launch; the computer-use browser host is unavailable. No visual verification is claimed. No other scope changes are needed.
+- **How it was verified:** `make format`, then `make verify` passed (89 test files, 649 tests, including 16 new cases; lint, all TypeScript projects, production build/PWA precache). New cases cover zero-filling, pinned Riyadh midnight and Los Angeles DST transitions, hard-set exclusions, primary/secondary counting, all-training deduplication/unmatched exercises, invalid/reversed ranges, positive/negative/null headline and readout text, nice ticks/forced zero, short/long x labels and strength headline rounding. `git diff --check` is clean.

@@ -10,7 +10,12 @@ import { TrendLine } from '../../design/charts/TrendLine';
 import { useChartSize } from '../../design/charts/useChartSize';
 import { dayWithYearText } from '../../format/dateText';
 import { weightText } from '../../format/weightText';
-import { strengthBestSetText, strengthReadout, strengthWeeklyChangeText } from './strengthReadout';
+import {
+  strengthBestSetText,
+  strengthHeadlineText,
+  strengthReadout,
+  strengthWeeklyChangeText,
+} from './strengthReadout';
 import styles from './StrengthCard.module.css';
 
 /** Heuristic: two qualifying daily observations are the minimum needed to draw a trend (T-034). */
@@ -55,7 +60,7 @@ export function StrengthCard({ exerciseId, unit }: { readonly exerciseId: number
             <div className={styles.headline} aria-live="polite">
               {selected === undefined ? (
                 <>
-                  <p className={styles.value}>{weightText(series.latest, unit)}</p>
+                  <p className={styles.value}>{strengthHeadlineText(series.latest, unit)}</p>
                   <p className={styles.caption}>{strengthWeeklyChangeText(series.changePerWeekPercent)}</p>
                 </>
               ) : (

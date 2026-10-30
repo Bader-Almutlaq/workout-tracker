@@ -139,6 +139,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Estimated 1RM per set, k by exercise category, which sets qualify | `src/core/analytics/EstimatedOneRepMax.ts` |
 | Strength trend (EWMA), change per week | `src/core/analytics/StrengthTrend.ts`; per exercise via `src/core/queries/ExerciseStrength.ts` |
 | Hard sets; fractional sets per muscle; volume zones | `src/core/analytics/HardSets.ts`, `MuscleVolume.ts`; weekly via `src/core/queries/WeeklyMuscleVolume.ts` |
+| Daily hard sets, zero-filled local days, all training or one muscle | `src/core/queries/DailyHardSets.ts` |
 | Recent vs baseline (signature chart math), range statistics | `src/core/analytics/RecentVsBaseline.ts` |
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` |
 | The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` |

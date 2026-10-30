@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ExerciseStrengthSession } from '../../../core/queries/ExerciseStrength';
-import { strengthBestSetText, strengthReadout, strengthWeeklyChangeText } from './strengthReadout';
+import {
+  strengthBestSetText,
+  strengthHeadlineText,
+  strengthReadout,
+  strengthWeeklyChangeText,
+} from './strengthReadout';
 
 const session: ExerciseStrengthSession = {
   workoutId: 1,
@@ -55,5 +60,19 @@ describe('strengthWeeklyChangeText', () => {
     expect(strengthWeeklyChangeText(null)).toBe('—');
     expect(strengthWeeklyChangeText(0)).toBe('0.0% per week');
     expect(strengthWeeklyChangeText(-0.001)).toBe('0.0% per week');
+  });
+});
+
+describe('strengthHeadlineText', () => {
+  it('rounds a kilogram trend to the nearest half kilogram with at most one decimal', () => {
+    expect(strengthHeadlineText(112.55, 'kg')).toBe('112.5 kg');
+    expect(strengthHeadlineText(112.8, 'kg')).toBe('113 kg');
+    expect(strengthHeadlineText(112.75, 'kg')).toBe('113 kg');
+    expect(strengthHeadlineText(0, 'kg')).toBe('0 kg');
+  });
+
+  it('converts once and rounds a pound headline to whole pounds', () => {
+    expect(strengthHeadlineText(121.5, 'lb')).toBe('268 lb');
+    expect(strengthHeadlineText(61.23, 'lb')).toBe('135 lb');
   });
 });
