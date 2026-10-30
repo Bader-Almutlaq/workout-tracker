@@ -120,12 +120,20 @@ describe('ExerciseSearch.results', () => {
 
   test('a usage boost reorders otherwise equal matches', () => {
     const unused = [entry(1, 'Curl (Cable)', { equipment: 'cable' }), entry(2, 'Curl (Band)', { equipment: 'band' })];
-    expect(names(new ExerciseSearch(unused).results('curl', {}, NOW))).toEqual(['Curl (Band)', 'Curl (Cable)']);
+    expect(names(new ExerciseSearch(unused).results('curl', {}, NOW))).toEqual(['Curl (Cable)', 'Curl (Band)']);
     const used = [
-      entry(1, 'Curl (Cable)', { equipment: 'cable', usage: 30 }),
-      entry(2, 'Curl (Band)', { equipment: 'band' }),
+      entry(1, 'Curl (Cable)', { equipment: 'cable' }),
+      entry(2, 'Curl (Band)', { equipment: 'band', usage: 30 }),
     ];
-    expect(names(new ExerciseSearch(used).results('curl', {}, NOW))).toEqual(['Curl (Cable)', 'Curl (Band)']);
+    expect(names(new ExerciseSearch(used).results('curl', {}, NOW))).toEqual(['Curl (Band)', 'Curl (Cable)']);
+  });
+
+  test('a better word match beats preferred equipment', () => {
+    const entries = [
+      entry(1, 'Bench Press (Barbell)', { equipment: 'barbell' }),
+      entry(2, 'Bench Press (Band)', { equipment: 'band' }),
+    ];
+    expect(new ExerciseSearch(entries).results('bench press band', {}, NOW)[0]?.name).toBe('Bench Press (Band)');
   });
 
   test('recent use breaks ties', () => {
@@ -229,6 +237,28 @@ describe('ExerciseSearch on the bundled library', () => {
     const pulldowns = names(bundled.results('pull down', {}, NOW));
     expect(pulldowns.slice(0, 5).every((name) => name.toLowerCase().includes('pulldown'))).toBe(true);
     expect(pulldowns.length).toBeGreaterThan(0);
+  });
+
+  test('common equipment breaks equal bench press matches, after usage', () => {
+    for (const query of ['bench prss', 'bench press']) {
+      expect(top(query, 1, bundled)).toEqual(['Bench Press (Barbell)']);
+    }
+    const used = new ExerciseSearch(
+      library.exercises.map((exercise, offset) => ({
+        id: offset + 1,
+        name: exercise.name,
+        aliases: exercise.aliases,
+        equipment: exercise.equipment,
+        primaryMuscles: exercise.primaryMuscles,
+        secondaryMuscles: exercise.secondaryMuscles,
+        isCustom: false,
+        usageCount: exercise.name === 'Bench Press (Dumbbell)' ? 1 : 0,
+        lastUsedAt: null,
+      })),
+    );
+    for (const query of ['bench prss', 'bench press']) {
+      expect(top(query, 1, used)).toEqual(['Bench Press (Dumbbell)']);
+    }
   });
 
   test('suggestions map imported names', () => {
