@@ -42,7 +42,14 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-028](T-028-template-core.md) | Template engine: folders, templates, start from a template, save a workout as a template | done | Codex Terra (high), reviewed by lead | merged |
 | [T-029](T-029-template-screens.md) | Template screens: list with folders on the Workout tab, editor, save-as-template | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-030](T-030-history-calendar.md) | History calendar | done | Codex Terra (high), reviewed by lead | merged |
-| T-031 | Templates follow-ups: reorder templates in a folder, "discard changes?" when leaving the editor, label rep fields as seconds for timed exercises | todo, brief to write | | |
+| [T-031](T-031-template-follow-ups.md) | Template follow-ups: reorder, discard prompt, seconds label | doing | Codex Terra (high) | `task/T-031-template-follow-ups` |
+
+## W5: Analytics engine
+
+| ID | Task | Status | Agent | Branch |
+|---|---|---|---|---|
+| [T-032](T-032-e1rm-and-trend.md) | Effective reps, e1RM, session values and trend | doing | Codex Sol (high) | `task/T-032-e1rm-and-trend` |
+| [T-033](T-033-volume-and-baseline.md) | Hard sets per muscle, weekly volume, recent vs baseline | doing | Codex Sol (high) | `task/T-033-volume-and-baseline` |
 
 ## Next milestones (tasks are written when the milestone starts)
 
