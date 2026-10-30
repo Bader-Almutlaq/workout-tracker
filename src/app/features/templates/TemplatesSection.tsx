@@ -6,7 +6,7 @@ import type { TemplateDialogState } from './templateDialogState';
 import { TemplateGroups } from './TemplateGroups';
 import type { TemplateListActions } from './TemplateListActions';
 import { TemplateSectionActions } from './TemplateSectionActions';
-import { duplicateTemplate, moveFolder } from './templateActions';
+import { duplicateTemplate, moveFolder, reorderTemplate } from './templateActions';
 
 /**
  * The templates on the Workout tab: folders and templates, then New template and New folder.
@@ -28,6 +28,7 @@ export function TemplatesSection({
   const actions: TemplateListActions = {
     preview: (template) => setDialog({ kind: 'preview', templateId: template.id }),
     duplicate: (template) => duplicateTemplate(template.id),
+    reorder: (template, position) => reorderTemplate(template.id, position),
     requestMove: (template) => setDialog({ kind: 'moveTemplate', template }),
     requestDelete: (template) => setDialog({ kind: 'deleteTemplate', template }),
     renameFolder: (folder) => setDialog({ kind: 'renameFolder', folder }),

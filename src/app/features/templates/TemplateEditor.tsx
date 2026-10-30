@@ -7,6 +7,10 @@ import type { FolderChoice } from './FolderChoice';
 import { TemplateExercisePicker } from './TemplateExercisePicker';
 import { TemplateForm } from './TemplateForm';
 import { useTemplateEditor } from './useTemplateEditor';
+import { useTemplateTracking } from './useTemplateTracking';
+import { ConfirmDialog } from '../../design/components/ConfirmDialog';
+import { EmptyState } from '../../design/components/EmptyState';
+import { useDiscardNavigation } from './useDiscardNavigation';
 
 /**
  * Creates or edits a template from `initial`. The draft stays here until Save; "Add exercise" swaps
@@ -22,13 +26,40 @@ export function TemplateEditor({
   readonly folders: readonly FolderChoice[];
 }) {
   const model = useTemplateEditor(initial);
-  if (model.isPicking) return <TemplateExercisePicker model={model} entries={entries} />;
+  const tracking = useTemplateTracking(model.draft.exercises);
+  const navigation = useDiscardNavigation(initial, model.draft);
+  const dialog = navigation.pending ? (
+    <ConfirmDialog
+      title="Discard changes?"
+      confirmLabel="Discard"
+      cancelLabel="Keep editing"
+      onConfirm={navigation.discard}
+      onCancel={navigation.keepEditing}
+    />
+  ) : null;
+  if (model.isPicking)
+    return (
+      <>
+        <TemplateExercisePicker model={model} entries={entries} />
+        {dialog}
+      </>
+    );
   return (
     <Screen
       title={initial.id === undefined ? 'New template' : 'Edit template'}
       leading={<BackLink to="/" label="Workout" />}
     >
-      <TemplateForm model={model} names={exerciseNamesById(entries)} folders={folders} />
+      {tracking.status === 'failed' ? (
+        <EmptyState message={tracking.message} />
+      ) : (
+        <TemplateForm
+          model={model}
+          names={exerciseNamesById(entries)}
+          folders={folders}
+          tracking={tracking.status === 'ready' ? tracking.value : new Map()}
+        />
+      )}
+      {dialog}
     </Screen>
   );
 }

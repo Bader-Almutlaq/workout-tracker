@@ -16,6 +16,7 @@ export function TemplateSetRow({
   exerciseIndex,
   setIndex,
   set,
+  isTimed,
   canRemove,
   editing,
   actions,
@@ -23,6 +24,7 @@ export function TemplateSetRow({
   readonly exerciseIndex: number;
   readonly setIndex: number;
   readonly set: TemplateSetDraft;
+  readonly isTimed: boolean;
   /** An exercise keeps at least one set. */
   readonly canRemove: boolean;
   /** The target of this set the pad is typing into, with the text typed so far. */
@@ -42,6 +44,7 @@ export function TemplateSetRow({
     return (
       <TargetValueCell
         field={field}
+        isTimed={isTimed}
         value={value}
         typedText={editing?.field === field ? editing.text : undefined}
         onPress={() => actions.edit(cell)}

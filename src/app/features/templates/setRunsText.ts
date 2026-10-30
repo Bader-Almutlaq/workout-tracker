@@ -26,10 +26,10 @@ function runText(kind: SetKind, target: string, count: number): string {
  * "1 warm-up set · 3 × 8–12 @ RPE 8 · 1 failure set". Sets without targets are only counted, and a
  * run of one shows just its target ("8–12 @ RPE 8").
  */
-export function setRunsText(sets: readonly TemplateSetDraft[]): string {
+export function setRunsText(sets: readonly TemplateSetDraft[], isTimed = false): string {
   const runs: { kind: SetKind; target: string; count: number }[] = [];
   for (const set of sets) {
-    const target = targetText(set);
+    const target = targetText(set, isTimed);
     const last = runs.at(-1);
     if (last !== undefined && last.kind === set.kind && last.target === target) last.count += 1;
     else runs.push({ kind: set.kind, target, count: 1 });

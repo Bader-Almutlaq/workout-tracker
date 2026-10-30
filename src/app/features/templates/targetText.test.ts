@@ -24,3 +24,9 @@ describe('target text', () => {
     expect(targetText(none)).toBe('');
   });
 });
+
+test('Timed targets show seconds, including partial ranges and effort', () => {
+  expect(targetText({ targetRepsLow: 30, targetRepsHigh: 45, targetRpe: 8 }, true)).toBe('30–45 s @ RPE 8');
+  expect(targetText({ ...none, targetRepsHigh: 45 }, true)).toBe('up to 45 s');
+  expect(targetText({ ...none, targetRpe: 8 }, true)).toBe('RPE 8');
+});

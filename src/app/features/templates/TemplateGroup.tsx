@@ -33,8 +33,15 @@ export function TemplateGroup({
       />
       <div className={styles.card}>
         {templates.length === 0 && <p className={styles.empty}>No templates in this folder.</p>}
-        {templates.map((template) => (
-          <TemplateRow key={template.id} template={template} now={now} actions={actions} />
+        {templates.map((template, index) => (
+          <TemplateRow
+            key={template.id}
+            template={template}
+            index={index}
+            count={templates.length}
+            now={now}
+            actions={actions}
+          />
         ))}
       </div>
     </section>

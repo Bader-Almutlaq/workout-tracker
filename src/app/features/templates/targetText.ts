@@ -13,9 +13,13 @@ function repsText(low: number | null, high: number | null): string {
  * A set's targets as the owner wrote them, e.g. "8–12 @ RPE 8", "8–12" or "RPE 8". Empty when the
  * set has no targets; the app never fills one in.
  */
-export function targetText(set: Pick<TemplateSetDraft, 'targetRepsLow' | 'targetRepsHigh' | 'targetRpe'>): string {
+export function targetText(
+  set: Pick<TemplateSetDraft, 'targetRepsLow' | 'targetRepsHigh' | 'targetRpe'>,
+  isTimed = false,
+): string {
   const reps = repsText(set.targetRepsLow, set.targetRepsHigh);
+  const target = reps !== '' && isTimed ? `${reps} s` : reps;
   const effort = set.targetRpe === null ? '' : `RPE ${rpeNumberText(set.targetRpe)}`;
-  if (reps !== '' && effort !== '') return `${reps} @ ${effort}`;
-  return reps || effort;
+  if (target !== '' && effort !== '') return `${target} @ ${effort}`;
+  return target || effort;
 }
