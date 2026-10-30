@@ -93,9 +93,9 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Logging categories | `src/core/support/log.ts` |
 | Light / dark preference | `src/app/appearance/appearance.ts` |
 | Color, type, spacing, radius and motion tokens | `src/app/design/tokens.css` |
-| Key–value app settings | `src/core/db/AppSetting.ts` *(to port: `Database/AppSetting.swift`)* |
-| kg ↔ lb conversion, display rounding, original-unit inference | `src/core/units/` *(to port: `Units/`)* |
-| Stored record types (one per table) | `src/core/models/` *(to port: `Models/`)* |
+| Key–value app settings | `src/core/db/AppSetting.ts` (`AppSettingKey` lists every key) |
+| kg ↔ lb conversion, display rounding, original-unit inference | `src/core/units/WeightUnit.ts`, `src/core/units/Weight.ts` |
+| Stored record types (one per table), 0/1 → boolean conversion | `src/core/models/` (`from<Type>Row`) |
 | CSV reading | `src/core/import/CsvTable.ts` *(to port: `Import/CSVTable.swift`)* |
 | Strong file formats and timestamps | `src/core/import/` *(to port: `Import/Strong*.swift`)* |
 | Which unit an exported exercise is in | `src/core/import/ExportUnitResolver.ts` *(to port)* |
