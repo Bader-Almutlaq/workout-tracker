@@ -22,7 +22,7 @@ This file is the single entry point. `CLAUDE.md` imports it; Codex and other too
 - No AI features, exercise videos, social, streaks or celebrations. Keep the UI uncluttered.
 - Every analytics formula cites its source from `reports/Workout tracker app research.md` in its doc comment, or is marked `Heuristic:` with the reason.
 - **Data safety first.** Never ship a migration, importer, merge or restore path that can lose data without taking a snapshot first. Weights are stored in kilograms exactly as entered, with the unit they were typed in; display conversion happens only in the UI layer.
-- **Offline always.** Every feature works with no connection. Nothing is ever sent off the phone; there is no server, analytics or tracking.
+- **Offline always.** Every feature works with no connection. Nothing is ever sent off the phone, with one owner-approved exception: backups go to the owner's own Google Drive once they connect it (see `docs/DECISIONS.md`). There is no server, analytics or tracking.
 - The owner's real Strong export lives in `export_data/` (git-ignored). Never commit it, never copy it into tests or fixtures, never paste its contents into docs. Only the `tools/import-report.ts` developer tool reads it.
 
 ## Engineering rules

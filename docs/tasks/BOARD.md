@@ -68,6 +68,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-039](T-039-e2e-fixes.md) | Fixes from the end-to-end check (set notes, warm-up prefill, template stamp, set counts, import preview) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-040](T-040-import-leave-out.md) | Leave out a flagged set at import | done | Codex Terra (high), reviewed by lead | merged |
 | [T-041](T-041-backup-on-finish-and-one-tap-clean.md) | Backup button on every finish; leave out all flagged sets in one tap | done | Codex Terra (high), reviewed by lead | merged |
+| [T-042](T-042-google-drive-backup.md) | Automatic backup to Google Drive (R11) | doing | Codex Sol (high) | `task/T-042-drive-backup` |
 
 ## Next milestones (tasks are written when the milestone starts)
 

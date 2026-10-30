@@ -92,3 +92,15 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 
 ## 2026-10-30: Opening storage never deletes it, and retries while another copy holds it
 - **Why:** SQLite's SAH-pool storage deletes the whole pool when opening fails, unless `preserveOnInitFailure` is set. Opening fails whenever another copy of the app holds the files (a second Safari tab, or the old copy still closing after "Update"), so the default could wipe the owner's data. `OnDeviceStore` sets `preserveOnInitFailure`, retries with `forceReinitIfPreviouslyFailed` (8 × 750 ms), and then shows a message saying the data is safe and what to close. Found while testing two Safari tabs on the simulator.
+
+## 2026-10-31: Automatic backups go to the owner's Google Drive
+- **Why:** the owner wants backups without remembering to tap. A web app can't write to iCloud Drive in the background, so it needs a cloud the owner signs into once. The owner chose Google Drive over Dropbox, knowing Google's browser sign-in lasts about an hour, so a sign-in sheet may sometimes appear.
+- **How:**
+  - Google Identity Services token client with the `drive.file` scope: the app sees only the files it creates.
+  - The backup uploads after each finished workout. The Finish tap is the user gesture that allows a token request.
+  - Files go to a "Workout Tracker Backups" folder.
+  - The OAuth client ID is public and lives in the code. There is no secret and no server.
+- **Retention:** the app prunes only its own Drive files. It keeps the newest 14 and the first backup of each calendar month, and never touches anything else in Drive or the local snapshots.
+- **Limits:**
+  - Google's sign-in inside Home Screen apps on iOS can be fragile, so the manual "Back up now" (share sheet) stays.
+  - Offline finishes upload on the next finish, or from Settings.
