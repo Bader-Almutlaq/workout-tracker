@@ -8,6 +8,8 @@ import { dayText, durationText, monthLabel } from '../../format/dateText';
 import { setCountText } from '../../format/setText';
 import { volumeText } from '../../format/weightText';
 import styles from './HistoryScreen.module.css';
+import { HistoryCalendar } from './HistoryCalendar';
+import calendarStyles from './HistoryCalendar.module.css';
 
 /** Every finished workout, newest first, grouped by month. Tapping one opens `WorkoutDetailScreen`. */
 export function HistoryScreen() {
@@ -17,6 +19,7 @@ export function HistoryScreen() {
 
   return (
     <Screen title="History">
+      <HistoryCalendar />
       {history.status === 'loading' && <EmptyState message="Loading…" />}
       {history.status === 'failed' && <EmptyState message={history.message} />}
       {history.status === 'ready' && history.value.length === 0 && (
@@ -26,22 +29,24 @@ export function HistoryScreen() {
         history.value.map((group) => (
           <Section key={`${group.year}-${group.month}`} label={monthLabel(group.year, group.month)}>
             {group.workouts.map((workout) => (
-              <LinkRow key={workout.id} to={`/history/${workout.id}`}>
-                <div className={styles.row}>
-                  <div className={styles.main}>
-                    <span className={styles.name}>{workout.name}</span>
-                    <span className={styles.meta}>
-                      {[dayText(workout.startedAt), durationText(workout.startedAt, workout.endedAt)]
-                        .filter((part) => part !== undefined)
-                        .join(' · ')}
-                    </span>
+              <div key={workout.id} id={`history-workout-${workout.id}`} className={calendarStyles.historyAnchor}>
+                <LinkRow to={`/history/${workout.id}`}>
+                  <div className={styles.row}>
+                    <div className={styles.main}>
+                      <span className={styles.name}>{workout.name}</span>
+                      <span className={styles.meta}>
+                        {[dayText(workout.startedAt), durationText(workout.startedAt, workout.endedAt)]
+                          .filter((part) => part !== undefined)
+                          .join(' · ')}
+                      </span>
+                    </div>
+                    <div className={styles.totals}>
+                      <span>{setCountText(workout.setCount)}</span>
+                      <span>{volumeText(workout.volumeKilograms)}</span>
+                    </div>
                   </div>
-                  <div className={styles.totals}>
-                    <span>{setCountText(workout.setCount)}</span>
-                    <span>{volumeText(workout.volumeKilograms)}</span>
-                  </div>
-                </div>
-              </LinkRow>
+                </LinkRow>
+              </div>
             ))}
           </Section>
         ))}
