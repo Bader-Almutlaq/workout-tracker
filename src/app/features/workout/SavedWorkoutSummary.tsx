@@ -1,3 +1,5 @@
+import { PersonalBestsSection } from './PersonalBestsSection';
+import { WorkoutComparisonSection } from './WorkoutComparisonSection';
 import type { ReactNode } from 'react';
 import { database, useDatabaseQuery } from '../../data/database';
 import { EmptyState } from '../../design/components/EmptyState';
@@ -17,6 +19,8 @@ export function SavedWorkoutSummary({ workoutId, done }: { readonly workoutId: n
   const summary = useDatabaseQuery(`workout-summary-${workoutId}`, async () => ({
     totals: await database.finishedWorkoutSummary(workoutId),
     detail: await database.workoutDetail(workoutId),
+    bests: await database.personalBestsForWorkout(workoutId),
+    comparison: await database.workoutComparison(workoutId),
   }));
 
   if (summary.status !== 'ready' || summary.value.totals === null || summary.value.detail === undefined) {
@@ -37,6 +41,8 @@ export function SavedWorkoutSummary({ workoutId, done }: { readonly workoutId: n
         <SummaryStat label="Sets" value={setCountsText(totals.setCount, totals.warmupCount ?? 0)} />
         <SummaryStat label="Volume load" value={volumeText(totals.volumeKilograms)} />
       </div>
+      <WorkoutComparisonSection comparison={summary.value.comparison} />
+      <PersonalBestsSection bests={summary.value.bests} />
       <Section label="Exercises">
         {detail.entries.map(({ entry, exercise, sets }) => (
           <div key={entry.id} className={styles.line}>

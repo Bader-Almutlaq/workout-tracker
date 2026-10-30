@@ -111,6 +111,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Import review (plan, decisions) and writing it | `src/core/import/StrongImportPlan.ts`, `StrongImportOptions.ts`, `StrongImporter.ts` (the worker snapshots first) |
 | Typo / outlier detection (import review and live logging) | `src/core/validation/SetPlausibility.ts` |
 | Live typo check for one set | `src/core/validation/LiveSetCheck.ts` (shares `summariseSessions` with the import review) |
+| Personal bests and history record counts | `src/core/queries/PersonalBests.ts` |
+| Workout comparison | `src/core/queries/WorkoutComparison.ts` |
 | History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` |
 | Grouping the history list by month (phone's time zone) | `src/core/queries/WorkoutMonthGroups.ts` |
 | Cloud backup orchestration, PKCE, token lifetime, Dropbox HTTP calls and retry status | `src/app/data/dropbox/DropboxBackup.ts`, `pkce.ts`, `DropboxTokenStore.ts`, `DropboxApi.ts`; singleton in `cloudBackup.ts`, key selection in `effectiveDropboxAppKey.ts`, with a built-in default in `src/app/data/dropboxConfig.ts` |

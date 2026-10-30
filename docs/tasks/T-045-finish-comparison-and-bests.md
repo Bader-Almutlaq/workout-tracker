@@ -81,11 +81,9 @@ Weights use the exercise's display unit and existing formatters.
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Implemented; uncommitted, ready for review.
+- **What was done:** Added chronological personal records, workout comparison, worker API methods, finish and History displays, and tests.
+- **Files touched:** `src/core/queries/PersonalBests.ts`, `WorkoutComparison.ts` and their tests; `src/worker/WorkerApi.ts`; workout summary sections, History screens and text helpers; `docs/ARCHITECTURE.md`; this handoff.
+- **Decisions taken:** Session-volume records identify the largest contributing set because the whole session establishes that record. Equal start timestamps are not earlier. The task's same-name fallback takes precedence over the proposal's same-exercises wording.
+- **Open questions / left over:** No phone or simulator visual check was performed. The performance test passed in the final full run, though an earlier concurrent run measured 1.12 seconds before the repeated-estimate optimization.
+- **How it was verified:** `make format` and `make verify` passed; 776 tests across 108 files, including the 1,000-workout/25,000-set timing test and production build.

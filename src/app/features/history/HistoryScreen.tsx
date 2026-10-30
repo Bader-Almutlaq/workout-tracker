@@ -13,20 +13,21 @@ import calendarStyles from './HistoryCalendar.module.css';
 
 /** Every finished workout, newest first, grouped by month. Tapping one opens `WorkoutDetailScreen`. */
 export function HistoryScreen() {
-  const history = useDatabaseQuery('history-summaries', async () =>
-    groupWorkoutsByMonth(await database.historySummaries()),
-  );
+  const history = useDatabaseQuery('history-summaries', async () => ({
+    groups: groupWorkoutsByMonth(await database.historySummaries()),
+    counts: await database.personalBestCounts(),
+  }));
 
   return (
     <Screen title="History">
       <HistoryCalendar />
       {history.status === 'loading' && <EmptyState message="Loading…" />}
       {history.status === 'failed' && <EmptyState message={history.message} />}
-      {history.status === 'ready' && history.value.length === 0 && (
+      {history.status === 'ready' && history.value.groups.length === 0 && (
         <EmptyState message="Import your Strong history from Settings." />
       )}
       {history.status === 'ready' &&
-        history.value.map((group) => (
+        history.value.groups.map((group) => (
           <Section key={`${group.year}-${group.month}`} label={monthLabel(group.year, group.month)}>
             {group.workouts.map((workout) => (
               <div key={workout.id} id={`history-workout-${workout.id}`} className={calendarStyles.historyAnchor}>
@@ -43,6 +44,11 @@ export function HistoryScreen() {
                     <div className={styles.totals}>
                       <span>{setCountsText(workout.setCount, workout.warmupCount ?? 0)}</span>
                       <span>{volumeText(workout.volumeKilograms)}</span>
+                      {(history.value.counts[workout.id] ?? 0) > 0 && (
+                        <span>
+                          {history.value.counts[workout.id]} {history.value.counts[workout.id] === 1 ? 'best' : 'bests'}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </LinkRow>
