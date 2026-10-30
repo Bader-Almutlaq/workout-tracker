@@ -35,6 +35,9 @@ import { setRestTarget } from '../core/logging/RestTimer';
 import { WorkoutLogger, type FinishResult } from '../core/logging/WorkoutLogger';
 import type { SetKind } from '../core/models/SetKind';
 import { liveWorkoutSnapshot, type LiveWorkoutSnapshot } from '../core/queries/LiveWorkout';
+import { TemplateCatalog, type TemplateList } from '../core/queries/TemplateCatalog';
+import type { TemplateDraft } from '../core/templates/TemplateDraft';
+import { TemplateStore } from '../core/templates/TemplateStore';
 import type { WeightUnit } from '../core/units/WeightUnit';
 import { liveSetFinding as checkLiveSet } from '../core/validation/LiveSetCheck';
 import type { SetFinding } from '../core/validation/SetPlausibility';
@@ -456,6 +459,102 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       notifyListeners();
     },
     // End of Rest timer (T-027)
+
+    // Templates (T-029)
+
+    /** Every folder with its templates, and the templates in no folder, in their stored order. */
+    async templateList(): Promise<TemplateList> {
+      return TemplateCatalog.list((await liveStore()).database);
+    },
+
+    /** A template as the editor works on it, or `null` when it doesn't exist. */
+    async templateDetail(templateId: number): Promise<TemplateDraft | null> {
+      return TemplateCatalog.detail((await liveStore()).database, templateId) ?? null;
+    },
+
+    /** Creates a template (no `id`) or replaces one. Returns its id. Throws a `TemplateStoreError` the screen shows as written. */
+    async saveTemplate(draft: TemplateDraft): Promise<number> {
+      const id = TemplateStore.save((await liveStore()).database, draft, new Date());
+      notifyListeners();
+      return id;
+    },
+
+    /** Renames a template. */
+    async renameTemplate(templateId: number, name: string): Promise<void> {
+      TemplateStore.rename((await liveStore()).database, templateId, name, new Date());
+      notifyListeners();
+    },
+
+    /** Deletes a template. Workouts already done from it keep their history. */
+    async deleteTemplate(templateId: number): Promise<void> {
+      TemplateStore.delete((await liveStore()).database, templateId);
+      notifyListeners();
+    },
+
+    /** Copies a template next to the original, named "… copy". Returns the copy's id. */
+    async duplicateTemplate(templateId: number): Promise<number> {
+      const id = TemplateStore.duplicate((await liveStore()).database, templateId, new Date());
+      notifyListeners();
+      return id;
+    },
+
+    /** Moves a template to the end of a folder, or out of every folder (`null`). */
+    async moveTemplate(templateId: number, folderId: number | null): Promise<void> {
+      TemplateStore.move((await liveStore()).database, templateId, folderId);
+      notifyListeners();
+    },
+
+    /** Moves a template to a zero-based position within its folder. */
+    async reorderTemplate(templateId: number, position: number): Promise<void> {
+      TemplateStore.reorder((await liveStore()).database, templateId, position);
+      notifyListeners();
+    },
+
+    /** Adds a folder after the others and returns its id. */
+    async createTemplateFolder(name: string): Promise<number> {
+      const id = TemplateStore.createFolder((await liveStore()).database, name);
+      notifyListeners();
+      return id;
+    },
+
+    /** Renames a folder. */
+    async renameTemplateFolder(folderId: number, name: string): Promise<void> {
+      TemplateStore.renameFolder((await liveStore()).database, folderId, name);
+      notifyListeners();
+    },
+
+    /** Moves a folder to a zero-based position among the folders. */
+    async reorderTemplateFolder(folderId: number, position: number): Promise<void> {
+      TemplateStore.reorderFolder((await liveStore()).database, folderId, position);
+      notifyListeners();
+    },
+
+    /** Deletes a folder; its templates are kept, moved to the end of the unfiled list. */
+    async deleteTemplateFolder(folderId: number): Promise<void> {
+      TemplateStore.deleteFolder((await liveStore()).database, folderId);
+      notifyListeners();
+    },
+
+    /** Saves a finished workout's exercises and set kinds as a template with no targets. Returns the template's id. */
+    async createTemplateFromWorkout(workoutId: number, name: string, folderId: number | null): Promise<number> {
+      const id = TemplateStore.createFromWorkout((await liveStore()).database, workoutId, name, folderId, new Date());
+      notifyListeners();
+      return id;
+    },
+
+    /**
+     * Starts a workout from a template and returns its id. When one is already in progress this
+     * throws, and first refreshes every screen: the one that offered to start is out of date, and
+     * refreshing swaps it for the workout in progress, which is the way to resume it.
+     */
+    async startFromTemplate(templateId: number): Promise<number> {
+      const logger = new WorkoutLogger((await liveStore()).database);
+      if (logger.activeWorkoutId() !== undefined) notifyListeners();
+      const workoutId = logger.startFromTemplate(templateId, new Date());
+      notifyListeners();
+      return workoutId;
+    },
+    // End of Templates (T-029)
   };
 }
 

@@ -1,3 +1,5 @@
+import type { PadKey } from './PadKey';
+
 /**
  * The text being typed into one cell on the number pad. It only edits text: turning the text into a
  * weight, rep count or RPE, and saving it, is the editor's job. The first key pressed replaces the
@@ -69,4 +71,16 @@ export function deleteLast(draft: NumberDraft): NumberDraft {
 export function stepDraft(draft: NumberDraft, delta: number, minimum: number, maximum: number): NumberDraft {
   const stepped = Math.min(Math.max((draftValue(draft) ?? 0) + delta, minimum), maximum);
   return { ...draft, text: draftTextFor(stepped), replacesOnNextKey: false };
+}
+
+/** Applies one number-pad key to the draft: a digit, the decimal point or backspace. */
+export function typeKey(draft: NumberDraft, key: PadKey): NumberDraft {
+  switch (key.kind) {
+    case 'digit':
+      return appendDigit(draft, key.digit);
+    case 'decimalPoint':
+      return appendDecimalPoint(draft);
+    case 'backspace':
+      return deleteLast(draft);
+  }
 }

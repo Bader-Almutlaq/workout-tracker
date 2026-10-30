@@ -1,0 +1,47 @@
+.row {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+}
+
+.row + .row {
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--space-s) var(--space-m);
+  text-align: left;
+}
+
+.main:active {
+  background: var(--color-surface-raised);
+}
+
+.name {
+  font: var(--font-body);
+  color: var(--color-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.exercises {
+  overflow: hidden;
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lastDone {
+  font: var(--font-callout);
+  color: var(--color-text-tertiary);
+}
+
+.menu {
+  flex: none;
+  padding-right: var(--space-xs);
+}

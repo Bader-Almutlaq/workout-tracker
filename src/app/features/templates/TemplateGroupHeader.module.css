@@ -1,0 +1,19 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 24px;
+}
+
+.label {
+  font: var(--font-caption);
+  letter-spacing: var(--tracking-caption);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+/* The menu button is 44 pt for the thumb but sits tight to the label, so the header stays a caption's height. */
+.menu {
+  margin: calc(var(--space-m) * -1) calc(var(--space-s) * -1) calc(var(--space-m) * -1) 0;
+}

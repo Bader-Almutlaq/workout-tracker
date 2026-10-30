@@ -1,0 +1,22 @@
+.card {
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+/* A superset's exercises are marked by an accent edge so they read as one group; an inset shadow keeps the content from shifting. */
+.card[data-superset='true'] {
+  box-shadow: inset 2px 0 0 var(--color-accent);
+}
+
+.addSet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  width: 100%;
+  min-height: 44px;
+  border-top: var(--hairline) solid var(--color-border);
+  font: var(--font-callout);
+  color: var(--color-accent);
+}

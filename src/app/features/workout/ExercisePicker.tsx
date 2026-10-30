@@ -1,5 +1,4 @@
 import { useDeferredValue, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
 import { ExerciseSearch, type ExerciseSearchEntry } from '../../../core/library/ExerciseSearch';
 import { SearchField } from '../../design/components/SearchField';
 import {
@@ -13,21 +12,20 @@ import { searchPlaceholder } from '../exercises/exerciseText';
 import { AddExerciseBar } from './AddExerciseBar';
 import styles from './ExercisePicker.module.css';
 import { PickerListing } from './PickerListing';
-import { addExercises } from './workoutActions';
 
 /**
  * Search and filters like the Exercises tab, but a tap picks an exercise instead of opening it.
- * "Add (n)" appends the picked exercises to the workout in the order they were picked and goes back.
+ * "Add (n)" hands the picked exercises to `onAdd` in the order they were picked; what adding means
+ * (the workout in progress, a template) is up to the screen that shows the picker.
  * The search is its own: it doesn't share the Exercises tab's remembered state.
  */
 export function ExercisePicker({
   entries,
-  workoutId,
+  onAdd,
 }: {
   readonly entries: readonly ExerciseSearchEntry[];
-  readonly workoutId: number;
+  readonly onAdd: (exerciseIds: readonly number[]) => void;
 }) {
-  const navigate = useNavigate();
   const [state, setState] = useState<ExerciseBrowseState>(EMPTY_BROWSE_STATE);
   const [picked, setPicked] = useState<readonly number[]>([]);
   const search = useMemo(() => new ExerciseSearch(entries), [entries]);
@@ -41,11 +39,6 @@ export function ExercisePicker({
     setPicked((current) =>
       current.includes(exerciseId) ? current.filter((id) => id !== exerciseId) : [...current, exerciseId],
     );
-
-  const add = () => {
-    void addExercises(workoutId, picked);
-    navigate('/');
-  };
 
   return (
     <>
@@ -65,7 +58,7 @@ export function ExercisePicker({
         picked={picked}
         onToggle={toggle}
       />
-      <AddExerciseBar count={picked.length} onAdd={add} />
+      <AddExerciseBar count={picked.length} onAdd={() => onAdd(picked)} />
     </>
   );
 }

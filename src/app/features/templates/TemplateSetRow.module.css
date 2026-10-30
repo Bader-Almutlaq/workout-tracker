@@ -1,0 +1,15 @@
+.row {
+  padding: var(--space-xs) var(--space-m);
+}
+
+.remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  color: var(--color-text-tertiary);
+}
+
+.remove:disabled {
+  opacity: 0.4;
+}

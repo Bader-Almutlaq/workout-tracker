@@ -1,0 +1,14 @@
+.button {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 44px;
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.button[data-special='true'] {
+  color: var(--color-accent);
+}

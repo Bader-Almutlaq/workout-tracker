@@ -4,17 +4,7 @@ import { isSameCell, type Cell, type Field } from './Cell';
 import type { CellEditor, EditedCell } from './CellEditor';
 import { nextCell } from './cellOrder';
 import { locateSet } from './liveWorkoutLookup';
-import {
-  appendDecimalPoint,
-  appendDigit,
-  deleteLast,
-  draftHasChanged,
-  draftValue,
-  startDraft,
-  stepDraft,
-  type NumberDraft,
-} from './numberDraft';
-import type { PadKey } from './PadKey';
+import { draftHasChanged, draftValue, startDraft, stepDraft, typeKey, type NumberDraft } from './numberDraft';
 import { padRange } from './padRange';
 import { cellStartText } from './setCellText';
 import { saveCell } from './workoutActions';
@@ -23,17 +13,6 @@ import { saveCell } from './workoutActions';
 interface EditState {
   readonly cell: Cell;
   readonly typed: NumberDraft | undefined;
-}
-
-function typeKey(draft: NumberDraft, key: PadKey): NumberDraft {
-  switch (key.kind) {
-    case 'digit':
-      return appendDigit(draft, key.digit);
-    case 'decimalPoint':
-      return appendDecimalPoint(draft);
-    case 'backspace':
-      return deleteLast(draft);
-  }
 }
 
 /**

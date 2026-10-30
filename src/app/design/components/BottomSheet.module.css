@@ -1,0 +1,43 @@
+/* The sheet is a <dialog> pinned to the bottom edge; clicks on the backdrop land on the dialog itself. */
+.sheet {
+  width: 100%;
+  max-width: none;
+  max-height: 85dvh;
+  margin: auto 0 0;
+  padding: 0;
+  background: var(--color-surface-raised);
+  border: var(--hairline) solid var(--color-border-strong);
+  border-bottom: none;
+  border-radius: var(--radius-large) var(--radius-large) 0 0;
+  color: var(--color-text-primary);
+}
+
+.sheet[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  min-height: 0;
+  padding: var(--space-l) var(--space-l) calc(env(safe-area-inset-bottom) + var(--space-l));
+}
+
+.title {
+  font: var(--font-title);
+  overflow-wrap: anywhere;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  min-height: 0;
+  overflow-y: auto;
+}

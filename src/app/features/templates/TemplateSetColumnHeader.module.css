@@ -1,0 +1,11 @@
+.header {
+  padding: var(--space-xs) var(--space-m);
+  font: var(--font-caption);
+  letter-spacing: var(--tracking-caption);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.centered {
+  text-align: center;
+}

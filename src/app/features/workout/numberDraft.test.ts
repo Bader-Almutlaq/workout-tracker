@@ -9,8 +9,10 @@ import {
   MAXIMUM_DRAFT_LENGTH,
   startDraft,
   stepDraft,
+  typeKey,
   type NumberDraft,
 } from './numberDraft';
+import { digitKey } from './PadKey';
 
 function typed(start: string, keys: readonly (number | '.' | '⌫')[]): NumberDraft {
   return keys.reduce((draft: NumberDraft, key) => {
@@ -80,5 +82,13 @@ describe('number draft', () => {
     expect(draftTextFor(61.2349)).toBe('61.23');
     expect(draftTextFor(0.1 + 0.2)).toBe('0.3');
     expect(draftTextFor(135)).toBe('135');
+  });
+
+  test('A pad key types the digit, the decimal point or backspace', () => {
+    expect(typeKey(startDraft('135'), digitKey(7)).text).toBe('7');
+    const seven = typeKey(startDraft(''), digitKey(7));
+    const withPoint = typeKey(seven, { kind: 'decimalPoint' });
+    expect(withPoint.text).toBe('7.');
+    expect(typeKey(withPoint, { kind: 'backspace' }).text).toBe('7');
   });
 });
