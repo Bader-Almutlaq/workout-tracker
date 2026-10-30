@@ -20,8 +20,8 @@ export default defineConfig({
       registerType: 'prompt',
       injectRegister: false,
       manifest: {
-        name: 'Workouts',
-        short_name: 'Workouts',
+        name: 'JEM',
+        short_name: 'JEM',
         description: 'Personal workout tracker.',
         display: 'standalone',
         orientation: 'portrait',
