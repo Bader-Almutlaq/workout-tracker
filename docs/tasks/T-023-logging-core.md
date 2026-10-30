@@ -35,9 +35,9 @@ WorkoutCore can run a workout as it happens, exactly as the native app did: star
 
 _Filled in by the implementer when stopping or finishing._
 
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Ready for review; changes left uncommitted as requested.
+- **What was done:** Ported logging actions, previous performance, live workout snapshots and the live plausibility check, including all 24 named native test cases.
+- **Files touched:** Five scoped implementation files and their five adjacent test files in `src/core/logging`, `src/core/queries`, and `src/core/validation`; this handoff.
+- **Decisions taken:** Dates supplied by the caller become UTC ISO timestamps; logger weights are supplied as kilograms, consistent with the existing unit functions. Query results use `undefined` for missing values, as existing TypeScript queries do. Native observers are omitted as specified.
+- **Open questions / left over:** `SetPlausibility` keeps session summarization private, so the live check reproduces its top-weight and median-reps reduction while reusing `checkSet`. The lead should consider exposing the existing summarizer in a follow-up to restore one implementation of that reduction; that file is outside this task's scope. Worker integration is outside scope.
+- **How it was verified:** `make format` and `make verify` passed; 320 tests across 41 files, including 27 new tests (24 native cases and 3 focused module tests).
