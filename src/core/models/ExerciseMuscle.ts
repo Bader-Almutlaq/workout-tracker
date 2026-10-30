@@ -1,15 +1,12 @@
-/**
- * Links an exercise to a muscle it trains, with its role. Table `exerciseMuscle`.
- *
- * `muscleId` and `role` are plain strings here: the muscle taxonomy and role enum belong to the
- * library (W2), which will narrow these types when they are ported.
- */
+import type { Muscle } from '../library/Muscle';
+import type { MuscleRole } from '../library/MuscleRole';
+
+/** Links an exercise to a muscle it trains, with its role. Table `exerciseMuscle`. */
 export interface ExerciseMuscle {
   readonly exerciseId: number;
   /** Stable muscle slug, e.g. `rear-delt`; a key of the `muscle` table. */
-  readonly muscleId: string;
-  /** `primary` or `secondary`. */
-  readonly role: string;
+  readonly muscleId: Muscle;
+  readonly role: MuscleRole;
 }
 
 /** A raw `exerciseMuscle` row as SQLite returns it. */

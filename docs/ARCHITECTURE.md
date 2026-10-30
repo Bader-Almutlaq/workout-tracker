@@ -104,15 +104,15 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Live typo check for one set | `src/core/validation/LiveSetCheck.ts` *(to port)* |
 | History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` *(to port)* |
 | Backup file naming, validation and restore | `src/core/backup/` and `OnDeviceStore` *(new for web, W1)* |
-| Muscle taxonomy (23 muscles, delts split) and regions | `src/core/library/Muscle.ts` *(to port)*; rows frozen in `v1-schema` |
-| Equipment, movement patterns, mechanic, tracking kinds | `src/core/library/` *(to port)* |
-| The built-in exercise list (names, muscles, aliases) | `src/core/library/library.json`, loaded by `ExerciseLibrary.ts` *(to port)* |
-| Exercise naming ("Movement (Equipment)") and stable keys | `ExerciseLibrary` *(to port)* |
+| Muscle taxonomy (23 muscles, delts split), regions and roles | `src/core/library/Muscle.ts`, `MuscleRegion.ts`, `MuscleRole.ts`; rows frozen in `v1-schema` (a test compares them) |
+| Equipment, movement patterns, mechanic, tracking kinds | `src/core/library/Equipment.ts`, `MovementPattern.ts`, `Mechanic.ts`, `ExerciseTracking.ts` |
+| The built-in exercise list (names, muscles, aliases) | `src/core/library/library.json`, parsed by `LibraryFile.ts`, loaded and validated by `ExerciseLibrary.ts` |
+| Exercise naming ("Movement (Equipment)") and stable keys | `ExerciseLibrary.exerciseName`, `ExerciseLibrary.key` |
 | Copying the library into the database on launch | `src/core/library/ExerciseLibrarySeeder.ts` *(to port)* |
 | Name or alias → exercise | `src/core/library/ExerciseNameResolver.ts` *(to port)* |
 | Creating, editing, archiving and merging exercises | `src/core/library/ExerciseEditor.ts` *(to port)* |
-| Search text normalisation, slang, typo distance | `src/core/library/SearchText.ts`, `GymSlang.ts` *(to port)* |
-| Exercise search and import-name suggestions | `src/core/library/ExerciseSearch.ts` *(to port)* |
+| Search text normalisation, slang, typo distance | `src/core/library/SearchText.ts`, `GymSlang.ts` |
+| Exercise search and import-name suggestions | `src/core/library/ExerciseSearch.ts` (`SearchTuning` holds every score) |
 | Exercise list, detail and unmatched-import queries | `src/core/queries/ExerciseCatalog.ts` *(to port)* |
 | Logging a workout live | `src/core/logging/WorkoutLogger.ts` *(to port)* |
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` *(to port)* |

@@ -1,3 +1,7 @@
+import type { Equipment } from '../library/Equipment';
+import type { ExerciseTracking } from '../library/ExerciseTracking';
+import type { Mechanic } from '../library/Mechanic';
+import type { MovementPattern } from '../library/MovementPattern';
 import type { WeightUnit } from '../units/WeightUnit';
 import type { RecordSource } from './RecordSource';
 
@@ -7,23 +11,24 @@ import type { RecordSource } from './RecordSource';
  * Rows come from three places (`source`): the built-in library (seeded on launch, `libraryKey`
  * set), the Strong import (names not in the library), and exercises the owner creates.
  *
- * `equipment`, `movementPattern`, `mechanic` and `tracking` are plain strings here: their value
- * sets belong to the library enums (W2), which will narrow these types when they are ported.
+ * The vocabularies for `equipment`, `movementPattern`, `mechanic` and `tracking` are owned by
+ * `src/core/library`. Values are trusted as written by WorkoutCore (the schema checks `mechanic`
+ * and `tracking`).
  */
 export interface Exercise {
   readonly id: number;
   /** Display name, "Movement (Equipment)". Unique, case-insensitive. */
   readonly name: string;
-  readonly equipment: string | null;
-  readonly movementPattern: string | null;
-  readonly mechanic: string | null;
+  readonly equipment: Equipment | null;
+  readonly movementPattern: MovementPattern | null;
+  readonly mechanic: Mechanic | null;
   readonly source: RecordSource;
   /** The library entry's key this row mirrors; `null` for custom and unmatched Strong exercises. */
   readonly libraryKey: string | null;
   /** Loads the target muscle hardest at long lengths (report, "long-muscle-length emphasis"). */
   readonly isLengthenedBiased: boolean;
   /** What a set records (weight and reps, reps only, time…). */
-  readonly tracking: string;
+  readonly tracking: ExerciseTracking;
   /** Unit the logging screen uses for this exercise (see `docs/DESIGN.md` → Units). */
   readonly defaultEntryUnit: WeightUnit;
   /** Hidden from search and pickers; history is kept. */

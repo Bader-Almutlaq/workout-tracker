@@ -20,7 +20,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
-| [T-019](T-019-library-and-search-core.md) | Port the library, muscle taxonomy and search (pure part) | review | Claude Sonnet (subagent) | `task/T-019-library-and-search-core` |
+| [T-019](T-019-library-and-search-core.md) | Port the library, muscle taxonomy and search (pure part) | done | Claude Sonnet (subagent), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
