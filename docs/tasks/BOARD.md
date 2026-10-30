@@ -14,6 +14,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-015](T-015-history.md) | Port history queries; History list and workout detail screens | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-016](T-016-backup-restore.md) | Back up through the share sheet; restore with a safety snapshot | done (iOS Safari check: lead, pending) | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-017](T-017-import-flow.md) | Settings → Import from Strong: pick files, review, import, result | done (flow checked in the browser by lead; split into components in T-021) | Codex Terra (high), reviewed by lead | merged |
+| [T-021](T-021-import-screen-components.md) | Split the import screen into small components | doing | Codex Terra (high) | `task/T-021-import-screen-components` |
 | [T-018](T-018-hosting.md) | Publish the site and add it to the Home Screen | doing: owner chose GitHub Pages (public); waiting on sign-in | lead | `web` |
 
 ## W2: Exercise library (started early, in parallel with W1)
@@ -22,11 +23,17 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 |---|---|---|---|---|
 | [T-019](T-019-library-and-search-core.md) | Port the library, muscle taxonomy and search (pure part) | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-020](T-020-library-database.md) | Port library seeding, exercise editing and merge, catalog queries | done | Codex Terra (high), finished by lead | merged |
+| [T-022](T-022-exercises-tab-and-matching.md) | Exercises tab and Strong matching screen | doing | Claude Sonnet (subagent) | `task/T-022-exercises-tab-and-matching` |
+
+## W3: Logging (started early)
+
+| ID | Task | Status | Agent | Branch |
+|---|---|---|---|---|
+| [T-023](T-023-logging-core.md) | Port the logging core (live workout, previous performance, live typo check) | doing | Codex Terra (high) | `task/T-023-logging-core` |
 
 ## Next milestones (tasks are written when the milestone starts)
 
-- **W2: Exercise library.** Port library, seeding, resolver, editor and merge, search, catalog; Exercises tab; Strong matching screen.
-- **W3: Logging.** Port logger, previous performance, live workout, live set check; Workout tab with number pad; rest timer.
+- **W3: Logging screens.** Workout tab with number pad (spec in T-010), rest timer.
 - **W5/W6: Analytics.** The "recent vs baseline" signature chart (spec in `docs/DESIGN.md` → *Signature chart*), muscles, intensity × volume.
 
 ## Done milestones
