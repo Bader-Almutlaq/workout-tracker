@@ -1,4 +1,5 @@
 import { BodyMeasurementSite, type BodyMeasurement } from '../models/BodyMeasurement';
+import type { MeasurementState } from '../measurements/MeasurementSite';
 import { storedMeasurementValue } from '../measurements/MeasurementUnits';
 import { CsvTable } from './CsvTable';
 import { ImportError } from './ImportError';
@@ -10,7 +11,10 @@ import { trimWhitespace } from './trimWhitespace';
 export { MeasurementConversion } from '../measurements/MeasurementUnits';
 
 /** A measurement read from a Strong export, ready to store (the database assigns the `id`). */
-export type PlannedMeasurement = Omit<BodyMeasurement, 'id' | 'state' | 'entryUnit'>;
+export type PlannedMeasurement = Omit<BodyMeasurement, 'id' | 'state' | 'entryUnit'> & {
+  /** Absent for legacy files; imported as relaxed. */
+  readonly state?: MeasurementState;
+};
 
 /** Whether `table` looks like a measurements export (used to sort picked files). */
 export function isStrongMeasurementsFile(table: CsvTable): boolean {
@@ -21,6 +25,7 @@ export function isStrongMeasurementsFile(table: CsvTable): boolean {
  * Reads one Strong body-measurement export (e.g. `strong_waist.csv`).
  *
  * Header: `Date,Measurement Type,Value,Unit,Source`. Strong writes one file per measurement site.
+ * An optional State column accepts relaxed or flexed; missing or empty state defaults to relaxed.
  * Circumferences are stored in centimetres; a bodyweight file is stored in kilograms under
  * `BodyMeasurementSite.bodyweight`. Timestamps are local time, read in the device's time zone.
  *
@@ -37,6 +42,7 @@ export function parseStrongMeasurementsFile(text: string): PlannedMeasurement[] 
   const type = requiredColumn('Measurement Type');
   const value = requiredColumn('Value');
   const unit = table.columnIndex('Unit');
+  const state = table.columnIndex('State');
 
   return table.rows.map((fields, index): PlannedMeasurement => {
     const line = index + 2;
@@ -51,11 +57,16 @@ export function parseStrongMeasurementsFile(text: string): PlannedMeasurement[] 
     if (!Number.isFinite(storedValue)) {
       throw new ImportError({ kind: 'invalidValue', column: 'Value', value: valueText, line });
     }
+    const stateText = state === undefined ? '' : trimWhitespace(fields[state] ?? '').toLowerCase();
+    if (stateText !== '' && stateText !== 'relaxed' && stateText !== 'flexed') {
+      throw new ImportError({ kind: 'invalidValue', column: 'State', value: stateText, line });
+    }
     return {
       takenAt,
       site: measurementSiteSlug(fields[type] ?? ''),
       value: storedValue,
       source: 'strong',
+      ...(stateText === '' ? {} : { state: stateText }),
     };
   });
 }

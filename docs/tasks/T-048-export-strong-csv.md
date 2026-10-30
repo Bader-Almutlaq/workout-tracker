@@ -47,6 +47,12 @@ The owner can take their data to other apps. Hevy's help centre says Hevy import
 - Export it, import it into a fresh database with the existing Strong importer and default options (kg), and compare every workout, set (kind, weight within 1e-9 kg, reps, RPE, duration, distance, notes) and measurement.
 - Document any field that can't round-trip (e.g. the entry unit, since Strong CSV carries no per-set unit) and assert exactly that list.
 
+## Round 2 (lead)
+
+- **Units in the round trip:** import the export with the import options a user would confirm in review: every exercise set to kg (the export is in kg). Don't rely on unit inference. Assert weights within 1e-9 kg.
+- **Measurement state:** our measurement importer may read an **optional** `State` column (`relaxed`/`flexed`, default relaxed). This is a backward-compatible change to `StrongMeasurementsFile.ts` (+ test); files without the column behave exactly as before. Flexed entries then round-trip.
+- **Assert the exact loss list:** one constant `StrongCsvRoundTripLosses` documenting each field that can't survive a Strong CSV round trip (e.g. per-set entry unit, set `side`, completion timestamps, template link, exercise notes when a set note exists). Make the test compare against it exactly, so any new loss or new fix fails the test until the list is updated. Mirror the list in DATA.md → Export.
+
 ## Acceptance criteria
 
 - [ ] `make format`; `make verify` passes.
@@ -58,9 +64,9 @@ The owner can take their data to other apps. Hevy's help centre says Hevy import
 
 _Filled in by the implementer when stopping or finishing._
 
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Round 2 implemented; ready for lead review. Round 1 changes remain uncommitted.
+- **What was done:** Round-trip import explicitly overrides every exercise to kg; optional measurement state is parsed and persisted, with legacy files defaulting to relaxed. A constant lists the observed field losses, tested against every database column in synthetic completed records and mirrored in DATA.md.
+- **Files touched:** Round 1 files in `src/core/export/`, `src/worker/WorkerApi.ts`, `src/app/features/settings/ExportSection.tsx`, `SettingsScreen.tsx`, `docs/DATA.md`, and this handoff; Round 2 additionally changes `src/core/import/StrongMeasurementsFile.ts`, its test, and `StrongImporter.ts` (needed to persist state).
+- **Decisions taken:** Missing or empty state defaults to relaxed; invalid state is rejected with an import error. Relationships to regenerated workout and workout-exercise IDs are compared by record order rather than numeric foreign keys.
+- **Open questions / left over:** Strong/Hevy treatment of State has not been verified in those apps. The loss list covers fields in the round-trip fixture; conditional limitations and omitted records are documented separately in DATA.md. No simulator share-sheet test was performed.
+- **How it was verified:** `make format` and `make verify`; 812 tests passed, including in-memory export/import of same-time relaxed and flexed measurements and weights with kg overrides.

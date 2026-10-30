@@ -1,3 +1,5 @@
+import { exportStrongCsv } from '../core/export/StrongCsvExport';
+import { exportMeasurementsCsv } from '../core/export/MeasurementsCsvExport';
 import { personalBestsForWorkout, personalBestCounts } from '../core/queries/PersonalBests';
 import { workoutComparison } from '../core/queries/WorkoutComparison';
 import { MeasurementQueries } from '../core/measurements/MeasurementQueries';
@@ -329,6 +331,13 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       });
       notifyListeners();
     }),
+
+    // Export (T-048)
+    /** Strong-compatible CSV of finished workouts and completed sets. */
+    exportWorkoutsCsv: serially(async (): Promise<string> => exportStrongCsv((await ready).database)),
+
+    /** CSV of all body measurements in their stored units. */
+    exportMeasurementsCsv: serially(async (): Promise<string> => exportMeasurementsCsv((await ready).database)),
 
     // Backup (T-016)
 

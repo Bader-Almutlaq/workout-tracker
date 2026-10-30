@@ -109,3 +109,16 @@ A set left out of an imported workout can be brought back only by deleting that 
 - Changes are computed independently per state, relative to that state's latest observation. A 4-/12-week change subtracts the newest entry on or before latest minus 28/84 elapsed days; it is null if none exists. Since-first needs two entries. The monthly rate is a descriptive least-squares slope using observations in the inclusive last 84 days, scaled by a mean Gregorian month (365.2425 / 12 days); fewer than two distinct timestamps gives null. No interpolation or training recommendation is made.
 
 - Body measurement display units are set in Settings → Units and included in database backups.
+
+## Export (T-048)
+
+Settings → Export shares or downloads UTF-8 CSV files. Workout weights are always kilograms; choose kg when importing into Hevy. Exercise names are JEM's names. The first set carries the exercise note only when that set has no note; workout notes appear on the first workout row. Measurement values are cm or kg. A State column appears when any entry is flexed; Strong and Hevy do not use that column.
+
+CSV is an interchange format, not a complete backup. `StrongCsvRoundTripLosses` records the fields lost or recreated when completed records are exported and imported:
+
+- Workout: `id`, `source`, `sourceKey`, `templateId`.
+- Workout exercise: `id`, `exerciseId`, `supersetGroup`, `notes`. An exercise note is placed in the first set's note only when that set has no note; it does not return as an exercise note.
+- Workout set: `id`, `entryUnit`, `side`, `restBeforeSeconds`, `completedAt`.
+- Body measurement: `id`, `source`, `entryUnit`.
+
+The importer reads optional `State` values (`relaxed` or `flexed`); missing or empty state defaults to relaxed, so flexed and relaxed entries at the same time remain separate. Custom site names become slugs. Empty workouts and exercises have no rows, and incomplete sets and in-progress workouts are excluded. Timestamps have local whole-second precision and are ambiguous at daylight-saving transitions. Select kg explicitly for every exercise during import review: otherwise unit inference can misinterpret kg values. The importer trims surrounding whitespace in notes, converts zero duration or distance to missing, and accepts only RPE in its supported range. Adjacent occurrences of the same exercise name and workouts with identical local start times can merge on import. Use a database backup to preserve all data.
