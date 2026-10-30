@@ -1,0 +1,20 @@
+.reminder {
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+}
+
+.line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m);
+}
+
+.action {
+  padding: var(--space-m);
+  color: var(--color-accent);
+}
+
+.action:disabled {
+  color: var(--color-text-tertiary);
+}
