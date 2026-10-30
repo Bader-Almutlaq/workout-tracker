@@ -39,9 +39,9 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
-| [T-028](T-028-template-core.md) | Template engine: folders, templates, start from a template, save a workout as a template | doing | Codex Terra (high) | `task/T-028-template-core` |
-| [T-029](T-029-template-screens.md) | Template screens: list with folders on the Workout tab, editor, save-as-template | todo (after T-028) | | |
-| [T-030](T-030-history-calendar.md) | History calendar | doing | Codex Terra (high) | `task/T-030-history-calendar` |
+| [T-028](T-028-template-core.md) | Template engine: folders, templates, start from a template, save a workout as a template | done | Codex Terra (high), reviewed by lead | merged |
+| [T-029](T-029-template-screens.md) | Template screens: list with folders on the Workout tab, editor, save-as-template | doing | Claude Sonnet (subagent) | `task/T-029-template-screens` |
+| [T-030](T-030-history-calendar.md) | History calendar | done | Codex Terra (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 

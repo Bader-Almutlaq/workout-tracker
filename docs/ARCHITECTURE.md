@@ -27,7 +27,8 @@ workout-tracker/
 │   │   ├── backup/          Validating and restoring backup files          (W1)
 │   │   ├── library/         Exercise library, muscles, search, edits       (W2)
 │   │   │   └── library.json The curated library (edit this to add exercises)
-│   │   ├── logging/         Writing a workout as it happens                (W3)
+│   │   ├── logging/         Writing a workout as it happens, rest timer    (W3)
+│   │   ├── templates/       Workout templates and folders                  (W4)
 │   │   ├── analytics/       e1RM, trend, volume, intensity…                (W5)
 │   │   └── support/         Logging and other shared plumbing
 │   ├── worker/              The Web Worker that owns the live database
@@ -127,6 +128,10 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Exercise list, detail and unmatched-import queries | `src/core/queries/ExerciseCatalog.ts` |
 | Logging a workout live | `src/core/logging/WorkoutLogger.ts` (`WorkoutLoggerLimits`) |
 | Rest timer: default and limits, per-exercise target, elapsed and remaining | `src/core/logging/RestTimer.ts` (`RestTimerDefaults`); bar in `src/app/features/workout/RestBar.tsx` |
+| Templates and folders: save, edit, reorder, duplicate, delete, save a workout as a template | `src/core/templates/TemplateStore.ts` (`TemplateDraft`, `TemplateStoreError`) |
+| Template list and editor data | `src/core/queries/TemplateCatalog.ts` |
+| Starting a workout from a template | `WorkoutLogger.startFromTemplate` |
+| Which days had a workout (History calendar) | `src/core/queries/WorkoutCalendar.ts`; grid in `src/app/features/history/calendarGrid.ts` |
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` |
 | The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` |
 
