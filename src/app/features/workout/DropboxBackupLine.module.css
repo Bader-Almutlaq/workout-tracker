@@ -1,0 +1,13 @@
+.line {
+  margin-top: var(--space-s);
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+  overflow-wrap: anywhere;
+}
+
+.retry {
+  display: block;
+  min-height: 44px;
+  align-content: center;
+  color: var(--color-accent);
+}

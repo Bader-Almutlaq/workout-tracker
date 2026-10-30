@@ -7,6 +7,7 @@ import { database, messageOf, useDatabaseQuery } from '../../data/database';
 import { Section, SectionRow } from '../../design/components/Section';
 import styles from './BackupSection.module.css';
 import { useBackupFile } from './useBackupFile';
+import { DropboxBackupSection } from './DropboxBackupSection';
 
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 
@@ -83,7 +84,7 @@ export function BackupSection() {
     <>
       <Section
         label="Backup"
-        footnote="Back up saves a copy of everything to Files; choose the same iCloud Drive folder each time. Restore replaces what is on this phone."
+        footnote="As an alternative to Dropbox, Back up now saves a copy of everything to Files; choose the same iCloud Drive folder each time. Restore replaces what is on this phone."
       >
         <SectionRow label="Last backup" value={describeLastBackup(lastBackupAt)} />
         <button
@@ -95,7 +96,7 @@ export function BackupSection() {
             backUp();
           }}
         >
-          {backupFile.status === 'loading' ? 'Preparing…' : 'Back up'}
+          {backupFile.status === 'loading' ? 'Preparing…' : 'Back up now'}
         </button>
         <button
           type="button"
@@ -107,6 +108,7 @@ export function BackupSection() {
         </button>
         <input ref={fileInput} type="file" accept=".sqlite" hidden onChange={(event) => void pick(event)} />
       </Section>
+      <DropboxBackupSection />
       {backupFile.status === 'failed' && (
         <Message tone="bad" text={`A backup could not be prepared: ${backupFile.message}`} />
       )}

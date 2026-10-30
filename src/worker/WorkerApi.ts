@@ -65,7 +65,33 @@ export interface BackupExport {
   readonly fileName: string;
   /** The whole database as one SQLite file. */
   readonly bytes: Uint8Array;
+  /** Monotonic write revision in this worker; guards clearing a retry after changes during an upload. */
+  readonly changeVersion: number;
 }
+
+// Dropbox backup (T-042)
+/** Non-secret cloud backup metadata stored in appSetting; tokens never cross the worker boundary. */
+export interface CloudBackupSettings {
+  readonly provider: 'dropbox' | null;
+  readonly lastCloudBackupAt: string | undefined;
+  readonly pending: boolean;
+}
+
+/** Partial metadata update; null clears the cloud timestamp without clearing the manual backup date. */
+export interface CloudBackupSettingsUpdate {
+  readonly provider?: 'dropbox' | null;
+  readonly lastCloudBackupAt?: string | null;
+  readonly pending?: boolean;
+  /** Clear pending only if no database write has occurred since this export; omitted for explicit disconnect. */
+  readonly completedExportVersion?: number;
+}
+
+/** T-042 setting names live here because the task does not own core/db/AppSetting.ts. */
+const DropboxBackupSetting = {
+  provider: 'cloudBackupProvider',
+  lastBackupAt: 'lastCloudBackupAt',
+  pending: 'cloudBackupPending',
+} as const;
 
 /** What a restore did, for the screen to report. */
 export interface RestoreResult {
@@ -102,6 +128,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
   let importPlan: StrongImportPlan | undefined;
 
   let requests: Promise<void> = Promise.resolve();
+  let changeVersion = 0;
 
   /** A request includes its snapshot/restore awaits; later reads and writes cannot overtake it. */
   const serially =
@@ -119,6 +146,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     };
 
   const notifyListeners = () => {
+    changeVersion += 1;
     for (const listener of listeners.values()) {
       try {
         // Remote Comlink callbacks return promises. A disconnected screen cannot undo a committed write.
@@ -189,6 +217,64 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       return weeklyMuscleVolume((await liveStore()).database, new Date(from), new Date(to));
     }),
 
+    // Dropbox backup (T-042)
+
+    /** Read only non-secret cloud metadata. Connection credentials stay on this phone outside SQLite. */
+    cloudBackupSettings: serially(async (): Promise<CloudBackupSettings> => {
+      const db = (await liveStore()).database;
+      const read = (key: string) =>
+        db.value<string>(
+          `
+        SELECT value FROM appSetting WHERE key = ?
+      `,
+          [key],
+        );
+      return {
+        provider: read(DropboxBackupSetting.provider) === 'dropbox' ? 'dropbox' : null,
+        lastCloudBackupAt: read(DropboxBackupSetting.lastBackupAt),
+        pending: read(DropboxBackupSetting.pending) === 'true',
+      };
+    }),
+
+    /** Update metadata atomically. A successful upload also satisfies the existing manual backup reminder. */
+    updateCloudBackupSettings: serially(async (change: CloudBackupSettingsUpdate): Promise<void> => {
+      const db = (await liveStore()).database;
+      db.transaction(() => {
+        const write = (key: string, value: string | null) => {
+          if (value === null) {
+            db.run(
+              `
+              DELETE FROM appSetting WHERE key = ?
+            `,
+              [key],
+            );
+          } else {
+            db.run(
+              `
+              INSERT INTO appSetting (key, value) VALUES (?, ?)
+              ON CONFLICT(key) DO UPDATE SET value = excluded.value
+            `,
+              [key, value],
+            );
+          }
+        };
+        if (change.provider !== undefined) write(DropboxBackupSetting.provider, change.provider);
+        if (
+          change.pending !== undefined &&
+          (change.pending ||
+            change.completedExportVersion === undefined ||
+            change.completedExportVersion === changeVersion)
+        ) {
+          write(DropboxBackupSetting.pending, String(change.pending));
+        }
+        if (change.lastCloudBackupAt !== undefined) {
+          write(DropboxBackupSetting.lastBackupAt, change.lastCloudBackupAt);
+          if (change.lastCloudBackupAt !== null) setSetting(db, AppSettingKey.lastBackupAt, change.lastCloudBackupAt);
+        }
+      });
+      notifyListeners();
+    }),
+
     // Backup (T-016)
 
     /**
@@ -200,7 +286,7 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       const store = await liveStore();
       const bytes = store.database.exportBytes();
       await validateBackup(bytes);
-      return Comlink.transfer({ fileName: backupFileName(new Date()), bytes }, [bytes.buffer]);
+      return Comlink.transfer({ fileName: backupFileName(new Date()), bytes, changeVersion }, [bytes.buffer]);
     }),
 
     /** ISO time of the last backup the owner completed, or `undefined` if none yet. */
@@ -425,7 +511,29 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
 
     /** Drops the sets that were never completed and ends the workout (or deletes it if nothing was completed). */
     finishWorkout: serially(async (workoutId: number): Promise<FinishResult> => {
-      const result = new WorkoutLogger((await liveStore()).database).finish(workoutId, new Date());
+      const db = (await liveStore()).database;
+      const result = db.transaction(() => {
+        const finished = new WorkoutLogger(db).finish(workoutId, new Date());
+        // Dropbox backup (T-042): commit the retry flag with the workout, before the app can close.
+        if (
+          finished.workoutId !== null &&
+          db.value<string>(
+            `
+          SELECT value FROM appSetting WHERE key = ?
+        `,
+            [DropboxBackupSetting.provider],
+          ) === 'dropbox'
+        ) {
+          db.run(
+            `
+            INSERT INTO appSetting (key, value) VALUES (?, 'true')
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value
+          `,
+            [DropboxBackupSetting.pending],
+          );
+        }
+        return finished;
+      });
       notifyListeners();
       return result;
     }),

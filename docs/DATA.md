@@ -6,22 +6,42 @@
 |---|---|---|
 | **Live database** | On the phone, in the Home Screen app's private file system (OPFS), file `/workouts.sqlite` in SQLite's storage pool named `workout-tracker` | Every change |
 | **Local safety snapshots** | Same pool, `/snapshot-<UTC time>.sqlite`; the newest 3 are kept | Automatically before any schema migration runs and before any restore |
-| **Backups** | Wherever the owner saves them, normally a folder in iCloud Drive | When the owner taps **Back up** (W1) |
+| **Manual backups** | Wherever the owner saves them, normally a folder in iCloud Drive | When the owner taps **Back up** |
+| **Dropbox backups (optional)** | The owner's Dropbox, in this app's folder only | After connecting, every finished workout, and pending retries |
 
 - The app asks the browser for **persistent storage** at launch, so iOS never clears it to save space. Home Screen web apps are exempt from Safari's 7-day storage limit for websites.
 - The Home Screen app has its own storage, separate from Safari's. Opening the same address in a Safari tab shows an empty app; that's expected.
 - **Deleting the Home Screen icon deletes the data.** Restore from a backup afterwards.
-- No data is ever sent anywhere. The host only serves the app's code.
+- The host only serves the app's code. The only data sent off the phone is a full backup to the owner's Dropbox after they explicitly connect it.
 
-### Backups (W1)
+### Backups
 
-A web app can't write to iCloud Drive by itself, so backups take one tap:
+Manual backups to Files / iCloud Drive take one tap and remain available alongside optional automatic Dropbox backups:
 
 - **Back up** exports the whole database as one file, `WorkoutTracker-YYYY-MM-DDTHH-mm-ss.sqlite` (UTC, sortable), and opens the iOS share sheet. Choose **Save to Files** and the same iCloud Drive folder each time. If sharing isn't available, the file downloads instead.
 - Each backup is a complete, self-contained SQLite file that any SQLite tool can open.
 - Settings always shows the date of the last backup. Every finish-workout summary offers **Back up now** and shows the last backup age; the caption is a quiet reminder when it is more than 7 days old. The owner must tap the button and save the file in the share sheet.
 - **Restore:** pick a backup file. The app checks it is SQLite, has a known schema and wasn't made by a newer version, takes a local safety snapshot of the current data, then replaces the live database and reopens it.
-- Old backups are the owner's files; the app never deletes them.
+- Manual backups are the owner's files; the app never deletes them.
+
+#### Connect Dropbox (once on this phone)
+
+The built-in public app key is ready to use. To use your own Dropbox app instead, expand **Use your own Dropbox app key**, create an app at dropbox.com/developers/apps with **Scoped access** and **App folder**, enable `files.metadata.read`, `files.content.write` and `files.content.read`, then enter and save its App key. Changing the key revokes the old connection first; connect again afterwards. Leave the field blank and save to return to the built-in key. No client secret or redirect URI is needed.
+
+1. Open **Settings → Backup → Dropbox → Connect Dropbox**. Allow a new tab if Safari asks.
+2. Approve access in Dropbox. Copy the authorization code Dropbox displays, then return to the Home Screen app.
+3. Paste the code and tap **Finish connecting**. Keep the app open while it uploads the first backup.
+4. Confirm **Connected · last backup just now**. **Back up to Dropbox now** retries or uploads manually; **Disconnect** revokes access and clears this phone's connection, without deleting any Dropbox files. Disconnect needs a connection; if it fails, retry it when online.
+
+After each saved workout the app uploads the same validated `.sqlite` export used by the share sheet, under `/WorkoutTracker-YYYY-MM-DDTHH-mm-ss.sqlite` (UTC). Uploads never hold up finishing the workout. The summary shows progress, success, or a readable failure with **Try again**; **Back up now** still opens the share sheet.
+
+A failed upload remains pending and retries when the app next opens or receives an `online` event. Keep the app open long enough to finish: iOS can suspend background web apps. If Dropbox revokes access, the app forgets the rejected credentials and offers **Reconnect Dropbox**. Backups require a connection; logging always works offline.
+
+The refresh token and optional public app key are persisted in this phone's `localStorage`, under `workout-tracker.dropbox.refresh-token` and `workout-tracker.dropbox.app-key`; access tokens and the PKCE verifier stay in memory. Tokens never enter SQLite, logs, or backup files. The non-secret `appSetting` rows are `cloudBackupProvider`, `lastCloudBackupAt`, and `cloudBackupPending`. Restoring a backup on another phone does not connect its Dropbox; connect again there. Clearing website data or deleting the Home Screen app requires connecting again too.
+
+After a successful upload the app lists the complete Dropbox app-folder root, keeping the newest **14** app backups plus the **earliest backup of each calendar month in the phone's local time**, ordered by Dropbox's server timestamp. It deletes only exact app backup filenames; unrelated files, subfolders, manual backups elsewhere, and local safety snapshots are untouched. A failed upload never runs retention. A retention failure still records the successful upload and leaves a pending retry. Changes saved during an upload retain a pending retry so a stale export cannot mark newer data as backed up.
+
+To restore a Dropbox backup, download its `.sqlite` file from Dropbox to Files, then use **Restore from a backup file…** in Settings.
 
 ### Data loss scenarios
 
@@ -34,7 +54,7 @@ A web app can't write to iCloud Drive by itself, so backups take one tap:
 
 ## Hosting
 
-- Address: **https://bader-almutlaq.github.io/workout-tracker/** (GitHub Pages, public repository `Bader-Almutlaq/workout-tracker`). It only serves the app's code; no data is ever uploaded.
+- Address: **https://bader-almutlaq.github.io/workout-tracker/** (GitHub Pages, public repository `Bader-Almutlaq/workout-tracker`). It only serves the app's code; workout data is never uploaded to the host.
 - Publish with `make deploy` (pushes `main`, then runs the *Deploy* workflow, which runs `make verify` before publishing, so a failing build never ships). Pushes alone have not been triggering the workflow, so always use `make deploy`.
 - The installed app picks up a new version in the background and shows "Update ready"; nothing reloads until the owner taps Update.
 - Roll back: `git revert` the bad commit on `main`, then `make deploy`.
