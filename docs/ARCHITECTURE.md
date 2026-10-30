@@ -104,7 +104,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Which unit an exported exercise is in | `src/core/import/ExportUnitResolver.ts` |
 | Import review (plan, decisions) and writing it | `src/core/import/StrongImportPlan.ts`, `StrongImportOptions.ts`, `StrongImporter.ts` (the worker snapshots first) |
 | Typo / outlier detection (import review and live logging) | `src/core/validation/SetPlausibility.ts` |
-| Live typo check for one set | `src/core/validation/LiveSetCheck.ts` *(to port)* |
+| Live typo check for one set | `src/core/validation/LiveSetCheck.ts` (shares `summariseSessions` with the import review) |
 | History list and workout detail queries | `src/core/queries/WorkoutHistory.ts` |
 | Grouping the history list by month (phone's time zone) | `src/core/queries/WorkoutMonthGroups.ts` |
 | Backup file naming, age, validation and the restore sequence | `src/core/backup/BackupFile.ts`, `BackupAge.ts`, `BackupValidation.ts`, `BackupRestore.ts`; `OnDeviceStore` implements its storage |
@@ -119,8 +119,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Search text normalisation, slang, typo distance | `src/core/library/SearchText.ts`, `GymSlang.ts` |
 | Exercise search and import-name suggestions | `src/core/library/ExerciseSearch.ts` (`SearchTuning` holds every score) |
 | Exercise list, detail and unmatched-import queries | `src/core/queries/ExerciseCatalog.ts` |
-| Logging a workout live | `src/core/logging/WorkoutLogger.ts` *(to port)* |
-| What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` *(to port)* |
-| The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` *(to port)* |
+| Logging a workout live | `src/core/logging/WorkoutLogger.ts` (`WorkoutLoggerLimits`) |
+| What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` |
+| The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` |
 
 Developer tool: `tools/import-report.ts` (`make import-report`) dry-runs the importer on `export_data/` and prints totals, unit verdicts and flagged sets. It's the only code allowed to read the owner's real export.
