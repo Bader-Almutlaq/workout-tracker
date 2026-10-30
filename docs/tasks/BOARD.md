@@ -65,6 +65,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 |---|---|---|---|---|
 | [T-037](T-037-audit-data-safety.md) | Audit: no data loss | done (9 fixes, 34 tests) | Codex Sol (high), reviewed by lead | merged |
 | [T-038](T-038-audit-data-accuracy.md) | Audit: data accuracy | done (6 fixes, 21 tests) | Codex Sol (high), reviewed by lead | merged |
+| [T-039](T-039-e2e-fixes.md) | Fixes from the end-to-end check (set notes, warm-up prefill, template stamp, set counts, import preview) | doing | Codex Terra (high) | `task/T-039-e2e-fixes` |
 
 ## Next milestones (tasks are written when the milestone starts)
 
