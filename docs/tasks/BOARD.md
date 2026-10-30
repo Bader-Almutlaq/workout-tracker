@@ -14,7 +14,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-015](T-015-history.md) | Port history queries; History list and workout detail screens | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-016](T-016-backup-restore.md) | Back up through the share sheet; restore with a safety snapshot | done (iOS Safari check: lead, pending) | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-017](T-017-import-flow.md) | Settings → Import from Strong: pick files, review, import, result | done (flow checked in the browser by lead; split into components in T-021) | Codex Terra (high), reviewed by lead | merged |
-| [T-021](T-021-import-screen-components.md) | Split the import screen into small components | doing | Codex Terra (high) | `task/T-021-import-screen-components` |
+| [T-021](T-021-import-screen-components.md) | Split the import screen into small components | done | Codex Terra (high), reviewed by lead | merged |
 | [T-018](T-018-hosting.md) | Publish the site and add it to the Home Screen | doing: owner chose GitHub Pages (public); waiting on sign-in | lead | `web` |
 
 ## W2: Exercise library (started early, in parallel with W1)
