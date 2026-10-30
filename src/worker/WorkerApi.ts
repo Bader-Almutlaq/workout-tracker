@@ -14,6 +14,15 @@ import { backupFileName } from '../core/backup/BackupFile';
 import { validateBackup } from '../core/backup/BackupValidation';
 import { AppSettingKey, getSetting, setSetting } from '../core/db/AppSetting';
 import type { OnDeviceStore, OpenReport } from './OnDeviceStore';
+import type { CustomExerciseDraft } from '../core/library/CustomExerciseDraft';
+import { ExerciseEditor } from '../core/library/ExerciseEditor';
+import { ExerciseLibrary } from '../core/library/ExerciseLibrary';
+import type { ExerciseSearchEntry } from '../core/library/ExerciseSearch';
+import {
+  ExerciseCatalog,
+  type ExerciseCatalogDetail,
+  type ExerciseCatalogUnmatchedImport,
+} from '../core/queries/ExerciseCatalog';
 import {
   workoutDetail,
   workoutSummaries,
@@ -80,6 +89,14 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     const store = await ready;
     await store.whenIdle();
     return store;
+  };
+
+  const mergeExercisePairs = async (pairs: readonly (readonly [number, number])[]): Promise<number> => {
+    const store = await liveStore();
+    await store.takeSnapshot();
+    const moved = ExerciseEditor.mergeAll(store.database, new Map(pairs));
+    notifyListeners();
+    return moved;
   };
 
   return {
@@ -220,6 +237,59 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       return workoutDetail((await liveStore()).database, workoutId);
     },
     // End of History (T-015)
+
+    // Exercises (T-022)
+
+    /** Every unarchived exercise as the search needs it, with aliases. The screen keeps these in memory and searches them. */
+    async exerciseEntries(): Promise<ExerciseSearchEntry[]> {
+      return ExerciseCatalog.entries((await liveStore()).database, ExerciseLibrary.bundled());
+    },
+
+    /** One exercise with its muscles, usage and recent sessions, or `null` when it doesn't exist. */
+    async exerciseDetail(exerciseId: number): Promise<ExerciseCatalogDetail | null> {
+      return ExerciseCatalog.detail((await liveStore()).database, exerciseId, ExerciseLibrary.bundled());
+    },
+
+    /** Exercises created by the Strong import that aren't linked to the library yet, most sets first. */
+    async unmatchedImports(): Promise<ExerciseCatalogUnmatchedImport[]> {
+      return ExerciseCatalog.unmatchedImports((await liveStore()).database);
+    },
+
+    /** Creates the owner's own exercise and returns its id. Throws an `ExerciseEditError` the screen shows as written. */
+    async createExercise(draft: CustomExerciseDraft): Promise<number> {
+      const id = ExerciseEditor.create((await liveStore()).database, draft, new Date());
+      notifyListeners();
+      return id;
+    },
+
+    /** Edits one of the owner's own exercises (or turns a Strong exercise into one). History is unchanged. */
+    async updateExercise(exerciseId: number, draft: CustomExerciseDraft): Promise<void> {
+      ExerciseEditor.update((await liveStore()).database, exerciseId, draft);
+      notifyListeners();
+    },
+
+    /** Hides an exercise from search and pickers, or shows it again. History is kept. */
+    async setExerciseArchived(exerciseId: number, isArchived: boolean): Promise<void> {
+      ExerciseEditor.setArchived((await liveStore()).database, exerciseId, isArchived);
+      notifyListeners();
+    },
+
+    /**
+     * Moves one exercise's history to another and deletes the source (its name stays as an alias).
+     * Takes a safety snapshot first. Returns how many logged exercise entries moved.
+     */
+    async mergeExercise(sourceId: number, targetId: number): Promise<number> {
+      return mergeExercisePairs([[sourceId, targetId]]);
+    },
+
+    /**
+     * Applies several `[sourceId, targetId]` merges in one transaction after one safety snapshot.
+     * Returns how many logged exercise entries moved.
+     */
+    async mergeExercises(pairs: readonly (readonly [number, number])[]): Promise<number> {
+      return mergeExercisePairs(pairs);
+    },
+    // End of Exercises (T-022)
   };
 }
 

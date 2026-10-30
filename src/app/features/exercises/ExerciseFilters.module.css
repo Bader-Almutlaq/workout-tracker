@@ -1,0 +1,13 @@
+.row {
+  display: flex;
+  gap: var(--space-s);
+  /* Runs to the screen edges so the chips scroll under the margin, not into it. */
+  margin: 0 calc(var(--space-l) * -1);
+  padding: 0 var(--space-l);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}

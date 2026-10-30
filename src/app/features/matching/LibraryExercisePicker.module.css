@@ -1,0 +1,31 @@
+.prompt {
+  font: var(--font-body);
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--space-m);
+  text-align: left;
+}
+
+.row + .row {
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.row:active {
+  background: var(--color-surface-raised);
+}
+
+.name {
+  overflow-wrap: anywhere;
+}
+
+.meta {
+  font: var(--font-callout);
+  color: var(--color-text-tertiary);
+}

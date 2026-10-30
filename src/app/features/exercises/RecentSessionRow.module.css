@@ -1,0 +1,32 @@
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  font-variant-numeric: tabular-nums;
+}
+
+.row + .row {
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.date {
+  color: var(--color-text-secondary);
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.topSet {
+  color: var(--color-text-primary);
+}
+
+.sets {
+  font: var(--font-callout);
+  color: var(--color-text-tertiary);
+}

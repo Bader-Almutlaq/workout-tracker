@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { dayAndTimeText, dayText, durationText, monthLabel } from './dateText';
+import { dayAndTimeText, dayText, dayWithYearText, durationText, monthLabel } from './dateText';
 
 describe('date text', () => {
   test('Month label names the month and year', () => {
@@ -23,5 +23,10 @@ describe('date text', () => {
     expect(durationText('2024-01-01T10:00:00.000Z', null)).toBeUndefined();
     expect(durationText('2024-01-01T10:00:00.000Z', '2024-01-01T10:00:10.000Z')).toBeUndefined();
     expect(durationText('2024-01-01T10:00:00.000Z', '2024-01-01T09:00:00.000Z')).toBeUndefined();
+  });
+
+  test('A day with its year', () => {
+    expect(dayWithYearText('2024-01-08T10:00:00.000Z', 'UTC')).toBe('Jan 8, 2024');
+    expect(dayWithYearText('2024-01-08T22:30:00.000Z', 'Asia/Riyadh')).toBe('Jan 9, 2024');
   });
 });

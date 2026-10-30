@@ -1,0 +1,19 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 var(--space-m);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+  font: var(--font-callout);
+}
+
+.chip[data-tone='accent'] {
+  background: var(--color-accent-subtle);
+  border-color: var(--color-border-strong);
+  color: var(--color-accent);
+}
+
+.chip[data-tone='neutral'] {
+  color: var(--color-text-secondary);
+}

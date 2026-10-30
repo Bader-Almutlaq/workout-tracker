@@ -1,0 +1,32 @@
+.card {
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-m);
+}
+
+.name {
+  font: var(--font-headline);
+  overflow-wrap: anywhere;
+}
+
+.usage {
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-m);
+  border-top: var(--hairline) solid var(--color-border);
+}

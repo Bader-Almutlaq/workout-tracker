@@ -1,0 +1,9 @@
+.intro {
+  font: var(--font-body);
+  color: var(--color-text-secondary);
+}
+
+.error {
+  font: var(--font-callout);
+  color: var(--color-status-critical);
+}
