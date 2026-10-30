@@ -21,7 +21,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
 | [T-019](T-019-library-and-search-core.md) | Port the library, muscle taxonomy and search (pure part) | done | Claude Sonnet (subagent), reviewed by lead | merged |
-| [T-020](T-020-library-database.md) | Port library seeding, exercise editing and merge, catalog queries | review: lead finishes integration after T-014 (use `ExerciseNameResolver`, typed error, formatting, two importer cases) | Codex Terra (high) | `task/T-020-library-database` |
+| [T-020](T-020-library-database.md) | Port library seeding, exercise editing and merge, catalog queries | done | Codex Terra (high), finished by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
