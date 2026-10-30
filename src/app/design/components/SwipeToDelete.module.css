@@ -1,0 +1,26 @@
+.row {
+  position: relative;
+  /* Clips the row where it slides out of the card sideways, but not a menu opening below it. */
+  overflow-x: clip;
+}
+
+.content {
+  position: relative;
+  /* Sideways drags come to us; up and down still scroll the page. */
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  background: var(--color-surface);
+}
+
+.action {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-status-critical);
+  color: var(--color-on-accent);
+}

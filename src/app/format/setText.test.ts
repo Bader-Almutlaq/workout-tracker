@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { rpeText, setCountText, setLabels } from './setText';
+import { rpeNumberText, rpeText, setCountText, setLabels } from './setText';
 
 describe('set text', () => {
   test('Special sets get letters and do not use up a number', () => {
@@ -16,5 +16,10 @@ describe('set text', () => {
     expect(setCountText(1)).toBe('1 set');
     expect(setCountText(0)).toBe('0 sets');
     expect(setCountText(12)).toBe('12 sets');
+  });
+
+  test('An RPE number has no unit and no trailing zero', () => {
+    expect(rpeNumberText(8)).toBe('8');
+    expect(rpeNumberText(8.5)).toBe('8.5');
   });
 });

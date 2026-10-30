@@ -1,0 +1,19 @@
+.dock {
+  --bar-height: calc(44px + 2 * var(--space-m));
+}
+
+.spacer {
+  height: var(--bar-height);
+}
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom) + var(--tab-bar-height));
+  z-index: 20;
+  height: var(--bar-height);
+  padding: var(--space-m) var(--space-l);
+  background: var(--color-surface);
+  border-top: var(--hairline) solid var(--color-border);
+}

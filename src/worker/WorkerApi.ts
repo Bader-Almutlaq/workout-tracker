@@ -26,9 +26,16 @@ import {
 import {
   workoutDetail,
   workoutSummaries,
+  workoutSummary,
   type WorkoutDetail,
   type WorkoutSummary,
 } from '../core/queries/WorkoutHistory';
+import { WorkoutLogger, type FinishResult } from '../core/logging/WorkoutLogger';
+import type { SetKind } from '../core/models/SetKind';
+import { liveWorkoutSnapshot, type LiveWorkoutSnapshot } from '../core/queries/LiveWorkout';
+import type { WeightUnit } from '../core/units/WeightUnit';
+import { liveSetFinding as checkLiveSet } from '../core/validation/LiveSetCheck';
+import type { SetFinding } from '../core/validation/SetPlausibility';
 
 /** Called after any write, so screens can re-run their queries. */
 export type ChangeListener = () => void;
@@ -56,6 +63,9 @@ export interface RestoreResult {
   /** Finished workouts in the restored data. */
   readonly workoutCount: number;
 }
+
+/** How many finished workouts the Workout tab offers to repeat. */
+const RECENT_WORKOUT_LIMIT = 6;
 
 /** A review cannot proceed without a valid, unambiguous selection. */
 class StrongImportFlowError extends Error {
@@ -290,6 +300,143 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       return mergeExercisePairs(pairs);
     },
     // End of Exercises (T-022)
+
+    // Workout (T-024)
+    // Every write is one logger action and notifies listeners, so the logging screen refreshes after each tap.
+
+    /** The workout being logged with last session's sets for each exercise, or `null` when none is in progress. */
+    async liveWorkout(): Promise<LiveWorkoutSnapshot | null> {
+      const db = (await liveStore()).database;
+      const workoutId = new WorkoutLogger(db).activeWorkoutId();
+      return workoutId === undefined ? null : (liveWorkoutSnapshot(db, workoutId) ?? null);
+    },
+
+    /** The id of the workout being logged, or `null` when none is in progress. */
+    async activeWorkoutId(): Promise<number | null> {
+      return new WorkoutLogger((await liveStore()).database).activeWorkoutId() ?? null;
+    },
+
+    /** The latest finished workouts, newest first, offered under "Repeat a past workout". */
+    async recentWorkouts(): Promise<WorkoutSummary[]> {
+      return workoutSummaries((await liveStore()).database).slice(0, RECENT_WORKOUT_LIMIT);
+    },
+
+    /** The totals of one finished workout, or `null` when it doesn't exist (for example, nothing was logged). */
+    async finishedWorkoutSummary(workoutId: number): Promise<WorkoutSummary | null> {
+      return workoutSummary((await liveStore()).database, workoutId) ?? null;
+    },
+
+    /**
+     * The "Is this right?" check for a set about to be completed, judged against the exercise's recent
+     * finished sessions. `null` when the set looks normal.
+     */
+    async liveSetFinding(
+      exerciseId: number,
+      weightKilograms: number,
+      reps: number,
+      kind: SetKind,
+      workoutId: number,
+    ): Promise<SetFinding | null> {
+      const db = (await liveStore()).database;
+      return checkLiveSet(db, exerciseId, weightKilograms, reps, kind, workoutId, new Date()) ?? null;
+    },
+
+    /**
+     * Starts a workout and appends `exerciseIds` in order, each pre-filled from its last session.
+     * Returns the new workout's id.
+     */
+    async startWorkout(name: string, exerciseIds: readonly number[]): Promise<number> {
+      const logger = new WorkoutLogger((await liveStore()).database);
+      const workoutId = logger.start(name, new Date());
+      for (const exerciseId of exerciseIds) logger.addExercise(exerciseId, workoutId);
+      notifyListeners();
+      return workoutId;
+    },
+
+    /** Drops the sets that were never completed and ends the workout (or deletes it if nothing was completed). */
+    async finishWorkout(workoutId: number): Promise<FinishResult> {
+      const result = new WorkoutLogger((await liveStore()).database).finish(workoutId, new Date());
+      notifyListeners();
+      return result;
+    },
+
+    /** Deletes the workout in progress with everything logged in it. */
+    async discardWorkout(workoutId: number): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).discard(workoutId);
+      notifyListeners();
+    },
+
+    /** Renames a workout and replaces its notes (`null` clears them). */
+    async updateWorkout(workoutId: number, name: string, notes: string | null): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).update(workoutId, name, notes);
+      notifyListeners();
+    },
+
+    /** Appends exercises to a workout in the order given, each pre-filled from its last session. */
+    async addExercises(workoutId: number, exerciseIds: readonly number[]): Promise<void> {
+      const logger = new WorkoutLogger((await liveStore()).database);
+      for (const exerciseId of exerciseIds) logger.addExercise(exerciseId, workoutId);
+      notifyListeners();
+    },
+
+    /** Removes an exercise entry and its sets from the workout. */
+    async removeExercise(entryId: number): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).removeExercise(entryId);
+      notifyListeners();
+    },
+
+    /** Moves an exercise entry to a zero-based position in the workout. */
+    async moveExercise(entryId: number, newPosition: number): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).moveExercise(entryId, newPosition);
+      notifyListeners();
+    },
+
+    /** Appends a planned set that copies the exercise's last set. */
+    async addSet(entryId: number): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).addSet(entryId);
+      notifyListeners();
+    },
+
+    /** Replaces a set's load (kilograms, with the unit it was typed in), reps, RPE, kind and duration. */
+    async updateSet(
+      setId: number,
+      weightKilograms: number,
+      entryUnit: WeightUnit,
+      reps: number,
+      rpe: number | null,
+      kind: SetKind,
+      durationSeconds: number | null,
+    ): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).updateSet(
+        setId,
+        weightKilograms,
+        entryUnit,
+        reps,
+        rpe,
+        kind,
+        durationSeconds,
+      );
+      notifyListeners();
+    },
+
+    /** Switches an exercise between kg and lb for its planned sets; stored kilograms don't change. */
+    async setEntryUnit(unit: WeightUnit, entryId: number): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).setEntryUnit(unit, entryId);
+      notifyListeners();
+    },
+
+    /** Marks a set done (recording the rest since the previous one) or not done. */
+    async setCompleted(setId: number, completed: boolean): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).setCompleted(setId, completed, new Date());
+      notifyListeners();
+    },
+
+    /** Deletes a set. */
+    async deleteSet(setId: number): Promise<void> {
+      new WorkoutLogger((await liveStore()).database).deleteSet(setId);
+      notifyListeners();
+    },
+    // End of Workout (T-024)
   };
 }
 

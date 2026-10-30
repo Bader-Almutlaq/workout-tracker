@@ -30,7 +30,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
 | [T-023](T-023-logging-core.md) | Port the logging core (live workout, previous performance, live typo check) | done | Codex Terra (high), reviewed by lead | merged |
-| [T-024](T-024-workout-tab.md) | Workout tab: live logging screen | doing | Claude Sonnet (subagent) | `task/T-024-workout-tab` |
+| [T-024](T-024-workout-tab.md) | Workout tab: live logging screen | review | Claude Sonnet (subagent) | `task/T-024-workout-tab` |
 
 ## Next milestones (tasks are written when the milestone starts)
 

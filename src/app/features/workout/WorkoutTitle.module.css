@@ -1,0 +1,9 @@
+.title {
+  display: block;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+}

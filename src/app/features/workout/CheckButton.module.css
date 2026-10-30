@@ -1,0 +1,20 @@
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-small);
+  box-shadow: inset 0 0 0 var(--hairline) var(--color-border);
+  color: var(--color-text-tertiary);
+  transition:
+    background var(--motion-standard),
+    color var(--motion-standard);
+}
+
+.button[aria-pressed='true'] {
+  background: var(--color-accent);
+  box-shadow: none;
+  color: var(--color-on-accent);
+}

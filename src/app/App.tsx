@@ -10,7 +10,9 @@ import { WorkoutDetailScreen } from './features/history/WorkoutDetailScreen';
 import { StrongImportScreen } from './features/import/StrongImportScreen';
 import { StrongMatchingScreen } from './features/matching/StrongMatchingScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
+import { AddExerciseScreen } from './features/workout/AddExerciseScreen';
 import { WorkoutScreen } from './features/workout/WorkoutScreen';
+import { WorkoutSummaryScreen } from './features/workout/WorkoutSummaryScreen';
 
 /** The app: five tabs, each a route. */
 export function App() {
@@ -18,6 +20,8 @@ export function App() {
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<WorkoutScreen />} />
+        <Route path="/workout/add" element={<AddExerciseScreen />} />
+        <Route path="/workout/summary/:workoutId?" element={<WorkoutSummaryScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
         <Route path="/history/:workoutId" element={<WorkoutDetailScreen />} />
         <Route path="/exercises" element={<ExercisesScreen />} />
