@@ -10,6 +10,8 @@ function entry(id: number, name: string, lastUsedAt: string | null): ExerciseSea
     equipment: null,
     primaryMuscles: ['chest'],
     secondaryMuscles: [],
+    pattern: null,
+    mechanic: null,
     isCustom: false,
     usageCount: lastUsedAt === null ? 0 : 1,
     lastUsedAt: lastUsedAt === null ? null : new Date(lastUsedAt),
