@@ -5,7 +5,7 @@ import { LinkRow } from '../../design/components/LinkRow';
 import { Screen } from '../../design/components/Screen';
 import { Section } from '../../design/components/Section';
 import { dayText, durationText, monthLabel } from '../../format/dateText';
-import { setCountText } from '../../format/setText';
+import { setCountsText } from './setCountsText';
 import { volumeText } from '../../format/weightText';
 import styles from './HistoryScreen.module.css';
 import { HistoryCalendar } from './HistoryCalendar';
@@ -41,7 +41,7 @@ export function HistoryScreen() {
                       </span>
                     </div>
                     <div className={styles.totals}>
-                      <span>{setCountText(workout.setCount)}</span>
+                      <span>{setCountsText(workout.setCount, workout.warmupCount ?? 0)}</span>
                       <span>{volumeText(workout.volumeKilograms)}</span>
                     </div>
                   </div>

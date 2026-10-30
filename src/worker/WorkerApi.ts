@@ -8,7 +8,7 @@ import { ExerciseStrength, type ExerciseStrengthSeries } from '../core/queries/E
 import { CsvTable } from '../core/import/CsvTable';
 import { makeStrongImportPlan, type StrongImportPlan } from '../core/import/StrongImportPlan';
 import { makeImportOptions, type StrongImportOptions } from '../core/import/StrongImportOptions';
-import { importStrongPlan, type ImportResult } from '../core/import/StrongImporter';
+import { importStrongPlan, strongImportWorkoutCounts, type ImportResult } from '../core/import/StrongImporter';
 import {
   isStrongMeasurementsFile,
   parseStrongMeasurementsFile,
@@ -233,6 +233,13 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         workoutCount: store.database.value<number>('SELECT count(*) FROM workout WHERE isInProgress = 0') ?? 0,
       };
     }),
+
+    // T-039
+    /** Counts existing and new planned Strong workouts before import. */
+    strongImportWorkoutCounts: serially(
+      async (workouts: readonly import('../core/import/StrongImportPlan').PlannedWorkout[]) =>
+        strongImportWorkoutCounts((await liveStore()).database, workouts),
+    ),
 
     // Strong import (T-017)
 

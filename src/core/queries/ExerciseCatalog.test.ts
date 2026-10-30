@@ -47,10 +47,15 @@ describe('exercise catalog', () => {
   });
   it('summarizes usage and recent top sets', () => {
     const detail = ExerciseCatalog.detail(db, 1, library);
-    expect(detail).toMatchObject({ workoutCount: 2, setCount: 4, firstUsedAt: new Date('2026-01-01T10:00:00Z') });
+    expect(detail).toMatchObject({
+      workoutCount: 2,
+      setCount: 3,
+      warmupCount: 1,
+      firstUsedAt: new Date('2026-01-01T10:00:00Z'),
+    });
     expect(detail?.recentSessions.map((session) => session.workoutId)).toEqual([2, 1]);
     expect(detail?.recentSessions[0]?.topSet?.weightKilograms).toBe(102.5);
-    expect(detail?.recentSessions[1]?.workSetCount).toBe(1);
+    expect(detail?.recentSessions[1]).toMatchObject({ workSetCount: 1, warmupCount: 1 });
   });
   it('lists unmatched Strong exercises by set count', () => {
     const unmatched = ExerciseCatalog.unmatchedImports(db);

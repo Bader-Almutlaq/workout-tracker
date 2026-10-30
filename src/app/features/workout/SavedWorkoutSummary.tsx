@@ -4,7 +4,8 @@ import { EmptyState } from '../../design/components/EmptyState';
 import { Screen } from '../../design/components/Screen';
 import { Section } from '../../design/components/Section';
 import { durationText } from '../../format/dateText';
-import { setCountText } from '../../format/setText';
+import { countWorkoutSets } from '../../../core/queries/WorkoutHistory';
+import { setCountsText } from '../history/setCountsText';
 import { volumeText } from '../../format/weightText';
 import { SaveAsTemplate } from '../templates/SaveAsTemplate';
 import { BackupReminderLine } from './BackupReminderLine';
@@ -33,14 +34,16 @@ export function SavedWorkoutSummary({ workoutId, done }: { readonly workoutId: n
     <Screen title={totals.name}>
       <div className={styles.stats}>
         <SummaryStat label="Duration" value={durationText(totals.startedAt, totals.endedAt) ?? '—'} />
-        <SummaryStat label="Sets" value={String(totals.setCount)} />
+        <SummaryStat label="Sets" value={setCountsText(totals.setCount, totals.warmupCount ?? 0)} />
         <SummaryStat label="Volume load" value={volumeText(totals.volumeKilograms)} />
       </div>
       <Section label="Exercises">
         {detail.entries.map(({ entry, exercise, sets }) => (
           <div key={entry.id} className={styles.line}>
             <span className={styles.name}>{exercise.name}</span>
-            <span className={styles.count}>{setCountText(sets.length)}</span>
+            <span className={styles.count}>
+              {setCountsText(countWorkoutSets(sets).setCount, countWorkoutSets(sets).warmupCount)}
+            </span>
           </div>
         ))}
       </Section>

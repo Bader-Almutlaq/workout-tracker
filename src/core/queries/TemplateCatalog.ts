@@ -24,6 +24,10 @@ export const TemplateCatalog = {
     return db.transaction(() => {
       const templates = db.all<Template>('SELECT * FROM template ORDER BY position, id').map((template) => ({
         ...template,
+        lastStartedAt:
+          db.value<string>(`SELECT MAX(startedAt) FROM workout WHERE templateId = ? AND isInProgress = 0`, [
+            template.id,
+          ]) ?? null,
         exerciseNames: db
           .all<{ name: string }>(
             `

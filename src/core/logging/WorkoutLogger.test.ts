@@ -188,15 +188,15 @@ test('Starting from a template uses template set counts and kinds with history a
   const second = entries[1];
   if (first === undefined || second === undefined) throw new Error('Missing entries');
   expect(sets(db, first.id).map((set) => [set.kind, set.reps])).toEqual([
-    ['drop', 10],
-    ['failure', 8],
+    ['drop', 8],
+    ['failure', 7],
   ]);
   expect(sets(db, second.id)[0]).toMatchObject({ weightKilograms: 0, reps: 12 });
   expect(db.get('SELECT name, templateId FROM workout WHERE id = ?', [workout])).toEqual({
     name: 'Plan',
     templateId: 1,
   });
-  expect(db.value('SELECT lastStartedAt FROM template WHERE id = 1')).toBe(now.toISOString());
+  expect(db.value('SELECT lastStartedAt FROM template WHERE id = 1')).toBeNull();
   expect(() => logger.startFromTemplate(1, now)).toThrow(new WorkoutLoggerError('workoutAlreadyInProgress', workout));
 });
 
@@ -315,4 +315,36 @@ test('repeating a completion request preserves its original timestamp and rest',
   logger.setCompleted(id, true, new Date(now.getTime() + 60000));
   expect(DataSafetyFixture.read(db)).toEqual(before);
   db.close();
+});
+
+test('Discard leaves the template stamp unchanged; finishing stamps its start', async () => {
+  const { db, logger } = await fixture();
+  db.exec(`INSERT INTO template (id, name, position, createdAt, updatedAt, lastStartedAt) VALUES (1, 'Plan', 0, 'a', 'a', 'old');
+    INSERT INTO templateExercise (id, templateId, exerciseId, position) VALUES (1, 1, 1, 0);
+    INSERT INTO templateSet (templateExerciseId, position, kind) VALUES (1, 0, 'working');`);
+  const discarded = logger.startFromTemplate(1, now);
+  logger.discard(discarded);
+  expect(db.value('SELECT lastStartedAt FROM template WHERE id = 1')).toBe('old');
+  const workout = logger.startFromTemplate(1, now);
+  const entry = db.value<number>('SELECT id FROM workoutExercise WHERE workoutId = ?', [workout]) ?? -1;
+  logger.setCompleted(idAt(db, entry, 0), true, now);
+  logger.finish(workout, now);
+  expect(db.value('SELECT lastStartedAt FROM template WHERE id = 1')).toBe(now.toISOString());
+});
+
+test('Template matches warm-ups and work sets independently and falls back to targets', async () => {
+  const { db, logger } = await fixture();
+  db.exec(`INSERT INTO template (id, name, position, createdAt, updatedAt) VALUES (1, 'Plan', 0, 'a', 'a');
+    INSERT INTO templateExercise (id, templateId, exerciseId, position) VALUES (1, 1, 1, 0);
+    INSERT INTO templateSet (templateExerciseId, position, kind, targetRepsLow) VALUES
+      (1, 0, 'working', 5), (1, 1, 'warmup', 6), (1, 2, 'drop', 7), (1, 3, 'failure', 12), (1, 4, 'warmup', 15);`);
+  const workout = logger.startFromTemplate(1, now);
+  const entry = db.value<number>('SELECT id FROM workoutExercise WHERE workoutId = ?', [workout]) ?? -1;
+  expect(sets(db, entry).map((set) => [set.kind, set.reps])).toEqual([
+    ['working', 8],
+    ['warmup', 10],
+    ['drop', 7],
+    ['failure', 12],
+    ['warmup', 15],
+  ]);
 });

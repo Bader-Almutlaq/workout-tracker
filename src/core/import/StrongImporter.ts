@@ -101,6 +101,23 @@ export function importStrongPlan(db: Database, plan: StrongImportPlan, now: Date
   return result;
 }
 
+/** Counts planned workouts already present by source key and those still new. */
+export function strongImportWorkoutCounts(
+  db: Database,
+  workouts: readonly PlannedWorkout[],
+): { alreadyImported: number; newWorkouts: number } {
+  const existing = new Set<string>();
+  let alreadyImported = 0;
+  for (const workout of workouts) {
+    if (existing.has(workout.sourceKey) || workoutExists(db, workout)) {
+      alreadyImported += 1;
+    } else {
+      existing.add(workout.sourceKey);
+    }
+  }
+  return { alreadyImported, newWorkouts: workouts.length - alreadyImported };
+}
+
 function workoutExists(db: Database, planned: PlannedWorkout): boolean {
   return (db.value<number>('SELECT count(*) FROM workout WHERE sourceKey = ?', [planned.sourceKey]) ?? 0) > 0;
 }

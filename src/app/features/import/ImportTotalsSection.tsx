@@ -4,7 +4,7 @@ import { dateRange } from './importFindingText';
 /** Shows the totals in a proposed import. */
 export function ImportTotalsSection({ plan }: { plan: StrongImportPlan }) {
   return (
-    <Section label="What will be imported">
+    <Section label="File contents">
       <SectionRow label="Workouts" value={plan.totals.workouts.toLocaleString()} />
       <SectionRow
         label="Sets"

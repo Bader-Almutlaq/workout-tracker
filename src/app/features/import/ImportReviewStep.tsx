@@ -1,5 +1,6 @@
 import { makeImportOptions, type StrongImportOptions } from '../../../core/import/StrongImportOptions';
 import type { StrongImportPlan } from '../../../core/import/StrongImportPlan';
+import { database, useDatabaseQuery } from '../../data/database';
 import { FindingGroupCard } from './FindingGroupCard';
 import { groupFindings, type FindingItem } from './importFindingText';
 import { ImportTotalsSection } from './ImportTotalsSection';
@@ -24,9 +25,16 @@ export function ImportReviewStep({
   runImport: () => void;
 }) {
   const groups = groupFindings(plan);
+  const counts = useDatabaseQuery('strong-import-counts', () => database.strongImportWorkoutCounts(plan.workouts));
   return (
     <>
       <ImportTotalsSection plan={plan} />
+      {counts.status === 'ready' && (
+        <p className={styles.note}>
+          {counts.value.alreadyImported} already imported · {counts.value.newWorkouts} new
+        </p>
+      )}
+      {counts.status === 'failed' && <p className={styles.note}>{counts.message}</p>}
       <PoundExercisesSection plan={plan} options={options} review={review} />
       <section>
         <div className={styles.heading}>
@@ -50,8 +58,16 @@ export function ImportReviewStep({
         ))}
       </section>
       <div>
-        <button className={styles.primary} onClick={runImport}>
-          Import {plan.totals.workouts.toLocaleString()} workouts
+        <button
+          className={styles.primary}
+          onClick={runImport}
+          disabled={counts.status !== 'ready' || (counts.value.newWorkouts === 0 && plan.measurements.length === 0)}
+        >
+          {counts.status === 'ready' && counts.value.newWorkouts === 0 && plan.measurements.length === 0
+            ? 'Nothing new to import'
+            : counts.status === 'ready' && counts.value.newWorkouts === 0
+              ? 'Import measurements'
+              : `Import ${counts.status === 'ready' ? counts.value.newWorkouts.toLocaleString() : '…'} ${counts.status === 'ready' && counts.value.newWorkouts === 1 ? 'workout' : 'workouts'}`}
         </button>
         {plan.findings.length > 0 && <p className={styles.note}>Sets you haven't reviewed import as logged.</p>}
       </div>
