@@ -97,6 +97,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Weight, volume, RPE, set-label, date and duration text (always `en-US` digits) | `src/app/format/` (`weightText.ts`, `setText.ts`, `dateText.ts`, `formatLocale.ts`) |
 | Shared screen pieces (screen, section, rows, back link, empty state, tab bar, buttons, chips, fields, search field, confirm dialog) | `src/app/design/components/` |
 | Exercise list sections, browse state, text and drafts on screen | `src/app/features/exercises/` (`exerciseSections.ts`, `exerciseBrowseState.ts`, `exerciseText.ts`, `exerciseDraft.ts`) |
+| Logging screen: writes applied in tap order, number-pad draft and steps, set cell text | `src/app/features/workout/` (write queue, number draft, pad steps, set cell text helpers) |
+| Clock text (elapsed workout time, rest) | `src/app/format/clockText.ts` |
 | Which Strong names to merge into which exercises (matching screen) | `src/app/features/matching/matchingPlan.ts`; merges run through `ExerciseEditor.mergeAll` after a snapshot |
 | Key–value app settings | `src/core/db/AppSetting.ts` (`AppSettingKey` lists every key) |
 | kg ↔ lb conversion, display rounding, original-unit inference | `src/core/units/WeightUnit.ts`, `src/core/units/Weight.ts` |
