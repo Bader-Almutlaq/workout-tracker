@@ -1,3 +1,4 @@
+import { PersonalBestsSection } from '../workout/PersonalBestsSection';
 import { useParams } from 'react-router';
 import { database, useDatabaseQuery } from '../../data/database';
 import { BackLink } from '../../design/components/BackLink';
@@ -14,10 +15,13 @@ const MISSING_MESSAGE = 'This workout no longer exists.';
 /** One past workout: each exercise with its sets, weights in the unit they were typed in. */
 export function WorkoutDetailScreen() {
   const workoutId = Number(useParams().workoutId);
-  const detail = useDatabaseQuery(`workout-${workoutId}`, () => database.workoutDetail(workoutId));
+  const detail = useDatabaseQuery(`workout-${workoutId}`, async () => ({
+    detail: await database.workoutDetail(workoutId),
+    bests: await database.personalBestsForWorkout(workoutId),
+  }));
   const back = <BackLink to="/history" label="History" />;
 
-  if (detail.status !== 'ready' || detail.value === undefined) {
+  if (detail.status !== 'ready' || detail.value.detail === undefined) {
     const message =
       detail.status === 'loading' ? 'Loading…' : detail.status === 'failed' ? detail.message : MISSING_MESSAGE;
     return (
@@ -27,12 +31,13 @@ export function WorkoutDetailScreen() {
     );
   }
 
-  const { workout, entries } = detail.value;
+  const { workout, entries } = detail.value.detail;
   const duration = durationText(workout.startedAt, workout.endedAt);
   const when = dayAndTimeText(workout.startedAt);
 
   return (
     <Screen title={workout.name} subtitle={duration === undefined ? when : `${when} · ${duration}`} leading={back}>
+      <PersonalBestsSection bests={detail.value.bests} />
       {entries.map(({ entry, exercise, sets }) => {
         const labels = setLabels(sets);
         return (

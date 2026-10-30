@@ -1,3 +1,5 @@
+import { personalBestsForWorkout, personalBestCounts } from '../core/queries/PersonalBests';
+import { workoutComparison } from '../core/queries/WorkoutComparison';
 import { log } from '../core/support/log';
 import { dailyHardSets } from '../core/queries/DailyHardSets';
 import type { SeriesPoint } from '../core/analytics/RecentVsBaseline';
@@ -376,6 +378,18 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       notifyListeners();
       return result;
     }),
+
+    // Bests and comparison (T-045)
+    /** Exercise records set in a finished workout. */
+    personalBestsForWorkout: serially(async (workoutId: number) =>
+      personalBestsForWorkout((await liveStore()).database, workoutId),
+    ),
+    /** Record counts for finished history. */
+    personalBestCounts: serially(async () => personalBestCounts((await liveStore()).database)),
+    /** Comparison with the previous matching finished workout. */
+    workoutComparison: serially(async (workoutId: number) =>
+      workoutComparison((await liveStore()).database, workoutId),
+    ),
 
     // History (T-015)
 
