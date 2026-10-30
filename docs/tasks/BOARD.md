@@ -23,14 +23,14 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 |---|---|---|---|---|
 | [T-019](T-019-library-and-search-core.md) | Port the library, muscle taxonomy and search (pure part) | done | Claude Sonnet (subagent), reviewed by lead | merged |
 | [T-020](T-020-library-database.md) | Port library seeding, exercise editing and merge, catalog queries | done | Codex Terra (high), finished by lead | merged |
-| [T-022](T-022-exercises-tab-and-matching.md) | Exercises tab and Strong matching screen | review | Claude Sonnet (subagent) | `task/T-022-exercises-tab-and-matching` |
+| [T-022](T-022-exercises-tab-and-matching.md) | Exercises tab and Strong matching screen | done | Claude Sonnet (subagent), reviewed by lead | merged |
 
 ## W3: Logging (started early)
 
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
 | [T-023](T-023-logging-core.md) | Port the logging core (live workout, previous performance, live typo check) | done | Codex Terra (high), reviewed by lead | merged |
-| [T-024](T-024-workout-tab.md) | Workout tab: live logging screen | todo (after T-022) | | |
+| [T-024](T-024-workout-tab.md) | Workout tab: live logging screen | doing | Claude Sonnet (subagent) | `task/T-024-workout-tab` |
 
 ## Next milestones (tasks are written when the milestone starts)
 
