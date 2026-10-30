@@ -3,6 +3,7 @@ import { BottomSheet } from '../../design/components/BottomSheet';
 import { Button } from '../../design/components/Button';
 import { EmptyState } from '../../design/components/EmptyState';
 import { exerciseNamesById } from './exerciseNames';
+import { useTemplateTracking } from './useTemplateTracking';
 import { TemplatePreview } from './TemplatePreview';
 
 /**
@@ -27,10 +28,14 @@ export function TemplatePreviewSheet({
 }) {
   const template = useDatabaseQuery(`template-${templateId}`, () => database.templateDetail(templateId));
   const entries = useDatabaseQuery('exercise-entries', () => database.exerciseEntries());
+  const tracking = useTemplateTracking(
+    template.status === 'ready' && template.value !== null ? template.value.exercises : [],
+  );
 
   const body = () => {
     if (template.status === 'failed') return <EmptyState message={template.message} />;
     if (entries.status === 'failed') return <EmptyState message={entries.message} />;
+    if (tracking.status === 'failed') return <EmptyState message={tracking.message} />;
     if (template.status !== 'ready' || entries.status !== 'ready') return <EmptyState message="Loading…" />;
     if (template.value === null)
       return (
@@ -43,6 +48,7 @@ export function TemplatePreviewSheet({
       <TemplatePreview
         template={template.value}
         names={exerciseNamesById(entries.value)}
+        tracking={tracking.status === 'ready' ? tracking.value : new Map()}
         isBusy={isBusy}
         onStart={onStart}
         onEdit={onEdit}

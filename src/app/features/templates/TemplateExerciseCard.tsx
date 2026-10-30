@@ -10,6 +10,7 @@ import { TemplateSetRow } from './TemplateSetRow';
 /** One exercise of the template being edited: its name and menu, column titles, set rows and "Add set". */
 export function TemplateExerciseCard({
   exercise,
+  isTimed,
   name,
   index,
   count,
@@ -18,6 +19,7 @@ export function TemplateExerciseCard({
   actions,
 }: {
   readonly exercise: TemplateExerciseDraft;
+  readonly isTimed: boolean;
   readonly name: string;
   readonly index: number;
   readonly count: number;
@@ -37,7 +39,7 @@ export function TemplateExerciseCard({
         isSupersetWithNext={isSupersetWithNext}
         actions={actions}
       />
-      <TemplateSetColumnHeader />
+      <TemplateSetColumnHeader isTimed={isTimed} />
       {exercise.sets.map((set, setIndex) => (
         <TemplateSetRow
           // A set has no id of its own; its position is its identity, and the editor changes positions only by re-rendering the whole card.
@@ -45,6 +47,7 @@ export function TemplateExerciseCard({
           exerciseIndex={index}
           setIndex={setIndex}
           set={set}
+          isTimed={isTimed}
           canRemove={exercise.sets.length > 1}
           editing={editing?.cell.setIndex === setIndex ? { field: editing.cell.field, text: editing.text } : undefined}
           actions={actions}

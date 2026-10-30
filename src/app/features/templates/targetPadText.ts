@@ -3,12 +3,12 @@ import { padRange, type PadRange } from '../workout/padRange';
 import type { TargetField } from './TargetCell';
 
 /** The heading of the number pad for a target: "Reps from", "Reps to" or "RPE". */
-export function targetPadTitle(field: TargetField): string {
+export function targetPadTitle(field: TargetField, isTimed = false): string {
   switch (field) {
     case 'repsLow':
-      return 'Reps from';
+      return isTimed ? 'Seconds from' : 'Reps from';
     case 'repsHigh':
-      return 'Reps to';
+      return isTimed ? 'Seconds to' : 'Reps to';
     case 'rpe':
       return 'RPE';
   }

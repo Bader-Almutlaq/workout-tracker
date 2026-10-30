@@ -5,6 +5,8 @@ export interface TemplateListActions {
   /** Opens the preview sheet with Start and Edit. */
   preview(template: TemplateSummary): void;
   duplicate(template: TemplateSummary): void;
+  /** Moves a template within its current folder. */
+  reorder(template: TemplateSummary, position: number): void;
   /** Asks which folder to move the template to. */
   requestMove(template: TemplateSummary): void;
   /** Asks before deleting the template. */

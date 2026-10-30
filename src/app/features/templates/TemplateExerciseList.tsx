@@ -1,3 +1,5 @@
+import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
+import { isTimedExercise } from './isTimedExercise';
 import { EmptyState } from '../../design/components/EmptyState';
 import { exerciseNameOf } from './exerciseNames';
 import { isSupersetWithNext } from './templateExerciseEdits';
@@ -9,9 +11,11 @@ import styles from './TemplateExerciseList.module.css';
 export function TemplateExerciseList({
   model,
   names,
+  tracking,
 }: {
   readonly model: TemplateEditorModel;
   readonly names: ReadonlyMap<number, string>;
+  readonly tracking: ReadonlyMap<number, ExerciseTracking>;
 }) {
   const { draft, pad, actions } = model;
   if (draft.exercises.length === 0) return <EmptyState message="No exercises yet. Add the first one below." />;
@@ -22,6 +26,7 @@ export function TemplateExerciseList({
           // The same exercise can be in a template twice, so its position is the only identity it has.
           key={index}
           exercise={exercise}
+          isTimed={isTimedExercise(tracking.get(exercise.exerciseId))}
           name={exerciseNameOf(names, exercise.exerciseId)}
           index={index}
           count={draft.exercises.length}

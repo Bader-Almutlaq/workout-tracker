@@ -1,3 +1,5 @@
+import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
+import { isTimedExercise } from './isTimedExercise';
 import { Plus } from 'lucide-react';
 import { Button } from '../../design/components/Button';
 import { ErrorBanner } from '../../design/components/ErrorBanner';
@@ -16,16 +18,18 @@ export function TemplateForm({
   model,
   names,
   folders,
+  tracking,
 }: {
   readonly model: TemplateEditorModel;
   readonly names: ReadonlyMap<number, string>;
   readonly folders: readonly FolderChoice[];
+  readonly tracking: ReadonlyMap<number, ExerciseTracking>;
 }) {
   const { pad } = model;
   return (
     <>
       <TemplateDetailsSection model={model} folders={folders} />
-      <TemplateExerciseList model={model} names={names} />
+      <TemplateExerciseList model={model} names={names} tracking={tracking} />
       <Button onPress={model.startPicking}>
         <Plus size={16} strokeWidth={2} aria-hidden />
         Add exercise
@@ -36,7 +40,10 @@ export function TemplateForm({
       </Button>
       {pad.editing !== undefined && (
         <NumberPad
-          title={targetPadTitle(pad.editing.cell.field)}
+          title={targetPadTitle(
+            pad.editing.cell.field,
+            isTimedExercise(tracking.get(model.draft.exercises[pad.editing.cell.exerciseIndex]?.exerciseId ?? -1)),
+          )}
           allowsDecimal={pad.editing.cell.field === 'rpe'}
           unit={undefined}
           errorMessage={undefined}

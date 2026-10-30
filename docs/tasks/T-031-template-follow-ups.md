@@ -24,4 +24,9 @@ Three small gaps in the template screens: reorder templates within a folder, ask
 
 ## Handoff
 
-- **Status:** · **What was done:** · **Files touched:** · **Decisions taken:** · **Open questions / left over:** · **How it was verified:**
+- **Status:** review; changes left uncommitted as requested.
+- **What was done:** Added template move up/down in the row menu, also opened by long-press; guarded editor back-link and tab navigation when the draft differs from its saved state; labelled duration targets in seconds in the editor, number pad, accessibility labels and preview.
+- **Files touched:** `src/app/features/templates/` components, actions, target formatting, new tracking and navigation hooks and helper tests; this handoff.
+- **Decisions taken:** Reorder positions are relative to the current folder, including unfiled templates. Tracking is fetched for the exercises in the draft via the existing `exerciseDetail` worker API, including archived exercises; no core or worker API change was needed. A 500 ms hold opens the existing row menu. Navigation checks the draft against its initial state and saving navigates directly after success.
+- **Open questions / left over:** Browser history gestures and page unload are not guarded; the requested back link and tabs are. T-029 notes that starting a template copies the target into reps even for timed exercises; this task changes labels only, within its scope. UI checks, including long-press on iPhone, remain for the lead: `make dev` could not bind the local port in this sandbox (EPERM).
+- **How it was verified:** `make format` and `make verify` passed: 75 test files, 473 tests, lint, types and production build. Added two tests covering duration kinds, labels and target formatting.

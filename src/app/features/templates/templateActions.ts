@@ -16,6 +16,11 @@ export function duplicateTemplate(templateId: number): void {
   void loggingQueue.enqueue(() => database.duplicateTemplate(templateId));
 }
 
+/** Moves a template to a zero-based position in its current folder. */
+export function reorderTemplate(templateId: number, position: number): void {
+  void loggingQueue.enqueue(() => database.reorderTemplate(templateId, position));
+}
+
 /** Deletes the template. */
 export function deleteTemplate(templateId: number): void {
   void loggingQueue.enqueue(() => database.deleteTemplate(templateId));

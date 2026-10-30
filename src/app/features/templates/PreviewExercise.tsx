@@ -6,14 +6,16 @@ import { setRunsText } from './setRunsText';
 export function PreviewExercise({
   exercise,
   name,
+  isTimed,
 }: {
   readonly exercise: TemplateExerciseDraft;
   readonly name: string;
+  readonly isTimed: boolean;
 }) {
   return (
     <div className={styles.exercise} data-superset={exercise.supersetGroup !== null}>
       <span className={styles.name}>{name}</span>
-      <span className={styles.sets}>{setRunsText(exercise.sets)}</span>
+      <span className={styles.sets}>{setRunsText(exercise.sets, isTimed)}</span>
     </div>
   );
 }
