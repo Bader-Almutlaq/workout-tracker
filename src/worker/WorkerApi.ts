@@ -1,3 +1,10 @@
+import { CsvTable } from '../core/import/CsvTable';
+import { makeStrongImportPlan, type StrongImportPlan } from '../core/import/StrongImportPlan';
+import { makeImportOptions, type StrongImportOptions } from '../core/import/StrongImportOptions';
+import { importStrongPlan, type ImportResult } from '../core/import/StrongImporter';
+import { isStrongMeasurementsFile, parseStrongMeasurementsFile, type PlannedMeasurement } from '../core/import/StrongMeasurementsFile';
+import { parseStrongWorkoutsFile } from '../core/import/StrongWorkoutsFile';
+import type { StrongRow } from '../core/import/StrongRow';
 import * as Comlink from 'comlink';
 import { backupFileName } from '../core/backup/BackupFile';
 import { validateBackup } from '../core/backup/BackupValidation';
@@ -32,6 +39,12 @@ export interface RestoreResult {
   readonly workoutCount: number;
 }
 
+/** A review cannot proceed without a valid, unambiguous selection. */
+class StrongImportFlowError extends Error {
+  override readonly name = 'StrongImportFlowError';
+  readonly kind = 'invalidSelection';
+}
+
 /**
  * Everything the screen can ask of the database. Each method maps to one WorkoutCore call.
  *
@@ -45,6 +58,9 @@ export interface RestoreResult {
 export function createWorkerApi(ready: Promise<OnDeviceStore>) {
   const listeners = new Map<number, ChangeListener>();
   let nextSubscriptionId = 1;
+  let importRows: StrongRow[] = [];
+  let importMeasurements: PlannedMeasurement[] = [];
+  let importPlan: StrongImportPlan | undefined;
 
   const notifyListeners = () => {
     for (const listener of listeners.values()) listener();
@@ -131,6 +147,49 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         snapshotName: report.snapshotName,
         workoutCount: store.database.value<number>('SELECT count(*) FROM workout WHERE isInProgress = 0') ?? 0,
       };
+    },
+
+    // Strong import (T-017)
+
+    /** Parses selected CSVs and builds a review plan without writing to the database. */
+    async planStrongImport(files: readonly { readonly name: string; readonly text: string }[]): Promise<StrongImportPlan> {
+      await liveStore();
+      importPlan = undefined;
+      const rows: StrongRow[] = [];
+      const measurements: PlannedMeasurement[] = [];
+      let workoutsFileSelected = false;
+      for (const file of files) {
+        if (isStrongMeasurementsFile(CsvTable.parse(file.text))) measurements.push(...parseStrongMeasurementsFile(file.text));
+        else {
+          if (workoutsFileSelected) throw new StrongImportFlowError('Choose only one workouts file at a time, along with any measurement files.');
+          rows.push(...parseStrongWorkoutsFile(file.text));
+          workoutsFileSelected = true;
+        }
+      }
+      if (rows.length === 0 && measurements.length === 0) throw new StrongImportFlowError('No workouts or measurements were found in the chosen files.');
+      importRows = rows;
+      importMeasurements = measurements;
+      importPlan = makeStrongImportPlan(rows, measurements);
+      return importPlan;
+    },
+
+    /** Rebuilds the review after the owner changes a decision. */
+    async reviewStrongImport(options: StrongImportOptions): Promise<StrongImportPlan> {
+      await liveStore();
+      if (importPlan === undefined) throw new StrongImportFlowError('Choose Strong files before reviewing the import.');
+      importPlan = makeStrongImportPlan(importRows, importMeasurements, options);
+      return importPlan;
+    },
+
+    /** Takes a safety snapshot, then imports the chosen decisions and refreshes screens. */
+    async runStrongImport(options: StrongImportOptions): Promise<ImportResult> {
+      const store = await liveStore();
+      if (importPlan === undefined) throw new StrongImportFlowError('Choose Strong files before importing.');
+      const plan = makeStrongImportPlan(importRows, importMeasurements, makeImportOptions(options));
+      await store.takeSnapshot();
+      const result = importStrongPlan(store.database, plan, new Date());
+      notifyListeners();
+      return result;
     },
 
     // History (T-015)

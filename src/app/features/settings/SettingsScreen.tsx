@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { APPEARANCES, savedAppearance, saveAppearance, type Appearance } from '../../appearance/appearance';
 import { database, useDatabaseQuery } from '../../data/database';
+import { LinkRow } from '../../design/components/LinkRow';
 import { Screen } from '../../design/components/Screen';
 import { Section, SectionRow } from '../../design/components/Section';
 import { SegmentedControl } from '../../design/components/SegmentedControl';
@@ -31,6 +32,9 @@ export function SettingsScreen() {
         ) : (
           <SectionRow label="Database" value={summary.status === 'loading' ? 'Opening…' : summary.message} />
         )}
+      </Section>
+      <Section label="Import" footnote="Safe to repeat: workouts already imported are skipped.">
+        <LinkRow to="/settings/import">Import from Strong…</LinkRow>
       </Section>
       <BackupSection />
     </Screen>
