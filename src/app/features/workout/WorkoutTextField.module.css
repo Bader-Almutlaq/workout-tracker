@@ -19,3 +19,13 @@
   border: var(--hairline) solid var(--color-border);
   border-radius: var(--radius-small);
 }
+
+.add {
+  align-self: flex-start;
+  padding: var(--space-xs) 0;
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font: var(--font-callout);
+  cursor: pointer;
+}
