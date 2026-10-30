@@ -1,0 +1,28 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  color: inherit;
+  text-decoration: none;
+  transition: background var(--motion-standard);
+}
+
+.row + .row {
+  border-top: var(--hairline) solid var(--color-border);
+}
+
+.row:active {
+  background: var(--color-surface-raised);
+}
+
+.content {
+  flex: 1;
+  /* Lets a long name wrap inside the row instead of stretching it. */
+  min-width: 0;
+}
+
+.chevron {
+  flex: none;
+  color: var(--color-text-tertiary);
+}

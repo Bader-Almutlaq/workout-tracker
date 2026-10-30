@@ -4,6 +4,7 @@ import { UpdateBanner } from './design/components/UpdateBanner';
 import { AnalyticsScreen } from './features/analytics/AnalyticsScreen';
 import { ExercisesScreen } from './features/exercises/ExercisesScreen';
 import { HistoryScreen } from './features/history/HistoryScreen';
+import { WorkoutDetailScreen } from './features/history/WorkoutDetailScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { WorkoutScreen } from './features/workout/WorkoutScreen';
 
@@ -14,6 +15,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<WorkoutScreen />} />
         <Route path="/history" element={<HistoryScreen />} />
+        <Route path="/history/:workoutId" element={<WorkoutDetailScreen />} />
         <Route path="/exercises" element={<ExercisesScreen />} />
         <Route path="/analytics" element={<AnalyticsScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />

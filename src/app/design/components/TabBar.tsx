@@ -16,7 +16,7 @@ export function TabBar() {
   return (
     <nav className={styles.bar} aria-label="Tabs">
       {TABS.map(({ path, label, icon: Icon }) => (
-        <NavLink key={path} to={path} end className={styles.tab}>
+        <NavLink key={path} to={path} end={path === '/'} className={styles.tab}>
           <Icon size={22} strokeWidth={1.75} aria-hidden />
           <span>{label}</span>
         </NavLink>

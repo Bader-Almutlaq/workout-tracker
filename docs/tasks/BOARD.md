@@ -10,10 +10,10 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
 | [T-013](T-013-units-models-settings.md) | Port units, row types and app settings to WorkoutCore | done | Claude Sonnet (subagent), reviewed by lead | merged |
-| [T-014](T-014-strong-import-core.md) | Port the Strong importer and typo checks; `make import-report` | todo | | |
-| [T-015](T-015-history.md) | Port history queries; History list and workout detail screens | todo | | |
-| [T-016](T-016-backup-restore.md) | Back up through the share sheet; restore with a safety snapshot | doing | Claude Sonnet (subagent), lead reviews | `task/T-016-backup-restore` |
-| [T-017](T-017-import-flow.md) | Settings → Import from Strong: pick files, review, import, result | todo (after T-014) | | |
+| [T-014](T-014-strong-import-core.md) | Port the Strong importer and typo checks; `make import-report` | done (report matches the export exactly) | Claude Sonnet (subagent), reviewed by lead | merged |
+| [T-015](T-015-history.md) | Port history queries; History list and workout detail screens | done | Claude Sonnet (subagent), reviewed by lead | merged |
+| [T-016](T-016-backup-restore.md) | Back up through the share sheet; restore with a safety snapshot | done (iOS Safari check: lead, pending) | Claude Sonnet (subagent), reviewed by lead | merged |
+| [T-017](T-017-import-flow.md) | Settings → Import from Strong: pick files, review, import, result | doing | Codex Terra (high) | `task/T-017-import-flow` |
 | [T-018](T-018-hosting.md) | Publish the site and add it to the Home Screen | doing: owner chose GitHub Pages (public); waiting on sign-in | lead | `web` |
 
 ## W2: Exercise library (started early, in parallel with W1)
@@ -21,7 +21,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | ID | Task | Status | Agent | Branch |
 |---|---|---|---|---|
 | [T-019](T-019-library-and-search-core.md) | Port the library, muscle taxonomy and search (pure part) | done | Claude Sonnet (subagent), reviewed by lead | merged |
-| [T-020](T-020-library-database.md) | Port library seeding, exercise editing and merge, catalog queries | doing | Codex Terra (high) | `task/T-020-library-database` |
+| [T-020](T-020-library-database.md) | Port library seeding, exercise editing and merge, catalog queries | review: lead finishes integration after T-014 (use `ExerciseNameResolver`, typed error, formatting, two importer cases) | Codex Terra (high) | `task/T-020-library-database` |
 
 ## Next milestones (tasks are written when the milestone starts)
 
