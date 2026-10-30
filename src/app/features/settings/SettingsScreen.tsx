@@ -7,6 +7,7 @@ import { Section, SectionRow } from '../../design/components/Section';
 import { SegmentedControl } from '../../design/components/SegmentedControl';
 import { MatchingRow } from '../matching/MatchingRow';
 import { BackupSection } from './BackupSection';
+import { UnitsSection } from './UnitsSection';
 
 /** Settings: appearance and what's stored on this phone. Import joins in milestone W1. */
 export function SettingsScreen() {
@@ -23,6 +24,7 @@ export function SettingsScreen() {
       <section>
         <SegmentedControl label="Appearance" options={APPEARANCES} value={appearance} onChange={choose} />
       </section>
+      <UnitsSection />
       <Section label="On this phone">
         {summary.status === 'ready' ? (
           <>

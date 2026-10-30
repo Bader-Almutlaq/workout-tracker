@@ -36,11 +36,9 @@ The Body screen works but is cluttered: every site is a big card even with no da
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
-
-- **Status:**
-- **What was done:**
-- **Files touched:**
-- **Decisions taken:**
-- **Open questions / left over:**
-- **How it was verified:**
+- **Status:** Ready for review; uncommitted.
+- **What was done:** Compact measured and collapsed unmeasured groups; paired detail with state switch and side series; dated comparisons; units in Settings.
+- **Files touched:** Body feature components, styles and text tests; SettingsScreen and UnitsSection; MeasurementChange and tests; DATA.md; this handoff.
+- **Decisions taken:** Comparison dates include the year to distinguish old references. A group guide displays the first nonempty side's note; saving updates each side through the existing worker API.
+- **Open questions / left over:** Paired guide writes are sequential, not atomic: a failure after the first write may temporarily leave different notes, and the error remains visible for retry. Visual checks were blocked by the sandbox denying the dev server socket; review on the phone in both appearances is still needed.
+- **How it was verified:** `make format` and `make verify` passed (804 tests); `make dev` failed with EPERM binding port 5173.

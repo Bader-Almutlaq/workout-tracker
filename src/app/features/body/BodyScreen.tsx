@@ -6,7 +6,7 @@ import { MeasurementGroupRow } from './MeasurementGroupRow';
 import { MeasurementDetail } from './MeasurementDetail';
 import { MeasurementLogSheet } from './MeasurementLogSheet';
 import { MeasurementSiteSheet } from './MeasurementSiteSheet';
-import { MeasurementUnitPicker } from './MeasurementUnitPicker';
+import { partitionMeasurementGroups } from './measurementText';
 import { useBodyQueryError } from './useBodyQueryError';
 import styles from './Body.module.css';
 
@@ -21,31 +21,37 @@ export function BodyScreen() {
   if (query.status === 'failed') return <EmptyState message={query.message} />;
   const { groups, units } = query.value;
   const sites = groups.flatMap((group) => group.sites.map((summary) => summary.site));
-  if (selected !== null)
+  const selectedGroup = groups.find((group) => group.key === selected);
+  if (selectedGroup !== undefined)
     return (
       <MeasurementDetail
         key={selected}
-        siteKey={selected}
+        group={selectedGroup}
         sites={sites}
         units={units}
         onBack={() => setSelected(null)}
       />
     );
-  const hasHistory = groups.some((group) =>
-    group.sites.some((site) => site.relaxed.latest !== null || site.flexed.latest !== null),
-  );
+  const { measured, unmeasured } = partitionMeasurementGroups(groups);
   return (
     <div className={styles.stack}>
-      <MeasurementUnitPicker units={units} />
       <Button variant="primary" onPress={() => setLog(true)}>
         Log measurement
       </Button>
-      {!hasHistory && <EmptyState message="Log a measurement to start your body history." />}
+      {measured.length === 0 && <EmptyState message="Log a measurement to start your body history." />}
       <div>
-        {groups.map((group) => (
+        {measured.map((group) => (
           <MeasurementGroupRow key={group.key} group={group} units={units} onSelect={setSelected} />
         ))}
       </div>
+      {unmeasured.length > 0 && (
+        <details>
+          <summary>Not measured yet ({unmeasured.length})</summary>
+          {unmeasured.map((group) => (
+            <MeasurementGroupRow key={group.key} group={group} units={units} onSelect={setSelected} empty />
+          ))}
+        </details>
+      )}
       <Button onPress={() => setAddSite(true)}>Add site</Button>
       {log && <MeasurementLogSheet sites={sites} units={units} onClose={() => setLog(false)} />}
       {addSite && <MeasurementSiteSheet onClose={() => setAddSite(false)} />}

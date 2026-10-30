@@ -9,16 +9,16 @@ import styles from './Body.module.css';
 
 /** Edits the how-to note verbatim; empty notes are allowed. */
 export function MeasurementGuideEditor({
-  site,
+  sites,
   onClose,
 }: {
-  readonly site: MeasurementSite;
+  readonly sites: readonly MeasurementSite[];
   readonly onClose: () => void;
 }) {
-  const [guide, setGuide] = useState(site.guide);
+  const [guide, setGuide] = useState(sites.find((site) => site.guide)?.guide ?? '');
   const action = useBodyAction();
   return (
-    <BottomSheet title={`How to measure · ${site.name}`} onClose={onClose}>
+    <BottomSheet title="How to measure" onClose={onClose}>
       <label className={styles.field}>
         Guide
         <textarea className={styles.input} rows={6} value={guide} onChange={(event) => setGuide(event.target.value)} />
@@ -28,7 +28,9 @@ export function MeasurementGuideEditor({
         variant="primary"
         isDisabled={action.busy}
         onPress={() => {
-          void action.run(() => database.updateMeasurementGuide(site.key, guide), onClose);
+          void action.run(async () => {
+            for (const site of sites) await database.updateMeasurementGuide(site.key, guide);
+          }, onClose);
         }}
       >
         Save note

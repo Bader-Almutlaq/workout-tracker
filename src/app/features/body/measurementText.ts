@@ -17,12 +17,31 @@ export function measurementText(value: number | null, unit: MeasurementUnit): st
   return value === null ? '—' : `${numberFormat.format(measurementValueIn(value, unit))} ${unit}`;
 }
 
-/** A descriptive signed change; null names the lack of a comparison. */
-export function measurementChangeText(value: number | null, unit: MeasurementUnit, period: string): string {
-  if (value === null) return `No comparison ${period}`;
-  const converted = measurementValueIn(value, unit);
-  const rounded = Number(converted.toFixed(textPolicy.maximumFractionDigits));
-  return `${signedFormat.format(rounded === 0 ? 0 : rounded)} ${unit} ${period}`;
+/** A signed change with the actual reference date, or the first recorded date. */
+export function measurementChangeText(
+  value: number | null,
+  unit: MeasurementUnit,
+  reference: string | null,
+  first: string | null,
+): string {
+  const date = (iso: string) =>
+    new Intl.DateTimeFormat(FORMAT_LOCALE, { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(iso));
+  if (value === null || reference === null) return first === null ? 'No entries' : `first entry ${date(first)}`;
+  const rounded = Number(measurementValueIn(value, unit).toFixed(textPolicy.maximumFractionDigits));
+  return `${signedFormat.format(rounded === 0 ? 0 : rounded).replace('-', '−')} ${unit} since ${date(reference)}`;
+}
+
+/** Partition groups by whether either state has a recorded value. */
+export function partitionMeasurementGroups(groups: readonly MeasurementGroup[]) {
+  const measured: MeasurementGroup[] = [];
+  const unmeasured: MeasurementGroup[] = [];
+  for (const group of groups) {
+    (group.sites.some((site) => site.relaxed.latest !== null || site.flexed.latest !== null)
+      ? measured
+      : unmeasured
+    ).push(group);
+  }
+  return { measured, unmeasured };
 }
 
 /** Display unit for a site's dimension. */
@@ -30,14 +49,20 @@ export function siteUnit(site: MeasurementSiteSummary['site'], units: Measuremen
   return site.kind === 'length' ? units.lengthUnit : units.weightUnit;
 }
 
-/** Side-labelled latest values on one paired row; every site remains individually selectable. */
+/** Side-labelled latest values on one paired row, omitting unrecorded sides. */
 export function groupValues(group: MeasurementGroup, state: MeasurementState, units: MeasurementUnits): string {
-  return group.sites
+  const values = group.sites
     .map((summary) => {
       const side = summary.site.side === 'left' ? 'L ' : summary.site.side === 'right' ? 'R ' : '';
-      return side + measurementText(summary[state].latest?.value ?? null, siteUnit(summary.site, units));
+      const value = summary[state].latest?.value;
+      return value === undefined
+        ? null
+        : side + numberFormat.format(measurementValueIn(value, siteUnit(summary.site, units)));
     })
-    .join(' · ');
+    .filter((value) => value !== null);
+  if (values.length === 0) return '—';
+  const unit = group.sites[0]?.site.kind === 'mass' ? units.weightUnit : units.lengthUnit;
+  return `${values.join(' · ')} ${unit}`;
 }
 
 /** A local datetime input value that retains seconds and milliseconds for existing entries. */
