@@ -29,4 +29,9 @@ At the top of History, a month calendar shows which days had a workout (a small 
 
 ## Handoff
 
-- **Status:** · **What was done:** · **Files touched:** · **Decisions taken:** · **Open questions / left over:** · **How it was verified:**
+- **Status:** Implementation complete; visual acceptance remains to be checked by the lead.
+- **What was done:** Added the local-month workout query, Monday-first calendar, month arrows and swipes, and navigation to workout rows or details.
+- **Files touched:** `WorkoutCalendar.ts` and its test; `HistoryCalendar.tsx` and CSS module; `calendarGrid.ts` and its test; `HistoryScreen.tsx`; `WorkerApi.ts`; this handoff.
+- **Decisions taken:** For multiple workouts on a day, scroll to the newest workout in that day. Query timestamps in the phone's local time zone.
+- **Open questions / left over:** Verify at 430 × 932 in dark and light with synthetic imported data across two months, including swipes and day navigation. Browser access host was unavailable; simulator failed to connect to CoreSimulatorService in the sandbox. Lead should add the calendar query to the architecture concept table if appropriate.
+- **How it was verified:** `make format` and `make verify` passed (66 files, 430 tests); `TZ=America/Los_Angeles make test` also passed. The local 23:30 month-end test covers a date whose UTC month differs in that time zone.

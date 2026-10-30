@@ -1,3 +1,4 @@
+import { workoutDaysInMonth, type WorkoutCalendarDay } from '../core/queries/WorkoutCalendar';
 import { CsvTable } from '../core/import/CsvTable';
 import { makeStrongImportPlan, type StrongImportPlan } from '../core/import/StrongImportPlan';
 import { makeImportOptions, type StrongImportOptions } from '../core/import/StrongImportOptions';
@@ -237,6 +238,14 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     },
 
     // History (T-015)
+
+    // History calendar (T-030)
+
+    /** Local dates with finished workouts in a calendar month; month is 1–12. */
+    async workoutDaysInMonth(year: number, month: number): Promise<WorkoutCalendarDay[]> {
+      const store = await liveStore();
+      return workoutDaysInMonth(store.database, year, month);
+    },
 
     /** Every finished workout, newest first. */
     async historySummaries(): Promise<WorkoutSummary[]> {
