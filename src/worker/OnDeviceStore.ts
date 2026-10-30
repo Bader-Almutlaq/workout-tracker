@@ -19,6 +19,14 @@ export const OnDeviceStoreLimits = {
    * and one spare for a restore in progress. Heuristic, from the pool's own guidance (one entry per file).
    */
   minimumPoolCapacity: 10,
+  /**
+   * Attempts to open the storage before giving up. Only one copy of the app can hold it at a time;
+   * right after "Update", or with the app open in a second tab, the other copy may need a moment to
+   * let go. Heuristic: 8 attempts 750 ms apart cover a reload with time to spare.
+   */
+  openAttempts: 8,
+  /** Wait between open attempts, in milliseconds. See `openAttempts`. */
+  openRetryDelayMilliseconds: 750,
 } as const;
 
 /** Name of the pool in the browser's private file system. Never change it: the data lives under this name. */
@@ -58,13 +66,7 @@ export class OnDeviceStore {
 
   /** Opens (creating if needed) the live database and brings its schema up to date. */
   static async open(sqlite: Sqlite3Static, now: Date = new Date()): Promise<OnDeviceStore> {
-    let pool: SAHPoolUtil;
-    try {
-      pool = await sqlite.installOpfsSAHPoolVfs({ name: POOL_NAME });
-      await pool.reserveMinimumCapacity(OnDeviceStoreLimits.minimumPoolCapacity);
-    } catch (error) {
-      throw new DatabaseError('open', 'This browser could not open on-device storage.', error);
-    }
+    const pool = await openPool(sqlite);
 
     const database = Database.wrap(new pool.OpfsSAHPoolDb(LIVE_DATABASE), sqlite);
     const pending = pendingMigrationIds(database);
@@ -183,4 +185,38 @@ function seedLibrary(database: Database, now: Date): void {
   if (!result.skipped) {
     log.database.info(`Library seeded: ${result.inserted} added, ${result.linked} linked, ${result.updated} updated`);
   }
+}
+
+/**
+ * Opens the storage pool, retrying while another copy of the app still holds it.
+ *
+ * **Data safety:** by default SQLite *deletes the pool* when opening it fails. A failure here
+ * usually means another tab holds the files, so deleting would destroy the owner's data.
+ * `preserveOnInitFailure` keeps the files; `forceReinitIfPreviouslyFailed` lets a retry try again
+ * instead of returning the cached failure.
+ */
+async function openPool(sqlite: Sqlite3Static): Promise<SAHPoolUtil> {
+  // The two options exist in SQLite 3.54 but are missing from its TypeScript declarations.
+  const options = {
+    name: POOL_NAME,
+    preserveOnInitFailure: true,
+    forceReinitIfPreviouslyFailed: true,
+  } as Parameters<Sqlite3Static['installOpfsSAHPoolVfs']>[0];
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= OnDeviceStoreLimits.openAttempts; attempt += 1) {
+    try {
+      const pool = await sqlite.installOpfsSAHPoolVfs(options);
+      await pool.reserveMinimumCapacity(OnDeviceStoreLimits.minimumPoolCapacity);
+      return pool;
+    } catch (error) {
+      lastError = error;
+      log.database.error(`Opening on-device storage failed (attempt ${attempt})`, error);
+      await new Promise((resolve) => setTimeout(resolve, OnDeviceStoreLimits.openRetryDelayMilliseconds));
+    }
+  }
+  throw new DatabaseError(
+    'open',
+    'Your data is safe, but the app could not open it because it is open somewhere else: another Safari tab, or the Home Screen app and Safari at the same time. Close the other copy, then close and reopen this one.',
+    lastError,
+  );
 }

@@ -89,3 +89,6 @@ Short records of non-obvious choices. Newest last. Format: date, decision, why, 
 ## 2026-10-30: Rest timer counts up from the last completed set; the target is the owner's
 - **Why:** measure, don't prescribe. The bar shows time since the last completed set (derived from `completedAt`, so it survives closing the app) against a target the owner sets per exercise with ±15 s (`exercise.restTargetSeconds`, migration v2). The 2:00 starting value is a convenience, not advice. Past the target it keeps counting with a quiet ✓, because the rest actually taken is what gets recorded.
 - **Limits:** no sound, vibration or lock-screen alert; the web can't deliver them reliably on iOS.
+
+## 2026-10-30: Opening storage never deletes it, and retries while another copy holds it
+- **Why:** SQLite's SAH-pool storage deletes the whole pool when opening fails, unless `preserveOnInitFailure` is set. Opening fails whenever another copy of the app holds the files (a second Safari tab, or the old copy still closing after "Update"), so the default could wipe the owner's data. `OnDeviceStore` sets `preserveOnInitFailure`, retries with `forceReinitIfPreviouslyFailed` (8 × 750 ms), and then shows a message saying the data is safe and what to close. Found while testing two Safari tabs on the simulator.
