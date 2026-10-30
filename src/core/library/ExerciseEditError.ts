@@ -1,5 +1,11 @@
 /** Reasons an exercise edit or merge cannot be completed. */
-export type ExerciseEditErrorKind = 'emptyName' | 'nameInUse' | 'noPrimaryMuscle' | 'notFound' | 'libraryExerciseIsReadOnly' | 'mergeIntoItself';
+export type ExerciseEditErrorKind =
+  | 'emptyName'
+  | 'nameInUse'
+  | 'noPrimaryMuscle'
+  | 'notFound'
+  | 'libraryExerciseIsReadOnly'
+  | 'mergeIntoItself';
 
 /** An exercise edit failure with a message suitable for the owner. */
 export class ExerciseEditError extends Error {

@@ -3,49 +3,112 @@ import type { Database } from '../db/Database';
 import type { ExerciseRow } from '../models/Exercise';
 import { log } from '../support/log';
 import type { ExerciseLibrary } from './ExerciseLibrary';
+import { ExerciseLibraryError } from './ExerciseLibraryError';
+import type { LibraryExercise } from './LibraryExercise';
+import { exerciseIdNamed } from './ExerciseNameResolver';
+import { replaceExerciseMuscles } from './replaceExerciseMuscles';
 
-/** Counts of library rows inserted, linked or updated by one seed. */
+/** What one seeding pass did. */
 export interface ExerciseLibrarySeedResult {
+  /** Library exercises added as new rows. */
   readonly inserted: number;
+  /** Existing rows with the same name (for example imported from Strong) now tied to the library. */
   readonly linked: number;
+  /** Rows already tied to the library whose library fields were refreshed. */
   readonly updated: number;
+  /** True when the database already had this library version, so nothing was done. */
   readonly skipped: boolean;
 }
 
-/** Seeds or updates library rows atomically, preserving owner fields and history. No snapshot is needed. */
+/**
+ * Copies the built-in library into the database, once per library version.
+ *
+ * For each library exercise: the row already tied to it (`libraryKey`) is refreshed; otherwise a
+ * row with the same name or alias that isn't tied to the library is linked (so imported Strong
+ * history joins the library exercise); otherwise a new row is added. Library fields (name,
+ * equipment, pattern, mechanic, tracking, muscles) are overwritten; the owner's fields
+ * (`defaultEntryUnit`, `isArchived`) and all history are kept.
+ *
+ * Runs in one transaction. Needs no snapshot: it only adds rows and refreshes library-owned fields.
+ */
 export const ExerciseLibrarySeeder = {
-  /** Seeds when the version changes; `now` timestamps new rows. */
+  /** Seeds `library` unless this version is already in `db`. `now` stamps new rows. */
   seed(db: Database, library: ExerciseLibrary, now: Date): ExerciseLibrarySeedResult {
     return db.transaction(() => {
-      if (getSetting(db, AppSettingKey.seededLibraryVersion) === String(library.version)) return { inserted: 0, linked: 0, updated: 0, skipped: true };
-      let inserted = 0; let linked = 0; let updated = 0;
+      if (getSetting(db, AppSettingKey.seededLibraryVersion) === String(library.version)) {
+        return { inserted: 0, linked: 0, updated: 0, skipped: true };
+      }
+      const counts = { inserted: 0, linked: 0, updated: 0 };
       for (const entry of library.exercises) {
-        let exercise = db.get<ExerciseRow>('SELECT * FROM exercise WHERE libraryKey = ?', [entry.key]);
-        if (exercise !== undefined) updated += 1;
-        else {
-          const id = db.value<number>('SELECT id FROM exercise WHERE name = ? COLLATE NOCASE UNION ALL SELECT exerciseId FROM exerciseAlias WHERE alias = ? COLLATE NOCASE LIMIT 1', [entry.name, entry.name]);
-          const match = id === undefined ? undefined : db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [id]);
-          if (match !== undefined && match.libraryKey === null) {
-            exercise = match;
-            db.run('UPDATE exercise SET source = ?, libraryKey = ? WHERE id = ?', ['library', entry.key, match.id]);
-            linked += 1;
-          } else {
-            const result = db.run('INSERT INTO exercise (name, source, libraryKey, createdAt) VALUES (?, ?, ?, ?)', [entry.name, 'library', entry.key, now.toISOString()]);
-            exercise = db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [result.lastInsertRowId]);
-            inserted += 1;
-          }
-        }
-        if (exercise === undefined) throw new Error('The seeded exercise could not be found.');
-        const collision = db.value<number>('SELECT id FROM exercise WHERE name = ? COLLATE NOCASE UNION ALL SELECT exerciseId FROM exerciseAlias WHERE alias = ? COLLATE NOCASE LIMIT 1', [entry.name, entry.name]);
-        const name = exercise.name.toLowerCase() !== entry.name.toLowerCase() && collision !== undefined ? exercise.name : entry.name;
-        if (name !== entry.name) log.database.error(`Library rename to ${entry.name} skipped: name in use`);
-        db.run('UPDATE exercise SET name = ?, equipment = ?, movementPattern = ?, mechanic = ?, isLengthenedBiased = ?, tracking = ? WHERE id = ?', [name, entry.equipment, entry.pattern, entry.mechanic, Number(entry.isLengthenedBiased), entry.tracking, exercise.id]);
-        db.run('DELETE FROM exerciseMuscle WHERE exerciseId = ?', [exercise.id]);
-        for (const muscle of entry.primaryMuscles) db.run('INSERT INTO exerciseMuscle VALUES (?, ?, ?)', [exercise.id, muscle, 'primary']);
-        for (const muscle of entry.secondaryMuscles) db.run('INSERT INTO exerciseMuscle VALUES (?, ?, ?)', [exercise.id, muscle, 'secondary']);
+        const exercise = rowFor(db, entry, now, counts);
+        writeLibraryFields(db, exercise, entry);
+        replaceExerciseMuscles(db, exercise.id, entry.primaryMuscles, entry.secondaryMuscles);
       }
       setSetting(db, AppSettingKey.seededLibraryVersion, String(library.version));
-      return { inserted, linked, updated, skipped: false };
+      return { ...counts, skipped: false };
     });
   },
 };
+
+/** Finds, links or inserts the row for one library exercise, counting what it did. */
+function rowFor(
+  db: Database,
+  entry: LibraryExercise,
+  now: Date,
+  counts: { inserted: number; linked: number; updated: number },
+): ExerciseRow {
+  const tied = db.get<ExerciseRow>('SELECT * FROM exercise WHERE libraryKey = ?', [entry.key]);
+  if (tied !== undefined) {
+    counts.updated += 1;
+    return tied;
+  }
+
+  const sameNameId = exerciseIdNamed(db, entry.name);
+  const sameName = sameNameId === undefined ? undefined : exerciseById(db, sameNameId);
+  if (sameName !== undefined && sameName.libraryKey === null) {
+    db.run("UPDATE exercise SET source = 'library', libraryKey = ? WHERE id = ?", [entry.key, sameName.id]);
+    counts.linked += 1;
+    return sameName;
+  }
+
+  const { lastInsertRowId } = db.run(
+    "INSERT INTO exercise (name, source, libraryKey, createdAt) VALUES (?, 'library', ?, ?)",
+    [entry.name, entry.key, now.toISOString()],
+  );
+  counts.inserted += 1;
+  const inserted = exerciseById(db, lastInsertRowId);
+  if (inserted === undefined) {
+    throw new ExerciseLibraryError('malformed', `“${entry.name}” could not be added to the database.`);
+  }
+  return inserted;
+}
+
+/**
+ * Writes the library-owned fields. A renamed library entry keeps its old name when the new one is
+ * already used by another exercise, so seeding never fails on a name clash.
+ */
+function writeLibraryFields(db: Database, exercise: ExerciseRow, entry: LibraryExercise): void {
+  const isRename = exercise.name.toLowerCase() !== entry.name.toLowerCase();
+  const nameTaken = isRename && exerciseIdNamed(db, entry.name) !== undefined;
+  if (nameTaken) {
+    log.database.error(`Library rename of “${exercise.name}” to “${entry.name}” skipped: that name is in use`);
+  }
+  db.run(
+    `UPDATE exercise
+        SET name = ?, equipment = ?, movementPattern = ?, mechanic = ?, isLengthenedBiased = ?, tracking = ?
+      WHERE id = ?`,
+    [
+      nameTaken ? exercise.name : entry.name,
+      entry.equipment,
+      entry.pattern,
+      entry.mechanic,
+      Number(entry.isLengthenedBiased),
+      entry.tracking,
+      exercise.id,
+    ],
+  );
+}
+
+function exerciseById(db: Database, id: number): ExerciseRow | undefined {
+  return db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [id]);
+}
