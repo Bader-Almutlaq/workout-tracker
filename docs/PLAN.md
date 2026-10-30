@@ -96,6 +96,29 @@ Milestones are numbered W (web). W1–W3 port what the native app already had; `
 - User-defined progression rules per exercise (double progression, RIR target, % e1RM, top set + back-offs), off by default.
 - Stall flag with a user threshold; RIR calibration from failure sets; personal k per lift; lengthened-bias share chart.
 
+## Roadmap: owner's requests (2026-10-30)
+
+Short entries from the owner's review; each gets a design pass with the owner before tasks are written. Order is not decided yet.
+
+- **R0. Charts on hold.** Don't change any chart until the owner has tried them on the phone and given feedback.
+- **R1. Measurements page.** Its own screen (like Strong), reachable from the tab bar or Analytics. Each site has a "where and how to measure" note the owner writes (e.g. "waist: at the belly button, tape snug, relaxed"). Muscle sites can be logged **flexed and relaxed**. Tap a site → its history and chart; log a new value. Bookkeeping only, nothing fancier. *Today:* imported Strong measurements are stored (`bodyMeasurement`), but there is no screen. Replaces W7's measurement part.
+- **R2. Bigger exercise library with descriptions** (and images if feasible offline). Look for an open, licence-compatible dataset to merge in; keep primary and secondary muscles, which drive the volume maths. *Today:* 420 curated exercises, no descriptions or images.
+- **R3. Exercise variants.** The same movement on different machines (Panatta vs Nautilus chest press), with different grips or attachments, progresses differently. Distinct movements are already distinct exercises (bench vs incline). Open question: model a brand, grip or attachment as a variant tag that splits progression, or as separate exercises.
+- **R4. Programs → workouts → exercises.** A program (e.g. "Upper/Lower") holds its workouts (e.g. "Upper A, Wednesday"), each holding exercises. *Today:* template folders → templates, and workouts started from a template remember it (`workout.templateId`), so this is largely a rename plus the analytics in R5.
+- **R5. Analytics by view.**
+  - **From an exercise:** performance across everything (e1RM, which is load-independent).
+  - **From a workout:** progression within that workout, session to session. The same exercise done heavy on one day and light on another must not be mixed, and switching to a lighter load must not wreck the trend (Strong's weakness).
+  - A program-wide overview is secondary.
+- **R6. Live workout panel: keep Strong's strengths, fix its annoyances.**
+  - Free order: never lock the owner into the current exercise.
+  - Per-exercise notes, with room for an optional attachment (photo).
+  - Rest is optional and never auto-inserted into new sets.
+  - Warm-up sets are visually distinct across the whole row and excluded from volume. Failure sets, drop sets and supersets each get a clear look, not just a letter flag.
+  - RPE **or** RIR entry.
+  - Solid kg ↔ lb handling.
+  - "Last time" shows load, reps and effort, not just the weight. Any suggestion stays opt-in (see the product rules).
+  - The owner can send Strong screenshots as a reference.
+
 ## Needed from the user
 
 - [x] Strong export (in `export_data/`, git-ignored).

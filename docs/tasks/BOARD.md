@@ -59,8 +59,17 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-035](T-035-analytics-muscles.md) | Analytics tab: weekly sets per muscle | done | Codex Terra (high), reviewed by lead | merged |
 | [T-036](T-036-signature-chart.md) | Signature chart (recent vs baseline) on the Analytics tab, plus chart polish | done | Codex Sol (high), reviewed by lead | merged |
 
+## Quality
+
+| ID | Task | Status | Agent | Branch |
+|---|---|---|---|---|
+| [T-037](T-037-audit-data-safety.md) | Audit: no data loss | doing | Codex Sol (high) | `task/T-037-audit-data-safety` |
+| [T-038](T-038-audit-data-accuracy.md) | Audit: data accuracy | doing | Codex Sol (high) | `task/T-038-audit-data-accuracy` |
+
 ## Next milestones (tasks are written when the milestone starts)
 
+- **On hold:** chart changes, until the owner has reviewed the charts (`docs/PLAN.md` → R0).
+- **Owner's roadmap R1–R6** (`docs/PLAN.md` → *Roadmap*): measurements page, bigger library, exercise variants, programs, per-workout analytics, live-workout polish. Designed with the owner before tasks are written.
 - **W6 (rest): Intensity × volume.** Rep-range mix, RIR histogram, intensity–volume map (`docs/PLAN.md` → analytics item 3).
 
 ## Done milestones
