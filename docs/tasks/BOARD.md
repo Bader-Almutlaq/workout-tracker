@@ -95,9 +95,9 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-065](T-065-muscle-coverage-intensity.md) | Muscle coverage and intensity sections for Analytics (W6) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-066](T-066-workout-page.md) | Workout page, plan workout cards, exercise-in-workout view (R4/R5) | done | Codex Terra (high), reviewed and polished by lead | merged |
 | [T-067](T-067-tab-bar-drag-finish-checks.md) | Settings tab, past workouts into plans, accidental-workout checks (R4/R6) | done | Codex Terra (high), reviewed and extended by lead | merged |
-| [T-068](T-068-workout-tab-plan-polish.md) | Workout tab, plan cards, plan charts, compact workout page (R4/R5) | in progress | Codex Terra (high) | task/T-068-plan-polish |
-| [T-069](T-069-plan-summary-active-plan.md) | Plan Summary (sets per muscle), workout day, active plan (R4) | open | after T-068 | — |
-| [T-070](T-070-set-types-warmups-progression-button.md) | Compact editor, coloured set types, warm-ups on top, Progress button (R5/R6) | in progress | Codex Terra (high) | task/T-070-set-types |
+| [T-068](T-068-workout-tab-plan-polish.md) | Workout tab, plan cards, plan charts, compact workout page (R4/R5) | done | Codex Terra (high), reviewed and polished by lead | merged |
+| [T-069](T-069-plan-summary-active-plan.md) | Plan Summary (sets per muscle), workout day, active plan (R4) | in progress | Codex Terra (high) | task/T-069-plan-summary |
+| [T-070](T-070-set-types-warmups-progression-button.md) | Compact editor, coloured set types, warm-ups on top, Progress button (R5/R6) | done | Codex Terra (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
