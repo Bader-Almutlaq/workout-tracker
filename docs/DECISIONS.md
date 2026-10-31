@@ -153,7 +153,7 @@ image prefetch or wholesale picture download. Credits live under Settings using 
 so this task does not modify the shared app route table.
 
 
-### 2026-10-31: Warm-ups on request and cable add-on plates (T-053)
+## 2026-10-31: Warm-ups on request and cable add-on plates (T-053)
 
 Automatic warm-ups default to off; exercise counts opt in, and a live exercise can request the heuristic plan. Existing saved warm-ups remain protected after reload. Cable ladders assume 1.25 kg (2.5 lb) add-on steps from 2.5 kg (5 lb); machine defaults remain 5 kg (10 lb). Per-exercise step overrides remain available.
 
@@ -165,4 +165,3 @@ Automatic warm-ups default to off; exercise counts opt in, and a live exercise c
 - **Lifetime:** store the PKCE verifier, creation time and public app key in phone-local `localStorage`, beside the refresh token and outside SQLite/backups. Heuristic: expire after 10 minutes to allow the Safari round trip without retaining unfinished grants indefinitely. Remove it before a nonblank code exchange, on disconnect, or on a key change; discard malformed, expired, future-dated or different-key entries when checked. A failed exchange requires opening Dropbox for a fresh code; the pasted text stays visible for context.
 - **Security:** the verifier alone cannot obtain a token: Dropbox also requires the corresponding authorization code, which works once. Codes are never persisted, access tokens remain in memory, and credentials are never logged. The existing App folder grant limits access to the app's own Dropbox folder.
 - **Feedback:** Settings and the finish summary share status wording. Connection success is confirmed only after the first backup completes. Saving the advanced app-key override always answers inline; saving the same effective key preserves any pending connection.
-||||||| 9ccea77
