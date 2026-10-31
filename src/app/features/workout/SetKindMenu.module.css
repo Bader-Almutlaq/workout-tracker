@@ -6,13 +6,26 @@
   text-align: left;
 }
 
-.label[data-kind='drop'] {
-  color: var(--color-accent);
-}
-
 .label[data-kind='warmup'] {
   color: var(--color-warmup-label);
 }
-.label[data-kind='failure'] {
+.label.label[data-kind='failure'] {
   color: var(--color-status-bad);
+}
+
+.label[data-kind='warmup'] {
+  color: var(--color-warmup);
+}
+.label[data-kind='drop'] {
+  color: var(--color-drop);
+}
+.label[data-kind='failure'] {
+  color: var(--color-failure);
+}
+
+.label[data-kind='warmup'],
+.label[data-kind='drop'],
+.label[data-kind='failure'] {
+  border-radius: var(--radius-small);
+  background: var(--color-surface-raised);
 }

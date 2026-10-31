@@ -267,3 +267,8 @@ Ask before discarding a workout with no completed sets. For a workout under five
 ## 2026-10-31: A workout made from a session claims its unlinked namesakes
 
 History imported from Strong has no templates, so a workout created from a past session (drag into a plan, Add to plan…, Save as workout) would start with an empty History and Analytics. `TemplateStore.createFromWorkout` therefore links every finished session with the same name (ignoring case and surrounding spaces) that belongs to no template, the source included. It only fills the empty `workout.templateId`; sessions already linked to another workout are left alone, and no logged values change.
+
+
+## 2026-11-01: Set groups and explicit progression
+
+Warm-ups are grouped before work when added or changed. Progression is applied only on the owner’s tap of the exercise’s Progress button; deload keeps its existing controls.

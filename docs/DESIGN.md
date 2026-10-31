@@ -204,3 +204,6 @@ Overview and Muscles share whole Monday-week period chips (4W, 12W, 6M, 1Y, All)
 
 
 The tab bar is Workout, Exercises, Measure, Analytics and Settings. The Workout header links to full History. Plan cards highlight during a held drag; a lifted label follows the finger.
+
+
+Set types use warm-up amber, failure red and drop purple with faint row tints; working sets remain plain. The workout editor uses compact value boxes within larger touch targets.

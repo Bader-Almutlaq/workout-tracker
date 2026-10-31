@@ -77,7 +77,7 @@ export function SetRow({
     const apply = actions.applySuggestion;
     if (!isPrefilled(field) || apply === undefined || isPastWorkout) return undefined;
     if (entry.deload !== undefined && field === 'reps' && recordsDuration(tracking)) return undefined;
-    const progression = (entry.deload ?? entry.progression)?.suggestions.find((item) => item.setId === set.id);
+    const progression = entry.deload?.suggestions.find((item) => item.setId === set.id);
     // A deload can be enabled after template prefill chose a different session. Showing it never changes that saved value.
     const reference = entry.deload === undefined ? previous : set;
     if (progression !== undefined && reference !== undefined) {
@@ -104,7 +104,7 @@ export function SetRow({
         data-weight={recordsWeight(tracking)}
         data-past={isPastWorkout}
         data-completed={set.isCompleted}
-        data-warmup={set.kind === 'warmup'}
+        data-kind={set.kind}
         data-separator={separatesWarmups}
       >
         <SetKindMenu

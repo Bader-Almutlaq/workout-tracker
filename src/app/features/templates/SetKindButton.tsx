@@ -25,11 +25,11 @@ export function SetKindButton({
     <button
       type="button"
       className={styles.button}
-      data-special={kind !== 'working'}
+      data-kind={kind}
       aria-label={`Set ${setNumber}, ${SET_KIND_NAMES[kind]}. Change kind`}
       onClick={onPress}
     >
-      {SHORT_NAMES[kind]}
+      <span>{SHORT_NAMES[kind]}</span>
     </button>
   );
 }

@@ -46,6 +46,7 @@ export function TemplateExerciseCard({
         isInSuperset={isInSuperset}
         isSupersetWithNext={isSupersetWithNext}
         actions={actions}
+        progression={!isTimed ? <ProgressionControl exercise={exercise} index={index} actions={actions} /> : undefined}
       />
       {usesMachineBrand(equipment ?? null) && (
         <div className={styles.progression}>
@@ -64,7 +65,6 @@ export function TemplateExerciseCard({
           }}
         />
       )}
-      {!isTimed && <ProgressionControl exercise={exercise} index={index} actions={actions} />}
       <TemplateSetColumnHeader isTimed={isTimed} />
       {exercise.sets.map((set, setIndex) => (
         <TemplateSetRow
@@ -79,10 +79,16 @@ export function TemplateExerciseCard({
           actions={actions}
         />
       ))}
-      <button type="button" className={styles.addSet} onClick={() => actions.addSet(index)}>
-        <Plus size={16} strokeWidth={2} aria-hidden />
-        <span>Add set</span>
-      </button>
+      <div className={styles.addButtons}>
+        <button type="button" className={styles.addSet} onClick={() => actions.addSet(index)}>
+          <Plus size={16} strokeWidth={2} aria-hidden />
+          <span>Add set</span>
+        </button>
+        <button type="button" className={styles.addSet} onClick={() => actions.addSet(index, 'warmup')}>
+          <Plus size={16} strokeWidth={2} aria-hidden />
+          <span>Add warm-up set</span>
+        </button>
+      </div>
     </section>
   );
 }

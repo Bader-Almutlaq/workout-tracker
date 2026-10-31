@@ -23,12 +23,17 @@ const exercise: TemplateExerciseDraft = {
   notes: null,
   sets: [{ kind: 'working', targetRepsLow: null, targetRepsHigh: null, targetRpe: null }],
 };
-test('the editor offers Off and Reps then weight with Off selected unless explicitly enabled', () => {
+test('the editor labels progression off and on', () => {
   const render = (source: TemplateExerciseDraft) =>
     renderToStaticMarkup(createElement(ProgressionControl, { exercise: source, index: 0, actions }));
-  expect(render(exercise)).toContain('<option value="" selected="">Off</option>');
-  expect(render(exercise)).toContain('Reps then weight');
-  expect(render({ ...exercise, progression: 'double' })).toContain('<option value="double" selected="">');
+  expect(render(exercise)).toContain('Progression');
+  expect(
+    render({
+      ...exercise,
+      progression: 'double',
+      sets: [{ kind: 'working', targetRepsLow: 8, targetRepsHigh: 12, targetRpe: null }],
+    }),
+  ).toContain('8–12 reps');
   expect(actions.setProgression).not.toHaveBeenCalled();
 });
 test('the missing-range prompt offers 8–12 for explicit confirmation and explains per-set targets', () => {

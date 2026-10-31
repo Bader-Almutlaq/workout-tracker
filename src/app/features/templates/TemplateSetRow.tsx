@@ -53,7 +53,7 @@ export function TemplateSetRow({
   };
 
   return (
-    <div ref={row} className={`${grid.grid} ${styles.row}`}>
+    <div ref={row} className={`${grid.grid} ${styles.row}`} data-kind={set.kind}>
       <SetKindButton
         kind={set.kind}
         setNumber={setIndex + 1}

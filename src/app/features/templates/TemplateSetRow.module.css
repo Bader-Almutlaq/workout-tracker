@@ -1,5 +1,5 @@
 .row {
-  padding: var(--space-xs) var(--space-m);
+  padding: 0 var(--space-m);
 }
 
 .remove {
@@ -12,4 +12,11 @@
 
 .remove:disabled {
   opacity: 0.4;
+}
+
+.row[data-kind='drop'] {
+  background: var(--color-drop-tint);
+}
+.row[data-kind='failure'] {
+  background: var(--color-failure-tint);
 }

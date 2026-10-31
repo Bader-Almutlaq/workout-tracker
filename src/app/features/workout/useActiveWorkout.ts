@@ -97,9 +97,9 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
       editor.forget(setId);
       actions.deleteSet(setId);
     },
-    addSet: (entryId) => {
+    addSet: (entryId, kind) => {
       editor.close();
-      actions.addSet(entryId);
+      actions.addSet(entryId, kind);
     },
     setMachineBrand: (entryId, brand) => {
       editor.close();

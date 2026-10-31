@@ -28,9 +28,9 @@ export function usePastWorkoutEditor(snapshot: LiveWorkoutSnapshot, onDone: () =
       editor.forget(setId);
       actions.deleteSet(setId);
     },
-    addSet: (entryId) => {
+    addSet: (entryId, kind) => {
       editor.close();
-      actions.addSet(entryId);
+      actions.addSet(entryId, kind);
     },
     switchUnit: (entryId, unit) => {
       editor.close();

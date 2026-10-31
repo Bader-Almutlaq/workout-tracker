@@ -36,12 +36,19 @@ function withSet(
   }));
 }
 
-/** Appends a set to the exercise that copies the last one's kind and targets (a blank set when there is none). */
-export function withSetAdded(draft: TemplateDraft, exerciseIndex: number): TemplateDraft {
-  return withExercise(draft, exerciseIndex, (exercise) => ({
-    ...exercise,
-    sets: [...exercise.sets, exercise.sets.at(-1) ?? BLANK_SET],
-  }));
+/** Adds a working set at the end or a warm-up at the warm-up boundary. */
+export function withSetAdded(
+  draft: TemplateDraft,
+  exerciseIndex: number,
+  kind: 'working' | 'warmup' = 'working',
+): TemplateDraft {
+  return withExercise(draft, exerciseIndex, (exercise) => {
+    const sets = [...exercise.sets];
+    const previous = sets.filter((set) => set.kind === kind).at(-1) ?? BLANK_SET;
+    const position = kind === 'warmup' ? sets.filter((set) => set.kind === 'warmup').length : sets.length;
+    sets.splice(position, 0, { ...previous, kind });
+    return { ...exercise, sets };
+  });
 }
 
 /** Removes a set. An exercise always keeps at least one set, so removing its only set changes nothing. */
@@ -61,7 +68,17 @@ export function nextKind(kind: SetKind): SetKind {
 
 /** Steps a set's kind to the next one in the cycle. */
 export function withKindCycled(draft: TemplateDraft, exerciseIndex: number, setIndex: number): TemplateDraft {
-  return withSet(draft, exerciseIndex, setIndex, (set) => ({ ...set, kind: nextKind(set.kind) }));
+  return withExercise(draft, exerciseIndex, (exercise) => {
+    const sets = [...exercise.sets];
+    const original = sets[setIndex];
+    if (original === undefined) return exercise;
+    const kind = nextKind(original.kind);
+    if ((original.kind === 'warmup') !== (kind === 'warmup')) {
+      sets.splice(setIndex, 1);
+      sets.splice(sets.filter((set) => set.kind === 'warmup').length, 0, { ...original, kind });
+    } else sets[setIndex] = { ...original, kind };
+    return { ...exercise, sets };
+  });
 }
 
 /** The number a cell holds, or `null` when the owner left it empty (or the cell doesn't exist). */

@@ -131,8 +131,8 @@ export function setSetUnit(workoutId: number, setId: number, entryUnit: WeightUn
 }
 
 /** Appends a planned set to the exercise. */
-export function addSet(entryId: number): void {
-  void loggingQueue.enqueue(() => database.addSet(entryId));
+export function addSet(entryId: number, kind: 'working' | 'warmup' = 'working'): void {
+  void loggingQueue.enqueue(() => database.addSet(entryId, kind));
 }
 
 /** Adds or removes the entry's suggested warm-ups in tap order. */
