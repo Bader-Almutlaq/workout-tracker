@@ -214,6 +214,15 @@ Imported edits retain `workout.sourceKey`, even when the name or start time chan
 
 History weight and rep commits run the existing live typo check, excluding the edited workout from its own baseline. The value is already saved, consistently with immediate editing; **Save anyway** acknowledges it and **Fix** reopens the doubtful cell. Done waits for queued writes and stays in edit mode if a check needs an answer or a save failed. Each successful database write sends one notification, refreshing history, bests, comparisons and analytics through their existing queries.
 
+
+### Exercise illustrations
+
+The pinned everkinetic source and licence are in `data/sources/everkinetic/SOURCE.md`.
+`data/sources/illustration-mapping.json` records a decision for each source image ID;
+`tools/build-illustrations.ts` validates it against the library and generates the bundled
+`src/core/library/illustrations.json` lookup. Images are fetched only when viewed.
+
+
 ## Per-workout progression (T-060, schema v8)
 
 `v8-template-progression` appends `templateExercise.progression TEXT CHECK (progression IN ('double'))`.

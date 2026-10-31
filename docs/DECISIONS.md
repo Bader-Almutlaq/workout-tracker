@@ -189,6 +189,15 @@ Automatic warm-ups default to off; exercise counts opt in, and a live exercise c
 - **Top exercise:** Interpret this as the first exercise in the saved workout order, named on the chart. Take its best qualifying e1RM across all repeated entries in each session, retaining separate same-day sessions. An unsupported exercise produces no estimate; do not silently substitute a different lift.
 - **Charts:** Add sum aggregation and an optional overview period to the shared long-range chart for weekly session counts. Other callers retain their defaults. Expanded charts retain range clipping and finer automatic periods; the caption identifies the actual period. Sum charts omit observation spread bands because their min/max is not a spread of totals.
 
+
+## 2026-10-31: Optional illustrated exercise pictures
+
+Prefer unmodified everkinetic illustrations where a reviewed movement and equipment match exists,
+with free-exercise-db photos as the fallback. The pinned everkinetic path on jsDelivr is a second
+optional picture host: requests happen only when viewed, without credentials or referrer, and are
+cached for offline use. The owner can choose photos only or turn pictures off.
+
+
 ## 2026-10-31: Per-workout double progression is an opt-in calculation (T-060)
 
 - Store only nullable `templateExercise.progression = 'double'`; keep per-set ranges and RPE in

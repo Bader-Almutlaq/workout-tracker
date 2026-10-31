@@ -19,6 +19,24 @@ export function CreditsScreen() {
           }
         />
       </Section>
+      <Section label="Exercise illustrations" footnote="Illustrations shown unmodified; licensed under CC BY-SA 4.0.">
+        <SectionRow
+          label="everkinetic"
+          value={
+            <a href="https://github.com/everkinetic/data" target="_blank" rel="noreferrer">
+              Source · CC BY-SA 4.0
+            </a>
+          }
+        />
+        <SectionRow
+          label="Licence"
+          value={
+            <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noreferrer">
+              CC BY-SA 4.0
+            </a>
+          }
+        />
+      </Section>
     </Screen>
   );
 }
