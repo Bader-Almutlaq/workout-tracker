@@ -66,7 +66,7 @@ export function MeasurementLogSheet({
         }}
       >
         <SelectField
-          label="Site"
+          label="Body part"
           value={key}
           options={sites.map((candidate) => ({ value: candidate.key, label: candidate.name }))}
           onChange={chooseSite}

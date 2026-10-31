@@ -5,7 +5,6 @@ import type { MeasurementState } from '../../../core/measurements/MeasurementSit
 import type { MeasurementSite } from '../../../core/measurements/MeasurementSite';
 import type { MeasurementUnits } from '../../../core/measurements/MeasurementUnits';
 import { database, useDatabaseQuery } from '../../data/database';
-import { BackButton } from '../../design/components/BackButton';
 import { Button } from '../../design/components/Button';
 import { EmptyState } from '../../design/components/EmptyState';
 import { ErrorBanner } from '../../design/components/ErrorBanner';
@@ -26,16 +25,15 @@ export function MeasurementDetail({
   group,
   sites,
   units,
-  onBack,
 }: {
   readonly group: MeasurementGroup;
   readonly sites: readonly MeasurementSite[];
   readonly units: MeasurementUnits;
-  readonly onBack: () => void;
 }) {
   const query = useDatabaseQuery(`measurement-group-${group.key}`, () =>
     Promise.all(group.sites.map((item) => database.measurementDetail(item.site.key))),
   );
+  const [section, setSection] = useState<'chart' | 'history'>('chart');
   const [state, setState] = useState<MeasurementState>('relaxed');
   useBodyQueryError(query);
   const action = useBodyAction();
@@ -47,48 +45,68 @@ export function MeasurementDetail({
   const unit = first === undefined ? units.lengthUnit : siteUnit(first, units);
   const entries = details
     .flatMap((detail) => detail.entries)
-    .filter((entry) => entry.state === state)
     .sort((a, b) => Date.parse(a.takenAt) - Date.parse(b.takenAt));
   return (
     <div className={styles.stack}>
-      <BackButton label="Body" onPress={onBack} />
       {query.status === 'loading' && <EmptyState message="Loading measurement history…" />}
       {query.status === 'failed' && <EmptyState message={query.message} />}
-      {query.status === 'ready' && details.length === 0 && (
-        <EmptyState message="This measurement site no longer exists." />
-      )}
+      {query.status === 'ready' && details.length === 0 && <EmptyState message="This body part no longer exists." />}
       {details.length > 0 && (
         <>
-          <h2 className={styles.title}>{group.name}</h2>
-          <button type="button" className={styles.note} onClick={() => setGuide(true)} aria-label="Edit how-to note">
-            {group.sites.find((item) => item.site.guide)?.site.guide || 'Add a how-to note'}
-            <span className={styles.caption}> · Edit note</span>
-          </button>
+          <SegmentedControl
+            label="Body part view"
+            options={[
+              { value: 'chart', label: 'Chart' },
+              { value: 'history', label: 'History' },
+            ]}
+            value={section}
+            onChange={setSection}
+          />
           <Button variant="primary" onPress={() => setEditor('new')}>
             Log
           </Button>
-          {group.sites.some((item) => item.site.supportsFlexed) && (
-            <SegmentedControl
-              label="Measurement state"
-              options={[
-                { value: 'relaxed', label: 'Relaxed' },
-                { value: 'flexed', label: 'Flexed' },
-              ]}
-              value={state}
-              onChange={setState}
+          {section === 'chart' && (
+            <>
+              <button
+                type="button"
+                className={styles.note}
+                onClick={() => setGuide(true)}
+                aria-label="Edit how-to note"
+              >
+                {group.sites.find((item) => item.site.guide)?.site.guide || 'Add a how-to note'}
+                <span className={styles.caption}> · Edit note</span>
+              </button>
+              {group.sites.some((item) => item.site.supportsFlexed) && (
+                <SegmentedControl
+                  label="Measurement state"
+                  options={[
+                    { value: 'relaxed', label: 'Relaxed' },
+                    { value: 'flexed', label: 'Flexed' },
+                  ]}
+                  value={state}
+                  onChange={setState}
+                />
+              )}
+              <MeasurementChart
+                title={group.name}
+                entries={entries.filter((entry) => entry.state === state)}
+                sites={group.sites.map((item) => item.site)}
+                unit={unit}
+              />
+              {details.map((detail) => (
+                <MeasurementChangeFigures key={detail.site.key} detail={detail} state={state} unit={unit} />
+              ))}
+            </>
+          )}
+          {section === 'history' && (
+            <MeasurementHistory
+              entries={entries}
+              sites={group.sites.map((item) => item.site)}
+              unit={unit}
+              onEdit={setEditor}
+              onDelete={setRemoving}
             />
           )}
-          <MeasurementChart entries={entries} sites={group.sites.map((item) => item.site)} unit={unit} />
-          {details.map((detail) => (
-            <MeasurementChangeFigures key={detail.site.key} detail={detail} state={state} unit={unit} />
-          ))}
-          <MeasurementHistory
-            entries={entries}
-            sites={group.sites.map((item) => item.site)}
-            unit={unit}
-            onEdit={setEditor}
-            onDelete={setRemoving}
-          />
           {guide && (
             <MeasurementGuideEditor sites={group.sites.map((item) => item.site)} onClose={() => setGuide(false)} />
           )}

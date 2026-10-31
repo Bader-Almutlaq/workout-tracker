@@ -36,6 +36,7 @@ export function partitionMeasurementGroups(groups: readonly MeasurementGroup[]) 
   const measured: MeasurementGroup[] = [];
   const unmeasured: MeasurementGroup[] = [];
   for (const group of groups) {
+    if (group.sites.some((summary) => summary.site.key === 'bodyweight')) continue;
     (group.sites.some((site) => site.relaxed.latest !== null || site.flexed.latest !== null)
       ? measured
       : unmeasured
@@ -70,4 +71,12 @@ export function measurementDateInput(iso: string): string {
   const date = new Date(iso);
   const offsetMilliseconds = date.getTimezoneOffset() * textPolicy.millisecondsPerMinute;
   return new Date(date.getTime() - offsetMilliseconds).toISOString().slice(0, -1);
+}
+
+/** Display-only body regions; custom parts retain their own section and pairs stay intact. */
+export function measurementSection(group: MeasurementGroup): string {
+  if (group.sites.some((summary) => summary.site.isCustom)) return 'Custom';
+  if (['thighs', 'calves'].includes(group.key)) return 'Lower body';
+  if (['waist', 'hips', 'upper-abs', 'lower-abs'].includes(group.key)) return 'Midsection';
+  return 'Upper body';
 }

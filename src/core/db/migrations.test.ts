@@ -41,7 +41,7 @@ test('v5 → v6 preserves every row and column, adds nullable details and frozen
     const before = DataSafetyFixture.read(db);
     const oldBytes = db.exportBytes();
     await expect(validateBackup(oldBytes)).resolves.toBeUndefined();
-    expect(migrate(db)).toEqual(['v6-library-details']);
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 6))).toEqual(['v6-library-details']);
     const after = DataSafetyFixture.read(db);
     for (const [table, records] of Object.entries(before)) {
       if (table === 'migration') continue;
@@ -58,7 +58,7 @@ test('v5 → v6 preserves every row and column, adds nullable details and frozen
     expect(db.value('SELECT count(*) FROM muscle')).toBe(28);
     expect(db.all('PRAGMA foreign_key_check')).toEqual([]);
     await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
-    expect(migrate(db)).toEqual([]);
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 6))).toEqual([]);
   } finally {
     db.close();
   }

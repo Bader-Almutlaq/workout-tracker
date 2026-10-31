@@ -11,15 +11,22 @@ import { useBodyAction } from './useBodyAction';
 import styles from './Body.module.css';
 
 /** Adds an unpaired custom site with its measurement guide. */
-export function MeasurementSiteSheet({ onClose }: { readonly onClose: () => void }) {
+export function MeasurementSiteSheet({
+  onClose,
+  onCreated,
+}: {
+  readonly onClose: () => void;
+  /** Open the new part after saving so an empty custom part does not disappear without a next action. */
+  readonly onCreated: (key: string) => void;
+}) {
   const [name, setName] = useState('');
   const [kind, setKind] = useState<MeasurementKind>('length');
   const [flexed, setFlexed] = useState(false);
   const [guide, setGuide] = useState('');
   const action = useBodyAction();
   return (
-    <BottomSheet title="Add site" onClose={onClose}>
-      <TextField label="Site name" value={name} onChange={setName} />
+    <BottomSheet title="New body part" onClose={onClose}>
+      <TextField label="Body part name" value={name} onChange={setName} />
       <SelectField
         label="Measurement kind"
         value={kind}
@@ -42,10 +49,13 @@ export function MeasurementSiteSheet({ onClose }: { readonly onClose: () => void
         variant="primary"
         isDisabled={action.busy || name.trim() === ''}
         onPress={() => {
-          void action.run(() => database.addMeasurementSite({ name, kind, supportsFlexed: flexed, guide }), onClose);
+          void action.run(async () => {
+            const key = await database.addMeasurementSite({ name, kind, supportsFlexed: flexed, guide });
+            onCreated(key);
+          }, onClose);
         }}
       >
-        Add site
+        Add body part
       </Button>
       <Button isDisabled={action.busy} onPress={onClose}>
         Cancel
