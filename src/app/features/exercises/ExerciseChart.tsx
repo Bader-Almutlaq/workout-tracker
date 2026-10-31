@@ -10,11 +10,13 @@ export function ExerciseChart({
   title,
   points,
   aggregation = 'max',
+  shape = 'line',
   formatValue,
 }: {
   readonly title: string;
   readonly points: readonly DatedValue[];
   readonly aggregation?: TimeAggregation;
+  readonly shape?: 'line' | 'step';
   readonly formatValue: (value: number) => string;
 }) {
   return (
@@ -27,6 +29,7 @@ export function ExerciseChart({
           title={title}
           series={[{ name: title, points }]}
           aggregation={aggregation}
+          shape={shape}
           formatValue={formatValue}
         />
       )}

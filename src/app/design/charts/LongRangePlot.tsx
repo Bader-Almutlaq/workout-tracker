@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { area, line } from 'd3-shape';
+import { area, curveLinear, curveStepAfter, line } from 'd3-shape';
 import {
   TimeBuckets,
   type TimeAggregation,
@@ -41,15 +41,18 @@ export function LongRangePlot({
   aggregation,
   overviewBucket,
   formatValue,
+  shape = 'line',
+  height: requestedHeight,
   range = 'all',
   detailed = false,
   onExpand,
 }: LongRangeChartProps & {
+  readonly height?: number;
   readonly range?: TimeRange;
   readonly detailed?: boolean;
   readonly onExpand?: () => void;
 }) {
-  const { ref, width } = useChartSize();
+  const { ref, width, height } = useChartSize(requestedHeight);
   const [selected, setSelected] = useState<number | null>(null);
   const shown = TimeBuckets.range(
     series.flatMap((item) => item.points),
@@ -77,7 +80,7 @@ export function LongRangePlot({
           { date: point.date, value: point.max },
         ]),
     width,
-    { zeroBaseline: aggregation === 'sum' },
+    { zeroBaseline: aggregation === 'sum', height },
   );
   const singleBucket = observations[0]?.date === observations.at(-1)?.date;
   if (shown !== null && !(range === 'all' && singleBucket)) {
@@ -99,7 +102,7 @@ export function LongRangePlot({
           )
           .join(' · ')}`;
   const plot = (
-    <ChartFrame width={width} scales={scales} label={title}>
+    <ChartFrame width={width} height={height} scales={scales} label={title}>
       {buckets.map((item, index) => {
         const band = area<TimeBucket>()
           .x((point) => scales.x(new Date(point.start)))
@@ -107,7 +110,8 @@ export function LongRangePlot({
           .y1((point) => scales.y(point.max))(item.buckets);
         const path = line<TimeBucket>()
           .x((point) => scales.x(new Date(point.start)))
-          .y((point) => scales.y(point.value))(item.buckets);
+          .y((point) => scales.y(point.value))
+          .curve(shape === 'step' ? curveStepAfter : curveLinear)(item.buckets);
         return (
           <g key={item.name} className={index === 0 ? styles.primary : styles.secondary}>
             {aggregation !== 'sum' && item.buckets.some((point) => point.count > 1) && (

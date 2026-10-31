@@ -5,7 +5,7 @@ import { ChartLayout } from './chartScales';
  * Observes a container's content width, including rotation; disconnects when unmounted.
  * Measures before the first paint so a chart never flashes at the fallback width.
  */
-export function useChartSize() {
+export function useChartSize(height?: number) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState<number>(ChartLayout.minimumWidth);
   useLayoutEffect(() => {
@@ -18,5 +18,5 @@ export function useChartSize() {
     observer.observe(container);
     return () => observer.disconnect();
   }, []);
-  return { ref, width };
+  return { ref, width, height: height ?? ChartLayout.height };
 }

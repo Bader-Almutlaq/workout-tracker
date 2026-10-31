@@ -101,3 +101,20 @@ test('weekly session sums keep separate weeks even over a short range and expand
   expect(expanded).toContain('Daily total');
   expect(expanded.match(/<circle /g)).toHaveLength(3);
 });
+
+test('step interpolation holds each value until the next observation', () => {
+  const chart = { ...props, series: [{ name: 'PR', points: props.series[0]?.points.slice(0, 2) ?? [] }] };
+  const step = renderToStaticMarkup(createElement(LongRangePlot, { ...chart, shape: 'step' }));
+  const straight = renderToStaticMarkup(createElement(LongRangePlot, chart));
+  const path = (markup: string) => markup.match(new RegExp(`class="${styles.line}" d="([^"]+)"`))?.[1];
+  expect(path(step)).toMatch(/L[^,]+,[^L]+L/);
+  expect(path(step)).not.toEqual(path(straight));
+});
+
+test('custom height changes the plot and touch area while the default stays unchanged', () => {
+  const tall = renderToStaticMarkup(createElement(LongRangePlot, { ...props, height: 600, detailed: true }));
+  const standard = renderToStaticMarkup(createElement(LongRangePlot, { ...props, detailed: true }));
+  expect(tall).toContain('viewBox="0 0 160 600"');
+  expect(tall).toContain('height="552"');
+  expect(standard).toContain('viewBox="0 0 160 220"');
+});

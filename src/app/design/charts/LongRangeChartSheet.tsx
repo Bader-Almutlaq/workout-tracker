@@ -14,8 +14,19 @@ const ranges: readonly { readonly value: string; readonly label: string; readonl
   { value: 'all', label: 'All', range: 'all' },
 ]);
 
+/** Heuristic: reserve most of the viewport for the expanded plot. */
+const expandedHeightFraction = 0.6;
+
 /** Full-screen modal, with native focus trapping, Escape dismissal and safe-area padding. */
 export function LongRangeChartSheet({ onClose, ...props }: LongRangeChartProps & { readonly onClose: () => void }) {
+  const [height, setHeight] = useState(() =>
+    typeof window === 'undefined' ? undefined : window.innerHeight * expandedHeightFraction,
+  );
+  useEffect(() => {
+    const resize = () => setHeight(window.innerHeight * expandedHeightFraction);
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
   const dialog = useRef<HTMLDialogElement>(null);
   const [range, setRange] = useState<TimeRange>(ranges[0]?.range ?? 'all');
   useEffect(() => {
@@ -34,7 +45,7 @@ export function LongRangeChartSheet({ onClose, ...props }: LongRangeChartProps &
         options={ranges}
         onChange={(value) => setRange(ranges.find((option) => option.value === value)?.range ?? 'all')}
       />
-      <LongRangePlot key={range} {...props} range={range} detailed />
+      <LongRangePlot key={range} {...props} range={range} detailed {...(height === undefined ? {} : { height })} />
     </dialog>
   );
 }

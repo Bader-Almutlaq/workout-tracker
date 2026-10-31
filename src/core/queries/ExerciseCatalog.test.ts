@@ -32,6 +32,7 @@ describe('exercise catalog', () => {
     db.exec(
       "INSERT INTO exercise (id, name, source, createdAt) VALUES (50, 'Cable Grip', 'strong', '2026-01-01'); INSERT INTO exercise (id, name, source, isArchived, createdAt) VALUES (51, 'Old Thing', 'custom', 1, '2026-01-01'); INSERT INTO exerciseAlias (alias, exerciseId) VALUES ('Flat Press', 1); INSERT INTO workout (id, startedAt, name, source) VALUES (1, '2026-01-01T10:00:00.000Z', 'A', 'app'), (2, '2026-02-01T10:00:00.000Z', 'B', 'app'); INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (1, 1, 1, 0), (2, 2, 1, 0), (3, 2, 50, 1); INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps) VALUES (1, 0, 'warmup', 60, 'kg', 10), (1, 1, 'working', 100, 'kg', 5), (2, 0, 'working', 100, 'kg', 6), (2, 1, 'working', 102.5, 'kg', 3), (3, 0, 'working', 20, 'kg', 30)",
     );
+    db.exec('UPDATE workout SET endedAt = startedAt WHERE id IN (1, 2)');
   });
   it('includes muscles, aliases, usage and dates, excluding archived exercises', () => {
     const entries = ExerciseCatalog.entries(db, library);
@@ -78,6 +79,30 @@ describe('exercise catalog', () => {
     expect(detail?.recentSessions.map((session) => session.workoutId)).toEqual([2, 1]);
     expect(detail?.recentSessions[0]?.topSet?.weightKilograms).toBe(102.5);
     expect(detail?.recentSessions[1]).toMatchObject({ workSetCount: 1, warmupCount: 1 });
+  });
+  it('excludes a live workout from exercise detail usage and recent sessions', () => {
+    db.exec(`
+      INSERT INTO workout (id, startedAt, name, source) VALUES (3, '2026-03-01', 'Live', 'app');
+      INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (4, 3, 1, 0);
+      INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps)
+      VALUES (4, 0, 'working', 110, 'kg', 5);
+    `);
+    expect(ExerciseCatalog.detail(db, 1)).toMatchObject({
+      workoutCount: 2,
+      setCount: 3,
+      warmupCount: 1,
+      lastUsedAt: new Date('2026-02-01T10:00:00Z'),
+      recentSessions: [{ workoutId: 2 }, { workoutId: 1 }],
+    });
+    db.exec('UPDATE workout SET endedAt = NULL WHERE id IN (1, 2)');
+    expect(ExerciseCatalog.detail(db, 1)).toMatchObject({
+      workoutCount: 0,
+      setCount: 0,
+      warmupCount: 0,
+      firstUsedAt: null,
+      lastUsedAt: null,
+      recentSessions: [],
+    });
   });
   it('lists unmatched Strong exercises by set count', () => {
     const unmatched = ExerciseCatalog.unmatchedImports(db);

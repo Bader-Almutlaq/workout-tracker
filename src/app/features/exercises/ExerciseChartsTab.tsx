@@ -50,6 +50,7 @@ export function ExerciseChartsTab({
       {tracking === 'weight-reps' && (
         <ExerciseChart
           title="PR progression · est. 1RM"
+          shape="step"
           points={series.progression}
           formatValue={(value) => estimateText(value, 'kg')}
         />

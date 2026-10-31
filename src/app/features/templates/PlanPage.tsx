@@ -61,6 +61,7 @@ export function PlanPage({ folder, list }: { readonly folder: TemplateFolderSumm
       )}
       <TemplateDialogs
         dialog={dialog}
+        planId={folder.id}
         list={list}
         isBusy={isStarting}
         onStart={start}

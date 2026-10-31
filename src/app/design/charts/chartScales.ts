@@ -40,7 +40,7 @@ export interface ChartScales {
 export function chartScales(
   points: readonly ChartPoint[],
   width: number,
-  options: { readonly zeroBaseline?: boolean } = {},
+  options: { readonly zeroBaseline?: boolean; readonly height?: number } = {},
 ): ChartScales {
   const layout = ChartLayout;
   const valid = points.filter((point) => Number.isFinite(Date.parse(point.date)) && Number.isFinite(point.value));
@@ -61,7 +61,7 @@ export function chartScales(
   const right =
     Math.max(Number.isFinite(width) ? width : layout.minimumWidth, layout.minimumWidth) - layout.padding.right;
   const top = layout.padding.top;
-  const bottom = layout.height - layout.padding.bottom;
+  const bottom = (options.height ?? layout.height) - layout.padding.bottom;
   const y = scaleLinear().domain([minimum, maximum]).nice(layout.gridlineCount).range([bottom, top]);
   return {
     x: scaleUtc<number>().domain([first, last]).range([left, right]).clamp(true),
