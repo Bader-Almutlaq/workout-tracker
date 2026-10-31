@@ -1,12 +1,20 @@
 import type { Database } from '../db/Database';
 import type { Workout } from '../models/Workout';
+import type { TemplateSetDraft } from '../templates/TemplateDraft';
 import type { WorkoutSet } from '../models/WorkoutSet';
 import { workoutDetail, type WorkoutDetailEntry } from './WorkoutHistory';
-import { previousPerformance } from './PreviousPerformance';
+import { progressionPlan, type ProgressionSuggestion } from '../logging/ProgressionPlan';
+import { TemplateCatalog } from './TemplateCatalog';
+import { matchPreviousSets, previousPerformance } from './PreviousPerformance';
 
 /** An exercise with planned and completed sets and the previous session's completed sets. */
 export interface LiveWorkoutEntry extends WorkoutDetailEntry {
   readonly previous: readonly WorkoutSet[];
+  /** On-the-fly opt-in calculations keyed to live sets; absent when disabled; suggestions are empty without history. */
+  readonly progression?: {
+    readonly targets: readonly TemplateSetDraft[];
+    readonly suggestions: readonly (ProgressionSuggestion & { readonly setId: number })[];
+  };
 }
 
 /** Plain data for the workout being logged, including previous performance. */
@@ -19,11 +27,47 @@ export interface LiveWorkoutSnapshot {
 export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkoutSnapshot | undefined {
   const detail = workoutDetail(db, workoutId);
   if (detail === undefined) return undefined;
+  const template =
+    detail.workout.templateId === null ? undefined : TemplateCatalog.detail(db, detail.workout.templateId);
   return {
     workout: detail.workout,
-    entries: detail.entries.map((item) => ({
-      ...item,
-      previous: previousPerformance(db, item.exercise.id, workoutId),
-    })),
+    entries: detail.entries.map((item, index) => {
+      // Occurrence, rather than screen position, survives exercise reordering and repeated exercises.
+      const occurrence = detail.entries
+        .slice(0, index)
+        .filter((entry) => entry.exercise.id === item.exercise.id).length;
+      const planned = template?.exercises.filter((entry) => entry.exerciseId === item.exercise.id)[occurrence];
+      const enabled = detail.workout.isInProgress && planned?.progression === 'double';
+      const previous = previousPerformance(
+        db,
+        item.exercise.id,
+        workoutId,
+        enabled ? detail.workout.templateId : null,
+        enabled ? occurrence : null,
+      );
+      if (!enabled || planned === undefined) return { ...item, previous };
+      const targets = matchPreviousSets(item.sets, planned.sets);
+      const units = new Set(item.sets.map((set) => set.entryUnit));
+      const calculated = new Map(
+        [...units].map((unit) => [unit, progressionPlan(previous, planned.sets, item.exercise, unit)]),
+      );
+      const positions = new Map(planned.sets.map((target, position) => [target, position]));
+      return {
+        ...item,
+        previous,
+        progression: {
+          targets: planned.sets,
+          suggestions: item.sets.flatMap((set, position) => {
+            const target = targets[position];
+            const targetPosition = target === undefined ? undefined : positions.get(target);
+            const suggestion =
+              targetPosition === undefined ? undefined : calculated.get(set.entryUnit)?.[targetPosition];
+            return set.isCompleted || suggestion === undefined || suggestion === null
+              ? []
+              : [{ ...suggestion, setId: set.id }];
+          }),
+        },
+      };
+    }),
   };
 }

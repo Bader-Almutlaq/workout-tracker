@@ -14,7 +14,8 @@ test('v7 updates only matching defaults, preserves edited guides and all measure
     `);
     const before = db.all('SELECT * FROM bodyMeasurement ORDER BY id');
     const sites = db.all<{ key: string; guide: string }>('SELECT key, guide FROM measurementSite ORDER BY key');
-    expect(migrate(db)).toEqual(['v7-measurement-ab-guides']);
+    // Later migrations may also run; this test only needs v7 to be among them.
+    expect(migrate(db)).toContain('v7-measurement-ab-guides');
     expect(db.all('SELECT * FROM bodyMeasurement ORDER BY id')).toEqual(before);
     expect(db.value("SELECT guide FROM measurementSite WHERE key = 'waist'")).toBe('My own tape position');
     expect(db.value("SELECT guide FROM measurementSite WHERE key = 'lower-abs'")).toBe(

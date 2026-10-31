@@ -24,7 +24,8 @@ export function ValueCell({
   readonly suggestion?: ValueSuggestion;
 }) {
   // When the untouched value already is the suggestion (e.g. a new warm-up), show it once, in amber.
-  const showsSuggestion = suggestion !== undefined && isPlaceholder && suggestion.text === text;
+  const showsSuggestion =
+    suggestion !== undefined && !suggestion.keepsPrevious && isPlaceholder && suggestion.text === text;
   return (
     <div className={styles.values}>
       <button

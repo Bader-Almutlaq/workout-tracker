@@ -12,6 +12,7 @@ import {
 import type { TemplateEditorActions } from './TemplateEditorActions';
 import type { TemplateEditorModel } from './TemplateEditorModel';
 import { withKindCycled, withSetAdded, withSetRemoved } from './templateSetEdits';
+import { withProgression } from './templateProgressionEdits';
 import { useTargetPad } from './useTargetPad';
 import { planPath } from './templatePaths';
 
@@ -38,6 +39,7 @@ export function useTemplateEditor(initial: TemplateDraft, returnPlanId: number |
 
   const actions: TemplateEditorActions = {
     edit: pad.begin,
+    setProgression: (index, mode, range) => restructure((current) => withProgression(current, index, mode, range)),
     addSet: (exerciseIndex) => restructure((current) => withSetAdded(current, exerciseIndex)),
     removeSet: (exerciseIndex, setIndex) => restructure((current) => withSetRemoved(current, exerciseIndex, setIndex)),
     cycleKind: (exerciseIndex, setIndex) => restructure((current) => withKindCycled(current, exerciseIndex, setIndex)),

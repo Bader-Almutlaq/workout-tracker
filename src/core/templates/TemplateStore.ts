@@ -16,6 +16,13 @@ function validate(draft: TemplateDraft): void {
   for (const exercise of draft.exercises) {
     if (exercise.sets.length === 0) throw new TemplateStoreError('noSets');
     for (const set of exercise.sets) {
+      if (
+        exercise.progression === 'double' &&
+        set.kind !== 'warmup' &&
+        (set.targetRepsLow === null || set.targetRepsHigh === null || set.targetRepsLow <= 0)
+      ) {
+        throw new TemplateStoreError('invalidReps');
+      }
       for (const reps of [set.targetRepsLow, set.targetRepsHigh]) {
         if (reps !== null && (!Number.isInteger(reps) || reps < 0)) throw new TemplateStoreError('invalidReps');
       }
@@ -133,9 +140,9 @@ export const TemplateStore = {
       }
       for (const [position, exercise] of draft.exercises.entries()) {
         const entry = db.run(
-          `INSERT INTO templateExercise (templateId, exerciseId, position, supersetGroup, notes)
-          VALUES (?, ?, ?, ?, ?)`,
-          [id, exercise.exerciseId, position, exercise.supersetGroup, exercise.notes],
+          `INSERT INTO templateExercise (templateId, exerciseId, position, supersetGroup, notes, progression)
+          VALUES (?, ?, ?, ?, ?, ?)`,
+          [id, exercise.exerciseId, position, exercise.supersetGroup, exercise.notes, exercise.progression ?? null],
         ).lastInsertRowId;
         for (const [setPosition, set] of exercise.sets.entries()) {
           db.run(

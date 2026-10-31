@@ -221,3 +221,20 @@ The pinned everkinetic source and licence are in `data/sources/everkinetic/SOURC
 `data/sources/illustration-mapping.json` records a decision for each source image ID;
 `tools/build-illustrations.ts` validates it against the library and generates the bundled
 `src/core/library/illustrations.json` lookup. Images are fetched only when viewed.
+
+
+## Per-workout progression (T-060, schema v8)
+
+`v8-template-progression` appends `templateExercise.progression TEXT CHECK (progression IN ('double'))`.
+NULL (including every existing row) is off. `double` enables reps-then-load suggestions for that
+exercise occurrence in this saved workout. Rep ranges and optional RPE remain in each `templateSet`.
+Saving and duplicating a template retain the setting; saving a performed session as a new template
+leaves it off. Existing history and exact kilogram values are unchanged. The worker's existing
+snapshot-before-migration boundary applies, and older backups validate by migrating an in-memory copy.
+
+Suggestions are calculated on query, never stored. Both the grey baseline and progression calculation
+prefer the latest finished session of the same template containing the exercise, falling back to the
+latest finished session anywhere. Completed non-warm-up sets are paired by working position.
+A tick saves the baseline values; only accepting amber or typing changes them. Untouched suggestions
+reappear after reload. A value differing from its historical baseline suppresses that cell's suggestion;
+accepting or typing an identical value is distinguishable only during the mounted editor session.
