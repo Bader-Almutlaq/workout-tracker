@@ -1,3 +1,5 @@
+import { ExerciseSeries } from '../core/queries/ExerciseSeries';
+import { RepMaxTable } from '../core/queries/RepMaxTable';
 import type { WorkoutFileFormat } from '../core/import/formats/detectWorkoutFileFormat';
 import { exportStrongCsv } from '../core/export/StrongCsvExport';
 import { exportMeasurementsCsv } from '../core/export/MeasurementsCsvExport';
@@ -838,6 +840,32 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       return ExerciseStrength.series((await liveStore()).database, exerciseId, new Date());
     }),
     // End of Strength (T-034)
+
+    // Exercise page (T-057)
+
+    /** A bounded newest-first page of finished sessions, including completed warm-ups. */
+    exerciseHistory: serially(async (exerciseId: number, offset: number = 0) => {
+      return ExerciseSeries.history((await liveStore()).database, exerciseId, offset);
+    }),
+
+    /** All applicable per-session chart series, in kg, kg × reps, reps or seconds; formulas live in core. */
+    exerciseCharts: serially(async (exerciseId: number) => {
+      const history = ExerciseSeries.read((await liveStore()).database, exerciseId);
+      return {
+        estimatedOneRepMax: ExerciseSeries.estimatedOneRepMax(history),
+        heaviestWeight: ExerciseSeries.heaviestWeight(history),
+        sessionVolume: ExerciseSeries.sessionVolume(history),
+        bestReps: ExerciseSeries.bestReps(history),
+        progression: ExerciseSeries.progression(history),
+        duration: ExerciseSeries.duration(history),
+      };
+    }),
+
+    /** Dated lifetime records and rep-max performances/predictions, kept in exact kg until display. */
+    exerciseRecords: serially(async (exerciseId: number) => {
+      return RepMaxTable((await liveStore()).database, exerciseId);
+    }),
+    // End of Exercise page (T-057)
 
     // Templates (T-029)
 

@@ -57,4 +57,26 @@ Implement **Exercises → Exercise page** from `docs/design/PAGES-2026-10-31.md`
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+Implemented within the listed scope; left uncommitted. Not complete against the entire brief: the PR series has correct cumulative maxima but still uses the shared chart's linear interpolation. Step rendering needs an optional prop in `LongRangeChart.tsx` and `LongRangePlot.tsx`, which are outside the explicit edit scope. A scope-extension question is pending. The board was not edited, as instructed.
+
+**Files and public API**
+
+- `src/core/queries/ExerciseSeries.ts` and `.test.ts`: `ExerciseHistoryPolicy`, `ExerciseSession`, `ExerciseSeriesPoint`, `ExerciseSeriesHistory`; `ExerciseSeries.history`, `read`, `estimatedOneRepMax`, `heaviestWeight`, `sessionVolume`, `bestReps`, `duration`, `progression`. History pages contain up to 200 finished sessions, newest first; chart input is oldest first and keeps sessions on the same day distinct. Repeated exercise entries are combined per workout. Only completed sets enter history; warm-ups remain visible there but are excluded from all analytics.
+- `src/core/queries/RepMaxTable.ts` and `.test.ts`: `RepMaxRow`, `ExerciseRecords`, `RepMaxTable(db, exerciseId, now?)`. Actual performance means the heaviest set with at least the row's reps, with earliest performance winning ties. Dated records reuse the series calculations. Predictions invert the canonical unit-load e1RM estimate at RIR 0; no second k table or formula implementation was introduced. Returned values remain exact kg; `estimateText` provides shared rounding at display time.
+- `src/worker/WorkerApi.ts`, block `// Exercise page (T-057)`, and `WorkerApi.exercisePage.test.ts`: new read-only `exerciseHistory(exerciseId, offset?)`, `exerciseCharts(exerciseId)`, `exerciseRecords(exerciseId)` methods. Worker tests check results, missing ids, pagination and byte-for-byte non-mutation.
+- `src/app/features/exercises/ExerciseDetailScreen.tsx`, its CSS module and `.test.ts`; new `ExerciseSummaryTab`, `ExerciseHistoryTab`, `ExerciseHistoryPage`, `ExerciseSessionRow`, `ExerciseChartsTab`, `ExerciseChart`, `ExerciseRecordsTab`, `ExerciseRecordRow`, `ExerciseRepMaxTable`, `ExerciseHowToTab`, `ExerciseStrengthHeadline`, `ExerciseQueryMessage`, `ExercisePage.module.css`, `exercisePageTabs.ts`/`.test.ts`, `exerciseSetText.ts`, `ExerciseChart.test.ts`. URL tab state preserves unrelated query parameters. Only the active tab mounts its own data query; reopening refreshes it. Summary uses the same smoothed headline as StrengthCard without its old chart. Pictures load only in How-to and retain their existing preference behavior.
+- `docs/ARCHITECTURE.md` ownership rows and `docs/DESIGN.md` exercise-page behavior updated. No migrations or out-of-scope screens changed.
+
+**Interpretations**
+
+- Timed exercises show duration; loaded timed exercises also show heaviest weight. Bodyweight exercises show best reps without inventing total mass, weighted volume or e1RM. Unsupported weight records have an explanatory message.
+- Work includes working, drop and failure sets. Unknown effort is explicit in history/records; predictions use existing eligibility and effort assumptions. Actual rep performances do not require effort data. No source screenshot values were used.
+- History uses bounded previous/next pages rather than an ever-growing load-more list. Links open existing History details; browser Back retains the exercise section in the URL.
+- Shared chart files remain untouched pending scope authorization. The requested step interpolation cannot be selected through their current public props.
+
+**Verification and remaining checks**
+
+- `make format` and `make verify` passed: 147 test files, **1,117 tests**, including **26 new tests** across six files; lint, strict type checks and production/PWA build passed. Build retains the existing large-chunk advisory. `git diff --check` passed.
+- Synthetic desktop benchmark (no personal data): 800 sessions over four years, 20,000 sets across 20 exercises, 1,000 sets for the selected exercise. Summary queries ~21 ms, Charts ~60 ms, Records ~59 ms, first History page ~74 ms. These exclude worker transfer, rendering and device startup. A deliberately extreme 20,000-set single-exercise case took ~971 ms for existing Summary queries, ~1,319 ms for Charts, ~1,512 ms for Records and ~350 ms for History; the 200 ms iPhone page-open requirement is not established by these measurements.
+- Live visual/safe-area/dark/light checks remain unverified: `make dev` failed with sandbox `listen EPERM` on port 5173; the browser host was unavailable and opening Simulator returned `Invalid app: Simulator`. Server-rendered app tests cover URL selection, deferred queries, hidden-chart rules, chart expansion/table markup and estimate rounding, but do not replace device QA.
+- Lead follow-up: authorize/add step interpolation to the shared chart and apply it to PR progression, then perform iPhone visual/navigation/offline checks. No commit was made.

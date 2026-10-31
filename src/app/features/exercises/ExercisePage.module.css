@@ -1,0 +1,85 @@
+.session {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-m);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.sessionHeading,
+.heading {
+  font: var(--font-headline);
+  overflow-wrap: anywhere;
+}
+
+.set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  font: var(--font-callout);
+  font-variant-numeric: tabular-nums;
+}
+
+.kind,
+.note,
+.date {
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+}
+
+.date {
+  display: block;
+  margin-top: var(--space-xs);
+}
+
+.chart,
+.record {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.record {
+  padding-block: var(--space-m);
+  border-bottom: var(--hairline) solid var(--color-border);
+}
+
+.value {
+  font: var(--font-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-m);
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--font-callout);
+  font-variant-numeric: tabular-nums;
+}
+
+.table caption {
+  text-align: left;
+  font: var(--font-headline);
+  padding-block: var(--space-m);
+}
+
+.table th,
+.table td {
+  padding: var(--space-s);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: var(--hairline) solid var(--color-border);
+}
