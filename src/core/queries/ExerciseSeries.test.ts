@@ -180,3 +180,15 @@ describe('ExerciseSeries', () => {
     expect(new Set([...page, ...next].map((item) => item.workoutId)).size).toBe(201);
   });
 });
+
+it('filters repeated entries by brand or unrecorded without mixing their sets', () => {
+  const id = session('2026-01-01');
+  add(id, { weightKilograms: 50 }, 0);
+  add(id, { weightKilograms: 80 }, 1);
+  db.run('UPDATE workoutExercise SET machineBrand = ? WHERE workoutId = ? AND position = 0', ['Panatta', id]);
+  const history = ExerciseSeries.read(db, 1, now);
+  expect(ExerciseSeries.machineBrands(history)).toEqual(['Panatta', null]);
+  expect(ExerciseSeries.heaviestWeight(ExerciseSeries.filterMachine(history, 'panatta'))[0]?.value).toBe(50);
+  expect(ExerciseSeries.heaviestWeight(ExerciseSeries.filterMachine(history, null))[0]?.value).toBe(80);
+  expect(ExerciseSeries.filterMachine(history, 'Atlas').sessions).toEqual([]);
+});

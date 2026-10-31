@@ -16,6 +16,8 @@ export interface ExerciseSession {
   readonly sets: readonly WorkoutSet[];
   /** Marked exercise entries within this session; repeated normal entries stay distinct in History. */
   readonly deloadEntryIds: readonly number[];
+  /** Manufacturer for each occurrence, including entries without completed sets. */
+  readonly machineEntries: readonly { readonly id: number; readonly machineBrand: string | null }[];
 }
 
 /** Per-session value in kg, kg × reps, reps or seconds; never rounded or converted. */
@@ -73,9 +75,17 @@ function sessions(db: Database, exerciseId: number, now: Date, limit: number, of
   `,
     [exerciseId, ...selected.map((session) => session.workoutId)],
   );
+  const entries = db.all<{ id: number; workoutId: number; machineBrand: string | null }>(
+    `SELECT id, workoutId, machineBrand FROM workoutExercise
+     WHERE exerciseId = ? AND workoutId IN (${placeholders}) ORDER BY position, id`,
+    [exerciseId, ...selected.map((session) => session.workoutId)],
+  );
   return selected.map((session) => ({
     ...session,
     sets: grouped.get(session.workoutId) ?? [],
+    machineEntries: entries
+      .filter((entry) => entry.workoutId === session.workoutId)
+      .map(({ id, machineBrand }) => ({ id, machineBrand })),
     deloadEntryIds: deloads.filter((entry) => entry.workoutId === session.workoutId).map((entry) => entry.id),
   }));
 }
@@ -112,6 +122,43 @@ export const ExerciseSeries = Object.freeze({
     return {
       exercise: row === undefined ? null : fromExerciseRow(row),
       sessions: row === undefined ? [] : sessions(db, exerciseId, now, -1, 0).reverse(),
+    };
+  },
+
+  /** Distinct recorded manufacturers and null for unrecorded entries, sorted with null last. */
+  machineBrands(history: ExerciseSeriesHistory): readonly (string | null)[] {
+    const brands = new Map<string, string>();
+    let unrecorded = false;
+    for (const session of history.sessions)
+      for (const entry of session.machineEntries) {
+        if (entry.machineBrand === null) unrecorded = true;
+        else if (!brands.has(entry.machineBrand.toLowerCase()))
+          brands.set(entry.machineBrand.toLowerCase(), entry.machineBrand);
+      }
+    const names: (string | null)[] = [...brands.values()].sort((a, b) => a.localeCompare(b));
+    if (unrecorded) names.push(null);
+    return names;
+  },
+
+  /** Restricts sets and deload annotations to matching occurrences; null selects unrecorded machines. */
+  filterMachine(history: ExerciseSeriesHistory, brand: string | null): ExerciseSeriesHistory {
+    return {
+      ...history,
+      sessions: history.sessions.flatMap((session) => {
+        const entries = session.machineEntries.filter((entry) =>
+          brand === null ? entry.machineBrand === null : entry.machineBrand?.toLowerCase() === brand.toLowerCase(),
+        );
+        if (entries.length === 0) return [];
+        const ids = new Set(entries.map((entry) => entry.id));
+        return [
+          {
+            ...session,
+            machineEntries: entries,
+            sets: session.sets.filter((set) => ids.has(set.workoutExerciseId)),
+            deloadEntryIds: session.deloadEntryIds.filter((id) => ids.has(id)),
+          },
+        ];
+      }),
     };
   },
 

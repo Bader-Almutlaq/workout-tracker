@@ -44,3 +44,30 @@ test('exercise page worker methods return only the selected exercise and leave d
     store.database.close();
   }
 });
+
+test('worker saves machine names and filters chart occurrences', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  db.exec(`
+    INSERT INTO exercise (id, name, source, createdAt) VALUES (1, 'Press', 'custom', '2026-01-01');
+    INSERT INTO workout (id, startedAt, name, source) VALUES (1, '2026-01-01', 'Session', 'app');
+    INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (1, 1, 1, 0);
+    INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, reps, entryUnit)
+      VALUES (1, 0, 'working', 50, 8, 'kg');
+  `);
+  const device = new MemoryDevice(await loadSqlite());
+  device.files.set('/workouts.sqlite', db.exportBytes());
+  db.close();
+  const store = await OnDeviceStore.open(device.sqlite, new Date('2026-02-01'));
+  try {
+    const api = createWorkerApi(Promise.resolve(store));
+    await api.setMachineBrand(1, ' panatta ');
+    expect(await api.usedMachineBrands()).toEqual(['Panatta']);
+    expect((await api.exerciseCharts(1, 'Panatta')).machineBrands).toEqual(['Panatta']);
+    expect((await api.exerciseCharts(1, null)).heaviestWeight).toEqual([]);
+    await api.setMachineBrand(1, null);
+    expect(await api.usedMachineBrands()).toEqual([]);
+  } finally {
+    store.database.close();
+  }
+});

@@ -23,6 +23,9 @@ export const MACHINE_BRANDS: readonly string[] = Object.freeze([
   'Technogym',
 ]);
 
+/** Heuristic: limit custom names for readability on a phone. */
+export const MachineBrandLimits = Object.freeze({ maximumLength: 40 });
+
 /** Invalid machine manufacturer input, suitable for display to the owner. */
 export class MachineBrandError extends Error {
   readonly kind = 'tooLong';
@@ -44,8 +47,6 @@ export function usesMachineBrand(equipment: Equipment | null): boolean {
 export function normalizeMachineBrand(text: string): string | null {
   const name = text.trim().replace(/\s+/g, ' ');
   if (name.length === 0) return null;
-  // Heuristic: cap custom names to keep controls and labels readable on a phone.
-  const maximumLength = 40;
-  if (name.length > maximumLength) throw new MachineBrandError();
+  if (name.length > MachineBrandLimits.maximumLength) throw new MachineBrandError();
   return MACHINE_BRANDS.find((brand) => brand.toLowerCase() === name.toLowerCase()) ?? name;
 }

@@ -81,13 +81,13 @@ Attachments and grips (also in §8) are **not** part of this task.
 
 ## Handoff
 
-**Partial; not ready for review or merge.**
+**Round 2 core and worker implemented; Round 3 screens remain.**
 
-- Added the frozen convenience list, equipment eligibility, normalization and readable length error in `MachineBrands.ts`, with tests.
-- Added v10 nullable columns, v9-to-v10 row-preservation and backup validation test, model fields, and template draft/catalog/store persistence, including normalization and copies from workouts. Updated DATA, ARCHITECTURE and DECISIONS.
-- Remaining: workout and worker operations, defaults, used-brand picker and UI, machine-aware previous performance and progression, History and Charts filtering with URL state, and their tests. No UI verification was performed.
-- Repeated entries in one workout can have different brands. Match the intended occurrence and brand together when selecting previous sets; choosing only the workout can mix brands. Deload rules remain unchanged.
-- Ran `make format` and `make verify`: 166 test files, 1,240 tests passed, production build passed. Changes are uncommitted; the board was not changed.
+- `WorkoutLogger.setMachineBrand` normalizes or clears the manufacturer. Template starts copy their brand, otherwise new entries use the latest finished entry's brand. `usedMachineBrands` returns finished-session names newest first, deduplicated without regard to case.
+- `machinePreviousPerformance` selects the same occurrence and brand before falling back; live entries expose `previousOtherMachine`, and progression suggestions are suppressed on fallback. Deload calculations remain unchanged.
+- `ExerciseSeries` exposes `machineEntries`, `machineBrands` and `filterMachine`; filtering works at occurrence/set level within a session. Worker `exerciseCharts(exerciseId, machine?)` uses omitted argument for all, `null` for unrecorded, and a string for a brand. `exerciseHistory` and workout detail expose brands per entry. Records remain unfiltered.
+- Round 3 must implement the picker, live and template controls, history labels and URL-backed chart chips, including full-screen filtering. Existing session aggregation can contain several `machineEntries`.
+- `make format` and `make verify` passed: 166 test files, 1,245 tests, production build. No commit or board change.
 
 ## Round 2 (lead): core and worker
 
