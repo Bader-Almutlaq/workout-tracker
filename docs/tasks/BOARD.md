@@ -88,6 +88,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-058](T-058-plans-and-workout-pages.md) | Plan pages and workout sheets with history and analytics (R4, R5) | done | Codex Sol (high), reviewed by lead | merged |
 | [T-059](T-059-polish-after-redesign.md) | Polish after the redesign: PR step line, gear, plan return, chart height (R5, R6) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-060](T-060-progression-suggestions.md) | Opt-in progression suggestions, reps then weight, in amber (R5, R6) | in progress | Codex Sol (high) | task/T-060-progression |
+| [T-061](T-061-illustrated-exercise-pictures.md) | Illustrated exercise drawings where available (R2) | in progress | Codex Terra (high) | task/T-061-illustrations |
 
 ## Next milestones (tasks are written when the milestone starts)
 
