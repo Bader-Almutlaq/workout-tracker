@@ -1,4 +1,5 @@
 import type { CloudBackupFile } from '../../../core/backup/CloudRetention';
+import { log } from '../../../core/support/log';
 import { DropboxError } from './DropboxError';
 import { DropboxTokenStore } from './DropboxTokenStore';
 
@@ -45,7 +46,8 @@ export class DropboxApi {
   constructor(
     private appKey: string,
     private readonly tokens: DropboxTokenStore,
-    private readonly request: typeof fetch = fetch,
+    // A wrapper, not `fetch` itself: called as this.request(...), a bare fetch throws "Illegal invocation".
+    private readonly request: typeof fetch = (input, init) => fetch(input, init),
     private readonly now: () => number = Date.now,
   ) {}
 
@@ -224,8 +226,12 @@ export class DropboxApi {
         method: 'POST',
         signal: AbortSignal.timeout(DropboxHttp.timeoutMilliseconds),
       });
-    } catch {
-      throw new DropboxError('connection', "No connection. Try again when you're online.");
+    } catch (error) {
+      if (navigator.onLine === false)
+        throw new DropboxError('connection', "No connection. Try again when you're online.");
+      log.backup.error('Dropbox request failed', error);
+      const reason = error instanceof Error ? ` (${error.message})` : '';
+      throw new DropboxError('connection', `Dropbox couldn't be reached${reason}. Try again in a moment.`);
     }
   }
 

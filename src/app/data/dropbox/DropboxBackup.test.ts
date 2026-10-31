@@ -240,6 +240,7 @@ describe('Dropbox connection and backup orchestration', () => {
     await backup.beginConnect(() => popup);
     const verifier = tokens.readPendingVerifier(Date.parse(NOW), 'synthetic-app-key');
     request.mockRejectedValue(new Error('private-code'));
+    vi.stubGlobal('navigator', { onLine: false });
     await backup.finishConnecting('private-code');
     expect(backup.snapshot().codeMessage).toBe("No connection. Try again when you're online.");
     const logs = JSON.stringify(vi.mocked(log.backup.error).mock.calls);
@@ -446,6 +447,7 @@ describe('Dropbox connection and backup orchestration', () => {
     const { connect, backup, tokens, request } = setup();
     await connect();
     request.mockRejectedValue(new Error(ACCESS));
+    vi.stubGlobal('navigator', { onLine: false });
     await backup.disconnect();
     expect(tokens.read()).toBe(REFRESH);
     expect(backup.snapshot()).toMatchObject({
@@ -475,6 +477,7 @@ describe('Dropbox connection and backup orchestration', () => {
     const { connect, backup, tokens, request } = setup();
     await connect();
     request.mockRejectedValue(new Error('offline'));
+    vi.stubGlobal('navigator', { onLine: false });
     await backup.saveAppKey('anotherKey');
     expect(tokens.readAppKey()).toBeUndefined();
     expect(tokens.read()).toBe(REFRESH);
