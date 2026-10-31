@@ -13,7 +13,7 @@ export interface TemplateSession {
   readonly name: string;
   readonly startedAt: string;
   readonly endedAt: string | null;
-  /** Elapsed seconds; null for absent, invalid or reversed timing. */
+  /** Elapsed seconds; null for absent, invalid, reversed or over-limit timing. */
   readonly durationSeconds: number | null;
   readonly workingSetCount: number;
   readonly volumeKilograms: number;
@@ -37,13 +37,16 @@ export interface TemplateSessionReport {
   readonly topExercise: { readonly id: number; readonly name: string } | null;
 }
 
-/** Timestamp arithmetic uses SI milliseconds; no training heuristic is applied. */
+/** Heuristic: sessions left running in Strong beyond six hours are not representative durations. */
+export const SessionDurationLimits = Object.freeze({ maximumSeconds: 6 * 60 * 60 });
+
+/** Timestamp arithmetic uses SI milliseconds. */
 const timing = Object.freeze({ millisecondsPerSecond: 1_000 });
 
 function duration(start: string, end: string | null): number | null {
   if (end === null) return null;
   const seconds = (Date.parse(end) - Date.parse(start)) / timing.millisecondsPerSecond;
-  return Number.isFinite(seconds) && seconds >= 0 ? seconds : null;
+  return Number.isFinite(seconds) && seconds >= 0 && seconds <= SessionDurationLimits.maximumSeconds ? seconds : null;
 }
 
 function totals(template: { id: number; name: string }, sessions: readonly TemplateSession[]): TemplateSessionTotals {

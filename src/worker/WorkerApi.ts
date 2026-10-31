@@ -129,9 +129,6 @@ export interface RestoreResult {
   readonly workoutCount: number;
 }
 
-/** How many finished workouts the Workout tab offers to repeat. */
-const RECENT_WORKOUT_LIMIT = 8;
-
 /** A review cannot proceed without a valid, unambiguous selection. */
 class StrongImportFlowError extends Error {
   override readonly name = 'StrongImportFlowError';
@@ -705,20 +702,6 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     /** The id of the workout being logged, or `null` when none is in progress. */
     activeWorkoutId: serially(async (): Promise<number | null> => {
       return workoutLogger((await liveStore()).database).activeWorkoutId() ?? null;
-    }),
-
-    // Past workouts and finishing (T-067)
-    /** The latest session per case-insensitive workout name, newest first. */
-    recentWorkouts: serially(async (): Promise<WorkoutSummary[]> => {
-      const names = new Set<string>();
-      return workoutSummaries((await liveStore()).database)
-        .filter((workout) => {
-          const name = workout.name.toLocaleLowerCase();
-          if (names.has(name)) return false;
-          names.add(name);
-          return true;
-        })
-        .slice(0, RECENT_WORKOUT_LIMIT);
     }),
 
     /** The totals of one finished workout, or `null` when it doesn't exist (for example, nothing was logged). */

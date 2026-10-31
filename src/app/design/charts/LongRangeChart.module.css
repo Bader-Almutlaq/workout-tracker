@@ -110,3 +110,7 @@
   stroke: var(--color-deload);
   stroke-width: 2;
 }
+
+.stack > .stack {
+  padding: var(--space-m);
+}

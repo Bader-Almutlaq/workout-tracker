@@ -7,10 +7,9 @@ import { Screen } from '../../design/components/Screen';
 import { startTemplateWorkout } from '../templates/templateActions';
 import { TemplatesSection } from '../templates/TemplatesSection';
 import { LoggingErrorBanner } from './LoggingErrorBanner';
-import { RecentWorkouts } from './RecentWorkouts';
 import { startEmptyWorkout } from './workoutActions';
 
-/** The Workout tab with nothing in progress: start an empty workout, start one of the owner's templates, or repeat a recent one. */
+/** The Workout tab with nothing in progress: start an empty workout, or start a saved workout. */
 export function StartWorkout() {
   const [isStarting, setIsStarting] = useState(false);
 
@@ -28,7 +27,6 @@ export function StartWorkout() {
       </Button>
       <WorkoutDrag>
         <TemplatesSection isBusy={isStarting} onStart={(templateId) => start(() => startTemplateWorkout(templateId))} />
-        <RecentWorkouts />
       </WorkoutDrag>
     </Screen>
   );

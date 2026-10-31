@@ -13,6 +13,7 @@
   background: var(--color-surface);
   border: var(--hairline) solid var(--color-border);
   border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-card);
 }
 .cardBody {
   display: flex;
@@ -63,41 +64,46 @@
   gap: var(--space-m);
   padding-bottom: calc(var(--tab-bar-height) + var(--space-xl));
 }
+.exerciseList {
+  overflow: hidden;
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
 .row {
   display: flex;
   align-items: center;
   gap: var(--space-m);
-  padding: var(--space-m);
-  color: var(--color-text-primary);
-  background: var(--color-surface);
-  border: var(--hairline) solid var(--color-border);
-  border-radius: var(--radius-medium);
-  text-decoration: none;
+  min-height: 56px;
+  padding: var(--space-s) var(--space-m);
+}
+.row + .row {
+  border-top: var(--hairline) solid var(--color-border);
 }
 .rowText {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
-  min-width: 0;
 }
-.picture {
-  width: 48px;
-  height: 48px;
+.rowText strong {
+  font: var(--font-body);
+  font-weight: 500;
+}
+.rowText .secondary {
+  font-size: 14px;
+}
+.info {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 28px;
+  flex: none;
   border-radius: var(--radius-small);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-.picture figure {
-  margin: 0;
-}
-.picture img {
-  width: 48px;
-  height: 48px;
-  object-fit: cover;
-}
-.picture figcaption {
-  display: none;
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
+  font: var(--font-headline);
+  text-decoration: none;
 }
 .footer {
   position: fixed;
@@ -110,4 +116,16 @@
 }
 .footer button {
   width: 100%;
+}
+
+.cardMenu > div > button {
+  min-width: 44px;
+  min-height: 44px;
+}
+.cardMenu > div > button svg {
+  box-sizing: content-box;
+  padding: 4px 6px;
+  border-radius: var(--radius-small);
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
 }

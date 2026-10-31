@@ -25,7 +25,7 @@ describe('chartScales', () => {
 
   it('expands a flat series and a single date', () => {
     const scales = chartScales([{ date: '2026-03-01', value: 100 }], 398);
-    expect(scales.y.domain()).toEqual([99, 101]);
+    expect(scales.y.domain()).toEqual([95, 105]);
     expect(scales.x.domain().map(Number)).toEqual([
       Date.parse('2026-03-01') - ChartLayout.singleDatePaddingMilliseconds,
       Date.parse('2026-03-01') + ChartLayout.singleDatePaddingMilliseconds,

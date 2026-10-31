@@ -204,3 +204,7 @@ Overview and Muscles share whole Monday-week period chips (4W, 12W, 6M, 1Y, All)
 
 
 The tab bar is Workout, Exercises, Measure, Analytics and Settings. The Workout header links to full History. Plan cards highlight during a held drag; a lifted label follows the finger.
+
+Plan and plan-workout cards use a subtle card shadow in light mode and an inset top highlight in dark mode, alongside the existing border. Their options icon sits in a 32 × 28 px accent-tinted pill, within a larger touch target. Workout exercise summaries share one hairline-separated card; a separate tinted question-mark control opens the exercise in that workout.
+
+Long-range chart axes use compact numbers by default. Session volume adds its unit, duration uses minutes or hours, and session counts use plain numbers. The y-axis reserves room for its widest formatted label; chart text has inner padding.

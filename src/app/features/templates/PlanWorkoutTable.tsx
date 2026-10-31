@@ -14,7 +14,7 @@ export function PlanWorkoutTable({ workouts }: { readonly workouts: readonly Tem
             <th scope="col">Workout</th>
             <th scope="col">Sessions</th>
             <th scope="col">Last done</th>
-            <th scope="col">Average duration</th>
+            <th scope="col">Avg time</th>
           </tr>
         </thead>
         <tbody>
@@ -23,7 +23,9 @@ export function PlanWorkoutTable({ workouts }: { readonly workouts: readonly Tem
               <th scope="row">{workout.name}</th>
               <td>{workout.sessionCount}</td>
               <td>{workout.lastStartedAt === null ? 'Never' : dayWithYearText(workout.lastStartedAt)}</td>
-              <td>{sessionDurationText(workout.averageDurationSeconds)}</td>
+              <td>
+                {workout.averageDurationSeconds === null ? '—' : sessionDurationText(workout.averageDurationSeconds)}
+              </td>
             </tr>
           ))}
         </tbody>

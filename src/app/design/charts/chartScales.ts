@@ -11,10 +11,16 @@ export interface ChartPoint {
 export const ChartLayout = Object.freeze({
   height: 220,
   padding: Object.freeze({ top: 16, right: 16, bottom: 32, left: 52 }),
+  labelCharacterWidth: 8,
+  labelGap: 12,
   gridlineCount: 3,
   monthLabelCount: 3,
   domainPaddingFraction: 0.1,
   minimumValuePadding: 1,
+  /** Share of the value used as padding when every point is (nearly) equal, so a flat line gets distinct axis labels. */
+  flatValuePaddingFraction: 0.05,
+  /** A series whose spread is under this share of its largest value counts as flat. */
+  flatSpreadFraction: 0.01,
   singleDatePaddingMilliseconds: 86_400_000,
   minimumWidth: 160,
   shortSpanDays: 90,
@@ -40,7 +46,7 @@ export interface ChartScales {
 export function chartScales(
   points: readonly ChartPoint[],
   width: number,
-  options: { readonly zeroBaseline?: boolean; readonly height?: number } = {},
+  options: { readonly zeroBaseline?: boolean; readonly height?: number; readonly left?: number } = {},
 ): ChartScales {
   const layout = ChartLayout;
   const valid = points.filter((point) => Number.isFinite(Date.parse(point.date)) && Number.isFinite(point.value));
@@ -54,10 +60,14 @@ export function chartScales(
   }
   const low = values.length === 0 ? 0 : Math.min(...values);
   const high = values.length === 0 ? 0 : Math.max(...values);
-  const padding = Math.max((high - low) * layout.domainPaddingFraction, layout.minimumValuePadding);
+  const padding = Math.max(
+    (high - low) * layout.domainPaddingFraction,
+    layout.minimumValuePadding,
+    high - low < Math.abs(high) * layout.flatSpreadFraction ? Math.abs(high) * layout.flatValuePaddingFraction : 0,
+  );
   const minimum = options.zeroBaseline === true ? 0 : low - padding;
   const maximum = high + padding;
-  const left = layout.padding.left;
+  const left = options.left ?? layout.padding.left;
   const right =
     Math.max(Number.isFinite(width) ? width : layout.minimumWidth, layout.minimumWidth) - layout.padding.right;
   const top = layout.padding.top;

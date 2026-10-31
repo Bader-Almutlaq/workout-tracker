@@ -4,8 +4,8 @@ import { loggingQueue } from '../../features/workout/loggingQueue';
 import { DragGesture } from './DragGesture';
 import styles from './WorkoutDrag.module.css';
 
-/** A draggable past session or unfiled workout. */
-export type DragItem = { readonly kind: 'past' | 'template'; readonly id: number; readonly name: string };
+/** A draggable unfiled workout. */
+export type DragItem = { readonly kind: 'template'; readonly id: number; readonly name: string };
 /** The currently lifted item and its pointer position, or undefined while idle. */
 export interface DragState {
   readonly item: DragItem;
@@ -75,8 +75,7 @@ export function WorkoutDrag({ children }: { readonly children: ReactNode }) {
           const planName = target.dataset.planName ?? '';
           void loggingQueue
             .enqueue(async () => {
-              if (item.kind === 'past') await database.createTemplateFromWorkout(item.id, item.name, planId);
-              else await database.moveTemplate(item.id, planId);
+              await database.moveTemplate(item.id, planId);
               return true;
             })
             .then((saved) => {

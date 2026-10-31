@@ -45,4 +45,6 @@ The owner's review (2026-10-31):
 
 ## Handoff
 
-_Not started._
+Implemented the Workout tab cleanup, compact exercise rows and separate detail link, plan card depth and menu accents, shared compact chart ticks and padding, and six-hour duration filtering. The cutoff includes exactly six hours; longer sessions remain in counts and volume. Added targeted tests and updated DESIGN.md. Changes are uncommitted; BOARD.md was not changed.
+
+The 430 × 932 dark/light visual check remains outstanding: the browser access host was unavailable and the sandbox denied the development server listening socket. Verify the plan and workout analytics and the exercise Charts tab on a phone-sized browser before marking the task done.
