@@ -9,14 +9,29 @@ describe('muscle coverage components', () => {
     expect(renderToStaticMarkup(<NeglectedMuscles muscles={[]} />)).toContain('None in the last 4 weeks');
     expect(
       renderToStaticMarkup(
-        <NeglectedMuscles muscles={[{ muscle: 'chest', setsPerWeek: 0, daysPerWeek: 0, daysSince: 9 }]} />,
+        <NeglectedMuscles
+          muscles={[{ muscle: 'chest', setsPerWeek: 0, recentSetsPerWeek: 0.5, daysPerWeek: 0, daysSince: 9 }]}
+        />,
       ),
     ).toContain('9 days since direct training');
+  });
+  test('collapses muscles without recent training, including those trained long ago', () => {
+    const html = renderToStaticMarkup(
+      <NeglectedMuscles
+        muscles={[
+          { muscle: 'chest', setsPerWeek: 0, recentSetsPerWeek: 0, daysPerWeek: 0, daysSince: 100 },
+          { muscle: 'lats', setsPerWeek: 0, recentSetsPerWeek: 0, daysPerWeek: 0, daysSince: null },
+        ]}
+      />,
+    );
+    expect(html).toContain('Not trained in the last 4 weeks:');
+    expect(html).not.toContain('100 days');
+    expect(html).not.toContain('Never trained directly');
   });
   test('offers the smaller-muscle toggle and hides smaller muscles initially', () => {
     const html = renderToStaticMarkup(
       <MuscleFrequencyList
-        muscles={[{ muscle: 'neck', setsPerWeek: 1, daysPerWeek: 1, daysSince: null }]}
+        muscles={[{ muscle: 'neck', setsPerWeek: 1, recentSetsPerWeek: 1, daysPerWeek: 1, daysSince: null }]}
         onSelect={() => {}}
       />,
     );

@@ -21,7 +21,11 @@ export function MeasurementHistory({
 }) {
   return (
     <section className={styles.historyList} aria-label="Full measurement history">
-      <p className={styles.caption}>Tap an entry to edit it, or swipe left to delete.</p>
+      {entries.length === 0 ? (
+        <p>No measurements yet.</p>
+      ) : (
+        <p className={styles.caption}>Tap an entry to edit it, or swipe left to delete.</p>
+      )}
       {entries.toReversed().map((entry) => {
         const site = sites.find((item) => item.key === entry.site)?.name ?? entry.site;
         return (

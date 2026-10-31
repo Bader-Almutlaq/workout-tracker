@@ -117,6 +117,10 @@ export function MeasurementDetail({
               initialSite={first?.key ?? ''}
               {...(editor === 'new' ? {} : { entry: editor })}
               onClose={() => setEditor(null)}
+              onDelete={(entry) => {
+                setEditor(null);
+                setRemoving(entry);
+              }}
             />
           )}
         </>

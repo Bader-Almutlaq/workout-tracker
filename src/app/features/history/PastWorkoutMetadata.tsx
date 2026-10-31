@@ -3,7 +3,7 @@ import { database } from '../../data/database';
 import { Section } from '../../design/components/Section';
 import { loggingQueue } from '../workout/loggingQueue';
 import { WorkoutTextField } from '../workout/WorkoutTextField';
-import { durationSecondsFromMinutes, localWorkoutStart, workoutDurationMinutes } from './pastWorkoutFields';
+import { changedDurationSeconds, localWorkoutStart, workoutDurationMinutes } from './pastWorkoutFields';
 
 /** Finished workout metadata saves one field at a time, so adjacent queued edits never replace each other's values. */
 export function PastWorkoutMetadata({ workout }: { readonly workout: Workout }) {
@@ -37,12 +37,12 @@ export function PastWorkoutMetadata({ workout }: { readonly workout: Workout }) 
         type="number"
         value={workoutDurationMinutes(workout.startedAt, workout.endedAt)}
         onSave={(value) => {
-          void loggingQueue.enqueue(() =>
-            database.updatePastWorkout(workout.id, {
-              field: 'durationSeconds',
-              value: durationSecondsFromMinutes(value),
-            }),
-          );
+          const seconds = changedDurationSeconds(value, workout.startedAt, workout.endedAt);
+          if (seconds !== undefined) {
+            void loggingQueue.enqueue(() =>
+              database.updatePastWorkout(workout.id, { field: 'durationSeconds', value: seconds }),
+            );
+          }
         }}
       />
     </Section>

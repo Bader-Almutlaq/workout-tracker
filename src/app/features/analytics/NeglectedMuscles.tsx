@@ -4,6 +4,8 @@ import styles from './MuscleCoverage.module.css';
 
 /** Main muscles averaging fewer than four fractional hard sets in the last four weeks. */
 export function NeglectedMuscles({ muscles }: { readonly muscles: readonly MuscleCoverageItem[] }) {
+  const trained = muscles.filter((item) => item.recentSetsPerWeek > 0);
+  const untrained = muscles.filter((item) => item.recentSetsPerWeek === 0);
   return (
     <section className={styles.section}>
       <h2>Neglected</h2>
@@ -12,7 +14,7 @@ export function NeglectedMuscles({ muscles }: { readonly muscles: readonly Muscl
         <p>None in the last 4 weeks</p>
       ) : (
         <div className={styles.list}>
-          {muscles.map((item) => (
+          {trained.map((item) => (
             <div className={styles.row} key={item.muscle}>
               <span>{MUSCLE_DISPLAY_NAMES[item.muscle]}</span>
               <span>
@@ -20,6 +22,11 @@ export function NeglectedMuscles({ muscles }: { readonly muscles: readonly Muscl
               </span>
             </div>
           ))}
+          {untrained.length > 0 && (
+            <p className={styles.quiet}>
+              Not trained in the last 4 weeks: {untrained.map((item) => MUSCLE_DISPLAY_NAMES[item.muscle]).join(', ')}
+            </p>
+          )}
         </div>
       )}
     </section>

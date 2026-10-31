@@ -58,6 +58,7 @@ test('timed history uses seconds and bodyweight assistance retains its signed lo
     isCompleted: true,
     notes: null,
   } as const;
-  expect(exerciseSetText(set, 'duration')).toBe('45 s @ RPE unknown');
-  expect(exerciseSetText(set, 'bodyweight-reps')).toBe('-12 kg × 8 reps @ RPE unknown');
+  expect(exerciseSetText(set, 'duration')).toBe('45 s');
+  expect(exerciseSetText({ ...set, rpe: 8 }, 'duration')).toBe('45 s @ RPE 8');
+  expect(exerciseSetText(set, 'bodyweight-reps')).toBe('-12 kg × 8 reps');
 });

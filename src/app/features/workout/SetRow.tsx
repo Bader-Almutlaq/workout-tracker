@@ -6,7 +6,7 @@ import { cellText } from './setCellText';
 import { recordsDuration } from './trackingKinds';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { WorkoutTextField } from './WorkoutTextField';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { WorkoutSet } from '../../../core/models/WorkoutSet';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import { SwipeToDelete } from '../../design/components/SwipeToDelete';
@@ -57,6 +57,7 @@ export function SetRow({
   readonly showsEmptyRpe?: boolean;
   readonly onNotesChange?: (notes: string) => void;
 }) {
+  const [addingNote, setAddingNote] = useState(false);
   const { tracking } = entry.exercise;
   const defaultEntryUnit = displayUnit ?? entry.exercise.defaultEntryUnit;
   const row = useRef<HTMLDivElement>(null);
@@ -112,6 +113,7 @@ export function SetRow({
           kind={set.kind}
           onSelectKind={(kind) => actions.selectKind(set.id, kind)}
           onDelete={() => actions.deleteSet(set.id)}
+          {...(onNotesChange !== undefined && !set.notes ? { onAddNote: () => setAddingNote(true) } : {})}
         />
         <span className={styles.previous}>
           {previous === undefined ? '—' : previousText(previous, tracking, set.entryUnit)}
@@ -145,8 +147,17 @@ export function SetRow({
           onPress={() => actions.toggleCompleted(entry, set)}
         />
       </div>
-      {onNotesChange !== undefined && (
-        <WorkoutTextField isMultiline label={`Set ${label} notes`} value={set.notes ?? ''} onSave={onNotesChange} />
+      {onNotesChange !== undefined && (Boolean(set.notes) || addingNote) && (
+        <WorkoutTextField
+          isMultiline
+          initiallyOpen={addingNote}
+          label={`Set ${label} notes`}
+          value={set.notes ?? ''}
+          onSave={(value) => {
+            onNotesChange(value);
+            setAddingNote(false);
+          }}
+        />
       )}
     </SwipeToDelete>
   );

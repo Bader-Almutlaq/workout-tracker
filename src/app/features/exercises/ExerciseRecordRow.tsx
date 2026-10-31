@@ -1,7 +1,7 @@
 import type { ExerciseSeriesPoint } from '../../../core/queries/ExerciseSeries';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { dayWithYearText } from '../../format/dateText';
-import { rpeText } from '../../format/setText';
+import { loggedRpeSuffix } from '../../format/setText';
 import { weightText } from '../../format/weightText';
 import styles from './ExercisePage.module.css';
 
@@ -30,8 +30,8 @@ export function ExerciseRecordRow({
           <p className={styles.note}>{dayWithYearText(record.date)}</p>
           {showSet && (
             <p className={styles.note}>
-              {weightText(record.set.weightKilograms, unit)} × {record.set.reps} @{' '}
-              {record.set.rpe === null ? 'RPE unknown' : rpeText(record.set.rpe)}
+              {weightText(record.set.weightKilograms, unit)} × {record.set.reps}
+              {loggedRpeSuffix(record.set.rpe)}
             </p>
           )}
         </>

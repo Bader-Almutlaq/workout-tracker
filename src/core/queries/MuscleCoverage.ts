@@ -47,6 +47,8 @@ export interface MuscleCoverageItem {
   readonly muscle: Muscle;
   readonly setsPerWeek: number;
   readonly daysPerWeek: number;
+  /** Fractional hard sets per week in the trailing four weeks. */
+  readonly recentSetsPerWeek: number;
   readonly daysSince: number | null;
 }
 /** Whole hard sets on either side of a descriptive ratio; ratio is null if either side is zero. */
@@ -166,6 +168,7 @@ export function muscleCoverage(db: Database, from: Date, to: Date): MuscleCovera
   const muscles = MUSCLES.map((muscle) => ({
     muscle,
     setsPerWeek: (totals.get(muscle) ?? 0) / weeks,
+    recentSetsPerWeek: (recent.get(muscle) ?? 0) / policy.neglectedWeeks,
     daysPerWeek:
       [...(days.get(muscle)?.values() ?? [])].filter((value) => value >= policy.frequencyThreshold).length / weeks,
     daysSince: last.has(muscle) ? elapsed(day(last.get(muscle) ?? to), day(to)) : null,

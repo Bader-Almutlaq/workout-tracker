@@ -13,6 +13,9 @@ export function MeasurementChangeFigures({
   readonly state: MeasurementState;
   readonly unit: MeasurementUnit;
 }) {
+  if (detail.entries.filter((entry) => entry.state === state).length < 2) {
+    return <p className={styles.caption}>Changes appear after two entries.</p>;
+  }
   const change = detail[state];
   const first = change.first?.takenAt ?? null;
   return (

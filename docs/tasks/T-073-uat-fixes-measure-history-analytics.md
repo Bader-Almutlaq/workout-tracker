@@ -33,4 +33,8 @@ The lead tested every feature on a fresh copy of the app (2026-11-01). Everythin
 
 ## Handoff
 
-_Not started._
+Implemented the nine fixes. Set effort suffixes are shared; the trailing-four-week fractional total identifies untrained muscles even when the selected analytics period differs. A measurement's untouched timestamp and a workout's untouched duration retain their original precision. The edit sheet delegates deletion to the existing confirmation; set notes are added through the set menu. Add to plan selects the active plan if present, otherwise the first.
+
+Changed analytics, body, exercise and history screens and tests; shared set formatting, the trailing-window coverage query, and the minimal set-menu and text-field controls used by the past-workout editor. Public additions: `loggedRpeSuffix`, `weeklyDurationText`, `changedDurationSeconds`, and `MuscleCoverageItem.recentSetsPerWeek`.
+
+Verification: `make format` and `make verify` (see final run). Phone-sized dark/light inspection was blocked: the sandbox denied the dev server's port bind and the browser access host was unavailable. No real data was used. Changes are uncommitted. The visual swipe layout and sheet alignment need review on a phone.
