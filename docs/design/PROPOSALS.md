@@ -167,3 +167,4 @@ The owner's answers to sections 1–13. Screenshots from Strong will follow for 
   - Deloaded sets are **stored as deload**, so analytics can shade them and show the training cycle.
 - **RPE/RIR (§13):** intensity (RPE) is part of progression; entry details come with the workout screen images.
 - **Order of work:** measurements → exercises → workouts → analytics. The owner will send feedback per page; each feature gets its own agent and runs in parallel where independent.
+- **Suggestions beside the value (owner, 2026-10-31, follow-up):** each set's field shows the previous value greyed (ticking uses it). A suggested value appears next to it in **amber** and is used only when tapped. Warm-ups and progression share this pattern. A **warm-up button** fills suggestions from the last working set (about 50%, then 75%, with fewer reps). Build it with the workout-screen redesign once the Strong screenshots arrive.
