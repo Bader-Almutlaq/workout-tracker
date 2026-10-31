@@ -3,10 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router';
 import { expect, test } from 'vitest';
 import type { TemplateSessionReport } from '../../../core/queries/TemplateSessions';
-import { TemplatePreview } from './TemplatePreview';
 import { TemplateSessionCharts } from './TemplateSessionCharts';
 import { TemplateSessionHistory } from './TemplateSessionHistory';
-import { WorkoutSheet } from './WorkoutSheet';
 
 const report: TemplateSessionReport = {
   sessions: [
@@ -25,21 +23,6 @@ const report: TemplateSessionReport = {
   workouts: [],
   topExercise: { id: 1, name: 'Synthetic press' },
 };
-
-test('workout preview offers its description and all three sections, with an honest empty exercise state', () => {
-  const markup = renderToStaticMarkup(
-    createElement(TemplatePreview, {
-      template: { name: 'Synthetic workout', folderId: null, notes: null, exercises: [] },
-      details: [],
-      report,
-      onEdit: () => undefined,
-    }),
-  );
-  expect(markup).toContain('Add a description');
-  expect(markup).toContain('Last performed:');
-  for (const label of ['Exercises', 'History', 'Analytics']) expect(markup).toContain(`>${label}<`);
-  expect(markup).toContain('No exercises yet.');
-});
 
 test('session history links to History and keeps unknown duration explicit', () => {
   const markup = renderToStaticMarkup(
@@ -60,21 +43,4 @@ test('analytics use weekly sums for plans, means for totals, and a named exercis
   const workout = renderToStaticMarkup(createElement(TemplateSessionCharts, { report }));
   expect(workout).toContain('Synthetic press best e1RM');
   expect(workout).not.toContain('Sessions per week');
-});
-
-test('Start workout is a separate footer after the scrolling content, disabled until the workout is available', () => {
-  const markup = renderToStaticMarkup(
-    createElement(WorkoutSheet, {
-      title: 'Synthetic workout',
-      isBusy: false,
-      canStart: false,
-      onStart: () => undefined,
-      onEdit: () => undefined,
-      onClose: () => undefined,
-      children: createElement('p', {}, 'Scrolling details'),
-    }),
-  );
-  expect(markup).toMatch(/<footer[^>]*>.*disabled="".*Start workout/s);
-  expect(markup.indexOf('Scrolling details')).toBeLessThan(markup.indexOf('<footer'));
-  expect(markup).toContain('Close');
 });

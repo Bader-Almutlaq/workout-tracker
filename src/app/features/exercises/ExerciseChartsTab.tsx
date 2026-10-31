@@ -14,9 +14,11 @@ export function ExerciseChartsTab({
   tracking,
   machine = null,
   onMachine,
+  templateId,
 }: {
   readonly exerciseId: number;
   readonly tracking: ExerciseTracking;
+  readonly templateId?: number;
   readonly machine?: string | null;
   readonly onMachine?: (value: string | null) => void;
 }) {
@@ -28,11 +30,14 @@ export function ExerciseChartsTab({
         : machine.startsWith('brand:')
           ? machine.slice(6)
           : undefined;
-  const query = useDatabaseQuery(`exercise-charts-${exerciseId}${machine === null ? '' : `-${machine}`}`, () =>
-    database.exerciseCharts(exerciseId, filter),
+  const query = useDatabaseQuery(
+    `exercise-charts-${exerciseId}${templateId === undefined ? '' : `-${templateId}`}${machine === null ? '' : `-${machine}`}`,
+    () => database.exerciseCharts(exerciseId, filter, templateId),
   );
   if (query.status !== 'ready') return <ExerciseQueryMessage query={query} />;
   const series = query.value;
+  if (templateId !== undefined && series.machineBrands.length === 0)
+    return <p>No sessions of this exercise in this workout yet.</p>;
   const marks = series.deloadDates.map<LongRangeMark>((date) => ({ date, kind: 'deload' }));
   return (
     <>

@@ -12,6 +12,8 @@ import { ImportSourceScreen } from './features/import/ImportSourceScreen';
 import { StrongImportScreen } from './features/import/StrongImportScreen';
 import { StrongMatchingScreen } from './features/matching/StrongMatchingScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
+import { WorkoutPage } from './features/templates/WorkoutPage';
+import { WorkoutExercisePage } from './features/templates/WorkoutExercisePage';
 import { PlanScreen } from './features/templates/PlanScreen';
 import { TemplateEditorScreen } from './features/templates/TemplateEditorScreen';
 import { AddExerciseScreen } from './features/workout/AddExerciseScreen';
@@ -25,6 +27,8 @@ export function App() {
       <Routes>
         <Route path="/" element={<WorkoutScreen />} />
         <Route path="/workout/plans/:folderId" element={<PlanScreen />} />
+        <Route path="/workout/workouts/:templateId" element={<WorkoutPage />} />
+        <Route path="/workout/workouts/:templateId/exercises/:exerciseId" element={<WorkoutExercisePage />} />
         <Route path="/workout/add" element={<AddExerciseScreen />} />
         <Route path="/workout/templates/new" element={<TemplateEditorScreen />} />
         <Route path="/workout/templates/:templateId" element={<TemplateEditorScreen />} />

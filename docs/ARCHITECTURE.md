@@ -153,7 +153,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Rest timer: default and limits, per-exercise target, elapsed and remaining | `src/core/logging/RestTimer.ts` (`RestTimerDefaults`); bar in `src/app/features/workout/RestBar.tsx` |
 | Templates and folders: save, edit, reorder, duplicate, delete, save a workout as a template | `src/core/templates/TemplateStore.ts` (`TemplateDraft`, `TemplateStoreError`) |
 | Plan/workout session scope, completed work totals, known-duration means and first-exercise per-session e1RM | `src/core/queries/TemplateSessions.ts`; worker Plans and workouts (T-058) block |
-| Plan cards, pushed plan page and workout sheet tabs | `src/app/features/templates/` (`PlanScreen`, `PlanPage`, `TemplatePreviewSheet`) |
+| Plan cards, workout pages and workout-specific exercise tabs | `src/app/features/templates/` (`PlanScreen`, `PlanPage`, `WorkoutPage`, `WorkoutExercisePage`) |
 | Template list and editor data | `src/core/queries/TemplateCatalog.ts` |
 | Starting a workout from a template | `WorkoutLogger.startFromTemplate` |
 | Template screens and draft editing on screen | `src/app/features/templates/` (pure draft-edit and target-text helpers there) |
@@ -162,7 +162,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Effective reps (RIR from RPE) | `src/core/analytics/EffectiveReps.ts` |
 | Estimated 1RM per set, k by exercise category, which sets qualify | `src/core/analytics/EstimatedOneRepMax.ts` |
 | Strength trend (EWMA), change per week | `src/core/analytics/StrengthTrend.ts`; per exercise via `src/core/queries/ExerciseStrength.ts` |
-| Per-exercise finished-session pages and chart series (e1RM, load, volume, reps, duration, cumulative PR) | `src/core/queries/ExerciseSeries.ts`; reuses `EstimatedOneRepMax` for estimates |
+| Per-exercise finished-session pages and chart series, optionally scoped to a workout (e1RM, load, volume, reps, duration, cumulative PR) | `src/core/queries/ExerciseSeries.ts`; reuses `EstimatedOneRepMax` for estimates |
 | Dated lifetime exercise records and 1–12-rep best/predicted table | `src/core/queries/RepMaxTable.ts`; predictions invert the canonical unit-load estimate, display rounds through `estimateText` |
 | Exercise section URL state, lazy section queries and bounded history display | `src/app/features/exercises/exercisePageTabs.ts`, `ExerciseDetailScreen.tsx` and its tab components |
 | Muscle prominence and visibility | `src/core/library/MuscleProminence.ts` |

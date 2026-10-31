@@ -913,14 +913,16 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
 
     // Exercise page (T-057)
 
+    // Workout page (T-066): optional template scope is applied before pagination and machine filtering.
+
     /** A bounded newest-first page of finished sessions, including completed warm-ups. */
-    exerciseHistory: serially(async (exerciseId: number, offset: number = 0) => {
-      return ExerciseSeries.history((await liveStore()).database, exerciseId, offset);
+    exerciseHistory: serially(async (exerciseId: number, offset: number = 0, templateId?: number) => {
+      return ExerciseSeries.history((await liveStore()).database, exerciseId, offset, new Date(), templateId);
     }),
 
     /** All applicable per-session chart series, in kg, kg × reps, reps or seconds; formulas live in core. */
-    exerciseCharts: serially(async (exerciseId: number, machine?: string | null) => {
-      const allHistory = ExerciseSeries.read((await liveStore()).database, exerciseId);
+    exerciseCharts: serially(async (exerciseId: number, machine?: string | null, templateId?: number) => {
+      const allHistory = ExerciseSeries.read((await liveStore()).database, exerciseId, new Date(), templateId);
       const history = machine === undefined ? allHistory : ExerciseSeries.filterMachine(allHistory, machine);
       return {
         machineBrands: ExerciseSeries.machineBrands(allHistory),
@@ -935,6 +937,8 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         duration: ExerciseSeries.duration(history),
       };
     }),
+
+    // End of Workout page (T-066)
 
     /** Dated lifetime records and rep-max performances/predictions, kept in exact kg until display. */
     exerciseRecords: serially(async (exerciseId: number) => {
