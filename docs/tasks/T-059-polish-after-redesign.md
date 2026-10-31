@@ -34,4 +34,8 @@ Small fixes the lead found while reviewing T-055 to T-058 on screen. Each one is
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+Implemented all five fixes. The PR series uses step-after interpolation; the expanded chart uses 60% of viewport height, with matching scales and touch area. Small charts retain their default height. A null `Screen` trailing action suppresses the default gear, and the active workout opts out. New and edited workouts retain their originating plan in the editor URL and return there after saving; other entry points return to Workout. Exercise detail usage and recent sessions now include finished workouts only, including set and warm-up totals.
+
+Changed chart components and tests, Screen and navigation test, exercise chart components, template navigation and editor components and tests, ActiveWorkout, ExerciseCatalog and its database test, and the long-range chart description in `docs/DESIGN.md`. Public changes: optional `shape` on `LongRangeChart`, optional height on the chart frame, size hook and scale options, optional plan ID on `templatePath`, and a return-plan argument for the editor hook.
+
+`make format` and `make verify` passed: 154 test files, 1,158 tests. The build reports its existing large-chunk warning. Visual checks remain outstanding: `make dev` failed because the sandbox denied the network bind (`EPERM` on port 5173). Check the changed screens in dark and light on the phone-sized viewport. Changes are uncommitted; the board was not edited.

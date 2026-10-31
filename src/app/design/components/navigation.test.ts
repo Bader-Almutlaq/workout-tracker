@@ -49,3 +49,8 @@ test('an explicit trailing action occupies the header slot', () => {
   expect(markup).toContain('Custom action');
   expect(markup).not.toContain('aria-label="Settings"');
 });
+
+test('explicit null suppresses the default Settings gear on a tab root', () => {
+  const markup = render('/', createElement(Screen, { title: 'Workout', trailing: null, children: 'Content' }));
+  expect(markup).not.toContain('aria-label="Settings"');
+});

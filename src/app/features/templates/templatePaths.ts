@@ -2,8 +2,8 @@
 export const NEW_TEMPLATE_PATH = '/workout/templates/new';
 
 /** The editor for the template `templateId`. */
-export function templatePath(templateId: number): string {
-  return `/workout/templates/${templateId}`;
+export function templatePath(templateId: number, planId?: number): string {
+  return `/workout/templates/${templateId}${planId === undefined ? '' : `?plan=${planId}`}`;
 }
 
 /** The pushed page for a plan, preserving the existing folder id. */

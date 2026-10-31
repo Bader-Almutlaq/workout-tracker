@@ -89,3 +89,14 @@
   gap: var(--space-m);
   font: var(--font-title);
 }
+/* The browser's default h2 size is larger than the title token; keep long chart names to two lines. */
+.header h2 {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+  font: var(--font-title);
+}
+.header > :last-child {
+  flex: none;
+  width: auto;
+}

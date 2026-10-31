@@ -12,12 +12,14 @@ import { TemplatePreviewSheet } from './TemplatePreviewSheet';
 /** Whichever question or sheet is open over the template list, if any. Every answer closes it. */
 export function TemplateDialogs({
   dialog,
+  planId,
   list,
   isBusy,
   onStart,
   onClose,
 }: {
   readonly dialog: TemplateDialogState | undefined;
+  readonly planId?: number;
   readonly list: TemplateList;
   readonly isBusy: boolean;
   /** Starts a workout from the template. */
@@ -45,7 +47,7 @@ export function TemplateDialogs({
           name={summary?.name ?? 'Workout'}
           isBusy={isBusy}
           onStart={answer(() => onStart(templateId))}
-          onEdit={() => navigate(templatePath(templateId))}
+          onEdit={() => navigate(templatePath(templateId, planId))}
           onClose={onClose}
         />
       );

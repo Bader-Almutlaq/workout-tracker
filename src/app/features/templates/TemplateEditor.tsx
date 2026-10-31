@@ -20,12 +20,14 @@ export function TemplateEditor({
   initial,
   entries,
   folders,
+  returnPlanId,
 }: {
   readonly initial: TemplateDraft;
+  readonly returnPlanId: number | null;
   readonly entries: readonly ExerciseSearchEntry[];
   readonly folders: readonly FolderChoice[];
 }) {
-  const model = useTemplateEditor(initial);
+  const model = useTemplateEditor(initial, returnPlanId);
   const tracking = useTemplateTracking(model.draft.exercises);
   const navigation = useDiscardNavigation(initial, model.draft);
   const dialog = navigation.pending ? (

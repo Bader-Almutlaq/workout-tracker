@@ -39,6 +39,7 @@ export function TemplateEditorScreen() {
             ? { ...draft.value, folderId: planId }
             : draft.value
         }
+        returnPlanId={list.value.folders.some((folder) => folder.id === planId) ? planId : null}
         entries={entries.value}
         folders={list.value.folders}
       />

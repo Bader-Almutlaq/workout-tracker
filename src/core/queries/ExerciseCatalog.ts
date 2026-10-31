@@ -100,18 +100,23 @@ export const ExerciseCatalog = {
   detail(db: Database, exerciseId: number, library: ExerciseLibrary | null = null): ExerciseCatalogDetail | null {
     const row = db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [exerciseId]);
     if (row === undefined) return null;
-    const usage = db.get<{ workouts: number; sets: number; first: string | null; last: string | null }>(
-      'SELECT COUNT(DISTINCT we.workoutId) AS workouts, COUNT(s.id) AS sets, MIN(w.startedAt) AS first, MAX(w.startedAt) AS last FROM workoutExercise we JOIN workout w ON w.id = we.workoutId LEFT JOIN workoutSet s ON s.workoutExerciseId = we.id WHERE we.exerciseId = ?',
+    const usage = db.get<{ workouts: number; first: string | null; last: string | null }>(
+      `SELECT COUNT(DISTINCT we.workoutId) AS workouts, MIN(w.startedAt) AS first, MAX(w.startedAt) AS last
+       FROM workoutExercise we JOIN workout w ON w.id = we.workoutId
+       WHERE we.exerciseId = ? AND w.endedAt IS NOT NULL`,
       [exerciseId],
     );
     const usageSets = db.all<{ kind: string }>(
       `SELECT s.kind FROM workoutSet s JOIN workoutExercise we ON we.id = s.workoutExerciseId
-       WHERE we.exerciseId = ?`,
+       JOIN workout w ON w.id = we.workoutId
+       WHERE we.exerciseId = ? AND w.endedAt IS NOT NULL`,
       [exerciseId],
     );
     const usageCounts = countWorkoutSets(usageSets);
     const entries = db.all<{ workoutId: number; startedAt: string; entryId: number }>(
-      'SELECT w.id AS workoutId, w.startedAt, we.id AS entryId FROM workoutExercise we JOIN workout w ON w.id = we.workoutId WHERE we.exerciseId = ? ORDER BY w.startedAt DESC LIMIT ?',
+      `SELECT w.id AS workoutId, w.startedAt, we.id AS entryId
+       FROM workoutExercise we JOIN workout w ON w.id = we.workoutId
+       WHERE we.exerciseId = ? AND w.endedAt IS NOT NULL ORDER BY w.startedAt DESC LIMIT ?`,
       [exerciseId, recentSessionLimit],
     );
     const sessions: ExerciseCatalogSession[] = [];

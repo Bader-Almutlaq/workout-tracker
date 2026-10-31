@@ -30,6 +30,7 @@ export function ActiveWorkout({ snapshot }: { readonly snapshot: LiveWorkoutSnap
 
   return (
     <Screen
+      trailing={null}
       title={<WorkoutTitle name={workout.name} onPress={model.startRenaming} />}
       subtitle={<WorkoutMetadata startedAt={workout.startedAt} />}
       titleAccessory={<WorkoutMenu onRename={model.startRenaming} onDiscard={model.requestDiscard} />}
