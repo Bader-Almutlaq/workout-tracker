@@ -21,7 +21,10 @@ describe('worker workout format dispatch', () => {
     async (format) => {
       const { store, api, device } = await setup();
       try {
-        const plan = await api.planStrongImport([{ name: 'misleading-strong.csv', text: WorkoutFileFixtures[format] }]);
+        const plan = await api.planStrongImport(
+          [{ name: 'misleading-strong.csv', text: WorkoutFileFixtures[format] }],
+          format,
+        );
         expect(plan.sourceFormat).toBe(format);
         expect(store.database.value('SELECT count(*) FROM workout')).toBe(0);
         const reviewed = await api.reviewStrongImport(makeImportOptions({ excludedLines: new Set([2]) }));
@@ -38,15 +41,27 @@ describe('worker workout format dispatch', () => {
     },
   );
 
-  test('Strong measurement files still accompany supported workouts', async () => {
+  test('Strong measurement files are refused for another app', async () => {
     const { store, api } = await setup();
     try {
-      const plan = await api.planStrongImport([
-        { name: 'workouts.csv', text: WorkoutFileFixtures.hevy },
-        { name: 'waist.csv', text: WAIST },
-      ]);
-      expect(plan.measurements).toHaveLength(2);
-      expect((await api.runStrongImport(makeImportOptions())).measurementsAdded).toBe(2);
+      await expect(api.planStrongImport([{ name: 'waist.csv', text: WAIST }], 'hevy')).rejects.toThrow(
+        'Measurement files can only be imported from Strong.',
+      );
+    } finally {
+      store.database.close();
+    }
+  });
+
+  test('reports the expected and detected formats for a wrong app', async () => {
+    const { store, api } = await setup();
+    try {
+      await expect(
+        api.planStrongImport([{ name: 'workouts.csv', text: WorkoutFileFixtures.hevy }], 'strong'),
+      ).rejects.toMatchObject({
+        kind: 'wrongWorkoutFile',
+        details: { expected: 'strong', detected: 'hevy' },
+        message: 'This looks like a Hevy export, not a Strong export.',
+      });
     } finally {
       store.database.close();
     }
@@ -55,7 +70,7 @@ describe('worker workout format dispatch', () => {
   test('unknown headers fail with the specified message and clear any stale plan', async () => {
     const { store, api } = await setup();
     try {
-      await api.planStrongImport([{ name: 'hevy.csv', text: WorkoutFileFixtures.hevy }]);
+      await api.planStrongImport([{ name: 'hevy.csv', text: WorkoutFileFixtures.hevy }], 'hevy');
       await expect(
         api.planStrongImport([{ name: 'hevy.csv', text: 'Date,Exercise,Reps\n2024-01-01,Curl,8' }]),
       ).rejects.toThrow("This file isn't a Strong, Hevy, FitNotes or Fitbod workout export.");
@@ -69,14 +84,17 @@ describe('worker workout format dispatch', () => {
     const { store, api } = await setup();
     try {
       await expect(
-        api.planStrongImport([
-          { name: 'a.csv', text: WorkoutFileFixtures.hevy },
-          { name: 'b.csv', text: WorkoutFileFixtures.fitbod },
-        ]),
+        api.planStrongImport(
+          [
+            { name: 'a.csv', text: WorkoutFileFixtures.hevy },
+            { name: 'b.csv', text: WorkoutFileFixtures.fitbod },
+          ],
+          'hevy',
+        ),
       ).rejects.toThrow('only one workouts file');
-      await expect(api.planStrongImport([{ name: 'damaged.csv', text: 'title,exercise_title' }])).rejects.toThrow(
-        'start_time',
-      );
+      await expect(
+        api.planStrongImport([{ name: 'damaged.csv', text: 'title,exercise_title' }], 'hevy'),
+      ).rejects.toThrow('start_time');
     } finally {
       store.database.close();
     }

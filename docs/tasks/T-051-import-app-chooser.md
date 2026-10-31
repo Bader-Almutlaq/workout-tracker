@@ -75,4 +75,8 @@ Each app has its own CSV layout; there is no shared standard. The existing forma
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+Implemented the source chooser, per-app instructions, expected-format validation and wrong-app retry using the files already read. Review now identifies the source with “From …”. Updated import and architecture documentation.
+
+Public API: `planStrongImport(files, expectedFormat)` defaults to `strong` for existing callers; `ImportError` adds `wrongWorkoutFile` with expected and detected formats. The source table contains the four formats and their instructions. Comlink serializes errors without custom details, so the screen matches the typed error's generated message to offer the correct retry.
+
+Verification: `make format` and `make verify` passed (998 tests). `make dev` could not bind its socket in the sandbox (`EPERM`), so dark/light visual and interactive checks remain for the lead. Hevy, FitNotes and Fitbod remain unverified against real exports. Changes are uncommitted; the board was not edited.
