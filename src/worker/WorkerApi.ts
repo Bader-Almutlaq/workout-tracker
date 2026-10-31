@@ -1049,6 +1049,12 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       },
     ),
 
+    /** Updates the linked template from a finished workout, retaining matching targets. */
+    updateTemplateFromWorkout: serially(async (workoutId: number): Promise<void> => {
+      TemplateStore.updateFromWorkout((await liveStore()).database, workoutId, new Date());
+      notifyListeners();
+    }),
+
     /**
      * Starts a workout from a template and returns its id. When one is already in progress this
      * throws, and first refreshes every screen: the one that offered to start is out of date, and

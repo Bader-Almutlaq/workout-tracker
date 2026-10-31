@@ -54,7 +54,7 @@ export function SavedWorkoutSummary({ workoutId, done }: { readonly workoutId: n
         ))}
       </Section>
       <BackupReminderLine />
-      <SaveAsTemplate workoutId={workoutId} workoutName={totals.name} />
+      <SaveAsTemplate workoutId={workoutId} workoutName={totals.name} templateId={detail.workout.templateId} />
       {done}
     </Screen>
   );

@@ -14,7 +14,7 @@ export function TemplateMuscleList({
 }) {
   const [showSmaller, setShowSmaller] = useState(false);
   const rows = summary.muscles
-    .filter((row) => showSmaller || isMainMuscle(row.muscle))
+    .filter((row) => (weekly || row.fractional > 0) && (showSmaller || isMainMuscle(row.muscle)))
     .sort((a, b) => b.fractional - a.fractional);
   const maximum = Math.max(0, ...rows.map((row) => row.fractional));
   return (
@@ -35,7 +35,10 @@ export function TemplateMuscleList({
           {row.fractional > 0 && (
             <>
               <div className={styles.detail}>
-                {row.direct} direct + {row.indirect} indirect{weekly ? ` · ${row.frequency}× a week` : ''}
+                {[row.direct > 0 && `${row.direct} direct`, row.indirect > 0 && `${row.indirect} indirect`]
+                  .filter(Boolean)
+                  .join(' + ')}
+                {weekly && row.frequency > 0 ? ` · ${row.frequency}× a week` : ''}
               </div>
               <div className={styles.track}>
                 <div

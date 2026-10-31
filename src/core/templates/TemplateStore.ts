@@ -211,6 +211,65 @@ export const TemplateStore = {
       assign(db, 'template', orderedTemplates(db, folderId));
     });
   },
+  /** Replaces a linked template's exercises and set kinds from a finished session, retaining matching targets. */
+  updateFromWorkout(db: Database, workoutId: number, now: Date): void {
+    db.transaction(() => {
+      const workout = db.get<{ templateId: number | null; isInProgress: number; endedAt: string | null }>(
+        'SELECT templateId, isInProgress, endedAt FROM workout WHERE id = ?',
+        [workoutId],
+      );
+      if (workout === undefined || workout.isInProgress !== 0 || workout.endedAt === null)
+        throw new TemplateStoreError('workoutNotFinished');
+      const template = workout.templateId === null ? undefined : TemplateCatalog.detail(db, workout.templateId);
+      if (template === undefined) throw new TemplateStoreError('notFound');
+      const remaining = [...template.exercises];
+      const exercises = db
+        .all<{
+          id: number;
+          exerciseId: number;
+          supersetGroup: number | null;
+          notes: string | null;
+          machineBrand: string | null;
+        }>(
+          `SELECT id, exerciseId, supersetGroup, notes, machineBrand
+         FROM workoutExercise WHERE workoutId = ? ORDER BY position, id`,
+          [workoutId],
+        )
+        .map(({ id, ...exercise }) => {
+          const index = remaining.findIndex((item) => item.exerciseId === exercise.exerciseId);
+          const previous = index < 0 ? undefined : remaining.splice(index, 1)[0];
+          const sets = db
+            .all<{ kind: SetKind }>('SELECT kind FROM workoutSet WHERE workoutExerciseId = ? ORDER BY position, id', [
+              id,
+            ])
+            .map(({ kind }, position, all) => {
+              // Warm-ups pair with warm-ups and other sets with other sets, so adding a warm-up never shifts targets;
+              // extra sets copy the last matching planned set.
+              const isWarmup = kind === 'warmup';
+              const group = (previous?.sets ?? []).filter((set) => (set.kind === 'warmup') === isWarmup);
+              const index = all.slice(0, position).filter((set) => (set.kind === 'warmup') === isWarmup).length;
+              const source = group[index] ?? group.at(-1);
+              return {
+                kind,
+                targetRepsLow: source?.targetRepsLow ?? null,
+                targetRepsHigh: source?.targetRepsHigh ?? null,
+                targetRpe: source?.targetRpe ?? null,
+              };
+            });
+          const progression: 'double' | null =
+            previous?.progression === 'double' &&
+            sets.every(
+              (set) =>
+                set.kind === 'warmup' ||
+                (set.targetRepsLow !== null && set.targetRepsLow > 0 && set.targetRepsHigh !== null),
+            )
+              ? 'double'
+              : null;
+          return { ...exercise, sets, progression };
+        });
+      TemplateStore.save(db, { ...template, exercises }, now);
+    });
+  },
   /**
    * Creates a template from a finished workout; targets remain unspecified. Finished sessions with the
    * same name (ignoring case) that belong to no template, the source included, are linked to the new

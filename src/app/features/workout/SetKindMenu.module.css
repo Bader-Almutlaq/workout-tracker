@@ -1,9 +1,13 @@
 .label {
-  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
   font: var(--font-callout);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-tertiary);
-  text-align: left;
+  text-align: center;
 }
 
 .label[data-kind='warmup'] {

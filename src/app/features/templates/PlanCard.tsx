@@ -1,3 +1,4 @@
+import { ChevronRight } from 'lucide-react';
 import { Chip } from '../../design/components/Chip';
 import { workoutPath } from './templatePaths';
 import { useWorkoutDrag } from '../../design/drag/WorkoutDrag';
@@ -34,7 +35,10 @@ export function PlanCard({
       data-plan-name={folder.name}
     >
       <Link className={styles.main} to={planPath(folder.id)}>
-        <h2>{folder.name}</h2>
+        <div className={styles.heading}>
+          <h2>{folder.name}</h2>
+          {isActive && <Chip tone="accent">Active</Chip>}
+        </div>
         <span>
           {folder.templates.length} {folder.templates.length === 1 ? 'workout' : 'workouts'}
         </span>
@@ -45,11 +49,11 @@ export function PlanCard({
         </p>
         <span>{lastDoneText(folder.lastStartedAt, now)?.replace('Last done ', 'Last: ') ?? 'Last: never'}</span>
       </Link>
-      {isActive && (
-        <div className={styles.active}>
-          <Chip tone="accent">Active</Chip>
-          {today !== undefined && <Link to={workoutPath(today.id)}>Today: {today.name}</Link>}
-        </div>
+      {isActive && today !== undefined && (
+        <Link className={styles.today} to={workoutPath(today.id)}>
+          Today: {today.name}
+          <ChevronRight size={18} aria-hidden />
+        </Link>
       )}
       <div className={styles.menu}>
         <PlanMenu folder={folder} index={index} count={count} actions={actions} />

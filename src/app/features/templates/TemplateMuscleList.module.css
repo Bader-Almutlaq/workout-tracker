@@ -58,3 +58,12 @@
   color: var(--color-accent);
   background: var(--color-accent-subtle);
 }
+
+.dayField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-m);
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+}

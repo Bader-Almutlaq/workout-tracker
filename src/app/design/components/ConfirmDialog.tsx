@@ -16,6 +16,8 @@ export function ConfirmDialog({
   onCancel,
   onDismiss,
   children,
+  submitOnReturn = false,
+  isConfirmDisabled = false,
 }: {
   readonly title: string;
   readonly confirmLabel: string;
@@ -26,6 +28,10 @@ export function ConfirmDialog({
   /** Escape action when different from the secondary button. */
   readonly onDismiss?: () => void;
   readonly children?: ReactNode;
+  /** Submit the primary action from a single-line input. */
+  readonly submitOnReturn?: boolean;
+  /** Disable confirmation while the input is invalid. */
+  readonly isConfirmDisabled?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -42,16 +48,28 @@ export function ConfirmDialog({
         (onDismiss ?? onCancel)();
       }}
     >
-      <h2 className={styles.title}>{title}</h2>
-      {children !== undefined && <div className={styles.body}>{children}</div>}
-      <div className={styles.actions}>
-        <Button variant="primary" isDisabled={isBusy} onPress={onConfirm}>
-          {confirmLabel}
-        </Button>
-        <Button isDisabled={isBusy} onPress={onCancel}>
-          {cancelLabel}
-        </Button>
-      </div>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!isBusy && !isConfirmDisabled) onConfirm();
+        }}
+      >
+        <h2 className={styles.title}>{title}</h2>
+        {children !== undefined && <div className={styles.body}>{children}</div>}
+        <div className={styles.actions}>
+          <Button
+            variant="primary"
+            type={submitOnReturn ? 'submit' : 'button'}
+            isDisabled={isBusy || isConfirmDisabled}
+            onPress={submitOnReturn ? () => undefined : onConfirm}
+          >
+            {confirmLabel}
+          </Button>
+          <Button isDisabled={isBusy} onPress={onCancel}>
+            {cancelLabel}
+          </Button>
+        </div>
+      </form>
     </dialog>
   );
 }

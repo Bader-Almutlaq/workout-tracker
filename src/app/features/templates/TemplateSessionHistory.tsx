@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import type { TemplateSession } from '../../../core/queries/TemplateSessions';
 import { EmptyState } from '../../design/components/EmptyState';
 import { dayAndTimeText } from '../../format/dateText';
@@ -8,11 +8,17 @@ import styles from './PlanPage.module.css';
 
 /** All sessions in the supplied scope; each opens the existing History entry. */
 export function TemplateSessionHistory({ sessions }: { readonly sessions: readonly TemplateSession[] }) {
+  const location = useLocation();
   if (sessions.length === 0) return <EmptyState message="No sessions yet. Start a workout to record one." />;
   return (
     <div className={styles.stack}>
       {sessions.map((session) => (
-        <Link key={session.id} className={styles.session} to={`/history/${session.id}`}>
+        <Link
+          key={session.id}
+          className={styles.session}
+          to={`/history/${session.id}`}
+          state={{ from: location.pathname + location.search }}
+        >
           <strong>{session.name}</strong>
           <span>{dayAndTimeText(session.startedAt)}</span>
           <span>

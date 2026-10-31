@@ -29,4 +29,8 @@ The lead tested every feature on a fresh copy of the app (2026-11-01). Everythin
 
 ## Handoff
 
-_Not started._
+Implemented name-dialog form submission, synchronous picker search rendering, day and muscle layouts, active plan navigation, compact set labels, history return state, and confirmed updating of linked workouts from finished sessions. The update matches repeated exercises in occurrence order and preserves targets by set position; double progression is switched off if new or changed sets cannot satisfy its target requirements. The operation is transactional and leaves session data intact.
+
+Changed files: shared Button/ConfirmDialog; template plan cards, dialogs, details, muscle list, session history, workout page and finish action; workout picker, rename dialog, summary and set label; TemplateStore and WorkerApi; adjacent regression tests. Public API: `TemplateStore.updateFromWorkout(db, workoutId, now)` and `WorkerApi.updateTemplateFromWorkout(workoutId)`.
+
+Verification: `make format` run; `make verify` passed: 185 test files, 1,301 tests, and production build (with the existing chunk-size warning). `make dev` could not bind port 5173 (EPERM), and the browser access host was unavailable, so the 430 × 932 dark/light checks and interactive Return and cross-search picker checks remain for review. The picker already stored its full selection independently of results; removing deferred search rendering avoids showing stale results but the reported count discrepancy could not be reproduced here. Tests cover rendered form/button markup and counts, not those interactions. No board edit or commit.
