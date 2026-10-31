@@ -12,3 +12,10 @@
   color: var(--color-text-primary);
   overflow-wrap: anywhere;
 }
+
+.link {
+  min-height: var(--workout-tap-size);
+  color: var(--color-accent);
+  font: inherit;
+  text-align: left;
+}

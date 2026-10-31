@@ -1,14 +1,19 @@
-/*
- * The columns of a set: SET, PREVIOUS, weight, reps, RPE, check. The column header and every row
- * use this class so the columns line up. Exercises without a weight cell drop that column.
- */
+/* Live rows gain room for Previous by placing effort on the completion button. */
 .grid {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 64px 52px 44px 40px;
+  grid-template-columns:
+    var(--workout-tap-size) minmax(0, 1fr)
+    var(--workout-weight-width) var(--workout-reps-width) var(--workout-tap-size);
   column-gap: var(--space-xs);
   align-items: center;
 }
-
 .grid[data-weight='false'] {
+  grid-template-columns: var(--workout-tap-size) minmax(0, 1fr) var(--workout-reps-width) var(--workout-tap-size);
+}
+/* History retains its original grid and effort column. */
+.grid[data-past='true'] {
+  grid-template-columns: 44px minmax(0, 1fr) 64px 52px 44px 40px;
+}
+.grid[data-past='true'][data-weight='false'] {
   grid-template-columns: 44px minmax(0, 1fr) 52px 44px 40px;
 }
