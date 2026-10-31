@@ -223,3 +223,13 @@ export function setRestTarget(exerciseId: number, seconds: number): void {
 export function saveExerciseNotes(entryId: number, notes: string): void {
   void loggingQueue.enqueue(() => database.updateWorkoutExerciseNotes(entryId, notes));
 }
+
+/** Enables/ends an exercise deload in tap order; committing the pad first preserves typed values. */
+export function setDeload(entryId: number, enabled: boolean): void {
+  void loggingQueue.enqueue(() => database.setDeloadStage(entryId, enabled ? 1 : null));
+}
+
+/** Starts a deload on every exercise already in the live workout without editing its sets. */
+export function deloadWorkout(workoutId: number): void {
+  void loggingQueue.enqueue(() => database.deloadWorkout(workoutId));
+}

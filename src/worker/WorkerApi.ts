@@ -1,3 +1,4 @@
+import type { DeloadStage } from '../core/logging/DeloadPlan';
 import { ExerciseSeries } from '../core/queries/ExerciseSeries';
 import { RepMaxTable } from '../core/queries/RepMaxTable';
 import type { WorkoutFileFormat } from '../core/import/formats/detectWorkoutFileFormat';
@@ -664,6 +665,19 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     }),
     // End of Edit past workouts (T-050)
 
+    // Deload (T-062)
+    /** Saves/clears an exercise's deload stage; suggestions are calculated separately and sets remain intact. */
+    setDeloadStage: serially(async (entryId: number, stage: DeloadStage | null): Promise<void> => {
+      workoutLogger((await liveStore()).database).setDeloadStage(entryId, stage);
+      notifyListeners();
+    }),
+    /** Starts stage 1 on all current exercise entries in one transaction. */
+    deloadWorkout: serially(async (workoutId: number): Promise<void> => {
+      workoutLogger((await liveStore()).database).deloadWorkout(workoutId);
+      notifyListeners();
+    }),
+    // End of Deload (T-062)
+
     // Workout (T-024)
     // Every write is one logger action and notifies listeners, so the logging screen refreshes after each tap.
 
@@ -862,6 +876,9 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     exerciseCharts: serially(async (exerciseId: number) => {
       const history = ExerciseSeries.read((await liveStore()).database, exerciseId);
       return {
+        deloadDates: history.sessions
+          .filter((session) => session.deloadEntryIds.length > 0)
+          .map((session) => session.date),
         estimatedOneRepMax: ExerciseSeries.estimatedOneRepMax(history),
         heaviestWeight: ExerciseSeries.heaviestWeight(history),
         sessionVolume: ExerciseSeries.sessionVolume(history),

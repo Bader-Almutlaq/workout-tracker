@@ -1,0 +1,13 @@
+.chip {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-deload);
+  font: var(--font-callout);
+}
+.label {
+  padding: 0 var(--space-s);
+  border: var(--hairline) solid var(--color-deload);
+  border-radius: var(--radius-small);
+  color: var(--color-deload);
+  white-space: nowrap;
+}

@@ -38,6 +38,19 @@ const WarmupDefaults = {
   heavyPatterns: new Set(['squat', 'hinge', 'horizontal-push', 'vertical-push', 'horizontal-pull', 'vertical-pull']),
 } as const;
 
+/** The shared big-lift classification: a loaded barbell compound in a known major movement pattern. Heuristic: owner-approved warm-up groups (T-044). */
+export function isBigBarbellCompound(
+  exercise: Pick<Exercise, 'equipment' | 'tracking' | 'mechanic' | 'movementPattern'>,
+): boolean {
+  return (
+    exercise.tracking === 'weight-reps' &&
+    exercise.equipment === 'barbell' &&
+    exercise.mechanic === 'compound' &&
+    exercise.movementPattern !== null &&
+    WarmupDefaults.heavyPatterns.has(exercise.movementPattern)
+  );
+}
+
 /** Heuristic count for an explicit request; timed and bodyweight exercises suggest none. */
 export function suggestedWarmupCount(
   exercise: Pick<Exercise, 'equipment' | 'tracking' | 'mechanic' | 'movementPattern'>,
@@ -45,11 +58,7 @@ export function suggestedWarmupCount(
   if (exercise.equipment === 'bodyweight' || exercise.equipment === 'band' || exercise.tracking !== 'weight-reps')
     return WarmupDefaults.none;
   if (exercise.mechanic === 'compound') {
-    return exercise.equipment === 'barbell' &&
-      exercise.movementPattern !== null &&
-      WarmupDefaults.heavyPatterns.has(exercise.movementPattern)
-      ? WarmupDefaults.heavyCompound
-      : WarmupDefaults.compound;
+    return isBigBarbellCompound(exercise) ? WarmupDefaults.heavyCompound : WarmupDefaults.compound;
   }
   return exercise.mechanic === 'isolation' ? WarmupDefaults.isolation : WarmupDefaults.none;
 }

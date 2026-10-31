@@ -1,5 +1,5 @@
 import type { DatedValue, TimeAggregation } from '../../../core/analytics/TimeBuckets';
-import { LongRangeChart } from '../../design/charts/LongRangeChart';
+import { LongRangeChart, type LongRangeMark } from '../../design/charts/LongRangeChart';
 import styles from './ExercisePage.module.css';
 
 /** Heuristic: at least two observed sessions are required before showing a trend chart. */
@@ -12,8 +12,10 @@ export function ExerciseChart({
   aggregation = 'max',
   shape = 'line',
   formatValue,
+  marks,
 }: {
   readonly title: string;
+  readonly marks?: readonly LongRangeMark[];
   readonly points: readonly DatedValue[];
   readonly aggregation?: TimeAggregation;
   readonly shape?: 'line' | 'step';
@@ -30,6 +32,7 @@ export function ExerciseChart({
           series={[{ name: title, points }]}
           aggregation={aggregation}
           shape={shape}
+          {...(marks === undefined ? {} : { marks })}
           formatValue={formatValue}
         />
       )}

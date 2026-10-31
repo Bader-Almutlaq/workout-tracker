@@ -10,11 +10,19 @@ export interface LongRangeSeries {
   readonly points: readonly DatedValue[];
 }
 
+/** A dated session annotation; optional so unrelated chart callers retain their existing appearance. */
+export interface LongRangeMark {
+  readonly date: string;
+  readonly kind: 'deload';
+}
+
 /** Reusable chart inputs; the caller selects the aggregation and formats values in its own units. */
 export interface LongRangeChartProps {
   readonly title: string;
   readonly series: readonly LongRangeSeries[];
   readonly aggregation: TimeAggregation;
+  /** Session annotations bucketed with the same calendar/range as the observations. */
+  readonly marks?: readonly LongRangeMark[];
   /** Optional overview period, e.g. weekly session totals; expanded charts still use finer automatic detail. */
   readonly overviewBucket?: TimeBucketSize;
   /** Line interpolation; defaults to straight segments. */

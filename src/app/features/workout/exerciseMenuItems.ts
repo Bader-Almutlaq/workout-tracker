@@ -32,6 +32,15 @@ export function exerciseMenuItems({
 }): readonly ActionMenuItem[] {
   const entryId = entry.entry.id;
   return [
+    ...(live !== undefined && actions.setDeload !== undefined
+      ? [
+          {
+            label: 'Deload this exercise',
+            isDeload: true,
+            onSelect: () => actions.setDeload?.(entryId, true),
+          },
+        ]
+      : []),
     ...(live !== undefined && actions.saveNotes !== undefined
       ? [{ label: entry.entry.notes ? 'Edit note' : 'Add note', icon: FileText, onSelect: live.editNote }]
       : []),

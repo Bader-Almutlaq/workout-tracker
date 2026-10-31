@@ -1,10 +1,11 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { LongRangeChart, type LongRangeChartProps } from './LongRangeChart';
 import { LongRangePlot } from './LongRangePlot';
 import { LongRangeChartSheet } from './LongRangeChartSheet';
 import styles from './LongRangeChart.module.css';
+import * as chartTable from './ChartTable';
 
 const props: LongRangeChartProps = {
   title: 'Synthetic trend',
@@ -117,4 +118,45 @@ test('custom height changes the plot and touch area while the default stays unch
   expect(tall).toContain('viewBox="0 0 160 600"');
   expect(tall).toContain('height="552"');
   expect(standard).toContain('viewBox="0 0 160 220"');
+});
+
+test('deload session marks make the containing monthly bucket hollow and shaded with a table note', () => {
+  const chart: LongRangeChartProps = { ...props, marks: [{ date: '2020-01-02T12:00:00Z', kind: 'deload' }] };
+  const table = vi.spyOn(chartTable, 'ChartTable');
+  const html = renderToStaticMarkup(createElement(LongRangeChart, chart));
+  expect(html.match(new RegExp(`class="${styles.deloadDot}"`, 'g'))).toHaveLength(1);
+  expect(html.match(new RegExp(`class="${styles.deloadColumn}"`, 'g'))).toHaveLength(1);
+  expect(html).toContain('aria-label="Deload"');
+  expect(table.mock.calls.at(-1)?.[0].columns).toContain('Notes');
+  expect(table.mock.calls.at(-1)?.[0].rows.some((row) => row.cells.includes('Deload'))).toBe(true);
+  table.mockRestore();
+  expect(html).not.toContain('NaN');
+});
+
+test('full-screen daily marks retain Deload labels; marks outside a clipped range are omitted before bucketing', () => {
+  const chart: LongRangeChartProps = {
+    ...props,
+    marks: [
+      { date: '2024-04-01T12:00:00Z', kind: 'deload' },
+      { date: '2020-01-01T12:00:00Z', kind: 'deload' },
+      { date: 'invalid', kind: 'deload' },
+    ],
+    series: [
+      {
+        name: 'Example',
+        points: [
+          { date: '2024-04-01T12:00:00Z', value: 8 },
+          { date: '2024-05-01T12:00:00Z', value: 10 },
+        ],
+      },
+    ],
+  };
+  const html = renderToStaticMarkup(createElement(LongRangeChartSheet, { ...chart, onClose: () => undefined }));
+  expect(html).toContain('Hollow points and yellow shading: Deload');
+  expect(html.match(new RegExp(`class="${styles.deloadDot}"`, 'g'))).toHaveLength(1);
+  const clipped = renderToStaticMarkup(
+    createElement(LongRangePlot, { ...props, marks: chart.marks ?? [], range: 3, detailed: true }),
+  );
+  expect(clipped).not.toContain(`class="${styles.deloadDot}"`);
+  expect(clipped).not.toContain(`class="${styles.deloadColumn}"`);
 });

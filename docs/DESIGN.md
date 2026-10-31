@@ -179,3 +179,21 @@ Charts use `LongRangeChart` and its expansion, range picker and table. Best qual
 Records show dated lifetime e1RM, heaviest load (with reps and recorded effort) and session volume. The 1–12-rep table uses the heaviest actual set achieving at least the row's reps, even without effort data. Predictions invert the canonical e1RM formula at RIR 0, from the best qualifying estimate, with shared estimate display rounding (0.5 kg / 1 lb); absent performances do not hide predictions. Unclassified exercises retain actual records but have no predictions. Reps and duration charts are the alternatives for unsupported weight records.
 
 How-to defers the existing preference-controlled pictures until opened and retains bundled numbered instructions. Missing instructions read “No instructions for this exercise.”
+
+## Deload (T-062)
+
+The live exercise and workout menus offer **Deload this exercise** and **Deload whole workout** in
+`--color-deload` (dark `#F4BF50`, light `#946000`, a legible yellow/ochre). A yellow **Deload · −20%**
+chip on the exercise info line opens **End deload**. The percent is nominal, before loadable rounding;
+bodyweight shows **Deload** without a load percentage. History shows a small noninteractive Deload tag.
+
+Deload values occupy the existing amber suggestion slot in place of progression. The previous saved
+values remain grey and ticking still uses them; only tapping amber or typing changes a value.
+Entered and completed cells hide amber. Deload suggestions may reappear on reopening the editor,
+including equal values; they remain opt-in. Timed rows do not suggest a rep value as seconds.
+
+`LongRangeChart.marks` optionally accepts `{ date, kind: 'deload' }`. Marks use the existing core
+calendar buckets and range clipping. A populated bucket containing a deload session gets a hollow
+yellow-edged point and a faint yellow column. Overview and expanded plots include a text explanation,
+the touch readout names Deload, and marked table rows have a Deload note. Exercise performance plots
+pass these dates. The PR step line retains its existing appearance and still counts all sessions.

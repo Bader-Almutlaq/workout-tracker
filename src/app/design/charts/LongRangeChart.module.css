@@ -100,3 +100,13 @@
   flex: none;
   width: auto;
 }
+
+.deloadColumn {
+  fill: var(--color-deload);
+  opacity: 0.12;
+}
+.deloadDot {
+  fill: var(--color-surface);
+  stroke: var(--color-deload);
+  stroke-width: 2;
+}

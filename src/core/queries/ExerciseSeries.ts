@@ -14,6 +14,8 @@ export interface ExerciseSession {
   readonly date: string;
   readonly name: string;
   readonly sets: readonly WorkoutSet[];
+  /** Marked exercise entries within this session; repeated normal entries stay distinct in History. */
+  readonly deloadEntryIds: readonly number[];
 }
 
 /** Per-session value in kg, kg × reps, reps or seconds; never rounded or converted. */
@@ -64,7 +66,18 @@ function sessions(db: Database, exerciseId: number, now: Date, limit: number, of
     group.push(fromWorkoutSetRow(row));
     grouped.set(row.workoutId, group);
   }
-  return selected.map((session) => ({ ...session, sets: grouped.get(session.workoutId) ?? [] }));
+  const deloads = db.all<{ id: number; workoutId: number }>(
+    `
+    SELECT id, workoutId FROM workoutExercise
+    WHERE exerciseId = ? AND deloadStage IS NOT NULL AND workoutId IN (${placeholders})
+  `,
+    [exerciseId, ...selected.map((session) => session.workoutId)],
+  );
+  return selected.map((session) => ({
+    ...session,
+    sets: grouped.get(session.workoutId) ?? [],
+    deloadEntryIds: deloads.filter((entry) => entry.workoutId === session.workoutId).map((entry) => entry.id),
+  }));
 }
 
 function workSets(session: ExerciseSession): readonly WorkoutSet[] {
