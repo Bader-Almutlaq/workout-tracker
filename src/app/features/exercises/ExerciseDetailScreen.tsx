@@ -46,7 +46,19 @@ export function ExerciseDetailScreen() {
       <div className={styles.tabContent} key={`${exerciseId}-${tab}`}>
         {tab === 'summary' && <ExerciseSummaryTab detail={detail.value} />}
         {tab === 'history' && <ExerciseHistoryTab exerciseId={exerciseId} tracking={exercise.tracking} />}
-        {tab === 'charts' && <ExerciseChartsTab exerciseId={exerciseId} tracking={exercise.tracking} />}
+        {tab === 'charts' && (
+          <ExerciseChartsTab
+            exerciseId={exerciseId}
+            tracking={exercise.tracking}
+            machine={params.get('machine')}
+            onMachine={(value) => {
+              const next = new URLSearchParams(params);
+              if (value === null) next.delete('machine');
+              else next.set('machine', value);
+              setParams(next);
+            }}
+          />
+        )}
         {tab === 'records' && (
           <ExerciseRecordsTab exerciseId={exerciseId} unit={exercise.defaultEntryUnit} tracking={exercise.tracking} />
         )}

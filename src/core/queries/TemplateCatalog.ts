@@ -75,7 +75,7 @@ export const TemplateCatalog = {
       const exercises = db
         .all<Omit<TemplateExerciseDraft, 'sets'> & { id: number }>(
           `
-        SELECT id, exerciseId, supersetGroup, notes, progression FROM templateExercise WHERE templateId = ? ORDER BY position
+        SELECT id, exerciseId, supersetGroup, notes, progression, machineBrand FROM templateExercise WHERE templateId = ? ORDER BY position
       `,
           [templateId],
         )

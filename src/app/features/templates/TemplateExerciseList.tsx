@@ -1,3 +1,4 @@
+import type { Equipment } from '../../../core/library/Equipment';
 import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
 import { isTimedExercise } from './isTimedExercise';
 import { EmptyState } from '../../design/components/EmptyState';
@@ -11,10 +12,12 @@ import styles from './TemplateExerciseList.module.css';
 export function TemplateExerciseList({
   model,
   names,
+  equipment,
   tracking,
 }: {
   readonly model: TemplateEditorModel;
   readonly names: ReadonlyMap<number, string>;
+  readonly equipment: ReadonlyMap<number, Equipment | null>;
   readonly tracking: ReadonlyMap<number, ExerciseTracking>;
 }) {
   const { draft, pad, actions } = model;
@@ -26,6 +29,7 @@ export function TemplateExerciseList({
           // The same exercise can be in a template twice, so its position is the only identity it has.
           key={index}
           exercise={exercise}
+          equipment={equipment.get(exercise.exerciseId) ?? null}
           isTimed={isTimedExercise(tracking.get(exercise.exerciseId))}
           name={exerciseNameOf(names, exercise.exerciseId)}
           index={index}

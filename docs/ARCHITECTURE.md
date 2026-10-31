@@ -90,6 +90,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Reviewed exercise illustration mapping | `tools/build-illustrations.ts`, `data/sources/illustration-mapping.json`, `src/core/library/illustrations.json` |
 | Exercise picture display preference, safe URLs and frame visibility | `src/app/features/exercises/picturePreference.ts`, `ExercisePictures.tsx`, `ExercisePicture.tsx`; cache policy in `vite.config.ts` |
 | Library source credits | `src/app/features/settings/CreditsScreen.tsx` |
+| Machine manufacturer list, equipment eligibility and normalization | `src/core/library/MachineBrands.ts` |
 | Schema and migrations | `src/core/db/migrations.ts` |
 | Opening the database on the phone; safety snapshots | `src/worker/OnDeviceStore.ts` |
 | What the screen can ask of the database | `src/worker/WorkerApi.ts` |

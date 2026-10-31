@@ -1,3 +1,5 @@
+import { normalizeMachineBrand } from '../library/MachineBrands';
+import { latestMachineBrand, machinePreviousPerformance } from '../queries/PreviousPerformance';
 import { DeloadPlan, type DeloadStage } from './DeloadPlan';
 import { fromExerciseRow, type ExerciseRow } from '../models/Exercise';
 import { loadProfileFor } from '../units/LoadableWeight';
@@ -341,6 +343,15 @@ export class WorkoutLogger {
     });
   }
 
+  /** Saves or clears a normalized manufacturer for one workout entry. */
+  setMachineBrand(entryId: number, brand: string | null): void {
+    this.requireEntry(entryId);
+    this.db.run('UPDATE workoutExercise SET machineBrand = ? WHERE id = ?', [
+      brand === null ? null : normalizeMachineBrand(brand),
+      entryId,
+    ]);
+  }
+
   /** Starts stage 1 on every exercise currently in the workout, atomically; never edits set values. */
   deloadWorkout(workoutId: number): void {
     this.db.transaction(() => {
@@ -408,6 +419,7 @@ export class WorkoutLogger {
         defaultEntryUnit: WeightUnit;
         tracking: ExerciseTracking;
         progression: 'double' | null;
+        machineBrand: string | null;
       }>(
         `
         SELECT te.*, e.defaultEntryUnit, e.tracking FROM templateExercise te JOIN exercise e ON e.id = te.exerciseId
@@ -416,21 +428,24 @@ export class WorkoutLogger {
         [templateId],
       );
       for (const [exerciseIndex, exercise] of exercises.entries()) {
+        const brand = exercise.machineBrand ?? latestMachineBrand(this.db, exercise.exerciseId, workoutId);
         const entry = this.db.run(
           `
-          INSERT INTO workoutExercise (workoutId, exerciseId, position, supersetGroup, notes) VALUES (?, ?, ?, ?, ?)
+          INSERT INTO workoutExercise (workoutId, exerciseId, position, supersetGroup, notes, machineBrand) VALUES (?, ?, ?, ?, ?, ?)
         `,
-          [workoutId, exercise.exerciseId, exercise.position, exercise.supersetGroup, exercise.notes],
+          [workoutId, exercise.exerciseId, exercise.position, exercise.supersetGroup, exercise.notes, brand],
         ).lastInsertRowId;
-        const previous = previousPerformance(
+        const occurrence = exercises
+          .slice(0, exerciseIndex)
+          .filter((entry) => entry.exerciseId === exercise.exerciseId).length;
+        const previous = machinePreviousPerformance(
           this.db,
           exercise.exerciseId,
           workoutId,
           exercise.progression === 'double' ? templateId : null,
-          exercise.progression === 'double'
-            ? exercises.slice(0, exerciseIndex).filter((entry) => entry.exerciseId === exercise.exerciseId).length
-            : null,
-        );
+          exercise.progression === 'double' || brand !== null ? occurrence : null,
+          brand,
+        ).sets;
         const sets = this.db.all<{ kind: SetKind; targetRepsLow: number | null }>(
           `
           SELECT kind, targetRepsLow FROM templateSet WHERE templateExerciseId = ? ORDER BY position
@@ -557,12 +572,20 @@ export class WorkoutLogger {
       if (exercise === undefined) throw new WorkoutLoggerError('exerciseNotFound');
       const position =
         this.db.value<number>('SELECT COUNT(*) FROM workoutExercise WHERE workoutId = ?', [workoutId]) ?? 0;
-      const entryId = this.db.run('INSERT INTO workoutExercise (workoutId, exerciseId, position) VALUES (?, ?, ?)', [
-        workoutId,
-        exerciseId,
-        position,
-      ]).lastInsertRowId;
-      const previous = previousPerformance(this.db, exerciseId, workoutId);
+      const brand = latestMachineBrand(this.db, exerciseId, workoutId);
+      const entryId = this.db.run(
+        'INSERT INTO workoutExercise (workoutId, exerciseId, position, machineBrand) VALUES (?, ?, ?, ?)',
+        [workoutId, exerciseId, position, brand],
+      ).lastInsertRowId;
+      const occurrence =
+        (this.db.value<number>('SELECT COUNT(*) FROM workoutExercise WHERE workoutId = ? AND exerciseId = ?', [
+          workoutId,
+          exerciseId,
+        ]) ?? 1) - 1;
+      const previous =
+        brand === null
+          ? previousPerformance(this.db, exerciseId, workoutId)
+          : machinePreviousPerformance(this.db, exerciseId, workoutId, null, occurrence, brand).sets;
       if (previous.length === 0) {
         this.db.run(
           `INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, isCompleted) VALUES (?, 0, 'working', 0, ?, 0, ?)`,

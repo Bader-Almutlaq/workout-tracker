@@ -1,3 +1,4 @@
+import { normalizeMachineBrand } from '../library/MachineBrands';
 import type { Database } from '../db/Database';
 import type { TemplateDraft, TemplateExerciseDraft } from './TemplateDraft';
 import type { SetKind } from '../models/SetKind';
@@ -140,9 +141,17 @@ export const TemplateStore = {
       }
       for (const [position, exercise] of draft.exercises.entries()) {
         const entry = db.run(
-          `INSERT INTO templateExercise (templateId, exerciseId, position, supersetGroup, notes, progression)
-          VALUES (?, ?, ?, ?, ?, ?)`,
-          [id, exercise.exerciseId, position, exercise.supersetGroup, exercise.notes, exercise.progression ?? null],
+          `INSERT INTO templateExercise (templateId, exerciseId, position, supersetGroup, notes, progression, machineBrand)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+          [
+            id,
+            exercise.exerciseId,
+            position,
+            exercise.supersetGroup,
+            exercise.notes,
+            exercise.progression ?? null,
+            normalizeMachineBrand(exercise.machineBrand ?? ''),
+          ],
         ).lastInsertRowId;
         for (const [setPosition, set] of exercise.sets.entries()) {
           db.run(
@@ -214,9 +223,15 @@ export const TemplateStore = {
       if (workout === undefined || workout.isInProgress !== 0 || workout.endedAt === null)
         throw new TemplateStoreError('workoutNotFinished');
       const exercises: TemplateExerciseDraft[] = db
-        .all<{ id: number; exerciseId: number; supersetGroup: number | null; notes: string | null }>(
+        .all<{
+          id: number;
+          exerciseId: number;
+          supersetGroup: number | null;
+          notes: string | null;
+          machineBrand: string | null;
+        }>(
           `
-        SELECT id, exerciseId, supersetGroup, notes FROM workoutExercise WHERE workoutId = ? ORDER BY position
+        SELECT id, exerciseId, supersetGroup, notes, machineBrand FROM workoutExercise WHERE workoutId = ? ORDER BY position
       `,
           [workoutId],
         )

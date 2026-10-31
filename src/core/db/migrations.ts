@@ -317,6 +317,13 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE workoutExercise ADD COLUMN deloadStage INTEGER CHECK (deloadStage IN (1, 2));
     `,
   },
+  {
+    id: 'v10-machine-brand',
+    sql: `
+      ALTER TABLE workoutExercise ADD COLUMN machineBrand TEXT;
+      ALTER TABLE templateExercise ADD COLUMN machineBrand TEXT;
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

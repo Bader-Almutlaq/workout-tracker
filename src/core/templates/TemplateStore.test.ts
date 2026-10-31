@@ -141,3 +141,24 @@ it('a replacement template that fails after deleting its children rolls back eve
   ).toThrow();
   expect(DataSafetyFixture.read(db)).toEqual(before);
 });
+
+it('preserves normalized machine brands through template save, edit, duplication and workout copy', () => {
+  const exercise = draft.exercises[0];
+  if (exercise === undefined) throw new Error('Missing fixture');
+  const id = TemplateStore.save(
+    db,
+    { ...draft, exercises: [{ ...exercise, machineBrand: ' hammer   strength ' }] },
+    now,
+  );
+  const saved = TemplateCatalog.detail(db, id);
+  if (saved === undefined) throw new Error('Missing template');
+  expect(saved.exercises[0]?.machineBrand).toBe('Hammer Strength');
+  TemplateStore.save(db, { ...saved, name: 'Edited' }, now);
+  const copy = TemplateStore.duplicate(db, id, now);
+  expect(TemplateCatalog.detail(db, copy)?.exercises[0]?.machineBrand).toBe('Hammer Strength');
+  db.exec(`INSERT INTO workout (id, startedAt, endedAt, name, source) VALUES (1, '2025-01-01', '2025-01-02', 'Old', 'app');
+    INSERT INTO workoutExercise (id, workoutId, exerciseId, position, machineBrand) VALUES (1, 1, 1, 0, 'Panatta');
+    INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps) VALUES (1, 0, 'working', 30, 'kg', 5);`);
+  const fromWorkout = TemplateStore.createFromWorkout(db, 1, 'Copy', null, now);
+  expect(TemplateCatalog.detail(db, fromWorkout)?.exercises[0]?.machineBrand).toBe('Panatta');
+});

@@ -47,6 +47,70 @@ export function previousPerformance(
     .map(fromWorkoutSetRow);
 }
 
+/** Previous sets and whether a recorded machine required falling back to another or unknown machine. */
+export function machinePreviousPerformance(
+  db: Database,
+  exerciseId: number,
+  excludingWorkout: number | null,
+  preferredTemplateId: number | null,
+  occurrence: number | null,
+  machineBrand: string | null,
+): { sets: WorkoutSet[]; otherMachine: boolean } {
+  if (machineBrand === null) {
+    return {
+      sets: previousPerformance(db, exerciseId, excludingWorkout, preferredTemplateId, occurrence),
+      otherMachine: false,
+    };
+  }
+  const entry = db.get<{ id: number }>(
+    `
+    SELECT we.id FROM workoutExercise we JOIN workout w ON w.id = we.workoutId
+    WHERE we.exerciseId = ? AND w.isInProgress = 0 AND w.id IS NOT ?
+      AND we.machineBrand = ? COLLATE NOCASE
+      AND (SELECT COUNT(*) FROM workoutExercise earlier
+           WHERE earlier.workoutId = we.workoutId AND earlier.exerciseId = we.exerciseId
+             AND (earlier.position < we.position OR (earlier.position = we.position AND earlier.id < we.id))) = ?
+    ORDER BY CASE WHEN w.templateId = ? THEN 0 ELSE 1 END, w.startedAt DESC, w.id DESC LIMIT 1
+    `,
+    [exerciseId, excludingWorkout, machineBrand, occurrence ?? 0, preferredTemplateId],
+  );
+  if (entry !== undefined) return { sets: completedEntrySets(db, entry.id), otherMachine: false };
+  const sets = previousPerformance(db, exerciseId, excludingWorkout, preferredTemplateId, occurrence);
+  return { sets, otherMachine: sets.length > 0 };
+}
+
+/** Manufacturers used in finished workouts, ordered by most recent use, with case-insensitive deduplication. */
+export function usedMachineBrands(db: Database): string[] {
+  const rows = db.all<{ machineBrand: string }>(`
+    SELECT we.machineBrand FROM workoutExercise we JOIN workout w ON w.id = we.workoutId
+    WHERE w.isInProgress = 0 AND we.machineBrand IS NOT NULL
+    ORDER BY w.startedAt DESC, w.id DESC, we.position DESC, we.id DESC
+  `);
+  const seen = new Set<string>();
+  return rows
+    .map((row) => row.machineBrand)
+    .filter((brand) => {
+      const key = brand.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+/** Brand on the latest finished occurrence of an exercise, including an unrecorded brand. */
+export function latestMachineBrand(db: Database, exerciseId: number, excludingWorkout: number): string | null {
+  return (
+    db.value<string | null>(
+      `
+    SELECT we.machineBrand FROM workoutExercise we JOIN workout w ON w.id = we.workoutId
+    WHERE we.exerciseId = ? AND w.isInProgress = 0 AND w.id <> ?
+    ORDER BY w.startedAt DESC, w.id DESC, we.position DESC, we.id DESC LIMIT 1
+  `,
+      [exerciseId, excludingWorkout],
+    ) ?? null
+  );
+}
+
 /** Match each current set to the corresponding previous warm-up or non-warm-up, in order. */
 export function matchPreviousSets<T extends { readonly kind: string }>(
   current: readonly { readonly kind: string }[],
@@ -62,7 +126,11 @@ export function matchPreviousSets<T extends { readonly kind: string }>(
 /** Previous finished occurrence before this entry's session (date then id); never another entry in this workout.
  * Heuristic: repeated exercises follow the same occurrence across sessions; missing occurrences have no predecessor.
  */
-export function previousExerciseEntry(db: Database, entryId: number): WorkoutExercise | undefined {
+export function previousExerciseEntry(
+  db: Database,
+  entryId: number,
+  machineBrand: string | null = null,
+): WorkoutExercise | undefined {
   const current = db.get<{ exerciseId: number; workoutId: number; position: number; startedAt: string }>(
     `
     SELECT we.exerciseId, we.workoutId, we.position, w.startedAt
@@ -78,6 +146,29 @@ export function previousExerciseEntry(db: Database, entryId: number): WorkoutExe
   `,
       [current.workoutId, current.exerciseId, current.position],
     ) ?? 0;
+  if (machineBrand !== null) {
+    const matching = db.get<WorkoutExerciseRow>(
+      `
+      SELECT we.* FROM workoutExercise we JOIN workout w ON w.id = we.workoutId
+      WHERE we.exerciseId = ? AND w.isInProgress = 0 AND w.id <> ?
+        AND (w.startedAt < ? OR (w.startedAt = ? AND w.id < ?))
+        AND we.machineBrand = ? COLLATE NOCASE
+        AND (SELECT COUNT(*) FROM workoutExercise earlier WHERE earlier.workoutId = we.workoutId
+          AND earlier.exerciseId = we.exerciseId AND earlier.position < we.position) = ?
+      ORDER BY w.startedAt DESC, w.id DESC LIMIT 1
+      `,
+      [
+        current.exerciseId,
+        current.workoutId,
+        current.startedAt,
+        current.startedAt,
+        current.workoutId,
+        machineBrand,
+        occurrence,
+      ],
+    );
+    if (matching !== undefined) return fromWorkoutExerciseRow(matching);
+  }
   const workoutId = db.value<number>(
     `
     SELECT w.id FROM workout w WHERE w.isInProgress = 0 AND w.id <> ?
@@ -100,10 +191,10 @@ export function previousExerciseEntry(db: Database, entryId: number): WorkoutExe
 /** Pre-cycle completed sets for deload load calculations; walks stage rows back to the first normal predecessor.
  * Missing normal history returns no load baseline rather than guessing an unrounded original weight.
  */
-export function deloadBaseline(db: Database, entryId: number): WorkoutSet[] {
-  let previous = previousExerciseEntry(db, entryId);
+export function deloadBaseline(db: Database, entryId: number, machineBrand: string | null = null): WorkoutSet[] {
+  let previous = previousExerciseEntry(db, entryId, machineBrand);
   while (previous !== undefined && (previous.deloadStage ?? null) !== null)
-    previous = previousExerciseEntry(db, previous.id);
+    previous = previousExerciseEntry(db, previous.id, machineBrand);
   return previous === undefined ? [] : completedEntrySets(db, previous.id);
 }
 

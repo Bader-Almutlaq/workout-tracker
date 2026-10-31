@@ -1,3 +1,4 @@
+import type { Equipment } from '../../../core/library/Equipment';
 import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
 import { isTimedExercise } from './isTimedExercise';
 import { Plus } from 'lucide-react';
@@ -17,11 +18,13 @@ import { TemplateExerciseList } from './TemplateExerciseList';
 export function TemplateForm({
   model,
   names,
+  equipment,
   folders,
   tracking,
 }: {
   readonly model: TemplateEditorModel;
   readonly names: ReadonlyMap<number, string>;
+  readonly equipment: ReadonlyMap<number, Equipment | null>;
   readonly folders: readonly FolderChoice[];
   readonly tracking: ReadonlyMap<number, ExerciseTracking>;
 }) {
@@ -29,7 +32,7 @@ export function TemplateForm({
   return (
     <>
       <TemplateDetailsSection model={model} folders={folders} />
-      <TemplateExerciseList model={model} names={names} tracking={tracking} />
+      <TemplateExerciseList model={model} names={names} equipment={equipment} tracking={tracking} />
       <Button onPress={model.startPicking}>
         <Plus size={16} strokeWidth={2} aria-hidden />
         Add exercise

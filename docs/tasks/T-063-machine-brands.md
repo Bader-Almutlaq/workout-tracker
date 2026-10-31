@@ -81,4 +81,43 @@ Attachments and grips (also in §8) are **not** part of this task.
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+**Round 3 screens and deload fix implemented.**
+
+- `make format` and `make verify` passed: 167 test files, 1,247 tests, production build. Picker test covers ordering and available choices; it does not simulate Other/None taps. Phone visual checks remain outstanding.
+
+- The picker shares recent manufacturers across live exercises and template drafts; custom names use the core normalizer. Live changes use the existing logging queue.
+- Charts encode selections as `?machine=brand:<name>` or `?machine=unrecorded`; the omitted parameter means all machines. History labels repeated entries separately.
+- Deload predecessor and baseline searches prefer the matching manufacturer and fall back to the existing occurrence-based lookup. No deload formula changed.
+
+
+**Round 2 core and worker implemented; Round 3 screens remain.**
+
+- `WorkoutLogger.setMachineBrand` normalizes or clears the manufacturer. Template starts copy their brand, otherwise new entries use the latest finished entry's brand. `usedMachineBrands` returns finished-session names newest first, deduplicated without regard to case.
+- `machinePreviousPerformance` selects the same occurrence and brand before falling back; live entries expose `previousOtherMachine`, and progression suggestions are suppressed on fallback. Deload calculations remain unchanged.
+- `ExerciseSeries` exposes `machineEntries`, `machineBrands` and `filterMachine`; filtering works at occurrence/set level within a session. Worker `exerciseCharts(exerciseId, machine?)` uses omitted argument for all, `null` for unrecorded, and a string for a brand. `exerciseHistory` and workout detail expose brands per entry. Records remain unfiltered.
+- Round 3 must implement the picker, live and template controls, history labels and URL-backed chart chips, including full-screen filtering. Existing session aggregation can contain several `machineEntries`.
+- `make format` and `make verify` passed: 166 test files, 1,245 tests, production build. No commit or board change.
+
+## Round 2 (lead): core and worker
+
+The list, migration and template storage are reviewed and committed. Finish the **core and worker** part now; the screens come in Round 3. Do all of it in this run.
+
+- Move the 40-character limit into a named frozen constant (`MachineBrandLimits`) with its `Heuristic:` note.
+- `WorkoutLogger` and the worker API: set and clear a workout exercise's brand (normalized); defaults when an exercise enters a workout (spec 3); a query for the brands used before, most recent first.
+- `previousPerformance` follows the machine (spec 5): same brand first (same template first), matching the **occurrence and the brand together** for repeated entries; otherwise fall back and report it came from another machine. Return that flag in the live workout data so the screen can show "Previous: other machine".
+- Progression gives no suggestion from another machine's values.
+- `LiveWorkout`, `WorkoutHistory` and `ExerciseSeries` (or the Charts helper) expose the brand per entry/session, plus the distinct brands of an exercise and a filter by brand or "not recorded".
+- Tests for every item, as listed in the acceptance criteria. `make format` and `make verify` must pass. Update the Handoff.
+
+## Round 3 (lead): screens, plus one core fix
+
+Round 2 is reviewed and committed. Do all of this in this run.
+
+- **Core fix:** in `LiveWorkout`, deload's `prior` and `deloadBaseline` still pick the previous entry on any machine, while the greyed values follow the brand. When the entry has a brand, both should prefer the previous entries **with the same brand** (fall back to today's behaviour when none). Keep `DeloadPlan` itself unchanged. Add a test: deload on Panatta after a heavier Hammer Strength session suggests from the Panatta baseline.
+- **Screens** (spec 2, 4 and 6):
+  - `MachineBrandSheet` (+ test) and the **Machine…** item in the exercise ⋯ menu, only when `usesMachineBrand` is true.
+  - The brand on the info line (tap reopens the sheet) and "Previous: other machine" when `previousOtherMachine` is true.
+  - The template editor card control.
+  - The History tab label per session, and the Charts tab chips with `?machine=` (hidden with fewer than two distinct values; the full-screen view respects the filter).
+- Components stay small, use existing design components and tokens, and work at 430 × 932 in dark and light.
+- `make format` and `make verify` must pass. Update the Handoff.

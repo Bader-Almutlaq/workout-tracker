@@ -8,7 +8,7 @@ import { progressionPlan, type ProgressionSuggestion } from '../logging/Progress
 import { TemplateCatalog } from './TemplateCatalog';
 import {
   matchPreviousSets,
-  previousPerformance,
+  machinePreviousPerformance,
   previousExerciseEntry,
   deloadBaseline,
   completedEntrySets,
@@ -17,6 +17,8 @@ import {
 /** An exercise with planned and completed sets and the previous session's completed sets. */
 export interface LiveWorkoutEntry extends WorkoutDetailEntry {
   readonly previous: readonly WorkoutSet[];
+  /** True when recorded machine history was unavailable and previous sets are from another machine. */
+  readonly previousOtherMachine?: boolean;
   /** Ephemeral deload values replace progression; the stored stage remains visible without history. */
   readonly deload?: {
     readonly reductionPercent: number;
@@ -51,18 +53,20 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
       const planned = template?.exercises.filter((entry) => entry.exerciseId === item.exercise.id)[occurrence];
       const stage = item.entry.deloadStage ?? null;
       const enabled = stage === null && detail.workout.isInProgress && planned?.progression === 'double';
-      const previous = previousPerformance(
+      const result = machinePreviousPerformance(
         db,
         item.exercise.id,
         workoutId,
         enabled ? detail.workout.templateId : null,
-        enabled ? occurrence : null,
+        enabled || (item.entry.machineBrand ?? null) !== null ? occurrence : null,
+        item.entry.machineBrand ?? null,
       );
+      const previous = result.sets;
       if (stage !== null && detail.workout.isInProgress) {
-        const priorEntry = previousExerciseEntry(db, item.entry.id);
+        const priorEntry = previousExerciseEntry(db, item.entry.id, item.entry.machineBrand ?? null);
         // Deload is per exercise across workouts, independent of an opt-in template progression mode.
         const prior = priorEntry === undefined ? [] : completedEntrySets(db, priorEntry.id);
-        const baseline = deloadBaseline(db, item.entry.id);
+        const baseline = deloadBaseline(db, item.entry.id, item.entry.machineBrand ?? null);
         const units = new Set(item.sets.map((set) => set.entryUnit));
         const calculated = new Map(
           [...units].map((unit) => [
@@ -72,7 +76,8 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
         );
         return {
           ...item,
-          previous: prior,
+          previous: (item.entry.machineBrand ?? null) === null ? prior : previous,
+          previousOtherMachine: result.otherMachine,
           deload: {
             reductionPercent: DeloadPlan.reductionPercent(item.exercise, stage),
             suggestions: item.sets.flatMap((set, position) => {
@@ -84,7 +89,7 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
           },
         };
       }
-      if (!enabled || planned === undefined) return { ...item, previous };
+      if (!enabled || planned === undefined) return { ...item, previous, previousOtherMachine: result.otherMachine };
       const targets = matchPreviousSets(item.sets, planned.sets);
       const units = new Set(item.sets.map((set) => set.entryUnit));
       const calculated = new Map(
@@ -94,9 +99,11 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
       return {
         ...item,
         previous,
+        previousOtherMachine: result.otherMachine,
         progression: {
           targets: planned.sets,
           suggestions: item.sets.flatMap((set, position) => {
+            if (result.otherMachine) return [];
             const target = targets[position];
             const targetPosition = target === undefined ? undefined : positions.get(target);
             const suggestion =

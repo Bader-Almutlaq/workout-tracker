@@ -259,3 +259,12 @@ the cycle as their load baseline, so stage 2 builds back toward that load instea
 again. Reps repeat the immediate previous completed working position; sets stay unchanged. Missing
 original positions omit their load suggestion. Normal logging resumes after stage 2 using the existing
 previous-performance/progression behavior; it does not force a return to a particular weight.
+
+
+## Machine manufacturers (T-063, schema v10)
+
+`v10-machine-brand` adds nullable `machineBrand TEXT` to `workoutExercise` and
+`templateExercise`. Existing rows remain NULL. Database backups include these columns and
+older backups are validated after migration on an in-memory copy. Template storage normalizes
+the name and preserves it when editing, duplicating, or creating a template from a workout.
+The picker and machine-aware workout behavior are not yet implemented.

@@ -348,3 +348,33 @@ test('Template matches warm-ups and work sets independently and falls back to ta
     ['warmup', 15],
   ]);
 });
+
+test('defaults, normalizes and clears the workout machine brand', async () => {
+  const { db, logger } = await fixture();
+  db.run('UPDATE workoutExercise SET machineBrand = ? WHERE id = 1', ['Panatta']);
+  const { entry } = setup(logger);
+  expect(workoutDetail(db, logger.activeWorkoutId() ?? 0)?.entries[0]?.entry.machineBrand).toBe('Panatta');
+  logger.setMachineBrand(entry, '  hammer   strength ');
+  expect(db.value('SELECT machineBrand FROM workoutExercise WHERE id = ?', [entry])).toBe('Hammer Strength');
+  logger.setMachineBrand(entry, null);
+  expect(db.value('SELECT machineBrand FROM workoutExercise WHERE id = ?', [entry])).toBeNull();
+  db.close();
+});
+
+test('template brand takes precedence and blocks progression from another machine', async () => {
+  const { db, logger } = await fixture();
+  db.exec(`
+    UPDATE workoutExercise SET machineBrand = 'Atlas' WHERE id = 1;
+    INSERT INTO template (id, name, position, createdAt, updatedAt) VALUES (1, 'Plan', 0, 'a', 'a');
+    INSERT INTO templateExercise (id, templateId, exerciseId, position, progression, machineBrand)
+      VALUES (1, 1, 1, 0, 'double', 'Panatta'), (2, 1, 2, 1, NULL, NULL);
+    INSERT INTO templateSet (templateExerciseId, position, kind, targetRepsLow, targetRepsHigh)
+      VALUES (1, 0, 'working', 8, 12), (2, 0, 'working', 8, 12);
+  `);
+  const workout = logger.startFromTemplate(1, now);
+  const first = liveWorkoutSnapshot(db, workout)?.entries[0];
+  expect(first?.entry.machineBrand).toBe('Panatta');
+  expect(first?.previousOtherMachine).toBe(true);
+  expect(first?.progression?.suggestions).toEqual([]);
+  db.close();
+});

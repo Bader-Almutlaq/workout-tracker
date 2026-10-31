@@ -1,3 +1,4 @@
+import { usedMachineBrands } from '../core/queries/PreviousPerformance';
 import type { DeloadStage } from '../core/logging/DeloadPlan';
 import { ExerciseSeries } from '../core/queries/ExerciseSeries';
 import { RepMaxTable } from '../core/queries/RepMaxTable';
@@ -665,6 +666,15 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     }),
     // End of Edit past workouts (T-050)
 
+    /** Manufacturers used in finished sessions, newest first. */
+    usedMachineBrands: serially(async (): Promise<string[]> => usedMachineBrands((await liveStore()).database)),
+
+    /** Saves or clears one workout entry's manufacturer. */
+    setMachineBrand: serially(async (entryId: number, brand: string | null): Promise<void> => {
+      workoutLogger((await liveStore()).database).setMachineBrand(entryId, brand);
+      notifyListeners();
+    }),
+
     // Deload (T-062)
     /** Saves/clears an exercise's deload stage; suggestions are calculated separately and sets remain intact. */
     setDeloadStage: serially(async (entryId: number, stage: DeloadStage | null): Promise<void> => {
@@ -873,9 +883,11 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     }),
 
     /** All applicable per-session chart series, in kg, kg × reps, reps or seconds; formulas live in core. */
-    exerciseCharts: serially(async (exerciseId: number) => {
-      const history = ExerciseSeries.read((await liveStore()).database, exerciseId);
+    exerciseCharts: serially(async (exerciseId: number, machine?: string | null) => {
+      const allHistory = ExerciseSeries.read((await liveStore()).database, exerciseId);
+      const history = machine === undefined ? allHistory : ExerciseSeries.filterMachine(allHistory, machine);
       return {
+        machineBrands: ExerciseSeries.machineBrands(allHistory),
         deloadDates: history.sessions
           .filter((session) => session.deloadEntryIds.length > 0)
           .map((session) => session.date),

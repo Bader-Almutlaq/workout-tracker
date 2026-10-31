@@ -57,6 +57,7 @@ export function TemplateEditor({
         <TemplateForm
           model={model}
           names={exerciseNamesById(entries)}
+          equipment={new Map(entries.map((entry) => [entry.id, entry.equipment]))}
           folders={folders}
           tracking={tracking.status === 'ready' ? tracking.value : new Map()}
         />

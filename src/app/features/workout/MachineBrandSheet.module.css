@@ -1,0 +1,18 @@
+.list {
+  display: flex;
+  flex-direction: column;
+}
+.list button {
+  min-height: 44px;
+  text-align: left;
+  padding: var(--space-s) var(--space-m);
+  border-bottom: var(--hairline) solid var(--color-border);
+  color: var(--color-text-primary);
+  font: var(--font-callout);
+}
+.other {
+  display: grid;
+  gap: var(--space-s);
+  padding: var(--space-m);
+  color: var(--color-status-critical);
+}
