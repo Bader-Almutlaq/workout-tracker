@@ -19,7 +19,7 @@
   flex-direction: column;
   gap: var(--space-s);
   width: 100%;
-  min-height: 150px;
+  min-height: 7.5rem;
   padding: var(--space-m);
   padding-right: var(--space-xl);
   text-align: left;

@@ -263,3 +263,7 @@ Settings occupies the fifth tab. Full History opens from the Workout header, whi
 ## 2026-10-31: Confirm accidental workout finishes
 
 Ask before discarding a workout with no completed sets. For a workout under five minutes ask whether to save; when the last completed set is over sixty minutes old offer to end at that set. Ask about remaining planned sets after these checks. These thresholds are owner-requested heuristics.
+
+## 2026-10-31: A workout made from a session claims its unlinked namesakes
+
+History imported from Strong has no templates, so a workout created from a past session (drag into a plan, Add to plan…, Save as workout) would start with an empty History and Analytics. `TemplateStore.createFromWorkout` therefore links every finished session with the same name (ignoring case and surrounding spaces) that belongs to no template, the source included. It only fills the empty `workout.templateId`; sessions already linked to another workout are left alone, and no logged values change.

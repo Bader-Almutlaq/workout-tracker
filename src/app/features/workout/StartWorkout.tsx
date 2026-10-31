@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
 import { History } from 'lucide-react';
-import styles from '../../design/components/SettingsButton.module.css';
+import { HeaderLink } from '../../design/components/HeaderLink';
 import { WorkoutDrag } from '../../design/drag/WorkoutDrag';
 import { Button } from '../../design/components/Button';
 import { Screen } from '../../design/components/Screen';
@@ -22,14 +21,7 @@ export function StartWorkout() {
   };
 
   return (
-    <Screen
-      title="Workout"
-      trailing={
-        <Link to="/history" className={styles.button} aria-label="History">
-          <History size={22} aria-hidden />
-        </Link>
-      }
-    >
+    <Screen title="Workout" trailing={<HeaderLink to="/history" label="History" icon={History} />}>
       <LoggingErrorBanner />
       <Button variant="primary" isDisabled={isStarting} onPress={() => start(() => startEmptyWorkout())}>
         Start empty workout
