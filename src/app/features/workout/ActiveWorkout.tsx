@@ -10,7 +10,8 @@ import { loggingQueue, useLoggingError } from './loggingQueue';
 import { NumberPad } from './NumberPad';
 import { padTitle } from './padTitle';
 import { RenameWorkoutDialog } from './RenameWorkoutDialog';
-import { RestBar } from './RestBar';
+import { WorkoutMenu } from './WorkoutMenu';
+import { WorkoutMetadata } from './WorkoutMetadata';
 import { TypoPromptDialog } from './TypoPromptDialog';
 import { useActiveWorkout } from './useActiveWorkout';
 import { WorkoutConfirmDialog } from './WorkoutConfirmDialog';
@@ -19,7 +20,7 @@ import { recordsWeight } from './trackingKinds';
 
 /**
  * The screen for the workout in progress: a bar with the clock and Finish, a card for each exercise,
- * "Add exercise", the rest bar after a completed set, and the number pad while a cell is edited.
+ * "Add exercise", session metadata, and the number pad while a cell is edited.
  */
 export function ActiveWorkout({ snapshot }: { readonly snapshot: LiveWorkoutSnapshot }) {
   const model = useActiveWorkout(snapshot);
@@ -30,13 +31,9 @@ export function ActiveWorkout({ snapshot }: { readonly snapshot: LiveWorkoutSnap
   return (
     <Screen
       title={<WorkoutTitle name={workout.name} onPress={model.startRenaming} />}
-      leading={
-        <ActiveWorkoutBar
-          startedAt={workout.startedAt}
-          onFinish={model.requestFinish}
-          onDiscard={model.requestDiscard}
-        />
-      }
+      subtitle={<WorkoutMetadata startedAt={workout.startedAt} />}
+      titleAccessory={<WorkoutMenu onRename={model.startRenaming} onDiscard={model.requestDiscard} />}
+      leading={<ActiveWorkoutBar startedAt={workout.startedAt} onFinish={model.requestFinish} />}
     >
       {editing === undefined && <LoggingErrorBanner />}
       <div className={styles.cards}>
@@ -73,7 +70,6 @@ export function ActiveWorkout({ snapshot }: { readonly snapshot: LiveWorkoutSnap
           onUnitChange={model.switchEditedUnit}
         />
       )}
-      <RestBar entries={entries} isHidden={editing !== undefined} />
       {model.isRenaming && (
         <RenameWorkoutDialog name={workout.name} onRename={model.rename} onCancel={model.cancelRenaming} />
       )}

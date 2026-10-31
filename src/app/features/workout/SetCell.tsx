@@ -5,6 +5,7 @@ import type { EditedCell } from './CellEditor';
 import { cellText, isCellEmpty } from './setCellText';
 import { recordsDuration } from './trackingKinds';
 import { ValueCell } from './ValueCell';
+import type { ValueSuggestion } from './ValueSuggestion';
 
 /** The name of a cell for screen readers. */
 function cellName(field: Field, tracking: ExerciseTracking): string {
@@ -25,6 +26,7 @@ export function SetCell({
   unitSuffix,
   onPress,
   isSuggested = false,
+  suggestion,
 }: {
   readonly set: WorkoutSet;
   readonly field: Field;
@@ -34,6 +36,8 @@ export function SetCell({
   readonly unitSuffix?: string;
   readonly onPress: () => void;
   readonly isSuggested?: boolean;
+  /** Opt-in value beside the current value, using the cell's display unit. */
+  readonly suggestion?: ValueSuggestion | undefined;
 }) {
   const isEditing = editing?.cell.field === field;
   const emptyText = field === 'rpe' ? '—' : '0';
@@ -46,6 +50,7 @@ export function SetCell({
       isEditing={isEditing}
       {...(unitSuffix === undefined ? {} : { unitSuffix })}
       onPress={onPress}
+      {...(suggestion === undefined ? {} : { suggestion })}
     />
   );
 }

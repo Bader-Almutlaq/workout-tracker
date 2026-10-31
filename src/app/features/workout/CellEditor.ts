@@ -14,6 +14,10 @@ export interface EditedCell {
 
 /** The state of the number pad and what its keys do. */
 export interface CellEditor {
+  /** Whether a value was entered or explicitly accepted in this mounted editor. */
+  isValueEntered(setId: number, field: Field): boolean;
+  /** Saves a suggestion through the same queue as typing, in the set's entry unit (seconds for time). */
+  acceptSuggestion(cell: Cell, value: number): void;
   /** The cell being edited, or `undefined` when the pad is closed (or its set is gone). */
   readonly editing: EditedCell | undefined;
   /** Opens the pad on a cell, saving the cell it was on before. */

@@ -21,7 +21,7 @@
 }
 
 .finish {
-  min-height: 36px;
+  min-height: var(--workout-tap-size);
   padding: 0 var(--space-l);
   background: var(--color-accent);
   border-radius: var(--radius-small);

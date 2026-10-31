@@ -1,0 +1,8 @@
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-s) var(--space-l);
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+}

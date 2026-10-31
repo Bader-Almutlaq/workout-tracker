@@ -1,3 +1,8 @@
+import { displayValue } from '../../../core/units/Weight';
+import type { ValueSuggestion } from './ValueSuggestion';
+import type { Field } from './Cell';
+import { cellText } from './setCellText';
+import { recordsDuration } from './trackingKinds';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { WorkoutTextField } from './WorkoutTextField';
 import { useEffect, useRef } from 'react';
@@ -30,6 +35,7 @@ export function SetRow({
   onNotesChange,
   isPastWorkout = false,
   displayUnit,
+  showsEmptyRpe = false,
 }: {
   readonly entry: LiveWorkoutEntry;
   readonly set: WorkoutSet;
@@ -46,6 +52,8 @@ export function SetRow({
   readonly isPastWorkout?: boolean;
   /** The card header unit, so mixed imported units are always identified correctly. */
   readonly displayUnit?: WeightUnit;
+  /** Live exercise-level opt-in to empty RPE badges. */
+  readonly showsEmptyRpe?: boolean;
   readonly onNotesChange?: (notes: string) => void;
 }) {
   const { tracking } = entry.exercise;
@@ -62,6 +70,22 @@ export function SetRow({
   const isInOtherUnit =
     set.entryUnit !== defaultEntryUnit && !(isBodyweightLoad(tracking) && set.weightKilograms === 0);
   const edit = (field: 'weight' | 'reps' | 'rpe') => () => actions.edit(set.id, field);
+  const isPrefilled = (field: Field) =>
+    !isPastWorkout && !set.isCompleted && actions.isValueEntered?.(set.id, field) !== true;
+  const suggestion = (field: 'weight' | 'reps'): ValueSuggestion | undefined => {
+    const apply = actions.applySuggestion;
+    if (!isSuggested || !isPrefilled(field) || apply === undefined || isPastWorkout) return undefined;
+    return {
+      value:
+        field === 'weight'
+          ? displayValue(set.weightKilograms, set.entryUnit)
+          : recordsDuration(tracking)
+            ? (set.durationSeconds ?? 0)
+            : set.reps,
+      text: cellText(set, field, tracking),
+      onAccept: (value) => apply(set.id, field, value),
+    };
+  };
 
   return (
     <SwipeToDelete label="Delete set" onDelete={() => actions.deleteSet(set.id)}>
@@ -69,6 +93,7 @@ export function SetRow({
         ref={row}
         className={`${grid.grid} ${styles.row}`}
         data-weight={recordsWeight(tracking)}
+        data-past={isPastWorkout}
         data-completed={set.isCompleted}
         data-warmup={set.kind === 'warmup'}
         data-separator={separatesWarmups}
@@ -86,7 +111,8 @@ export function SetRow({
           <SetCell
             set={set}
             field="weight"
-            isSuggested={isSuggested}
+            isSuggested={isPrefilled('weight')}
+            suggestion={suggestion('weight')}
             tracking={tracking}
             editing={editing}
             {...(isInOtherUnit ? { unitSuffix: set.entryUnit } : {})}
@@ -94,17 +120,19 @@ export function SetRow({
           />
         )}
         <SetCell
-          isSuggested={isSuggested}
+          isSuggested={isPrefilled('reps')}
+          suggestion={suggestion('reps')}
           set={set}
           field="reps"
           tracking={tracking}
           editing={editing}
           onPress={edit('reps')}
         />
-        <SetCell set={set} field="rpe" tracking={tracking} editing={editing} onPress={edit('rpe')} />
+        {isPastWorkout && <SetCell set={set} field="rpe" tracking={tracking} editing={editing} onPress={edit('rpe')} />}
         <CheckButton
           isCompleted={set.isCompleted}
           isDisabled={isPastWorkout}
+          {...(isPastWorkout ? {} : { rpe: set.rpe, showsEmptyRpe, onEditRpe: edit('rpe') })}
           onPress={() => actions.toggleCompleted(entry, set)}
         />
       </div>

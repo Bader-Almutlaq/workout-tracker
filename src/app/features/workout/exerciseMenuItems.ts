@@ -1,0 +1,58 @@
+import { ArrowDown, ArrowLeftRight, ArrowUp, FileText, Gauge, Timer, Trash2 } from 'lucide-react';
+import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
+import type { WeightUnit } from '../../../core/units/WeightUnit';
+import type { ActionMenuItem } from '../../design/components/ActionMenuRow';
+import type { ExerciseCardActions } from './ExerciseCardActions';
+import { recordsWeight } from './trackingKinds';
+import { warmupMenuItem } from './warmupMenuItem';
+
+/** Existing exercise operations only; unsupported sticky notes, replacement and supersets are omitted. */
+export function exerciseMenuItems({
+  entry,
+  index,
+  count,
+  actions,
+  unit,
+  live,
+}: {
+  readonly entry: LiveWorkoutEntry;
+  readonly index: number;
+  readonly count: number;
+  readonly actions: ExerciseCardActions;
+  readonly unit: WeightUnit;
+  /** UI-only actions supplied by live cards; history keeps its existing menu. */
+  readonly live?:
+    | {
+        readonly editNote: () => void;
+        readonly editRest: () => void;
+        readonly showRpe: () => void;
+        readonly showsRpe: boolean;
+      }
+    | undefined;
+}): readonly ActionMenuItem[] {
+  const entryId = entry.entry.id;
+  return [
+    ...(live !== undefined && actions.saveNotes !== undefined
+      ? [{ label: entry.entry.notes ? 'Edit note' : 'Add note', icon: FileText, onSelect: live.editNote }]
+      : []),
+    ...(actions.toggleWarmups === undefined
+      ? []
+      : [warmupMenuItem(entry.sets, (remove) => actions.toggleWarmups?.(entryId, remove))]),
+    ...(live !== undefined && actions.setRestTarget !== undefined
+      ? [{ label: 'Rest time', icon: Timer, onSelect: live.editRest }]
+      : []),
+    ...(live !== undefined && !live.showsRpe ? [{ label: 'Show RPE', icon: Gauge, onSelect: live.showRpe }] : []),
+    ...(live !== undefined && recordsWeight(entry.exercise.tracking)
+      ? [
+          {
+            label: `Unit: ${unit} → ${unit === 'kg' ? 'lb' : 'kg'}`,
+            icon: ArrowLeftRight,
+            onSelect: () => actions.switchUnit(entryId, unit === 'kg' ? 'lb' : 'kg'),
+          },
+        ]
+      : []),
+    { label: 'Move up', icon: ArrowUp, isDisabled: index === 0, onSelect: () => actions.move(entryId, -1) },
+    { label: 'Move down', icon: ArrowDown, isDisabled: index === count - 1, onSelect: () => actions.move(entryId, 1) },
+    { label: 'Remove exercise', icon: Trash2, isDestructive: true, onSelect: () => actions.requestRemoval(entry) },
+  ];
+}

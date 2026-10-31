@@ -12,12 +12,15 @@ import styles from './Screen.module.css';
 export function Screen({
   title,
   subtitle,
+  titleAccessory,
   leading,
   trailing,
   children,
 }: {
   readonly title: ReactNode;
-  readonly subtitle?: string;
+  readonly subtitle?: ReactNode;
+  /** Optional action beside the title, without placing interactive menus inside the heading. */
+  readonly titleAccessory?: ReactNode;
   readonly leading?: ReactNode;
   /** Optional trailing header action; main tab roots default to the Settings gear. */
   readonly trailing?: ReactNode;
@@ -30,7 +33,10 @@ export function Screen({
       {leading}
       <header className={styles.header}>
         <div className={styles.titleRow}>
-          <h1 className={styles.title}>{title}</h1>
+          <div className={styles.heading}>
+            <h1 className={styles.title}>{title}</h1>
+            {titleAccessory}
+          </div>
           {action}
         </div>
         {subtitle !== undefined && <p className={styles.subtitle}>{subtitle}</p>}

@@ -32,6 +32,20 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
   };
 
   const cardActions: ExerciseCardActions = {
+    isValueEntered: editor.isValueEntered,
+    applySuggestion: (setId, field, value) => editor.acceptSuggestion({ setId, field }, value),
+    openExercise: (exerciseId) => {
+      editor.close();
+      navigate(`/exercises/${exerciseId}`);
+    },
+    saveNotes: (entryId, notes) => {
+      editor.close();
+      actions.saveExerciseNotes(entryId, notes);
+    },
+    setRestTarget: (exerciseId, seconds) => {
+      editor.close();
+      actions.setRestTarget(exerciseId, seconds);
+    },
     edit: editor.begin,
     toggleCompleted: (entry: LiveWorkoutEntry, set) => {
       editor.close();
