@@ -1,11 +1,11 @@
 import type { BodyMeasurement } from '../../../core/models/BodyMeasurement';
 import type { MeasurementSite, MeasurementUnit } from '../../../core/measurements/MeasurementSite';
-import { Button } from '../../design/components/Button';
+import { SwipeToDelete } from '../../design/components/SwipeToDelete';
 import { measurementText } from './measurementText';
 import { measurementTimestamp } from './measurementTimestamp';
 import styles from './Body.module.css';
 
-/** Every entry, newest first, with explicit edit/delete actions. */
+/** Every entry, newest first, one compact row each: tap to edit, swipe left to delete. */
 export function MeasurementHistory({
   entries,
   unit,
@@ -20,22 +20,29 @@ export function MeasurementHistory({
   readonly onDelete: (entry: BodyMeasurement) => void;
 }) {
   return (
-    <section className={styles.stack} aria-label="Full measurement history">
-      <h3 className={styles.title}>All measurements</h3>
-      {entries.toReversed().map((entry) => (
-        <div key={entry.id} className={styles.row}>
-          <p className={styles.values}>
-            {measurementText(entry.value, unit)} · {sites.find((site) => site.key === entry.site)?.name ?? entry.site}
-          </p>
-          <p className={styles.caption}>{measurementTimestamp(entry.takenAt)}</p>
-          <div className={styles.actions}>
-            <Button onPress={() => onEdit(entry)}>Edit</Button>
-            <Button variant="destructive" onPress={() => onDelete(entry)}>
-              Delete
-            </Button>
-          </div>
-        </div>
-      ))}
+    <section className={styles.historyList} aria-label="Full measurement history">
+      <p className={styles.caption}>Tap an entry to edit it, or swipe left to delete.</p>
+      {entries.toReversed().map((entry) => {
+        const site = sites.find((item) => item.key === entry.site)?.name ?? entry.site;
+        return (
+          <SwipeToDelete
+            key={entry.id}
+            label={`Delete ${site} ${measurementText(entry.value, unit)}`}
+            onDelete={() => onDelete(entry)}
+          >
+            <button type="button" className={styles.historyRow} onClick={() => onEdit(entry)}>
+              <span className={styles.historyWhen}>
+                {measurementTimestamp(entry.takenAt)}
+                <span className={styles.caption}>
+                  {sites.length > 1 ? `${site} · ` : ''}
+                  {entry.state === 'flexed' ? 'Flexed' : 'Relaxed'}
+                </span>
+              </span>
+              <span className={styles.values}>{measurementText(entry.value, unit)}</span>
+            </button>
+          </SwipeToDelete>
+        );
+      })}
     </section>
   );
 }

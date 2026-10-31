@@ -1,50 +1,45 @@
+import { Plus } from 'lucide-react';
 import type { MeasurementGroup } from '../../../core/measurements/MeasurementQueries';
 import type { MeasurementUnits } from '../../../core/measurements/MeasurementUnits';
-import { groupValues, measurementChangeText, siteUnit } from './measurementText';
+import { groupValues } from './measurementText';
 import styles from './Body.module.css';
 
-/** A compact selectable group, with its latest values and dated comparisons. */
+/** One body-part row, keeping paired values together and offering a separate quick-log touch target. */
 export function MeasurementGroupRow({
   group,
   units,
   onSelect,
-  empty = false,
+  onLog,
 }: {
   readonly group: MeasurementGroup;
   readonly units: MeasurementUnits;
   readonly onSelect: (key: string) => void;
-  readonly empty?: boolean;
+  readonly onLog: (key: string) => void;
 }) {
+  const first = group.sites[0]?.site;
+  const hasRelaxed = group.sites.some((item) => item.relaxed.latest !== null);
+  const hasFlexed = group.sites.some((item) => item.flexed.latest !== null);
   return (
-    <button type="button" className={styles.rowButton} onClick={() => onSelect(group.key)}>
-      <span className={styles.rowHeading}>
-        <span>{group.name}</span>
-        {!empty && <span>{groupValues(group, 'relaxed', units)}</span>}
-      </span>
-      {!empty &&
-        group.sites.flatMap((summary) =>
-          (['relaxed', 'flexed'] as const).map((state) => {
-            const change = summary[state];
-            if (change.latest === null) return null;
-            const side = summary.site.side === null ? '' : `${summary.site.side === 'left' ? 'L' : 'R'} · `;
-            const label = state === 'flexed' ? 'Flexed · ' : '';
-            return (
-              <span key={`${summary.site.key}-${state}`} className={styles.caption}>
-                {side}
-                {label}
-                {measurementChangeText(
-                  change.fourWeeks,
-                  siteUnit(summary.site, units),
-                  change.fourWeeksReference?.takenAt ?? null,
-                  change.first?.takenAt ?? null,
-                )}
-              </span>
-            );
-          }),
-        )}
-      {!empty && group.sites.some((site) => site.flexed.latest !== null) && (
-        <span className={styles.caption}>Flexed · {groupValues(group, 'flexed', units)}</span>
-      )}
-    </button>
+    <div className={styles.groupRow}>
+      <button type="button" className={styles.rowButton} onClick={() => onSelect(group.key)}>
+        <span className={styles.rowHeading}>
+          <span>{group.name}</span>
+          <span className={styles.latest}>
+            {hasRelaxed && <span>{groupValues(group, 'relaxed', units)}</span>}
+            {hasFlexed && <span>{groupValues(group, 'flexed', units)} · Flexed</span>}
+          </span>
+        </span>
+      </button>
+      <button
+        type="button"
+        className={styles.plus}
+        aria-label={`Log ${group.name}`}
+        onClick={() => {
+          if (first !== undefined) onLog(first.key);
+        }}
+      >
+        <Plus size={22} aria-hidden />
+      </button>
+    </div>
   );
 }

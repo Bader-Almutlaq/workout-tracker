@@ -15,7 +15,7 @@ export function useBodyAction() {
       onSuccess();
     } catch (failure) {
       log.ui.error('Body measurement action failed', failure);
-      setError(messageOf(failure));
+      setError(messageOf(failure).replace(/\bsite\b/gi, 'body part'));
     } finally {
       setBusy(false);
     }

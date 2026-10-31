@@ -111,3 +111,11 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
 - Source: `design/app-icon.svg`. Render with `make icon` into `public/icon-192.png`, `public/icon-512.png` and `public/apple-touch-icon.png` (the Home Screen icon). Never edit the PNGs by hand.
 - Concept: the end of a loaded barbell from the side. The plates grow left to right, so the mark also reads as a rising bar chart. It is the indigo accent on the near-black background, with no text.
 - Graphics are drawn as SVG by agents. A design tool such as Figma isn't needed for marks this simple.
+
+## Long-range charts
+
+`LongRangeChart` is the shared period chart for Measure and future entity pages. Its small view shows all recorded history: daily buckets through 92 elapsed days, ISO weeks through 730 days, and calendar months beyond. A caller chooses mean (measurements), maximum (strength), or last. Periods and labels use UTC; missing periods are not filled. The 2 px line shows the aggregate, with a faint min–max band only where buckets contain multiple observations. A single populated bucket retains a dot and a narrow spread mark. Paired parts use independent named series on one axis; legend text stays in ink colors.
+
+Tap the chart to open a full-screen native dialog, with safe-area padding, a Close button and Escape support. Range chips are 3M, 6M, 1Y and All, anchored to the latest recorded observation so older history remains readable. Month subtraction clamps at month ends. Full-screen periods are one step finer (month → week, week → day); daily is the floor. Touch/arrow-key selection uses the shared rule and reads out all series at that period, including value, min, max and count. Each view offers a table of the same buckets. Range selection clips observations before aggregation, so boundary buckets contain only observations inside the chosen window.
+
+Measure uses grouped body-part rows with latest values on the right and separate + targets. Never-recorded parts appear only in Add body part; selecting one opens the existing log sheet and a first saved entry reveals it. Creating a custom part opens its page immediately for logging. Bodyweight is excluded from this navigation without changing its data. Body-part pages share the Chart · History segmented control; History includes both states, newest first.

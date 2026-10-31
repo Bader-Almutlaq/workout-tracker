@@ -287,6 +287,24 @@ export const MIGRATIONS: readonly Migration[] = [
         ('lower-traps', 'Lower traps', 'back');
     `,
   },
+  {
+    id: 'v7-measurement-ab-guides',
+    sql: `
+      -- Exact old defaults identify uncustomised guides; owner-written notes stay verbatim.
+      UPDATE measurementSite
+      SET guide = 'Lower abs: at the hip bone, tape level, relaxed, after a normal exhale.'
+      WHERE key = 'lower-abs' AND isCustom = 0
+        AND guide = 'Lower abs: halfway between the belly button and the pubic bone, tape level, relaxed, after a normal exhale.';
+      UPDATE measurementSite
+      SET guide = 'Waist: at the belly button, tape level and snug, relaxed, after a normal exhale.'
+      WHERE key = 'waist' AND isCustom = 0
+        AND guide = 'Waist: at the belly button, tape level and snug, relaxed, after a normal exhale.';
+      UPDATE measurementSite
+      SET guide = 'Upper abs: above the belly button, below the ribs, relaxed, after a normal exhale.'
+      WHERE key = 'upper-abs' AND isCustom = 0
+        AND guide = 'Upper abs: halfway between the belly button and the bottom of the breastbone, relaxed, after a normal exhale.';
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `
