@@ -52,4 +52,4 @@ Measure, don't prescribe: suggestions only fill values when the owner taps.
 
 ## Handoff
 
-_Not started._
+Implemented grouped manual warm-ups and type moves in the logger and template editor, with separate add controls. Added theme colours, compact editor controls and an explicit live Progress action; deload suggestions remain separate. The worker `addSet` accepts an optional `working` or `warmup` kind. Tests cover ordering, completed values, type matching, progression labels and button application. `make format` and `make verify` passed: 177 test files, 1,279 tests. Phone-size visual review in dark and light remains outstanding.

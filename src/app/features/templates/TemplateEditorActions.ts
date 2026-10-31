@@ -12,7 +12,7 @@ export interface TemplateEditorActions {
   ): void;
   /** Opens the number pad on a target. */
   edit(cell: TargetCell): void;
-  addSet(exerciseIndex: number): void;
+  addSet(exerciseIndex: number, kind?: 'working' | 'warmup'): void;
   removeSet(exerciseIndex: number, setIndex: number): void;
   /** Steps the set's kind: Working, Warm-up, Drop, Failure. */
   cycleKind(exerciseIndex: number, setIndex: number): void;

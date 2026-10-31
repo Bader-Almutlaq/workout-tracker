@@ -22,7 +22,7 @@ export interface ExerciseCardActions {
   toggleCompleted(entry: LiveWorkoutEntry, set: WorkoutSet): void;
   selectKind(setId: number, kind: SetKind): void;
   deleteSet(setId: number): void;
-  addSet(entryId: number): void;
+  addSet(entryId: number, kind?: 'working' | 'warmup'): void;
   switchUnit(entryId: number, unit: WeightUnit): void;
   /** Adds or removes untouched suggested warm-ups in a live workout. */
   toggleWarmups?(entryId: number, remove: boolean): void;

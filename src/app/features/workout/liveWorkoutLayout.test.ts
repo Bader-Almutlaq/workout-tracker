@@ -116,7 +116,7 @@ test('warm-up suggestions use set entry units, disappear when accepted, and do n
 });
 
 test('warm-up surface and working-set separator use theme classes; failure uses the bad-status token', () => {
-  expect(row({ set: makeSet({ kind: 'warmup' }), label: 'W' })).toContain('data-warmup="true"');
+  expect(row({ set: makeSet({ kind: 'warmup' }), label: 'W' })).toContain('data-kind="warmup"');
   expect(row({ separatesWarmups: true })).toContain('data-separator="true"');
   expect(row({ set: makeSet({ kind: 'failure' }), label: 'F' })).toContain('data-kind="failure">F');
   expect(SET_KIND_CHOICES.map((kind) => SET_KIND_NAMES[kind])).toEqual(['Warm-up', 'Normal', 'Drop', 'Failure']);

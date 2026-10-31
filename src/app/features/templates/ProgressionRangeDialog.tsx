@@ -7,9 +7,11 @@ import { ProgressionRangeDefaults } from './templateProgressionEdits';
 export function ProgressionRangeDialog({
   onSave,
   onCancel,
+  onTurnOff,
 }: {
   readonly onSave: (low: number, high: number) => void;
   readonly onCancel: () => void;
+  readonly onTurnOff?: () => void;
 }) {
   const [low, setLow] = useState(String(ProgressionRangeDefaults.low));
   const [high, setHigh] = useState(String(ProgressionRangeDefaults.high));
@@ -26,6 +28,11 @@ export function ProgressionRangeDialog({
         if (valid) onSave(minimum, maximum);
       }}
     >
+      {onTurnOff !== undefined && (
+        <button type="button" onClick={onTurnOff}>
+          Turn off
+        </button>
+      )}
       <p>For working sets without a complete range. Adjust each set and its optional target RPE in the editor.</p>
       <TextField label="Minimum reps" value={low} onChange={setLow} />
       <TextField label="Maximum reps" value={high} onChange={setHigh} />

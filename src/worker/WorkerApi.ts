@@ -807,8 +807,8 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     }),
 
     /** Appends a planned set that copies the exercise's last set. */
-    addSet: serially(async (entryId: number): Promise<void> => {
-      workoutLogger((await liveStore()).database).addSet(entryId);
+    addSet: serially(async (entryId: number, kind: 'working' | 'warmup' = 'working'): Promise<void> => {
+      workoutLogger((await liveStore()).database).addSet(entryId, kind);
       notifyListeners();
     }),
 

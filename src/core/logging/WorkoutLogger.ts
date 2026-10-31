@@ -643,7 +643,7 @@ export class WorkoutLogger {
   }
 
   /** Appends a set copying the last; historical additions are performed, live additions planned, warm-ups become working. */
-  addSet(entryId: number): number {
+  addSet(entryId: number, kind: 'working' | 'warmup' = 'working'): number {
     return this.db.transaction(() => {
       const entry = this.requireEntry(entryId);
       const exercise = this.db.get<{ defaultEntryUnit: WeightUnit }>(
@@ -652,8 +652,8 @@ export class WorkoutLogger {
       );
       if (exercise === undefined) throw new WorkoutLoggerError('exerciseNotFound');
       const last = this.db.get<WorkoutSetRow>(
-        'SELECT * FROM workoutSet WHERE workoutExerciseId = ? ORDER BY position DESC LIMIT 1',
-        [entryId],
+        'SELECT * FROM workoutSet WHERE workoutExerciseId = ? AND kind = ? ORDER BY position DESC LIMIT 1',
+        [entryId, kind],
       );
       const id = this.db.run(
         `
@@ -662,8 +662,9 @@ export class WorkoutLogger {
       `,
         [
           entryId,
-          (last?.position ?? -1) + 1,
-          last?.kind === 'warmup' ? 'working' : (last?.kind ?? 'working'),
+          (this.db.value<number>('SELECT MAX(position) FROM workoutSet WHERE workoutExerciseId = ?', [entryId]) ?? -1) +
+            1,
+          kind,
           last?.weightKilograms ?? 0,
           last?.entryUnit ?? exercise.defaultEntryUnit,
           last?.reps ?? 0,
@@ -672,7 +673,20 @@ export class WorkoutLogger {
           this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) === 0 ? 1 : 0,
         ],
       ).lastInsertRowId;
-      this.refreshEntryWarmups(entryId);
+      if (kind === 'warmup') {
+        this.warmupStateFor(entryId).edited.add(id);
+        const order = this.db.all<{ id: number; kind: SetKind }>(
+          'SELECT id, kind FROM workoutSet WHERE workoutExerciseId = ? ORDER BY position',
+          [entryId],
+        );
+        this.assignPositions(
+          [...order.filter((set) => set.kind === 'warmup'), ...order.filter((set) => set.kind !== 'warmup')].map(
+            (set) => set.id,
+          ),
+          'workoutSet',
+        );
+      }
+      if (kind === 'working') this.refreshEntryWarmups(entryId);
       return id;
     });
   }
@@ -708,6 +722,18 @@ export class WorkoutLogger {
         ).changes === 0
       )
         throw new WorkoutLoggerError('setNotFound');
+      if ((original.kind === 'warmup') !== (kind === 'warmup')) {
+        const rows = this.db.all<{ id: number; kind: SetKind }>(
+          'SELECT id, kind FROM workoutSet WHERE workoutExerciseId = ? AND id <> ? ORDER BY position',
+          [original.workoutExerciseId, setId],
+        );
+        const boundary = rows.filter((row) => row.kind === 'warmup').length;
+        rows.splice(boundary, 0, { id: setId, kind });
+        this.assignPositions(
+          rows.map((row) => row.id),
+          'workoutSet',
+        );
+      }
       if (original.kind === 'warmup' || kind === 'warmup') {
         const state = warmupState;
         if (original.weightKilograms !== weightKilograms || original.reps !== reps || original.kind !== kind) {

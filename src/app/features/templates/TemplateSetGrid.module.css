@@ -8,3 +8,14 @@
   column-gap: var(--space-xs);
   align-items: center;
 }
+
+.grid {
+  --workout-tap-size: 44px;
+  min-height: 44px;
+}
+
+.grid > div > button {
+  border: var(--space-xs) solid transparent;
+  background-clip: padding-box;
+  box-shadow: none;
+}

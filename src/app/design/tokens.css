@@ -24,6 +24,12 @@
   --color-warmup-row: #e7e9fb;
   --color-warmup-label: #505bb8;
   --color-suggestion: #946000;
+  --color-warmup: #876000;
+  --color-warmup-tint: rgb(180 130 0 / 0.1);
+  --color-failure: #b42e3b;
+  --color-failure-tint: rgb(180 46 59 / 0.1);
+  --color-drop: #8148a8;
+  --color-drop-tint: rgb(129 72 168 / 0.1);
   --color-deload: #946000;
   --color-status-bad: #d03b3b;
   /* Heuristic: iPhone tap target and input size that avoids Safari focus zoom. */
@@ -87,6 +93,12 @@
     --color-warmup-row: #30355e;
     --color-warmup-label: #b6bdff;
     --color-suggestion: #f4bf50;
+    --color-warmup: #e6c354;
+    --color-warmup-tint: rgb(230 195 84 / 0.1);
+    --color-failure: #ff858d;
+    --color-failure-tint: rgb(255 133 141 / 0.1);
+    --color-drop: #c99bef;
+    --color-drop-tint: rgb(201 155 239 / 0.1);
     --color-deload: #f4bf50;
   }
 }
@@ -107,5 +119,11 @@
   --color-warmup-row: #30355e;
   --color-warmup-label: #b6bdff;
   --color-suggestion: #f4bf50;
+  --color-warmup: #e6c354;
+  --color-warmup-tint: rgb(230 195 84 / 0.1);
+  --color-failure: #ff858d;
+  --color-failure-tint: rgb(255 133 141 / 0.1);
+  --color-drop: #c99bef;
+  --color-drop-tint: rgb(201 155 239 / 0.1);
   --color-deload: #f4bf50;
 }

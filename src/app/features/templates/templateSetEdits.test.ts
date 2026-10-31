@@ -67,3 +67,12 @@ describe('template set edits', () => {
     expect(nextTargetCell(two, cell(1, 0, 'rpe'))).toBeUndefined();
   });
 });
+
+test('warm-ups insert and move at the group boundary', () => {
+  const two = withSetAdded(draft, 0);
+  const warm = withSetAdded(two, 0, 'warmup');
+  expect(warm.exercises[0]?.sets.map((set) => set.kind)).toEqual(['warmup', 'working', 'working']);
+  const moved = withKindCycled(warm, 0, 2);
+  expect(moved.exercises[0]?.sets.map((set) => set.kind)).toEqual(['warmup', 'warmup', 'working']);
+  expect(withKindCycled(moved, 0, 0).exercises[0]?.sets.map((set) => set.kind)).toEqual(['warmup', 'drop', 'working']);
+});

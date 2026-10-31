@@ -47,7 +47,7 @@ export function useTemplateEditor(initial: TemplateDraft, returnPlanId: number |
         ),
       })),
     setProgression: (index, mode, range) => restructure((current) => withProgression(current, index, mode, range)),
-    addSet: (exerciseIndex) => restructure((current) => withSetAdded(current, exerciseIndex)),
+    addSet: (exerciseIndex, kind) => restructure((current) => withSetAdded(current, exerciseIndex, kind)),
     removeSet: (exerciseIndex, setIndex) => restructure((current) => withSetRemoved(current, exerciseIndex, setIndex)),
     cycleKind: (exerciseIndex, setIndex) => restructure((current) => withKindCycled(current, exerciseIndex, setIndex)),
     move: (exerciseIndex, direction) => restructure((current) => withExerciseMoved(current, exerciseIndex, direction)),

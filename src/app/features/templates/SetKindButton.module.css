@@ -9,6 +9,20 @@
   white-space: nowrap;
 }
 
-.button[data-special='true'] {
-  color: var(--color-accent);
+.button[data-kind='warmup'] {
+  color: var(--color-warmup);
+}
+.button[data-kind='drop'] {
+  color: var(--color-drop);
+}
+.button[data-kind='failure'] {
+  color: var(--color-failure);
+}
+
+.button[data-kind='warmup'] span,
+.button[data-kind='drop'] span,
+.button[data-kind='failure'] span {
+  padding: var(--space-xs);
+  border-radius: var(--radius-small);
+  background: var(--color-surface-raised);
 }

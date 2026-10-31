@@ -12,7 +12,9 @@ export function TemplateExerciseHeader({
   isInSuperset,
   isSupersetWithNext,
   actions,
+  progression,
 }: {
+  readonly progression?: React.ReactNode;
   readonly name: string;
   /** Position in the template (0-based) and the number of exercises, to disable Move up / Move down / Superset at the ends. */
   readonly index: number;
@@ -25,6 +27,7 @@ export function TemplateExerciseHeader({
     <div className={styles.header}>
       <h2 className={styles.name}>{name}</h2>
       {isInSuperset && <Chip tone="accent">Superset</Chip>}
+      {progression}
       <ActionMenu
         label="Exercise options"
         items={[

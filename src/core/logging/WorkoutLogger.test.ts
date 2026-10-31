@@ -4,7 +4,7 @@ import { DataSafetyFixture } from '../db/fixtures/DataSafetyFixture';
 import { migrate } from '../db/migrations';
 import { workoutDetail, workoutSummaries, workoutSummary } from '../queries/WorkoutHistory';
 import { liveWorkoutSnapshot } from '../queries/LiveWorkout';
-import { previousPerformance } from '../queries/PreviousPerformance';
+import { matchPreviousSets, previousPerformance } from '../queries/PreviousPerformance';
 import { toKilograms } from '../units/Weight';
 import { WorkoutLogger } from './WorkoutLogger';
 import { WorkoutLoggerError } from './WorkoutLoggerError';
@@ -377,4 +377,52 @@ test('template brand takes precedence and blocks progression from another machin
   expect(first?.previousOtherMachine).toBe(true);
   expect(first?.progression?.suggestions).toEqual([]);
   db.close();
+});
+
+test('warm-ups insert and change type at the group boundary without changing completed values', async () => {
+  const { db, logger } = await fixture();
+  const { entry } = setup(logger);
+  const work = idAt(db, entry, 1);
+  logger.setCompleted(work, true, now);
+  const before = sets(db, entry).find((set) => set.id === work);
+  const warm = logger.addSet(entry, 'warmup');
+  const second = logger.addSet(entry, 'warmup');
+  expect(
+    sets(db, entry)
+      .map((set) => set.id)
+      .slice(0, 2),
+  ).toEqual([warm, second]);
+  logger.updateSet(work, before?.weightKilograms ?? 0, 'lb', before?.reps ?? 0, null, 'warmup');
+  expect(
+    sets(db, entry)
+      .map((set) => set.id)
+      .slice(0, 3),
+  ).toEqual([warm, second, work]);
+  logger.updateSet(warm, 0, 'lb', 0, null, 'drop');
+  const result = sets(db, entry);
+  expect(result.map((set) => set.position)).toEqual(result.map((_, index) => index));
+  expect(
+    matchPreviousSets(result, [
+      { kind: 'warmup', value: 1 },
+      { kind: 'working', value: 2 },
+    ]).map((set) => set?.value),
+  ).toEqual([1, undefined, 2, undefined]);
+  expect(result.find((set) => set.id === work)).toMatchObject({
+    weightKilograms: before?.weightKilograms,
+    reps: before?.reps,
+    isCompleted: 1,
+    completedAt: before?.completedAt,
+  });
+});
+
+test('manual warm-ups survive later automatic-plan refreshes', async () => {
+  const { db, logger } = await fixture();
+  const { entry } = setup(logger, 2);
+  const warm = logger.addSet(entry, 'warmup');
+  logger.updateSet(warm, 20, 'kg', 8, null, 'warmup');
+  db.run('UPDATE exercise SET warmupSetCount = 1 WHERE id = ?', [2]);
+  const work = sets(db, entry).find((set) => set.kind === 'working');
+  if (work === undefined) throw new Error('Missing work set');
+  logger.updateSet(work.id, 60, 'kg', 8, null, 'working');
+  expect(sets(db, entry).find((set) => set.id === warm)).toMatchObject({ weightKilograms: 20, reps: 8 });
 });

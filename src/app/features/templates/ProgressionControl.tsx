@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import type { TemplateExerciseDraft } from '../../../core/templates/TemplateDraft';
-import { SelectField } from '../../design/components/SelectField';
 import { ProgressionRangeDialog } from './ProgressionRangeDialog';
 import type { TemplateEditorActions } from './TemplateEditorActions';
 import styles from './TemplateExerciseCard.module.css';
 
-/** Per-workout opt-in; incomplete targets require a confirmed range before enabling suggestions. */
+/** Per-workout progression control, requiring a confirmed range. */
 export function ProgressionControl({
   exercise,
   index,
@@ -15,35 +14,33 @@ export function ProgressionControl({
   readonly index: number;
   readonly actions: TemplateEditorActions;
 }) {
-  const [asksForRange, setAsksForRange] = useState(false);
+  const [open, setOpen] = useState(false);
+  const target = exercise.sets.find(
+    (set) => set.kind !== 'warmup' && set.targetRepsLow !== null && set.targetRepsHigh !== null,
+  );
+  const enabled = exercise.progression === 'double';
   return (
-    <div className={styles.progression}>
-      <SelectField
-        label="Progression"
-        noneLabel="Off"
-        value={exercise.progression ?? ''}
-        options={[{ value: 'double', label: 'Reps then weight' }]}
-        onChange={(value) => {
-          if (value !== 'double') {
-            actions.setProgression(index, null);
-            return;
-          }
-          const missing = exercise.sets.some(
-            (set) => set.kind !== 'warmup' && (set.targetRepsLow === null || set.targetRepsHigh === null),
-          );
-          if (missing) setAsksForRange(true);
-          else actions.setProgression(index, 'double');
-        }}
-      />
-      {asksForRange && (
+    <>
+      <button type="button" className={styles.progressionButton} data-enabled={enabled} onClick={() => setOpen(true)}>
+        {enabled && target !== undefined ? `${target.targetRepsLow}–${target.targetRepsHigh} reps` : 'Progression'}
+      </button>
+      {open && (
         <ProgressionRangeDialog
-          onCancel={() => setAsksForRange(false)}
+          onCancel={() => setOpen(false)}
           onSave={(low, high) => {
             actions.setProgression(index, 'double', { low, high });
-            setAsksForRange(false);
+            setOpen(false);
           }}
+          {...(enabled
+            ? {
+                onTurnOff: () => {
+                  actions.setProgression(index, null);
+                  setOpen(false);
+                },
+              }
+            : {})}
         />
       )}
-    </div>
+    </>
   );
 }

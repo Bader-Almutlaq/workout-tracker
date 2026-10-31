@@ -7,6 +7,7 @@ import { RestTargetDialog } from './RestTargetDialog';
 import { WorkoutTextField } from './WorkoutTextField';
 import { database, useDatabaseQuery } from '../../data/database';
 import { Plus } from 'lucide-react';
+import { ProgressButton } from './ProgressButton';
 import { matchPreviousSets } from '../../../core/queries/PreviousPerformance';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import { setLabels } from '../../format/setText';
@@ -72,6 +73,7 @@ export function ExerciseCard({
       ) : (entry.entry.deloadStage ?? null) !== null ? (
         <DeloadChip />
       ) : null}
+      {notes === undefined && entry.deload === undefined && <ProgressButton entry={entry} actions={actions} />}
       {suggestions.status === 'failed' && (
         <p className={styles.error} role="alert">
           {suggestions.message}
@@ -99,10 +101,16 @@ export function ExerciseCard({
             : { onNotesChange: (value: string) => notes.set(set.id, value), isPastWorkout: true })}
         />
       ))}
-      <button type="button" className={styles.addSet} onClick={() => actions.addSet(entry.entry.id)}>
-        <Plus size={16} strokeWidth={2} aria-hidden />
-        <span>Add set</span>
-      </button>
+      <div className={styles.addButtons}>
+        <button type="button" className={styles.addSet} onClick={() => actions.addSet(entry.entry.id)}>
+          <Plus size={16} strokeWidth={2} aria-hidden />
+          <span>Add set</span>
+        </button>
+        <button type="button" className={styles.addSet} onClick={() => actions.addSet(entry.entry.id, 'warmup')}>
+          <Plus size={16} strokeWidth={2} aria-hidden />
+          <span>Add warm-up set</span>
+        </button>
+      </div>
       {dialog === 'machine' && (
         <MachineBrandSheet
           value={entry.entry.machineBrand ?? null}
