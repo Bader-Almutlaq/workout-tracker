@@ -160,8 +160,17 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Measurement sites, guides, states, exact cm/in conversion and Body unit settings | `src/core/measurements/MeasurementSite.ts`, `MeasurementStore.ts`, `MeasurementUnits.ts` |
 | Measurement site groups and complete per-site history | `src/core/measurements/MeasurementQueries.ts` |
 | Measurement change (4/12 weeks, since-first, least-squares monthly rate) | `src/core/measurements/MeasurementChange.ts` |
-| Body list, detail, chart rendering and entry/guide/custom-site sheets | `src/app/features/body/` |
+| Measure list, detail and entry/guide/custom-body-part sheets | `src/app/features/body/` |
 | What was done last time for an exercise | `src/core/queries/PreviousPerformance.ts` |
 | The workout in progress as the logging screen shows it | `src/core/queries/LiveWorkout.ts` |
 
 Developer tool: `tools/import-report.ts` (`make import-report`) dry-runs the importer on `export_data/` and prints totals, unit verdicts and flagged sets. It's the only code allowed to read the owner's real export.
+
+### Long-range chart ownership
+
+| Concept | Owner |
+|---|---|
+| UTC period choice, range windows, mean/max/last aggregation and min/max/count | `src/core/analytics/TimeBuckets.ts` (`TimeBuckets`) |
+| Period plot, spread band, full-screen range selection, touch readout and table | `src/app/design/charts/LongRangeChart.tsx`, `LongRangePlot.tsx`, `LongRangeChartSheet.tsx` |
+| Measure routes and grouped body-part navigation | `src/app/features/body/MeasureScreen.tsx` (`/measure`, `/measure/:bodyPart`) |
+| Main-tab Settings gear and trailing header slot | `src/app/design/components/SettingsButton.tsx`, `Screen.tsx` |

@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router';
-import { CalendarDays, ChartLine, Dumbbell, List, Settings, type LucideIcon } from 'lucide-react';
+import { CalendarDays, ChartLine, Dumbbell, List, Ruler, type LucideIcon } from 'lucide-react';
 import styles from './TabBar.module.css';
 
 /** One tab: where it goes, and the path prefix of every screen that belongs to it. */
@@ -16,8 +16,8 @@ export const TABS: readonly Tab[] = [
   { path: '/', ownsPrefix: '/workout', label: 'Workout', icon: Dumbbell },
   { path: '/history', ownsPrefix: '/history', label: 'History', icon: CalendarDays },
   { path: '/exercises', ownsPrefix: '/exercises', label: 'Exercises', icon: List },
+  { path: '/measure', ownsPrefix: '/measure', label: 'Measure', icon: Ruler },
   { path: '/analytics', ownsPrefix: '/analytics', label: 'Analytics', icon: ChartLine },
-  { path: '/settings', ownsPrefix: '/settings', label: 'Settings', icon: Settings },
 ];
 
 /** Bottom tab bar, above the home indicator. */

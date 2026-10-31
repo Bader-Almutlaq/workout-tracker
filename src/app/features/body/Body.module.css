@@ -86,9 +86,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  width: 100%;
-  padding: var(--space-m) 0;
-  border-bottom: var(--hairline) solid var(--color-border);
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-l) 0;
   text-align: left;
   color: var(--color-text-primary);
   font: var(--font-body);
@@ -97,4 +97,56 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-m);
+}
+
+.groupRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  border-bottom: var(--hairline) solid var(--color-border);
+}
+.latest {
+  display: flex;
+  flex-direction: column;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: calc(var(--space-xxl) + var(--space-m));
+  min-height: calc(var(--space-xxl) + var(--space-m));
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  border-radius: var(--radius-small);
+}
+
+/* Compact history rows, like a settings list: date on the left, value on the right. */
+.historyList {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.historyRow {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m);
+  min-height: 44px;
+  padding: var(--space-s) 0;
+  border-bottom: var(--hairline) solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  text-align: left;
+}
+.historyWhen {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font: var(--font-body);
+  font-variant-numeric: tabular-nums;
 }

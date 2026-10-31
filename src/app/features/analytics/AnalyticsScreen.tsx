@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { BodyScreen } from '../body/BodyScreen';
-import { SegmentedControl } from '../../design/components/SegmentedControl';
 import type { Muscle } from '../../../core/library/Muscle';
 import { database, useDatabaseQuery } from '../../data/database';
 import { EmptyState } from '../../design/components/EmptyState';
@@ -15,7 +13,6 @@ import styles from './Analytics.module.css';
 
 /** Weekly fractional hard sets by muscle, with a twelve-week history and table. */
 export function AnalyticsScreen() {
-  const [mode, setMode] = useState<'training' | 'body'>('training');
   const [choice, setChoice] = useState<WeekChoice>('this');
   const [selected, setSelected] = useState<Muscle | null>(null);
   const [table, setTable] = useState(false);
@@ -28,41 +25,26 @@ export function AnalyticsScreen() {
     return { weeks, workoutCount: summary.workoutCount };
   });
   return (
-    <Screen title="Analytics" subtitle={mode === 'training' ? 'Weekly hard sets by muscle' : 'Body measurements'}>
-      <SegmentedControl
-        label="Analytics view"
-        options={[
-          { value: 'training', label: 'Training' },
-          { value: 'body', label: 'Body' },
-        ]}
-        value={mode}
-        onChange={setMode}
-      />
-      {mode === 'body' ? (
-        <BodyScreen />
-      ) : (
+    <Screen title="Analytics" subtitle="Weekly hard sets by muscle">
+      <SignatureCard />
+      {query.status === 'loading' && <EmptyState message="Loading…" />}
+      {query.status === 'failed' && <EmptyState message={query.message} />}
+      {query.status === 'ready' && query.value.workoutCount === 0 && (
+        <EmptyState message="Import or log workouts to see your weekly sets." />
+      )}
+      {query.status === 'ready' && query.value.workoutCount > 0 && (
         <>
-          <SignatureCard />
-          {query.status === 'loading' && <EmptyState message="Loading…" />}
-          {query.status === 'failed' && <EmptyState message={query.message} />}
-          {query.status === 'ready' && query.value.workoutCount === 0 && (
-            <EmptyState message="Import or log workouts to see your weekly sets." />
+          <WeekChips choice={choice} onChange={setChoice} />
+          <button type="button" className={styles.toggle} onClick={() => setTable(!table)}>
+            {table ? 'Show as chart' : 'Show as table'}
+          </button>
+          {table ? (
+            <VolumeTable muscles={chooseVolume(query.value.weeks, choice)} onSelect={setSelected} />
+          ) : (
+            <MuscleBars muscles={chooseVolume(query.value.weeks, choice)} onSelect={setSelected} />
           )}
-          {query.status === 'ready' && query.value.workoutCount > 0 && (
-            <>
-              <WeekChips choice={choice} onChange={setChoice} />
-              <button type="button" className={styles.toggle} onClick={() => setTable(!table)}>
-                {table ? 'Show as chart' : 'Show as table'}
-              </button>
-              {table ? (
-                <VolumeTable muscles={chooseVolume(query.value.weeks, choice)} onSelect={setSelected} />
-              ) : (
-                <MuscleBars muscles={chooseVolume(query.value.weeks, choice)} onSelect={setSelected} />
-              )}
-              {selected !== null && (
-                <MuscleHistory muscle={selected} weeks={query.value.weeks} onClose={() => setSelected(null)} />
-              )}
-            </>
+          {selected !== null && (
+            <MuscleHistory muscle={selected} weeks={query.value.weeks} onClose={() => setSelected(null)} />
           )}
         </>
       )}

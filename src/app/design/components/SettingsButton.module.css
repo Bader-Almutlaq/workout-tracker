@@ -1,0 +1,13 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: calc(var(--space-xxl) + var(--space-m));
+  min-height: calc(var(--space-xxl) + var(--space-m));
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-small);
+}
+.button:focus-visible {
+  outline: var(--hairline) solid var(--color-accent);
+}
