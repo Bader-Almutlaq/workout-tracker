@@ -13,6 +13,7 @@ import type { TemplateEditorActions } from './TemplateEditorActions';
 import type { TemplateEditorModel } from './TemplateEditorModel';
 import { withKindCycled, withSetAdded, withSetRemoved } from './templateSetEdits';
 import { useTargetPad } from './useTargetPad';
+import { planPath } from './templatePaths';
 
 /** Where the owner lands after saving: the Workout tab, where the template now appears. */
 const AFTER_SAVE_PATH = '/';
@@ -22,7 +23,7 @@ const AFTER_SAVE_PATH = '/';
  * store checks it then, and its message is shown if it isn't acceptable. Anything that changes the
  * list of exercises or sets closes the number pad first, because the pad points at a position.
  */
-export function useTemplateEditor(initial: TemplateDraft): TemplateEditorModel {
+export function useTemplateEditor(initial: TemplateDraft, returnPlanId: number | null): TemplateEditorModel {
   const navigate = useNavigate();
   const [draft, setDraft] = useState<TemplateDraft>(initial);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -50,7 +51,7 @@ export function useTemplateEditor(initial: TemplateDraft): TemplateEditorModel {
     setIsSaving(true);
     setError(undefined);
     database.saveTemplate(draft).then(
-      () => navigate(AFTER_SAVE_PATH, { replace: true }),
+      () => navigate(returnPlanId === null ? AFTER_SAVE_PATH : planPath(returnPlanId), { replace: true }),
       (failure: unknown) => {
         log.ui.error('Saving a template failed', failure);
         setError(messageOf(failure));

@@ -22,12 +22,13 @@ export function Screen({
   /** Optional action beside the title, without placing interactive menus inside the heading. */
   readonly titleAccessory?: ReactNode;
   readonly leading?: ReactNode;
-  /** Optional trailing header action; main tab roots default to the Settings gear. */
+  /** Optional trailing header action; main tab roots default to the Settings gear; null hides it. */
   readonly trailing?: ReactNode;
   readonly children: ReactNode;
 }) {
   const { pathname } = useLocation();
-  const action = trailing ?? (TABS.some((tab) => tab.path === pathname) ? <SettingsButton /> : null);
+  const action =
+    trailing === undefined ? TABS.some((tab) => tab.path === pathname) ? <SettingsButton /> : null : trailing;
   return (
     <main className={styles.screen}>
       {leading}

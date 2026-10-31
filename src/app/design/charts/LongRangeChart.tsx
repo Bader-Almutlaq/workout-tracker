@@ -17,6 +17,8 @@ export interface LongRangeChartProps {
   readonly aggregation: TimeAggregation;
   /** Optional overview period, e.g. weekly session totals; expanded charts still use finer automatic detail. */
   readonly overviewBucket?: TimeBucketSize;
+  /** Line interpolation; defaults to straight segments. */
+  readonly shape?: 'line' | 'step';
   readonly formatValue: (value: number) => string;
 }
 
