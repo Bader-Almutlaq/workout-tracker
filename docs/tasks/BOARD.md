@@ -81,6 +81,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-051](T-051-import-app-chooser.md) | Choose the app before importing, with per-app export steps (R7) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-052](T-052-dropbox-connection-clarity.md) | Clear, restart-proof Dropbox connection with visible feedback (R11) | done | Codex Sol (high), reviewed by lead | merged |
 | [T-053](T-053-warmups-opt-in-and-cable-steps.md) | Warm-ups only on request; cable add-on plate steps (R9) | done | Codex Terra (high), reviewed by lead | merged |
+| [T-054](T-054-dropbox-redirect-connect.md) | Connect Dropbox by redirect, without copying a code (R11) | done | Codex Sol (high), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
