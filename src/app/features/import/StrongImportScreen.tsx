@@ -1,4 +1,5 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { Navigate, useNavigate, useParams } from 'react-router';
 import { makeImportOptions, type StrongImportOptions } from '../../../core/import/StrongImportOptions';
 import type { StrongImportPlan } from '../../../core/import/StrongImportPlan';
 import type { ImportResult } from '../../../core/import/StrongImporter';
@@ -11,6 +12,7 @@ import { Screen } from '../../design/components/Screen';
 import { weightNumberText } from '../../format/weightText';
 import { CorrectSetDialog } from './CorrectSetDialog';
 import { correction, type FindingItem } from './importFindingText';
+import { importSources, isImportSource, wrongImportSource, type ImportSource } from './importSources';
 import { ImportPickStep } from './ImportPickStep';
 import { ImportResultStep } from './ImportResultStep';
 import { ImportReviewStep } from './ImportReviewStep';
@@ -19,6 +21,15 @@ import { ImportWorkingOverlay } from './ImportWorkingOverlay';
 type Phase = 'pick' | 'working' | 'review' | 'result' | 'failed';
 /** Pick supported workout CSVs, review their units and suspicious sets, and import them. */
 export function StrongImportScreen() {
+  const { source } = useParams();
+  if (!isImportSource(source)) return <Navigate to="/settings/import" replace />;
+  return <ImportFlow source={source} />;
+}
+
+function ImportFlow({ source }: { source: ImportSource }) {
+  const navigate = useNavigate();
+  const [files, setFiles] = useState<readonly { readonly name: string; readonly text: string }[]>([]);
+  const [detected, setDetected] = useState<ImportSource>();
   const [phase, setPhase] = useState<Phase>('pick');
   const [message, setMessage] = useState('');
   const [plan, setPlan] = useState<StrongImportPlan>();
@@ -27,10 +38,24 @@ export function StrongImportScreen() {
   const [editing, setEditing] = useState<FindingItem>();
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
+  const previousSource = useRef(source);
+  const switchingSource = useRef<ImportSource | undefined>(undefined);
+  useEffect(() => {
+    if (previousSource.current === source) return;
+    previousSource.current = source;
+    if (switchingSource.current === source) {
+      switchingSource.current = undefined;
+      return;
+    }
+    setPhase('pick');
+    setMessage('');
+    setDetected(undefined);
+    setFiles([]);
+  }, [source]);
   const busy = useRef(false);
   const input = useRef<HTMLInputElement>(null);
 
-  const work = async (label: string, action: () => Promise<void>) => {
+  const work = async (label: string, action: () => Promise<void>, expected: ImportSource = source) => {
     if (busy.current) return;
     busy.current = true;
     setMessage(label);
@@ -39,7 +64,9 @@ export function StrongImportScreen() {
       await action();
     } catch (error) {
       log.import.error('Workout import failed', error);
-      setMessage(messageOf(error));
+      const errorMessage = messageOf(error);
+      setMessage(errorMessage);
+      setDetected(wrongImportSource(errorMessage, expected));
       setPhase('failed');
     } finally {
       busy.current = false;
@@ -50,11 +77,26 @@ export function StrongImportScreen() {
     if ((picker.files?.length ?? 0) === 0) return;
     void work('Reading and checking files…', async () => {
       const contents = await readPickedFiles(picker, async (file) => ({ name: file.name, text: await file.text() }));
-      const next = await database.planStrongImport(contents);
+      setFiles(contents);
+      const next = await database.planStrongImport(contents, source);
       setOptions(makeImportOptions());
       setPlan(next);
       setPhase('review');
     });
+  };
+  const switchSource = (nextSource: ImportSource) => {
+    switchingSource.current = nextSource;
+    navigate(`/settings/import/${nextSource}`);
+    void work(
+      'Reading and checking files…',
+      async () => {
+        const next = await database.planStrongImport(files, nextSource);
+        setOptions(makeImportOptions());
+        setPlan(next);
+        setPhase('review');
+      },
+      nextSource,
+    );
   };
   const review = (next: StrongImportOptions) =>
     void work('Updating review…', async () => {
@@ -117,12 +159,19 @@ export function StrongImportScreen() {
   };
   return (
     <Screen
-      title="Import workouts"
-      leading={phase === 'working' ? undefined : <BackLink to="/settings" label="Settings" />}
+      title={`Import from ${importSources[source].name}`}
+      leading={phase === 'working' ? undefined : <BackLink to="/settings/import" label="Import workouts" />}
     >
       <input ref={input} type="file" accept=".csv,text/csv" multiple hidden onChange={pick} />
       {(phase === 'pick' || phase === 'failed') && (
-        <ImportPickStep failed={phase === 'failed'} message={message} choose={() => input.current?.click()} />
+        <ImportPickStep
+          source={source}
+          failed={phase === 'failed'}
+          message={message}
+          detected={detected}
+          switchSource={switchSource}
+          choose={() => input.current?.click()}
+        />
       )}
       {phase === 'working' && <ImportWorkingOverlay message={message} />}
       {phase === 'review' && plan !== undefined && (

@@ -135,3 +135,13 @@
 .result {
   color: var(--color-status-good);
 }
+.secondary {
+  background: var(--color-surface-raised);
+  color: var(--color-accent);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+  padding: var(--space-m) var(--space-l);
+  font: var(--font-headline);
+  width: 100%;
+  margin-top: var(--space-s);
+}

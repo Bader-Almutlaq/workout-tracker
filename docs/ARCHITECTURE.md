@@ -109,6 +109,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Key–value app settings | `src/core/db/AppSetting.ts` (`AppSettingKey` lists core keys; cloud keys are in the T-042 worker block) |
 | kg ↔ lb conversion, display rounding, original-unit inference | `src/core/units/WeightUnit.ts`, `src/core/units/Weight.ts` |
 | Stored record types (one per table), 0/1 → boolean conversion | `src/core/models/` (`from<Type>Row`) |
+| Import app choices and export instructions | `src/app/features/import/importSources.ts` |
 | CSV reading | `src/core/import/CsvTable.ts` |
 | Strong file formats and timestamps | `src/core/import/StrongWorkoutsFile.ts`, `StrongMeasurementsFile.ts`, `StrongRow.ts`, `StrongTimestamp.ts` |
 | Which unit an exported exercise is in | `src/core/import/ExportUnitResolver.ts` |

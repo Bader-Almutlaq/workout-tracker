@@ -1,3 +1,5 @@
+import type { WorkoutFileFormat } from './formats/detectWorkoutFileFormat';
+
 /** What went wrong reading a Strong export, with the values the message needs. */
 export type ImportErrorDetails =
   /** The file has no header row. */
@@ -8,6 +10,12 @@ export type ImportErrorDetails =
   | { readonly kind: 'missingColumn'; readonly column: string }
   /** No supported workout dialect can be identified from the header. */
   | { readonly kind: 'unsupportedWorkoutFile' }
+  /** A recognized workout file belongs to a different app. */
+  | {
+      readonly kind: 'wrongWorkoutFile';
+      readonly expected: Exclude<WorkoutFileFormat, 'unknown'>;
+      readonly detected: Exclude<WorkoutFileFormat, 'unknown'>;
+    }
   /** A value can't be read, e.g. a date or number in an unexpected format. */
   | { readonly kind: 'invalidValue'; readonly column: string; readonly value: string; readonly line: number }
   /** The file isn't a Strong workouts or measurements export. */
@@ -27,6 +35,10 @@ function describe(details: ImportErrorDetails): string {
       return `This export is missing the "${details.column}" column.`;
     case 'unsupportedWorkoutFile':
       return "This file isn't a Strong, Hevy, FitNotes or Fitbod workout export.";
+    case 'wrongWorkoutFile': {
+      const names = { strong: 'Strong', hevy: 'Hevy', fitnotes: 'FitNotes', fitbod: 'Fitbod' };
+      return `This looks like a ${names[details.detected]} export, not a ${names[details.expected]} export.`;
+    }
     case 'invalidValue':
       return `Line ${details.line}: "${details.value}" isn't a valid ${details.column}.`;
     case 'unrecognisedFile':

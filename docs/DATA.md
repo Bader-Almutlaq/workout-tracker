@@ -106,8 +106,7 @@ All weights are stored in **kilograms, exactly as entered** (`Double`). Each set
 
 ## Other apps
 
-Settings → **Import from Strong, Hevy, FitNotes or Fitbod…** accepts one workout CSV at a time,
-plus any Strong measurement files. Headers identify the app (case-insensitive, any column order);
+Settings → **Import workouts…** asks which app the export came from, then shows its export steps. It accepts one workout CSV at a time; Strong also accepts measurement files. A recognized file from another app offers to switch and review it without picking it again. Headers identify the app (case-insensitive, any column order);
 unknown columns are ignored. All adapters feed `StrongRow` into the same units, flagged-set,
 Leave out all, matching and snapshot-before-import pipeline. **Each of the three formats below
 is unverified against a real file** until the owner or a user supplies one; tests use small

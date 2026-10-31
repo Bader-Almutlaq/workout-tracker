@@ -7,6 +7,7 @@ import { ExerciseFormScreen } from './features/exercises/ExerciseFormScreen';
 import { ExercisesScreen } from './features/exercises/ExercisesScreen';
 import { HistoryScreen } from './features/history/HistoryScreen';
 import { WorkoutDetailScreen } from './features/history/WorkoutDetailScreen';
+import { ImportSourceScreen } from './features/import/ImportSourceScreen';
 import { StrongImportScreen } from './features/import/StrongImportScreen';
 import { StrongMatchingScreen } from './features/matching/StrongMatchingScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
@@ -32,7 +33,8 @@ export function App() {
         <Route path="/exercises/:exerciseId" element={<ExerciseDetailScreen />} />
         <Route path="/exercises/:exerciseId/edit" element={<ExerciseFormScreen />} />
         <Route path="/analytics" element={<AnalyticsScreen />} />
-        <Route path="/settings/import" element={<StrongImportScreen />} />
+        <Route path="/settings/import" element={<ImportSourceScreen />} />
+        <Route path="/settings/import/:source" element={<StrongImportScreen />} />
         <Route path="/settings/matching" element={<StrongMatchingScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
       </Routes>

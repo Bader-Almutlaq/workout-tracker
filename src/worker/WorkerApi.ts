@@ -1,3 +1,4 @@
+import type { WorkoutFileFormat } from '../core/import/formats/detectWorkoutFileFormat';
 import { exportStrongCsv } from '../core/export/StrongCsvExport';
 import { exportMeasurementsCsv } from '../core/export/MeasurementsCsvExport';
 import type { Database } from '../core/db/Database';
@@ -430,21 +431,29 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
 
     /** Parses selected CSVs and builds a review plan without writing to the database. */
     planStrongImport: serially(
-      async (files: readonly { readonly name: string; readonly text: string }[]): Promise<StrongImportPlan> => {
+      async (
+        files: readonly { readonly name: string; readonly text: string }[],
+        expectedFormat: Exclude<WorkoutFileFormat, 'unknown'> = 'strong',
+      ): Promise<StrongImportPlan> => {
         await liveStore();
         importPlan = undefined;
         const rows: StrongRow[] = [];
         const measurements: PlannedMeasurement[] = [];
         let workoutsFileSelected = false;
         for (const file of files) {
-          if (isStrongMeasurementsFile(CsvTable.parse(file.text)))
+          if (isStrongMeasurementsFile(CsvTable.parse(file.text))) {
+            if (expectedFormat !== 'strong')
+              throw new StrongImportFlowError('Measurement files can only be imported from Strong.');
             measurements.push(...parseStrongMeasurementsFile(file.text));
-          else {
+          } else {
             if (workoutsFileSelected)
               throw new StrongImportFlowError(
                 'Choose only one workouts file at a time, along with any measurement files.',
               );
             const format = detectWorkoutFileFormat(file.text);
+            if (format !== 'unknown' && format !== expectedFormat) {
+              throw new ImportError({ kind: 'wrongWorkoutFile', expected: expectedFormat, detected: format });
+            }
             switch (format) {
               case 'strong':
                 rows.push(...parseStrongWorkoutsFile(file.text));

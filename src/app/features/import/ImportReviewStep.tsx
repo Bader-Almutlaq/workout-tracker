@@ -10,9 +10,6 @@ import styles from './StrongImportScreen.module.css';
 // immutable exclusion set passed through that rebuild, so a new import starts cleanly.
 const bulkUndo = new WeakMap<ReadonlySet<number>, ReadonlySet<number>>();
 
-/** Display names for the supported CSV dialects; file names are never used to identify an app. */
-const FormatNames = Object.freeze({ strong: 'Strong', hevy: 'Hevy', fitnotes: 'FitNotes', fitbod: 'Fitbod' });
-
 /** Leaves out unique flagged lines, or restores the exclusion decisions before the bulk action. */
 export function toggleBulkExclusions(
   excludedLines: ReadonlySet<number>,
@@ -77,9 +74,6 @@ export function ImportReviewStep({
   const counts = useDatabaseQuery('strong-import-counts', () => database.strongImportWorkoutCounts(plan.workouts));
   return (
     <>
-      <p className={styles.note}>
-        Detected: {plan.sourceFormat === undefined ? 'Strong measurement' : FormatNames[plan.sourceFormat]} export
-      </p>
       <ImportTotalsSection plan={plan} />
       {counts.status === 'ready' && (
         <p className={styles.note}>
