@@ -84,6 +84,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 
 | Concept | Owner |
 |---|---|
+| Training overview weekly totals and period lift trends | `src/core/queries/TrainingSummary.ts`, `src/core/queries/LiftTrends.ts` |
 | SQLite access (queries, transactions, export/import bytes) | `src/core/db/Database.ts` |
 | Deterministic library conversion and reviewed source decisions | `tools/build-library.ts`, `data/sources/library-mapping.json` (frozen original families plus every source id) |
 | Library instruction steps and optional pinned picture frames | `LibraryFile.ts` → `LibraryExercise.ts` → `ExerciseLibrarySeeder.ts`; nullable `Exercise.instructions`/`imageKeys` |
@@ -180,7 +181,9 @@ Developer tool: `tools/import-report.ts` (`make import-report`) dry-runs the imp
 
 | Concept | Owner |
 |---|---|
+| Training overview weekly totals and period lift trends | `src/core/queries/TrainingSummary.ts`, `src/core/queries/LiftTrends.ts` |
 | Local calendar period choice, range windows, sum/mean/max/last aggregation and min/max/count | `src/core/analytics/TimeBuckets.ts` (`TimeBuckets`) |
 | Period plot, spread band, full-screen range selection, touch readout and table | `src/app/design/charts/LongRangeChart.tsx`, `LongRangePlot.tsx`, `LongRangeChartSheet.tsx` |
 | Measure routes and grouped body-part navigation | `src/app/features/body/MeasureScreen.tsx` (`/measure`, `/measure/:bodyPart`) |
 | Main-tab Settings gear and trailing header slot | `src/app/design/components/SettingsButton.tsx`, `Screen.tsx` |
+

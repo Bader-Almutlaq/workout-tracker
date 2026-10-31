@@ -1,3 +1,5 @@
+import { TrainingSummary } from '../core/queries/TrainingSummary';
+import { LiftTrends } from '../core/queries/LiftTrends';
 import { usedMachineBrands } from '../core/queries/PreviousPerformance';
 import type { DeloadStage } from '../core/logging/DeloadPlan';
 import { ExerciseSeries } from '../core/queries/ExerciseSeries';
@@ -866,6 +868,27 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       notifyListeners();
     }),
     // End of Rest timer (T-027)
+
+    // Analytics overview (T-064)
+    /** First finished workout timestamp, or null when there is no history. */
+    firstFinishedWorkout: serially(async (): Promise<string | null> => {
+      return (
+        (await liveStore()).database.value<string>(`SELECT MIN(startedAt) FROM workout WHERE isInProgress = 0`) ?? null
+      );
+    }),
+
+    /** Weekly totals and lift trends over a local calendar range, end exclusive. */
+    analyticsOverview: serially(async (from: string, to: string, previousFrom: string | null) => {
+      const db = (await liveStore()).database;
+      const start = new Date(from);
+      const end = new Date(to);
+      return {
+        current: TrainingSummary(db, start, end),
+        previous: previousFrom === null ? null : TrainingSummary(db, new Date(previousFrom), start),
+        lifts: LiftTrends(db, start, end),
+      };
+    }),
+    // End of analytics overview (T-064)
 
     // Strength (T-034)
 

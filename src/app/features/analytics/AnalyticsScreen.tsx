@@ -1,53 +1,56 @@
-import { useState } from 'react';
-import type { Muscle } from '../../../core/library/Muscle';
+import { useSearchParams } from 'react-router';
 import { database, useDatabaseQuery } from '../../data/database';
-import { EmptyState } from '../../design/components/EmptyState';
 import { Screen } from '../../design/components/Screen';
-import { SignatureCard } from './SignatureCard';
-import { MuscleBars } from './MuscleBars';
-import { MuscleHistory } from './MuscleHistory';
-import { VolumeTable } from './VolumeTable';
-import { WeekChips } from './WeekChips';
-import { chooseVolume, historyRange, type WeekChoice } from './volumeLayout';
+import { EmptyState } from '../../design/components/EmptyState';
+import { SegmentedControl } from '../../design/components/SegmentedControl';
+import { AnalyticsOverview } from './AnalyticsOverview';
+import { AnalyticsMuscles } from './AnalyticsMuscles';
+import { analyticsPeriod, type AnalyticsPeriod } from './analyticsPeriod';
+import { PeriodChips } from './PeriodChips';
 import styles from './Analytics.module.css';
 
-/** Weekly fractional hard sets by muscle, with a twelve-week history and table. */
+/** Analytics views and shared period are persisted in the URL. */
 export function AnalyticsScreen() {
-  const [choice, setChoice] = useState<WeekChoice>('this');
-  const [selected, setSelected] = useState<Muscle | null>(null);
-  const [table, setTable] = useState(false);
-  const range = historyRange(new Date());
-  const query = useDatabaseQuery(`muscle-volume-${range.to.toDateString()}`, async () => {
-    const [weeks, summary] = await Promise.all([
-      database.weeklyMuscleVolume(range.from.toISOString(), range.to.toISOString()),
-      database.summary(),
-    ]);
-    return { weeks, workoutCount: summary.workoutCount };
-  });
+  const [params, setParams] = useSearchParams();
+  const view = params.get('view') === 'muscles' ? 'muscles' : 'overview';
+  const periods: readonly AnalyticsPeriod[] = ['4W', '12W', '6M', '1Y', 'All'];
+  const period = periods.find((item) => item === params.get('period')) ?? '12W';
+  const first = useDatabaseQuery('first-finished-workout', () => database.firstFinishedWorkout());
+  const set = (key: string, value: string) => {
+    const next = new URLSearchParams(params);
+    next.set(key, value);
+    setParams(next);
+  };
   return (
-    <Screen title="Analytics" subtitle="Weekly hard sets by muscle">
-      <SignatureCard />
-      {query.status === 'loading' && <EmptyState message="Loading…" />}
-      {query.status === 'failed' && <EmptyState message={query.message} />}
-      {query.status === 'ready' && query.value.workoutCount === 0 && (
-        <EmptyState message="Import or log workouts to see your weekly sets." />
-      )}
-      {query.status === 'ready' && query.value.workoutCount > 0 && (
-        <>
-          <WeekChips choice={choice} onChange={setChoice} />
-          <button type="button" className={styles.toggle} onClick={() => setTable(!table)}>
-            {table ? 'Show as chart' : 'Show as table'}
-          </button>
-          {table ? (
-            <VolumeTable muscles={chooseVolume(query.value.weeks, choice)} onSelect={setSelected} />
+    <Screen title="Analytics">
+      <div className={styles.controls}>
+        <SegmentedControl
+          label="Analytics views"
+          options={[
+            { value: 'overview', label: 'Overview' },
+            { value: 'muscles', label: 'Muscles' },
+          ]}
+          value={view}
+          onChange={(value) => set('view', value)}
+        />
+        <PeriodChips value={period} onChange={(value) => set('period', value)} />
+      </div>
+      {first.status === 'loading' && <EmptyState message="Loading…" />}
+      {first.status === 'failed' && <EmptyState message={first.message} />}
+      {first.status === 'ready' &&
+        (() => {
+          const range = analyticsPeriod(period, new Date(), first.value);
+          return view === 'overview' ? (
+            <AnalyticsOverview
+              from={range.from}
+              to={range.to}
+              previousFrom={range.previous?.from ?? null}
+              weeks={range.weeks}
+            />
           ) : (
-            <MuscleBars muscles={chooseVolume(query.value.weeks, choice)} onSelect={setSelected} />
-          )}
-          {selected !== null && (
-            <MuscleHistory muscle={selected} weeks={query.value.weeks} onClose={() => setSelected(null)} />
-          )}
-        </>
-      )}
+            <AnalyticsMuscles from={range.from} to={range.to} />
+          );
+        })()}
     </Screen>
   );
 }

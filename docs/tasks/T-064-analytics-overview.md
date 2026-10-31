@@ -69,4 +69,6 @@ Product rule: **measure, don't prescribe.** Every label is descriptive ("+8% vs 
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+Implemented the Overview and Muscles views, URL period controls, weekly training summary and ranked lift queries, worker methods, and design/ownership documentation. The current period uses local Monday midnight through the following Monday (exclusive). Missing workout durations use the mean of known durations; if none are known, time is zero. Lift smoothing includes earlier non-deload observations as the entering baseline; when none exist, the first qualifying period observation seeds it. Unknown machine brands do not count as a distinct brand.
+
+Verification: `make format` and `make verify` passed on the final implementation (1,257 tests). Changes are uncommitted. The existing `MuscleHistory.tsx`, outside this task's permitted edit scope, hard-codes “12 weeks” in its title even though the data range follows the selected period. The lead should update that title when integrating. The requested URL write interaction and complete ranking/edge-case test matrix still need additional coverage, and the screens have not been visually checked on a phone-sized browser: `make dev` was denied permission to listen by the sandbox.
