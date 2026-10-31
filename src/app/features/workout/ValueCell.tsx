@@ -1,4 +1,5 @@
 import styles from './ValueCell.module.css';
+import type { ValueSuggestion } from './ValueSuggestion';
 
 /** One tappable number in a set row: weight, reps or RPE. Opens the number pad. */
 export function ValueCell({
@@ -8,6 +9,7 @@ export function ValueCell({
   isEditing,
   unitSuffix,
   onPress,
+  suggestion,
 }: {
   /** What the cell holds, for screen readers: "Weight", "Reps"… */
   readonly name: string;
@@ -18,18 +20,35 @@ export function ValueCell({
   /** The unit, when the set was typed in a different unit than the exercise shows. */
   readonly unitSuffix?: string;
   readonly onPress: () => void;
+  /** Optional opt-in value; never replaces the saved/greyed value until tapped. */
+  readonly suggestion?: ValueSuggestion;
 }) {
+  // When the untouched value already is the suggestion (e.g. a new warm-up), show it once, in amber.
+  const showsSuggestion = suggestion !== undefined && isPlaceholder && suggestion.text === text;
   return (
-    <button
-      type="button"
-      className={styles.cell}
-      data-editing={isEditing}
-      data-placeholder={isPlaceholder}
-      aria-label={name}
-      onClick={onPress}
-    >
-      <span className={styles.value}>{text}</span>
-      {unitSuffix !== undefined && !isEditing && <span className={styles.unit}>{unitSuffix}</span>}
-    </button>
+    <div className={styles.values}>
+      <button
+        type="button"
+        className={styles.cell}
+        data-editing={isEditing}
+        data-placeholder={isPlaceholder}
+        data-suggested={showsSuggestion}
+        aria-label={name}
+        onClick={onPress}
+      >
+        <span className={styles.value}>{text}</span>
+        {unitSuffix !== undefined && !isEditing && <span className={styles.unit}>{unitSuffix}</span>}
+      </button>
+      {suggestion !== undefined && !showsSuggestion && !isEditing && (
+        <button
+          type="button"
+          className={styles.suggestion}
+          aria-label={`Use suggested ${name.toLowerCase()} ${suggestion.text}`}
+          onClick={() => suggestion.onAccept(suggestion.value)}
+        >
+          {suggestion.text}
+        </button>
+      )}
+    </div>
   );
 }

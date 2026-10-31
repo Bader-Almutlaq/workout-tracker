@@ -9,11 +9,14 @@ import styles from './Screen.module.css';
 export function Screen({
   title,
   subtitle,
+  titleAccessory,
   leading,
   children,
 }: {
   readonly title: ReactNode;
-  readonly subtitle?: string;
+  readonly subtitle?: ReactNode;
+  /** Optional action beside the title, without placing interactive menus inside the heading. */
+  readonly titleAccessory?: ReactNode;
   readonly leading?: ReactNode;
   readonly children: ReactNode;
 }) {
@@ -21,7 +24,10 @@ export function Screen({
     <main className={styles.screen}>
       {leading}
       <header className={styles.header}>
-        <h1 className={styles.title}>{title}</h1>
+        <div className={styles.heading}>
+          <h1 className={styles.title}>{title}</h1>
+          {titleAccessory}
+        </div>
         {subtitle !== undefined && <p className={styles.subtitle}>{subtitle}</p>}
       </header>
       <div className={styles.content}>{children}</div>

@@ -1,57 +1,47 @@
 import type { WeightUnit } from '../../../core/units/WeightUnit';
-import { ArrowDown, ArrowUp, Ellipsis, Trash2 } from 'lucide-react';
+import { Ellipsis } from 'lucide-react';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import { ActionMenu } from '../../design/components/ActionMenu';
 import type { ExerciseCardActions } from './ExerciseCardActions';
 import styles from './ExerciseCardHeader.module.css';
 import { recordsWeight } from './trackingKinds';
 import { UnitChip } from './UnitChip';
-import { warmupMenuItem } from './warmupMenuItem';
+import { exerciseMenuItems } from './exerciseMenuItems';
 
-/** The top of an exercise card: its name, the kg/lb chip and the "…" menu (move up, move down, remove). */
+/** Accent exercise link and capability-aware menu; history retains its unit chip and heading. */
 export function ExerciseCardHeader({
   entry,
   index,
   count,
   actions,
   unit,
+  live,
 }: {
   readonly entry: LiveWorkoutEntry;
-  /** Position in the workout (0-based) and the number of exercises, to disable Move up / Move down at the ends. */
   readonly index: number;
   readonly count: number;
   readonly actions: ExerciseCardActions;
-  /** History shows the edited entry unit without changing the exercise default. */
   readonly unit?: WeightUnit;
+  readonly live?: Parameters<typeof exerciseMenuItems>[0]['live'];
 }) {
-  const { exercise } = entry;
-  const entryId = entry.entry.id;
+  const displayUnit = unit ?? entry.exercise.defaultEntryUnit;
   return (
     <div className={styles.header}>
-      <h2 className={styles.name}>{exercise.name}</h2>
-      {recordsWeight(exercise.tracking) && (
-        <UnitChip unit={unit ?? exercise.defaultEntryUnit} onSwitch={(unit) => actions.switchUnit(entryId, unit)} />
+      <h2 className={styles.name}>
+        {live === undefined ? (
+          entry.exercise.name
+        ) : (
+          <button type="button" className={styles.link} onClick={() => actions.openExercise?.(entry.exercise.id)}>
+            {entry.exercise.name}
+          </button>
+        )}
+      </h2>
+      {live === undefined && recordsWeight(entry.exercise.tracking) && (
+        <UnitChip unit={displayUnit} onSwitch={(unit) => actions.switchUnit(entry.entry.id, unit)} />
       )}
       <ActionMenu
         label="Exercise options"
-        items={[
-          ...(actions.toggleWarmups === undefined
-            ? []
-            : [warmupMenuItem(entry.sets, (remove) => actions.toggleWarmups?.(entryId, remove))]),
-          { label: 'Move up', icon: ArrowUp, isDisabled: index === 0, onSelect: () => actions.move(entryId, -1) },
-          {
-            label: 'Move down',
-            icon: ArrowDown,
-            isDisabled: index === count - 1,
-            onSelect: () => actions.move(entryId, 1),
-          },
-          {
-            label: 'Remove exercise',
-            icon: Trash2,
-            isDestructive: true,
-            onSelect: () => actions.requestRemoval(entry),
-          },
-        ]}
+        items={exerciseMenuItems({ entry, index, count, actions, unit: displayUnit, live })}
       >
         <Ellipsis size={20} strokeWidth={2} aria-hidden />
       </ActionMenu>

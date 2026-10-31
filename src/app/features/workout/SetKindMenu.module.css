@@ -6,6 +6,13 @@
   text-align: left;
 }
 
-.label[data-special='true'] {
+.label[data-kind='drop'] {
   color: var(--color-accent);
+}
+
+.label[data-kind='warmup'] {
+  color: var(--color-warmup-label);
+}
+.label[data-kind='failure'] {
+  color: var(--color-status-bad);
 }

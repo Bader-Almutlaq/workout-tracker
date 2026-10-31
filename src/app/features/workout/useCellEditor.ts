@@ -17,13 +17,14 @@ interface EditState {
 }
 
 /**
- * The number pad's state for the workout on screen. The only local state is the cell being typed
- * into and its draft; a value is written when the owner moves to another cell or closes the pad,
+ * The number pad's state and local entered/accepted styling for the workout on screen. A value
+ * is written when the owner moves to another cell or closes the pad,
  * not on every key. What the rows show always comes from the database. History supplies
  * `onSuspicious` to check edited weights and reps without changing completion.
  */
 export function useCellEditor(snapshot: LiveWorkoutSnapshot, onSuspicious?: (prompt: TypoPrompt) => void): CellEditor {
   const [state, setState] = useState<EditState | undefined>(undefined);
+  const [enteredCells, setEnteredCells] = useState<readonly Cell[]>([]);
   const location = state === undefined ? undefined : locateSet(snapshot.entries, state.cell.setId);
   const workoutId = snapshot.workout.id;
 
@@ -38,6 +39,7 @@ export function useCellEditor(snapshot: LiveWorkoutSnapshot, onSuspicious?: (pro
   const save = () => {
     if (editing === undefined || state?.typed === undefined || !draftHasChanged(state.typed)) return;
     saveCell(workoutId, editing.cell, draftValue(state.typed), editing.entry.exercise.tracking, onSuspicious);
+    setEnteredCells((cells) => [...cells, editing.cell]);
   };
 
   const edit = (change: (current: NumberDraft, edited: EditedCell) => NumberDraft) => {
@@ -46,6 +48,20 @@ export function useCellEditor(snapshot: LiveWorkoutSnapshot, onSuspicious?: (pro
   };
 
   return {
+    isValueEntered: (setId, field) =>
+      enteredCells.some((cell) => cell.setId === setId && cell.field === field) ||
+      (state?.cell.setId === setId &&
+        state.cell.field === field &&
+        state.typed !== undefined &&
+        draftHasChanged(state.typed)),
+    acceptSuggestion: (cell, value) => {
+      save();
+      setState(undefined);
+      const target = locateSet(snapshot.entries, cell.setId);
+      if (target === undefined) return;
+      saveCell(workoutId, cell, value, target.entry.exercise.tracking, onSuspicious);
+      setEnteredCells((cells) => [...cells, cell]);
+    },
     editing,
     begin: (setId: number, field: Field) => {
       const cell: Cell = { setId, field };

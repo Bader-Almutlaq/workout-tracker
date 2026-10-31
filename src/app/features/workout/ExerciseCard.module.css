@@ -21,3 +21,32 @@
   font: var(--font-callout);
   padding: var(--space-m);
 }
+
+.info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-m);
+  padding: 0 var(--space-m) var(--space-s);
+  font: var(--font-callout);
+  color: var(--color-text-secondary);
+}
+.note {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.noteField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  font: var(--font-callout);
+}
+.noteInput {
+  min-height: calc(var(--workout-tap-size) * 2);
+  padding: var(--space-s);
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font: var(--font-input);
+}

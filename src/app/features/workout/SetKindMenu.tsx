@@ -27,7 +27,7 @@ export function SetKindMenu({
       align="start"
       items={[...kindItems, { label: 'Delete set', icon: Trash2, isDestructive: true, onSelect: onDelete }]}
     >
-      <span className={styles.label} data-special={kind !== 'working'}>
+      <span className={styles.label} data-kind={kind}>
         {label}
       </span>
     </ActionMenu>

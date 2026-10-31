@@ -65,4 +65,53 @@ Implement **Live workout** from `docs/design/PAGES-2026-10-31.md` (read it first
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+Implemented; automated verification passes. Changes are uncommitted and the board is unchanged.
+
+- **Behaviour:** five-column live rows, accent exercise-page links, conditional rest/note info,
+  session metadata and name menu, sticky elapsed time/Finish, per-exercise Show RPE, tappable RPE
+  badges and a 500 ms completion-button hold. Holds tolerate small finger movement and cancel on
+  scrolling/cancellation/unmount. Normal completion still runs the queued typo check.
+- **Suggestions:** optional typed `ValueSuggestion` props on `ValueCell`/`SetCell` provide amber
+  values beside current values. The callback accepts the displayed value only on tap. Untouched
+  planned cells are greyed; ticking uses their saved prefill. Generated warm-ups supply the slot
+  through existing suggestion ids and saved planned values; no generator/progression changes.
+- **Warm-ups/types:** explicit purple light/dark surface and label tokens, existing separator
+  selectors, W/Normal/D/F menus and red failure labels. Existing warm-up protection/removal stays
+  in the logger. Unit, move, remove, note and rest-target actions use existing queued operations.
+  The automatic rest-bar display is removed from the live screen; recorded rest behaviour is unchanged.
+- **History compatibility:** shared cards explicitly retain the previous six-column grid, separate
+  RPE input, unit chip, set/exercise note controls, mixed-unit labels and disabled completion.
+  No History feature files, core implementations or schema were changed.
+- **Omitted capabilities:** Add sticky note (no persistent exercise-note model), Replace exercise
+  (no live core operation), Create superset (stored/template groups exist, but no live grouping
+  operation). Machine metadata is absent, so no empty machine field appears. Existing notes use
+  Edit note in the menu. Rest time edits seconds within existing core limits, without a timer.
+- **Interpretations/limits:** warm-up plans already live in saved planned rows, so the greyed and
+  amber values initially match; this uses the existing generation model rather than inventing a
+  second calculation. Entered/accepted styling and Show RPE are local presentation state; reopening
+  shows saved planned values greyed again. Accepting an identical warm-up value does not change
+  core provenance: Remove suggested warm-ups can still remove that uncompleted, unchanged row.
+  Editing its values or completing it preserves existing protection. A future progression caller
+  can supply different amber values using the same typed slot.
+- **Public API:** new `ValueSuggestion` (`value`, `text`, `onAccept`, in cell display units/seconds),
+  `exerciseMenuItems`, `ExerciseInfoLine`, `ExerciseNoteDialog`, `RestTargetDialog`, `WorkoutMenu`,
+  `WorkoutMetadata`, and queued `saveExerciseNotes`. `CellEditor` adds `isValueEntered` and
+  `acceptSuggestion`; optional card actions expose suggestion acceptance, entry notes, rest target
+  and exercise navigation. CheckButton adds optional effort props; SetRow/SetColumnHeader preserve
+  history through explicit props. Screen adds optional `titleAccessory` and accepts a React subtitle.
+  No worker API methods were added.
+- **Files:** `src/app/features/workout/` layout components, CSS modules, cell editor/actions, set-kind
+  names and new small metadata/dialog/menu/suggestion files; shared `Screen.tsx`/`Screen.module.css`;
+  `src/app/design/tokens.css`; `docs/DESIGN.md`; this Handoff. Tests are
+  `src/app/features/workout/liveWorkoutLayout.test.ts`, `src/worker/LiveWorkoutLayout.test.ts` and
+  `tools/liveWorkoutLayout.test.ts`.
+- **Verification:** `make format`, `make verify` and `git diff --check` pass. **1,067 tests in 139
+  files**, including 13 new tests: suggestion tap/rendering, entry-unit display, placeholder and RPE
+  visibility, kind labels/style tokens, warm-up/separator selectors, capability menus, metadata and
+  shared History rendering. Queue integration tests use `Database.openInMemory()` plus `migrate`,
+  the real worker API/logger, and synthetic history to check prefill completion, rapid successive
+  edits and typo prompting. The production build retains the existing chunk-size advisory.
+- **Pending review:** 430 × 932 dark/light screenshots and touch checks (especially long-press and
+  inline suggestions) still need a permitted browser/device session. `make dev` was blocked by
+  `listen EPERM` on port 5173; browser access was unavailable and Chrome control was not approved.
+  No visual verification is claimed.

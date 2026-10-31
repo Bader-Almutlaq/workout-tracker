@@ -18,6 +18,10 @@ Tokens live in `src/app/design/tokens.css` as CSS variables (`--color-surface`, 
 | `textTertiary` | `#62666D` | `#8A8F98` | Units, captions, axis labels |
 | `accent` | `#7C85E8` | `#5E6AD2` | Primary action, selection, single-series lines |
 | `accentSubtle` | accent 16% | accent 12% | Selected chip fill, completed-set row tint |
+| `warmupRow` | `#30355E` | `#E7E9FB` | Full warm-up row; explicit accent-derived purple tint |
+| `warmupLabel` | `#B6BDFF` | `#505BB8` | W label, brighter purple against the warm-up row |
+| `suggestion` | `#F4BF50` | `#946000` | Optional amber value beside a set cell; tap to accept |
+| `statusBad` | `#D03B3B` | `#D03B3B` | Failure-set F label (`--color-status-bad`) |
 
 **Status** (always paired with an icon and a label, never color alone): good `#0CA30C`, warning `#FAB219`, serious `#EC835A`, critical `#D03B3B`.
 
@@ -111,3 +115,33 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
 - Source: `design/app-icon.svg`. Render with `make icon` into `public/icon-192.png`, `public/icon-512.png` and `public/apple-touch-icon.png` (the Home Screen icon). Never edit the PNGs by hand.
 - Concept: the end of a loaded barbell from the side. The plates grow left to right, so the mark also reads as a rising bar chart. It is the indigo accent on the near-black background, with no text.
 - Graphics are drawn as SVG by agents. A design tool such as Figma isn't needed for marks this simple.
+
+## Live workout
+
+The sticky top bar keeps elapsed time and Finish visible. The session header shows its name,
+a menu for rename/discard, local date and elapsed time. Each exercise name opens its exercise
+page and uses the accent. An info line shows only saved rest targets and session exercise notes;
+unset fields take no space. Rest targets are display metadata here; completing a set does not
+open a rest timer.
+
+Live rows use Set · Previous · kg/lb · Reps (or Time) · ✓, followed by Add set. RPE sits on an
+independent badge at the check: logged effort is visible, empty badges require Show RPE for that
+exercise. Tapping a badge or holding the check for 500 ms opens the existing RPE pad. A hold
+never completes a set. History editing retains its separate RPE column, notes and disabled check.
+
+Untouched planned weight/reps stay greyed; completion accepts their already-saved values. A
+separate amber suggestion is optional and only copied on tap. `ValueSuggestion` uses the cell's
+entry unit (seconds for timed cells), so future progression can supply the same slot. Generated
+warm-ups use their existing planned values as suggestions; generation and protected-row rules
+remain in WorkoutCore. Entered/accepted styling is local to the mounted editor; reopening safely
+shows saved planned values as greyed again. Suggested warm-up identity after reload follows the
+existing conservative core provenance rules.
+
+Warm-ups use an explicit purple surface across the whole row with a hairline before the first
+working row. Set labels are W (purple), normal-set numbers, D (accent), F (bad-status red).
+The menu lists only existing capabilities: session note, warm-ups, rest target, Show RPE, kg/lb,
+move and remove. Sticky notes, replacement and superset editing have no live operation yet.
+
+Heuristic layout tokens: `--workout-tap-size: 44px`, `--workout-weight-width: 88px`,
+`--workout-reps-width: 76px` keep headers aligned with rows at 430 px, including suggestions.
+`--font-input: 400 16px/1.4 var(--font-family)` avoids Safari focus zoom in note inputs.
