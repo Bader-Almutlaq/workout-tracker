@@ -7,8 +7,8 @@ export interface DatedValue {
 /** Local calendar periods (the phone's time zone, like the rest of the app); weeks begin on ISO Monday, including across year and DST boundaries. */
 export type TimeBucketSize = 'day' | 'week' | 'month';
 
-/** Mean, largest value, or chronologically last value (input order breaks timestamp ties). */
-export type TimeAggregation = 'mean' | 'max' | 'last';
+/** Sum, mean, largest value, or chronologically last value (input order breaks timestamp ties). */
+export type TimeAggregation = 'mean' | 'max' | 'last' | 'sum';
 
 /** One populated calendar bucket, retaining the original spread in the caller's units. */
 export interface TimeBucket {
@@ -91,11 +91,13 @@ export const TimeBuckets = Object.freeze({
       const min = Math.min(...values);
       const max = Math.max(...values);
       const value =
-        aggregation === 'mean'
-          ? values.reduce((sum, item) => sum + item / values.length, 0)
-          : aggregation === 'max'
-            ? max
-            : (values.at(-1) ?? 0);
+        aggregation === 'sum'
+          ? values.reduce((sum, item) => sum + item, 0)
+          : aggregation === 'mean'
+            ? values.reduce((sum, item) => sum + item / values.length, 0)
+            : aggregation === 'max'
+              ? max
+              : (values.at(-1) ?? 0);
       return { start, value, min, max, count: values.length };
     });
   },

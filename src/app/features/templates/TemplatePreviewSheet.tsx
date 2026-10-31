@@ -1,15 +1,9 @@
 import { database, useDatabaseQuery } from '../../data/database';
-import { BottomSheet } from '../../design/components/BottomSheet';
-import { Button } from '../../design/components/Button';
 import { EmptyState } from '../../design/components/EmptyState';
-import { exerciseNamesById } from './exerciseNames';
-import { useTemplateTracking } from './useTemplateTracking';
 import { TemplatePreview } from './TemplatePreview';
+import { WorkoutSheet } from './WorkoutSheet';
 
-/**
- * A compact look at a template before starting it: its exercises with their sets, then Start and
- * Edit. Tapping outside the sheet closes it.
- */
+/** Loads one saved workout, including archived exercise details, and keeps Start pinned outside its scroller. */
 export function TemplatePreviewSheet({
   templateId,
   name,
@@ -19,7 +13,6 @@ export function TemplatePreviewSheet({
   onClose,
 }: {
   readonly templateId: number;
-  /** The name shown in the sheet's title while the rest loads. */
   readonly name: string;
   readonly isBusy: boolean;
   readonly onStart: () => void;
@@ -27,38 +20,45 @@ export function TemplatePreviewSheet({
   readonly onClose: () => void;
 }) {
   const template = useDatabaseQuery(`template-${templateId}`, () => database.templateDetail(templateId));
-  const entries = useDatabaseQuery('exercise-entries', () => database.exerciseEntries());
-  const tracking = useTemplateTracking(
-    template.status === 'ready' && template.value !== null ? template.value.exercises : [],
-  );
-
+  const report = useDatabaseQuery(`template-sessions-${templateId}`, () => database.templateSessions({ templateId }));
+  const details = useDatabaseQuery(`template-exercises-${templateId}`, async () => {
+    const draft = await database.templateDetail(templateId);
+    const ids = [...new Set(draft?.exercises.map((exercise) => exercise.exerciseId) ?? [])];
+    const entries = await Promise.all(ids.map((id) => database.exerciseDetail(id)));
+    return entries.flatMap((detail) => (detail === null ? [] : [detail]));
+  });
   const body = () => {
-    if (template.status === 'failed') return <EmptyState message={template.message} />;
-    if (entries.status === 'failed') return <EmptyState message={entries.message} />;
-    if (tracking.status === 'failed') return <EmptyState message={tracking.message} />;
-    if (template.status !== 'ready' || entries.status !== 'ready') return <EmptyState message="Loading…" />;
-    if (template.value === null)
-      return (
-        <>
-          <EmptyState message="This template no longer exists." />
-          <Button onPress={onClose}>Close</Button>
-        </>
-      );
+    if (template.status === 'ready' && template.value === null)
+      return <EmptyState message="This workout no longer exists." />;
+    const failure = [template, report, details].find((query) => query.status === 'failed');
+    if (failure?.status === 'failed') return <EmptyState message={failure.message} />;
+    if (
+      template.status !== 'ready' ||
+      template.value === null ||
+      report.status !== 'ready' ||
+      details.status !== 'ready'
+    )
+      return <EmptyState message="Loading…" />;
     return (
       <TemplatePreview
+        key={templateId}
         template={template.value}
-        names={exerciseNamesById(entries.value)}
-        tracking={tracking.status === 'ready' ? tracking.value : new Map()}
-        isBusy={isBusy}
-        onStart={onStart}
+        details={details.value}
+        report={report.value}
         onEdit={onEdit}
       />
     );
   };
-
   return (
-    <BottomSheet title={name} onClose={onClose}>
+    <WorkoutSheet
+      title={template.status === 'ready' && template.value !== null ? template.value.name : name}
+      isBusy={isBusy}
+      canStart={template.status === 'ready' && template.value !== null}
+      onStart={onStart}
+      onEdit={onEdit}
+      onClose={onClose}
+    >
       {body()}
-    </BottomSheet>
+    </WorkoutSheet>
   );
 }

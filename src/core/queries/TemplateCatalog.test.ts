@@ -31,3 +31,22 @@ it('derives last done only from finished workouts, ignoring stale stamps and act
   `);
   expect(TemplateCatalog.list(db).unfiled[0]?.lastStartedAt).toBe('2026-01-01');
 });
+
+it('plan latest use follows current workouts and ignores active sessions', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  try {
+    db.exec(`
+      INSERT INTO templateFolder (id, name, position) VALUES (1, 'Synthetic plan', 0), (2, 'Empty plan', 1);
+      INSERT INTO template (id, name, folderId, position, createdAt, updatedAt)
+      VALUES (1, 'First workout', 1, 0, 'a', 'b'), (2, 'Second workout', 1, 1, 'a', 'b');
+      INSERT INTO workout (startedAt, name, source, templateId, isInProgress)
+      VALUES ('2024-01-01', 'Earlier', 'app', 1, 0),
+             ('2024-01-03', 'Latest finished', 'app', 2, 0),
+             ('2024-01-05', 'Active', 'app', 1, 1);
+    `);
+    expect(TemplateCatalog.list(db).folders.map((folder) => folder.lastStartedAt)).toEqual(['2024-01-03', null]);
+  } finally {
+    db.close();
+  }
+});

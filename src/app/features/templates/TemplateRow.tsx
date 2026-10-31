@@ -65,7 +65,7 @@ export function TemplateRow({
       >
         <span className={styles.name}>{template.name}</span>
         <span className={styles.exercises}>{template.exerciseNames.join(', ')}</span>
-        {lastDone !== undefined && <span className={styles.lastDone}>{lastDone}</span>}
+        <span className={styles.lastDone}>{lastDone ?? 'Never performed'}</span>
       </button>
       <div ref={menu} className={styles.menu}>
         <ActionMenu
@@ -84,7 +84,7 @@ export function TemplateRow({
               onSelect: () => actions.reorder(template, index + 1),
             },
             { label: 'Duplicate', icon: Copy, onSelect: () => actions.duplicate(template) },
-            { label: 'Move to folder', icon: FolderInput, onSelect: () => actions.requestMove(template) },
+            { label: 'Move to plan', icon: FolderInput, onSelect: () => actions.requestMove(template) },
             { label: 'Delete', icon: Trash2, isDestructive: true, onSelect: () => actions.requestDelete(template) },
           ]}
         >

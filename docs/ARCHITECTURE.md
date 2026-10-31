@@ -146,6 +146,8 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | History edit view state and metadata presentation | `src/app/features/history/` (`PastWorkoutEditor`, `usePastWorkoutEditor`, `pastWorkoutFields`); existing live cards, pad, queue and typo prompt |
 | Rest timer: default and limits, per-exercise target, elapsed and remaining | `src/core/logging/RestTimer.ts` (`RestTimerDefaults`); bar in `src/app/features/workout/RestBar.tsx` |
 | Templates and folders: save, edit, reorder, duplicate, delete, save a workout as a template | `src/core/templates/TemplateStore.ts` (`TemplateDraft`, `TemplateStoreError`) |
+| Plan/workout session scope, completed work totals, known-duration means and first-exercise per-session e1RM | `src/core/queries/TemplateSessions.ts`; worker Plans and workouts (T-058) block |
+| Plan cards, pushed plan page and workout sheet tabs | `src/app/features/templates/` (`PlanScreen`, `PlanPage`, `TemplatePreviewSheet`) |
 | Template list and editor data | `src/core/queries/TemplateCatalog.ts` |
 | Starting a workout from a template | `WorkoutLogger.startFromTemplate` |
 | Template screens and draft editing on screen | `src/app/features/templates/` (pure draft-edit and target-text helpers there) |
@@ -173,7 +175,7 @@ Developer tool: `tools/import-report.ts` (`make import-report`) dry-runs the imp
 
 | Concept | Owner |
 |---|---|
-| UTC period choice, range windows, mean/max/last aggregation and min/max/count | `src/core/analytics/TimeBuckets.ts` (`TimeBuckets`) |
+| Local calendar period choice, range windows, sum/mean/max/last aggregation and min/max/count | `src/core/analytics/TimeBuckets.ts` (`TimeBuckets`) |
 | Period plot, spread band, full-screen range selection, touch readout and table | `src/app/design/charts/LongRangeChart.tsx`, `LongRangePlot.tsx`, `LongRangeChartSheet.tsx` |
 | Measure routes and grouped body-part navigation | `src/app/features/body/MeasureScreen.tsx` (`/measure`, `/measure/:bodyPart`) |
 | Main-tab Settings gear and trailing header slot | `src/app/design/components/SettingsButton.tsx`, `Screen.tsx` |

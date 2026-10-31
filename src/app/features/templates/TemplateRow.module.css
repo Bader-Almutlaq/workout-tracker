@@ -1,18 +1,20 @@
 .row {
   display: flex;
   align-items: center;
-  min-height: 64px;
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
 }
 
 .row + .row {
-  border-top: var(--hairline) solid var(--color-border);
+  margin-top: var(--space-s);
 }
 
 .main {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-xs);
   min-width: 0;
   padding: var(--space-s) var(--space-m);
   text-align: left;
@@ -33,7 +35,9 @@
   font: var(--font-callout);
   color: var(--color-text-secondary);
   text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .lastDone {

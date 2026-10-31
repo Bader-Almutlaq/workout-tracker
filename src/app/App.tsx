@@ -12,6 +12,7 @@ import { ImportSourceScreen } from './features/import/ImportSourceScreen';
 import { StrongImportScreen } from './features/import/StrongImportScreen';
 import { StrongMatchingScreen } from './features/matching/StrongMatchingScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
+import { PlanScreen } from './features/templates/PlanScreen';
 import { TemplateEditorScreen } from './features/templates/TemplateEditorScreen';
 import { AddExerciseScreen } from './features/workout/AddExerciseScreen';
 import { WorkoutScreen } from './features/workout/WorkoutScreen';
@@ -23,6 +24,7 @@ export function App() {
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/" element={<WorkoutScreen />} />
+        <Route path="/workout/plans/:folderId" element={<PlanScreen />} />
         <Route path="/workout/add" element={<AddExerciseScreen />} />
         <Route path="/workout/templates/new" element={<TemplateEditorScreen />} />
         <Route path="/workout/templates/:templateId" element={<TemplateEditorScreen />} />

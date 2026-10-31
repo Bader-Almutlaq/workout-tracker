@@ -4,12 +4,11 @@ import { EmptyState } from '../../design/components/EmptyState';
 import { TemplateDialogs } from './TemplateDialogs';
 import type { TemplateDialogState } from './templateDialogState';
 import { TemplateGroups } from './TemplateGroups';
-import type { TemplateListActions } from './TemplateListActions';
 import { TemplateSectionActions } from './TemplateSectionActions';
-import { duplicateTemplate, moveFolder, reorderTemplate } from './templateActions';
+import { makeTemplateListActions } from './makeTemplateListActions';
 
 /**
- * The templates on the Workout tab: folders and templates, then New template and New folder.
+ * Plan cards and other workouts on the Workout tab, with creation and management dialogs.
  * Tapping a template opens a preview with Start and Edit; `onStart` begins a workout from it.
  */
 export function TemplatesSection({
@@ -22,22 +21,10 @@ export function TemplatesSection({
   const list = useDatabaseQuery('template-list', () => database.templateList());
   const [dialog, setDialog] = useState<TemplateDialogState | undefined>(undefined);
 
-  if (list.status === 'loading') return null;
+  if (list.status === 'loading') return <EmptyState message="Loading plans and workouts…" />;
   if (list.status === 'failed') return <EmptyState message={list.message} />;
 
-  const actions: TemplateListActions = {
-    preview: (template) => setDialog({ kind: 'preview', templateId: template.id }),
-    duplicate: (template) => duplicateTemplate(template.id),
-    reorder: (template, position) => reorderTemplate(template.id, position),
-    requestMove: (template) => setDialog({ kind: 'moveTemplate', template }),
-    requestDelete: (template) => setDialog({ kind: 'deleteTemplate', template }),
-    renameFolder: (folder) => setDialog({ kind: 'renameFolder', folder }),
-    moveFolder: (folder, direction) => {
-      const index = list.value.folders.findIndex((candidate) => candidate.id === folder.id);
-      moveFolder(folder.id, index + direction);
-    },
-    requestFolderDelete: (folder) => setDialog({ kind: 'deleteFolder', folder }),
-  };
+  const actions = makeTemplateListActions(list.value, setDialog);
 
   return (
     <>

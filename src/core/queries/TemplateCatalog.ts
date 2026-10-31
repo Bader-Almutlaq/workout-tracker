@@ -11,6 +11,8 @@ export interface TemplateSummary extends Template {
 /** A folder and its ordered templates. */
 export interface TemplateFolderSummary extends TemplateFolder {
   readonly templates: readonly TemplateSummary[];
+  /** Latest finished session among current workouts, or null when none have been performed. */
+  readonly lastStartedAt: string | null;
 }
 /** Ordered folders and unfiled templates. */
 export interface TemplateList {
@@ -51,6 +53,12 @@ export const TemplateCatalog = {
         folders: folders.map((folder) => ({
           ...folder,
           templates: templates.filter((item) => item.folderId === folder.id),
+          lastStartedAt:
+            templates
+              .filter((item) => item.folderId === folder.id)
+              .flatMap((item) => (item.lastStartedAt === null ? [] : [item.lastStartedAt]))
+              .sort()
+              .at(-1) ?? null,
         })),
         unfiled: templates.filter((item) => item.folderId === null),
       };

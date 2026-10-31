@@ -75,3 +75,29 @@ test('empty input stays readable and a single day with several observations reta
   expect(markup).not.toContain('NaN');
   expect(markup).not.toContain('Infinity');
 });
+
+test('weekly session sums keep separate weeks even over a short range and expand to daily totals', () => {
+  const frequency: LongRangeChartProps = {
+    title: 'Session count',
+    aggregation: 'sum',
+    overviewBucket: 'week',
+    formatValue: String,
+    series: [
+      {
+        name: 'Sessions',
+        points: [
+          { date: '2024-01-01T12:00:00Z', value: 1 },
+          { date: '2024-01-02T12:00:00Z', value: 1 },
+          { date: '2024-01-08T12:00:00Z', value: 1 },
+        ],
+      },
+    ],
+  };
+  const overview = renderToStaticMarkup(createElement(LongRangePlot, frequency));
+  expect(overview).toContain('Weekly total');
+  expect(overview.match(/<circle /g)).toHaveLength(2);
+  expect(overview).not.toContain(`class="${styles.band}"`);
+  const expanded = renderToStaticMarkup(createElement(LongRangePlot, { ...frequency, detailed: true }));
+  expect(expanded).toContain('Daily total');
+  expect(expanded.match(/<circle /g)).toHaveLength(3);
+});

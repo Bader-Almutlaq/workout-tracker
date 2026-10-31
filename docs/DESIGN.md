@@ -149,11 +149,23 @@ Heuristic layout tokens: `--workout-tap-size: 44px`, `--workout-weight-width: 88
 
 ## Long-range charts
 
-`LongRangeChart` is the shared period chart for Measure and future entity pages. Its small view shows all recorded history: daily buckets through 92 elapsed days, ISO weeks through 730 days, and calendar months beyond. A caller chooses mean (measurements), maximum (strength), or last. Periods and labels use UTC; missing periods are not filled. The 2 px line shows the aggregate, with a faint min–max band only where buckets contain multiple observations. A single populated bucket retains a dot and a narrow spread mark. Paired parts use independent named series on one axis; legend text stays in ink colors.
+`LongRangeChart` is the shared period chart for Measure and future entity pages. Its small view shows all recorded history: daily buckets through 92 elapsed days, ISO weeks through 730 days, and calendar months beyond. A caller chooses mean (measurements and session totals), maximum (strength), last, or sum (session counts). Plan frequency fixes the overview to ISO weeks; its expanded view uses the usual finer automatic periods. Sum charts omit the per-observation spread band, which does not describe a total. Period boundaries use the phone's local calendar; missing periods are not filled. The 2 px line shows the aggregate, with a faint min–max band only where buckets contain multiple observations. A single populated bucket retains a dot and a narrow spread mark. Paired parts use independent named series on one axis; legend text stays in ink colors.
 
 Tap the chart to open a full-screen native dialog, with safe-area padding, a Close button and Escape support. Range chips are 3M, 6M, 1Y and All, anchored to the latest recorded observation so older history remains readable. Month subtraction clamps at month ends. Full-screen periods are one step finer (month → week, week → day); daily is the floor. Touch/arrow-key selection uses the shared rule and reads out all series at that period, including value, min, max and count. Each view offers a table of the same buckets. Range selection clips observations before aggregation, so boundary buckets contain only observations inside the chosen window.
 
 Measure uses grouped body-part rows with latest values on the right and separate + targets. Never-recorded parts appear only in Add body part; selecting one opens the existing log sheet and a first saved entry reveals it. Creating a custom part opens its page immediately for logging. Bodyweight is excluded from this navigation without changing its data. Body-part pages share the Chart · History segmented control; History includes both states, newest first.
+
+
+## Plans and workouts
+
+Visible wording uses **Plan** for a saved template folder, **Workout** for a saved template, and **Session** for a finished History entry. Storage and internal code names stay unchanged.
+
+The Workout tab keeps Start empty workout first. Plans are separate navigation cards with a name, workout count, workout names and latest finished-session date; the card menu keeps rename, reorder and delete. Other workouts follow below. A plan opens `/workout/plans/:folderId`, with a Workout back link, Settings gear and management menu. Unknown/deleted ids return to Workout.
+
+Plan pages use Workouts · History · Analytics. Workouts are ordered cards with an exercise summary, last done and management menu. + Workout opens the existing editor with that plan selected. History links every finished session in the current plan to History. Analytics shows weekly session sums, mean session volume and mean known duration, followed by a per-workout table including never-performed workouts.
+
+Workout sheets have a title, Edit and Close, description (or Add a description), Last performed, and Exercises · History · Analytics. The body scrolls independently of the pinned Start workout footer and respects the bottom safe area. Exercise rows retain targets and add sets × name and main muscles, including archived exercise metadata. Analytics uses mean session volume/duration and best per-session e1RM for the first saved exercise, named explicitly. Missing estimates and unknown durations remain absent. History keeps separate sessions even on the same day.
+
 
 
 ## Exercise page (T-057)

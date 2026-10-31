@@ -13,16 +13,16 @@ export function TemplateDetailsSection({
   readonly folders: readonly FolderChoice[];
 }) {
   return (
-    <Section label="Template">
+    <Section label="Workout">
       <TextField label="Name" value={model.draft.name} onChange={model.setName} />
       <SelectField
-        label="Folder"
-        noneLabel="No folder"
+        label="Plan"
+        noneLabel="No plan"
         options={folderOptions(folders)}
         value={folderValueOf(model.draft.folderId)}
         onChange={(value) => model.setFolder(folderIdOf(value))}
       />
-      <TextField label="Notes" value={model.draft.notes ?? ''} onChange={model.setNotes} />
+      <TextField label="Description" value={model.draft.notes ?? ''} onChange={model.setNotes} />
     </Section>
   );
 }

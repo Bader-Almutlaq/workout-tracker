@@ -7,7 +7,7 @@ import { loggingQueue } from '../workout/loggingQueue';
  */
 
 /** Starts a workout from the template. Resolves when it has started (or failed). */
-export function startTemplateWorkout(templateId: number): Promise<unknown> {
+export function startTemplateWorkout(templateId: number): Promise<number | undefined> {
   return loggingQueue.enqueue(() => database.startFromTemplate(templateId));
 }
 

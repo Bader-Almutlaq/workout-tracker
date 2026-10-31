@@ -1,45 +1,70 @@
-import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
-import { isTimedExercise } from './isTimedExercise';
+import { useState } from 'react';
+import { MUSCLE_DISPLAY_NAMES } from '../../../core/library/Muscle';
+import type { ExerciseCatalogDetail } from '../../../core/queries/ExerciseCatalog';
+import type { TemplateSessionReport } from '../../../core/queries/TemplateSessions';
 import type { TemplateDraft } from '../../../core/templates/TemplateDraft';
 import { Button } from '../../design/components/Button';
-import { exerciseNameOf } from './exerciseNames';
+import { EmptyState } from '../../design/components/EmptyState';
+import { SegmentedControl } from '../../design/components/SegmentedControl';
+import { dayWithYearText } from '../../format/dateText';
 import { PreviewExercise } from './PreviewExercise';
+import { isTimedExercise } from './isTimedExercise';
+import { TemplateSessionHistory } from './TemplateSessionHistory';
+import { TemplateSessionCharts } from './TemplateSessionCharts';
 import styles from './TemplatePreview.module.css';
 
-/** The body of the preview sheet: the template's notes and exercises, then Start and Edit. */
+/** Workout sheet sections follow the same segmented navigation as the plan page. */
+const sections = Object.freeze([
+  { value: 'exercises', label: 'Exercises' },
+  { value: 'history', label: 'History' },
+  { value: 'analytics', label: 'Analytics' },
+] as const);
+
+/** Description, last performance and tabs for one saved workout; formulas arrive from the worker report. */
 export function TemplatePreview({
   template,
-  names,
-  tracking,
-  isBusy,
-  onStart,
+  details,
+  report,
   onEdit,
 }: {
   readonly template: TemplateDraft;
-  readonly names: ReadonlyMap<number, string>;
-  readonly tracking: ReadonlyMap<number, ExerciseTracking>;
-  readonly isBusy: boolean;
-  readonly onStart: () => void;
+  readonly details: readonly ExerciseCatalogDetail[];
+  readonly report: TemplateSessionReport;
   readonly onEdit: () => void;
 }) {
+  const [section, setSection] = useState<'exercises' | 'history' | 'analytics'>('exercises');
+  const latest = report.sessions[0];
   return (
     <>
-      {template.notes !== null && <p className={styles.notes}>{template.notes}</p>}
-      {template.exercises.map((exercise, index) => (
-        // The same exercise can be in a template twice, so its position is the only identity it has.
-        <PreviewExercise
-          key={index}
-          exercise={exercise}
-          name={exerciseNameOf(names, exercise.exerciseId)}
-          isTimed={isTimedExercise(tracking.get(exercise.exerciseId))}
-        />
-      ))}
-      <div className={styles.actions}>
-        <Button variant="primary" isDisabled={isBusy} onPress={onStart}>
-          Start
-        </Button>
-        <Button onPress={onEdit}>Edit</Button>
-      </div>
+      {template.notes === null || template.notes.trim() === '' ? (
+        <Button onPress={onEdit}>Add a description</Button>
+      ) : (
+        <p className={styles.notes}>{template.notes}</p>
+      )}
+      <p className={styles.notes}>
+        Last performed: {latest === undefined ? 'Never' : dayWithYearText(latest.startedAt)}
+      </p>
+      <SegmentedControl label="Workout view" options={sections} value={section} onChange={setSection} />
+      {section === 'exercises' && template.exercises.length === 0 && (
+        <EmptyState message="No exercises yet. Edit this workout to add one." />
+      )}
+      {section === 'exercises' &&
+        template.exercises.map((exercise, index) => {
+          const detail = details.find((candidate) => candidate.exercise.id === exercise.exerciseId);
+          return (
+            <PreviewExercise
+              key={index}
+              exercise={exercise}
+              name={detail?.exercise.name ?? 'Archived exercise'}
+              mainMuscle={
+                detail?.primaryMuscles.map((muscle) => MUSCLE_DISPLAY_NAMES[muscle]).join(', ') || 'No main muscle set'
+              }
+              isTimed={isTimedExercise(detail?.exercise.tracking)}
+            />
+          );
+        })}
+      {section === 'history' && <TemplateSessionHistory sessions={report.sessions} />}
+      {section === 'analytics' && <TemplateSessionCharts report={report} />}
     </>
   );
 }

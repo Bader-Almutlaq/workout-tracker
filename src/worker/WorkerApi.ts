@@ -62,6 +62,7 @@ import { setRestTarget } from '../core/logging/RestTimer';
 import { WorkoutLogger, type FinishedWorkoutChange, type FinishResult } from '../core/logging/WorkoutLogger';
 import type { SetKind } from '../core/models/SetKind';
 import { liveWorkoutSnapshot, type LiveWorkoutSnapshot } from '../core/queries/LiveWorkout';
+import { TemplateSessions, type TemplateSessionScope } from '../core/queries/TemplateSessions';
 import { TemplateCatalog, type TemplateList } from '../core/queries/TemplateCatalog';
 import type { TemplateDraft } from '../core/templates/TemplateDraft';
 import { TemplateStore } from '../core/templates/TemplateStore';
@@ -251,6 +252,15 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         openReport: store.openReport,
       };
     }),
+
+    // Plans and workouts (T-058)
+
+    /** Finished sessions, completed work totals and per-workout duration means for one workout or current plan. */
+    templateSessions: serially(async (scope: TemplateSessionScope) => {
+      return TemplateSessions.read((await liveStore()).database, scope);
+    }),
+
+    // End of Plans and workouts (T-058)
 
     // Measurements (T-043)
 
