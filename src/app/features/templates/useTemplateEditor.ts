@@ -78,6 +78,7 @@ export function useTemplateEditor(initial: TemplateDraft, returnPlanId: number |
     isPicking,
     setName: (name) => setDraft({ ...draft, name }),
     setFolder: (folderId) => setDraft({ ...draft, folderId }),
+    setWeekday: (weekday) => setDraft({ ...draft, weekday }),
     setNotes: (notes) => setDraft({ ...draft, notes: notes === '' ? null : notes }),
     startPicking: () => {
       pad.close();

@@ -21,7 +21,14 @@ vi.mock('react-router', async (importOriginal) => {
 });
 vi.mock('../../data/database', () => ({
   database: {},
-  useDatabaseQuery: () => ({ status: 'ready', value: fixture() }),
+  useDatabaseQuery: (key: string) => ({
+    status: 'ready',
+    value: key.startsWith('plan-summary-')
+      ? { sets: 3, workouts: 1, exercises: 1, secondaryWeight: 0.5, muscles: [] }
+      : key === 'active-plan'
+        ? 7
+        : fixture(),
+  }),
 }));
 vi.mock('../workout/LoggingErrorBanner', () => ({ LoggingErrorBanner: () => null }));
 
@@ -30,6 +37,7 @@ function fixture(): TemplateList {
     id: 4,
     name: 'Synthetic day',
     folderId: 7,
+    weekday: 3,
     position: 0,
     notes: null,
     createdAt: '2024-01-01',
@@ -77,6 +85,9 @@ test('plan cards link to a page, report count and last use, and keep unfiled wor
   );
   expect(markup).toContain('href="/workout/plans/7"');
   expect(markup).toContain('1 workout');
+  expect(markup).toContain('Active');
+  expect(markup).toContain('Today: Synthetic day');
+  expect(markup).toContain('href="/workout/workouts/4"');
   expect(markup).toContain('Last: 2 days ago');
   expect(markup).toContain('Other workouts');
   expect(markup).toContain('Standalone workout');
@@ -109,4 +120,29 @@ test('creation buttons use Workout and Plan wording', () => {
   expect(markup).toContain('New plan');
   expect(markup).not.toContain('>New template<');
   expect(markup).not.toContain('>New folder<');
+});
+
+test('summary deep link renders the saved plan totals', () => {
+  const markup = route('/workout/plans/7?tab=summary');
+  expect(markup).toContain('sets per week');
+  expect(markup).toContain('Sets per muscle');
+});
+
+test('active plan is displayed before other plans without changing their saved order', () => {
+  const list = fixture();
+  const first = { id: 8, name: 'Other plan', position: 0, lastStartedAt: null, templates: [] };
+  const reordered = { ...list, folders: [first, ...list.folders] };
+  const markup = renderToStaticMarkup(
+    createElement(
+      MemoryRouter,
+      {},
+      createElement(TemplateGroups, {
+        list: reordered,
+        now: new Date('2024-01-03T12:00:00Z'),
+        actions: makeTemplateListActions(reordered, () => undefined),
+      }),
+    ),
+  );
+  expect(markup.indexOf('Synthetic plan')).toBeLessThan(markup.indexOf('Other plan'));
+  expect(reordered.folders[0]?.name).toBe('Other plan');
 });

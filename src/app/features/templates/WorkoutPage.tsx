@@ -1,3 +1,6 @@
+import { Chip } from '../../design/components/Chip';
+import { weekdayText } from './weekday';
+import { TemplateMuscleList } from './TemplateMuscleList';
 import { useState } from 'react';
 import { Copy, Ellipsis, FolderInput, Pencil, Trash2 } from 'lucide-react';
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router';
@@ -36,6 +39,9 @@ export function WorkoutPage() {
   const draft = useDatabaseQuery(`template-${id}`, () => database.templateDetail(id));
   const report = useDatabaseQuery(`template-sessions-${id}`, () => database.templateSessions({ templateId: id }));
   const list = useDatabaseQuery('template-list', () => database.templateList());
+  const muscleSummary = useDatabaseQuery(`template-muscles-${id}`, () =>
+    database.templateMuscleSummary({ templateId: id }),
+  );
   const active = useDatabaseQuery('active-workout', () => database.activeWorkoutId());
   const details = useDatabaseQuery(`template-exercises-${id}`, async () => {
     const template = await database.templateDetail(id);
@@ -107,6 +113,9 @@ export function WorkoutPage() {
     >
       <div className={styles.stack}>
         <LoggingErrorBanner />
+        {template.weekday !== null && template.weekday !== undefined && (
+          <Chip tone="neutral">{weekdayText(template.weekday)}</Chip>
+        )}
         {template.notes?.trim() && <p>{template.notes}</p>}
         <p className={styles.secondary}>
           {latest === undefined ? 'Never done' : `Last done: ${dayWithYearText(latest.startedAt)}`}
@@ -136,6 +145,10 @@ export function WorkoutPage() {
             ))}
           </div>
         )}
+        {tab === 'exercises' && muscleSummary.status === 'ready' && (
+          <TemplateMuscleList summary={muscleSummary.value} weekly={false} />
+        )}
+        {tab === 'exercises' && muscleSummary.status === 'failed' && <EmptyState message={muscleSummary.message} />}
         {tab === 'history' && <TemplateSessionHistory sessions={report.value.sessions} />}
         {tab === 'analytics' && <TemplateSessionCharts report={report.value} />}
       </div>

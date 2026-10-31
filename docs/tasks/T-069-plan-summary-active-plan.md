@@ -55,4 +55,8 @@ Measure, don't prescribe: no targets or verdicts on the numbers.
 
 ## Handoff
 
-_Not started._
+Implemented planned muscle summaries, plan Summary and workout muscle sections, weekday scheduling and active-plan selection. The core query counts every non-warm-up planned set regardless of target effort; a plan represents one week and frequency counts workouts with at least one fractional set. Indirect counts are displayed unweighted, with the existing 0.5 policy used for fractional totals. When multiple workouts share today's day, the active card links to the first in plan order.
+
+Added schema v11, weekday preservation and ordering, active-plan storage and deletion cleanup, worker methods, UI components, documentation, and regression tests. Changes are uncommitted; the board was not edited.
+
+Verification: `make format` and `make verify` run for the final changes (see session report). `make dev` failed to bind to port 5173 with `EPERM`, so dark/light 430 × 932 visual inspection and interactive tap checks remain for review. Static UI tests cover the summary route, muscle text and toggle presence, active badge and today's link; interactive toggle/day-chip behavior still needs a browser check.

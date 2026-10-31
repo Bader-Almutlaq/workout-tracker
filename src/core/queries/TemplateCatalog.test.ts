@@ -50,3 +50,24 @@ it('plan latest use follows current workouts and ignores active sessions', async
     db.close();
   }
 });
+
+it('orders scheduled workouts by weekday, then unscheduled workouts in stored order', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db);
+    db.exec(`
+      INSERT INTO templateFolder (id, name, position) VALUES (1, 'Plan', 0);
+      INSERT INTO template (name, folderId, position, createdAt, updatedAt, weekday) VALUES
+        ('No day', 1, 0, 'a', 'a', NULL), ('Saturday', 1, 1, 'a', 'a', 6),
+        ('Monday', 1, 2, 'a', 'a', 1), ('No day 2', 1, 3, 'a', 'a', NULL);
+    `);
+    expect(TemplateCatalog.list(db).folders[0]?.templates.map((item) => item.name)).toEqual([
+      'Monday',
+      'Saturday',
+      'No day',
+      'No day 2',
+    ]);
+  } finally {
+    db.close();
+  }
+});

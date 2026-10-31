@@ -1,0 +1,60 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+}
+.section h2 {
+  font: var(--font-title);
+  color: var(--color-text-primary);
+}
+.section button {
+  align-self: flex-start;
+  color: var(--color-accent);
+  background: transparent;
+  border: 0;
+  font: var(--font-callout);
+}
+.row {
+  padding: var(--space-s);
+  background: var(--color-surface);
+  border-radius: var(--radius-small);
+}
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+.top strong {
+  color: var(--color-text-primary);
+}
+.detail {
+  font: var(--font-caption);
+}
+.track {
+  height: 3px;
+  background: var(--color-border);
+  margin-top: var(--space-xs);
+}
+.bar {
+  height: 100%;
+  background: var(--color-accent);
+}
+
+.days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+.days button {
+  padding: var(--space-s);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+}
+.days button[aria-pressed='true'] {
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
+}

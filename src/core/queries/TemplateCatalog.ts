@@ -52,7 +52,9 @@ export const TemplateCatalog = {
       return {
         folders: folders.map((folder) => ({
           ...folder,
-          templates: templates.filter((item) => item.folderId === folder.id),
+          templates: templates
+            .filter((item) => item.folderId === folder.id)
+            .sort((a, b) => (a.weekday ?? 8) - (b.weekday ?? 8)),
           lastStartedAt:
             templates
               .filter((item) => item.folderId === folder.id)
@@ -67,8 +69,8 @@ export const TemplateCatalog = {
   /** Returns an editor draft, or undefined when the template no longer exists. */
   detail(db: Database, templateId: number): TemplateDraft | undefined {
     return db.transaction(() => {
-      const template = db.get<Pick<Template, 'id' | 'name' | 'folderId' | 'notes'>>(
-        'SELECT id, name, folderId, notes FROM template WHERE id = ?',
+      const template = db.get<Pick<Template, 'id' | 'name' | 'folderId' | 'notes' | 'weekday'>>(
+        'SELECT id, name, folderId, notes, weekday FROM template WHERE id = ?',
         [templateId],
       );
       if (template === undefined) return undefined;

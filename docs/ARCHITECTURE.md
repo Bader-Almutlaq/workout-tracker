@@ -154,6 +154,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Templates and folders: save, edit, reorder, duplicate, delete, save a workout as a template | `src/core/templates/TemplateStore.ts` (`TemplateDraft`, `TemplateStoreError`) |
 | Plan/workout session scope, completed work totals, known-duration means and first-exercise per-session e1RM | `src/core/queries/TemplateSessions.ts`; worker Plans and workouts (T-058) block |
 | Plan cards, workout pages and workout-specific exercise tabs | `src/app/features/templates/` (`PlanScreen`, `PlanPage`, `WorkoutPage`, `WorkoutExercisePage`) |
+| Planned muscle sets and workout frequency | `src/core/queries/TemplateMuscleSummary.ts` |
 | Template list and editor data | `src/core/queries/TemplateCatalog.ts` |
 | Starting a workout from a template | `WorkoutLogger.startFromTemplate` |
 | Template screens and draft editing on screen | `src/app/features/templates/` (pure draft-edit and target-text helpers there) |

@@ -29,3 +29,27 @@ test('worker exposes the scoped core report without mutations, snapshots or noti
     store.database.close();
   }
 });
+
+test('active plan can be set, cleared, and is cleared when deleted', async () => {
+  const db = await Database.openInMemory();
+  migrate(db);
+  db.run("INSERT INTO templateFolder (id, name, position) VALUES (1, 'Plan', 0)");
+  const device = new MemoryDevice(await loadSqlite());
+  device.files.set('/workouts.sqlite', db.exportBytes());
+  db.close();
+  const store = await OnDeviceStore.open(device.sqlite, new Date());
+  try {
+    const api = createWorkerApi(Promise.resolve(store));
+    expect(await api.activePlanId()).toBeNull();
+    await api.setActivePlan(1);
+    expect(await api.activePlanId()).toBe(1);
+    await api.setActivePlan(null);
+    expect(await api.activePlanId()).toBeNull();
+    await expect(api.setActivePlan(999)).rejects.toThrow();
+    await api.setActivePlan(1);
+    await api.deleteTemplateFolder(1);
+    expect(await api.activePlanId()).toBeNull();
+  } finally {
+    store.database.close();
+  }
+});

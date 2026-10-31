@@ -210,3 +210,7 @@ Plan and plan-workout cards use a subtle card shadow in light mode and an inset 
 Long-range chart axes use compact numbers by default. Session volume adds its unit, duration uses minutes or hours, and session counts use plain numbers. The y-axis reserves room for its widest formatted label; chart text has inner padding.
 
 Set types use warm-up amber, failure red and drop purple with faint row tints; working sets remain plain. The workout editor uses compact value boxes within larger touch targets.
+
+### Plan summary
+
+The plan Summary lists planned fractional sets and weekly workout frequency, with untrained muscles muted and smaller muscles behind a toggle. Workout pages use the same rows without frequency. Weekday chips mark scheduled workouts, and the active plan uses the accent badge.

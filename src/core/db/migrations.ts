@@ -324,6 +324,10 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE templateExercise ADD COLUMN machineBrand TEXT;
     `,
   },
+  {
+    id: 'v11-template-weekday',
+    sql: `ALTER TABLE template ADD COLUMN weekday INTEGER CHECK (weekday BETWEEN 1 AND 7);`,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

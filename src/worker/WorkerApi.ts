@@ -1,3 +1,4 @@
+import { templateMuscleSummary } from '../core/queries/TemplateMuscleSummary';
 import { TrainingSummary } from '../core/queries/TrainingSummary';
 import { LiftTrends } from '../core/queries/LiftTrends';
 import { muscleCoverage } from '../core/queries/MuscleCoverage';
@@ -938,6 +939,31 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       return RepMaxTable((await liveStore()).database, exerciseId);
     }),
     // End of Exercise page (T-057)
+
+    // Plan summary and active plan (T-069)
+
+    /** Planned muscle counts for a plan or a single workout. */
+    templateMuscleSummary: serially(async (scope: { readonly folderId: number } | { readonly templateId: number }) => {
+      return templateMuscleSummary((await liveStore()).database, scope);
+    }),
+
+    /** Set the active plan, or clear the selection. */
+    setActivePlan: serially(async (folderId: number | null): Promise<void> => {
+      const db = (await liveStore()).database;
+      if (folderId === null) db.run('DELETE FROM appSetting WHERE key = ?', [AppSettingKey.activePlanId]);
+      else {
+        if (db.value<number>('SELECT id FROM templateFolder WHERE id = ?', [folderId]) === undefined)
+          throw new Error('Plan not found.');
+        setSetting(db, AppSettingKey.activePlanId, String(folderId));
+      }
+      notifyListeners();
+    }),
+
+    /** The active plan id, or null when none is selected. */
+    activePlanId: serially(async (): Promise<number | null> => {
+      const value = getSetting((await liveStore()).database, AppSettingKey.activePlanId);
+      return value === undefined ? null : Number(value);
+    }),
 
     // Templates (T-029)
 

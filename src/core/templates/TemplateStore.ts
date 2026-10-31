@@ -93,6 +93,7 @@ export const TemplateStore = {
     db.transaction(() => {
       requireFolder(db, id);
       const order = [...orderedTemplates(db, null), ...orderedTemplates(db, id)];
+      db.run('DELETE FROM appSetting WHERE key = ? AND value = ?', ['activePlanId', String(id)]);
       db.run('DELETE FROM templateFolder WHERE id = ?', [id]);
       assign(db, 'template', order);
       assign(
@@ -111,8 +112,8 @@ export const TemplateStore = {
       let id = draft.id;
       if (id === undefined) {
         id = db.run(
-          `INSERT INTO template (name, folderId, position, notes, createdAt, updatedAt)
-          VALUES (?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO template (name, folderId, position, notes, createdAt, updatedAt, weekday)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
           [
             nameOrThrow(draft.name),
             draft.folderId,
@@ -120,6 +121,7 @@ export const TemplateStore = {
             draft.notes,
             time,
             time,
+            draft.weekday ?? null,
           ],
         ).lastInsertRowId;
       } else {
@@ -128,14 +130,10 @@ export const TemplateStore = {
           old.folderId === draft.folderId
             ? (db.value<number>('SELECT position FROM template WHERE id = ?', [id]) ?? 0)
             : orderedTemplates(db, draft.folderId).length;
-        db.run('UPDATE template SET name = ?, folderId = ?, position = ?, notes = ?, updatedAt = ? WHERE id = ?', [
-          nameOrThrow(draft.name),
-          draft.folderId,
-          position,
-          draft.notes,
-          time,
-          id,
-        ]);
+        db.run(
+          'UPDATE template SET name = ?, folderId = ?, position = ?, notes = ?, updatedAt = ?, weekday = ? WHERE id = ?',
+          [nameOrThrow(draft.name), draft.folderId, position, draft.notes, time, draft.weekday ?? null, id],
+        );
         if (old.folderId !== draft.folderId) assign(db, 'template', orderedTemplates(db, old.folderId));
         db.run('DELETE FROM templateExercise WHERE templateId = ?', [id]);
       }

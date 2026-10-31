@@ -16,6 +16,8 @@ export interface TemplateEditorModel {
   /** `null` for no folder. */
   setFolder(folderId: number | null): void;
   setNotes(notes: string): void;
+  /** Set or clear the ISO weekday. */
+  setWeekday(weekday: number | null): void;
   startPicking(): void;
   stopPicking(): void;
   /** Appends the picked exercises and returns to the form. */
