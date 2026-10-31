@@ -1,11 +1,14 @@
 import { useState } from 'react';
+import { History } from 'lucide-react';
+import { HeaderLink } from '../../design/components/HeaderLink';
+import { WorkoutDrag } from '../../design/drag/WorkoutDrag';
 import { Button } from '../../design/components/Button';
 import { Screen } from '../../design/components/Screen';
 import { startTemplateWorkout } from '../templates/templateActions';
 import { TemplatesSection } from '../templates/TemplatesSection';
 import { LoggingErrorBanner } from './LoggingErrorBanner';
 import { RecentWorkouts } from './RecentWorkouts';
-import { repeatWorkout, startEmptyWorkout } from './workoutActions';
+import { startEmptyWorkout } from './workoutActions';
 
 /** The Workout tab with nothing in progress: start an empty workout, start one of the owner's templates, or repeat a recent one. */
 export function StartWorkout() {
@@ -18,13 +21,15 @@ export function StartWorkout() {
   };
 
   return (
-    <Screen title="Workout">
+    <Screen title="Workout" trailing={<HeaderLink to="/history" label="History" icon={History} />}>
       <LoggingErrorBanner />
       <Button variant="primary" isDisabled={isStarting} onPress={() => start(() => startEmptyWorkout())}>
         Start empty workout
       </Button>
-      <TemplatesSection isBusy={isStarting} onStart={(templateId) => start(() => startTemplateWorkout(templateId))} />
-      <RecentWorkouts isBusy={isStarting} onRepeat={(workoutId) => start(() => repeatWorkout(workoutId))} />
+      <WorkoutDrag>
+        <TemplatesSection isBusy={isStarting} onStart={(templateId) => start(() => startTemplateWorkout(templateId))} />
+        <RecentWorkouts />
+      </WorkoutDrag>
     </Screen>
   );
 }

@@ -15,3 +15,13 @@ export function planPath(folderId: number): string {
 export function newPlanWorkoutPath(folderId: number): string {
   return `${NEW_TEMPLATE_PATH}?plan=${folderId}`;
 }
+
+/** The page for one saved workout. */
+export function workoutPath(templateId: number): string {
+  return `/workout/workouts/${templateId}`;
+}
+
+/** One exercise's history within a saved workout. */
+export function workoutExercisePath(templateId: number, exerciseId: number): string {
+  return `${workoutPath(templateId)}/exercises/${exerciseId}`;
+}

@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUp, Copy, Ellipsis, FolderInput, Trash2 } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import type { TemplateSummary } from '../../../core/queries/TemplateCatalog';
+import { useWorkoutDrag } from '../../design/drag/WorkoutDrag';
 import { ActionMenu } from '../../design/components/ActionMenu';
 import { lastDoneText } from './lastDoneText';
 import type { TemplateListActions } from './TemplateListActions';
@@ -26,6 +27,7 @@ export function TemplateRow({
   readonly now: Date;
   readonly actions: TemplateListActions;
 }) {
+  const drag = useWorkoutDrag();
   const lastDone = lastDoneText(template.lastStartedAt, now);
   const menu = useRef<HTMLDivElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -45,6 +47,10 @@ export function TemplateRow({
         type="button"
         className={styles.main}
         onPointerDown={(event) => {
+          if (drag !== undefined) {
+            drag.start(event, { kind: 'template', id: template.id, name: template.name });
+            return;
+          }
           if (event.pointerType !== 'touch') return;
           held.current = false;
           cancelHold();
@@ -56,9 +62,10 @@ export function TemplateRow({
         onContextMenu={(event) => {
           event.preventDefault();
           cancelHold();
-          if (!held.current) openMenu();
+          if (drag === undefined && !held.current) openMenu();
         }}
         onClick={() => {
+          if (drag?.consumeClick()) return;
           if (held.current) held.current = false;
           else actions.preview(template);
         }}

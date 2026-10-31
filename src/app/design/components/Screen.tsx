@@ -1,7 +1,4 @@
 import type { ReactNode } from 'react';
-import { useLocation } from 'react-router';
-import { SettingsButton } from './SettingsButton';
-import { TABS } from './TabBar';
 import styles from './Screen.module.css';
 
 /**
@@ -22,13 +19,10 @@ export function Screen({
   /** Optional action beside the title, without placing interactive menus inside the heading. */
   readonly titleAccessory?: ReactNode;
   readonly leading?: ReactNode;
-  /** Optional trailing header action; main tab roots default to the Settings gear; null hides it. */
+  /** Optional trailing header action. */
   readonly trailing?: ReactNode;
   readonly children: ReactNode;
 }) {
-  const { pathname } = useLocation();
-  const action =
-    trailing === undefined ? TABS.some((tab) => tab.path === pathname) ? <SettingsButton /> : null : trailing;
   return (
     <main className={styles.screen}>
       {leading}
@@ -38,7 +32,7 @@ export function Screen({
             <h1 className={styles.title}>{title}</h1>
             {titleAccessory}
           </div>
-          {action}
+          {trailing}
         </div>
         {subtitle !== undefined && <p className={styles.subtitle}>{subtitle}</p>}
       </header>

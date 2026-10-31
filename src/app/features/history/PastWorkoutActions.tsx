@@ -5,11 +5,14 @@ import { database } from '../../data/database';
 import { Button } from '../../design/components/Button';
 import { ConfirmDialog } from '../../design/components/ConfirmDialog';
 import { dayAndTimeText } from '../../format/dateText';
+import { AddToPlanDialog } from './AddToPlanDialog';
+import { repeatWorkout } from '../workout/workoutActions';
 import { loggingQueue } from '../workout/loggingQueue';
 
 /** Edit and delete are available only after their safety snapshot succeeds; repeated taps cannot create duplicate sessions. */
 export function PastWorkoutActions({ workout, onEdit }: { readonly workout: Workout; readonly onEdit: () => void }) {
   const [isBusy, setIsBusy] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const begin = () => {
@@ -39,6 +42,22 @@ export function PastWorkoutActions({ workout, onEdit }: { readonly workout: Work
   };
   return (
     <>
+      <Button
+        isDisabled={isBusy}
+        onPress={() => {
+          setIsBusy(true);
+          void repeatWorkout(workout.id).then((result) => {
+            setIsBusy(false);
+            if (result !== undefined) navigate('/');
+          });
+        }}
+      >
+        Repeat this workout
+      </Button>
+      <Button isDisabled={isBusy} onPress={() => setIsAdding(true)}>
+        Add to plan…
+      </Button>
+      {isAdding && <AddToPlanDialog workoutId={workout.id} name={workout.name} onClose={() => setIsAdding(false)} />}
       <Button onPress={begin} isDisabled={isBusy}>
         Edit
       </Button>

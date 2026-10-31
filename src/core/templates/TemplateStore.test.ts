@@ -97,6 +97,28 @@ describe('template store', () => {
     ]);
     expect(() => TemplateStore.createFromWorkout(db, 99, 'Missing', null, now)).toThrow();
   });
+  it('links unlinked finished sessions with the same name to the new template', () => {
+    db.exec(`INSERT INTO workout (id, startedAt, endedAt, name, source) VALUES
+        (1, '2025-01-01', '2025-01-01T01:00', 'Push Day', 'strong'),
+        (2, '2025-01-08', '2025-01-08T01:00', ' push day ', 'strong'),
+        (3, '2025-01-09', '2025-01-09T01:00', 'Pull Day', 'strong');
+      INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (1, 1, 1, 0), (2, 3, 1, 0);
+      INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps) VALUES
+        (1, 0, 'working', 30, 'kg', 5), (2, 0, 'working', 30, 'kg', 5);`);
+    const other = TemplateStore.createFromWorkout(db, 3, 'Pull Day', null, now);
+    db.run('UPDATE workout SET templateId = ? WHERE id = 2', [other]);
+    db.run(
+      "INSERT INTO workout (id, startedAt, endedAt, name, source) VALUES (4, '2025-01-15', '2025-01-15T01:00', 'Push day', 'strong')",
+    );
+    const id = TemplateStore.createFromWorkout(db, 1, 'Monday push', null, now);
+    const linked = db.all<{ id: number; templateId: number | null }>('SELECT id, templateId FROM workout ORDER BY id');
+    expect(linked).toEqual([
+      { id: 1, templateId: id },
+      { id: 2, templateId: other },
+      { id: 3, templateId: other },
+      { id: 4, templateId: id },
+    ]);
+  });
 });
 
 it('deleting a folder preserves template children; deleting its template preserves workout history', async () => {

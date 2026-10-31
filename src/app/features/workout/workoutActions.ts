@@ -88,6 +88,7 @@ export function repeatWorkout(pastWorkoutId: number): Promise<unknown> {
       .filter(({ exercise }) => !exercise.isArchived)
       .map(({ exercise }) => exercise.id);
     await database.startWorkout(detail.workout.name, exerciseIds);
+    return true;
   });
 }
 
@@ -172,9 +173,9 @@ export function discardWorkout(workoutId: number): void {
 }
 
 /** Finishes the workout. Resolves to the id of the saved workout, `null` when nothing was completed, or `undefined` if it failed. */
-export function finishWorkout(workoutId: number): Promise<number | null | undefined> {
+export function finishWorkout(workoutId: number, endedAt?: string): Promise<number | null | undefined> {
   return loggingQueue.enqueue(async () => {
-    const { workoutId: savedId } = await database.finishWorkout(workoutId);
+    const { workoutId: savedId } = await database.finishWorkout(workoutId, endedAt);
     if (savedId !== null) void dropboxBackup.afterWorkout();
     return savedId;
   });

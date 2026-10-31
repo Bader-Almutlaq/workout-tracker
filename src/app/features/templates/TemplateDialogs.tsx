@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router';
 import type { TemplateList } from '../../../core/queries/TemplateCatalog';
 import { DeleteFolderDialog } from './DeleteFolderDialog';
 import { DeleteTemplateDialog } from './DeleteTemplateDialog';
@@ -6,16 +5,14 @@ import { FolderNameDialog } from './FolderNameDialog';
 import { MoveTemplateDialog } from './MoveTemplateDialog';
 import { createFolder, deleteFolder, deleteTemplate, moveTemplate, renameFolder } from './templateActions';
 import type { TemplateDialogState } from './templateDialogState';
-import { templatePath } from './templatePaths';
-import { TemplatePreviewSheet } from './TemplatePreviewSheet';
+import { Navigate } from 'react-router';
+import { workoutPath } from './templatePaths';
 
 /** Whichever question or sheet is open over the template list, if any. Every answer closes it. */
 export function TemplateDialogs({
   dialog,
   planId,
   list,
-  isBusy,
-  onStart,
   onClose,
 }: {
   readonly dialog: TemplateDialogState | undefined;
@@ -26,7 +23,6 @@ export function TemplateDialogs({
   readonly onStart: (templateId: number) => void;
   readonly onClose: () => void;
 }) {
-  const navigate = useNavigate();
   if (dialog === undefined) return null;
   // Every answer does its work, then closes the dialog.
   const answer =
@@ -36,22 +32,13 @@ export function TemplateDialogs({
       onClose();
     };
   switch (dialog.kind) {
-    case 'preview': {
-      const { templateId } = dialog;
-      const summary = [...list.unfiled, ...list.folders.flatMap((folder) => folder.templates)].find(
-        (template) => template.id === templateId,
-      );
+    case 'preview':
       return (
-        <TemplatePreviewSheet
-          templateId={templateId}
-          name={summary?.name ?? 'Workout'}
-          isBusy={isBusy}
-          onStart={answer(() => onStart(templateId))}
-          onEdit={() => navigate(templatePath(templateId, planId))}
-          onClose={onClose}
+        <Navigate
+          to={workoutPath(dialog.templateId)}
+          state={{ from: planId === undefined ? '/' : `/workout/plans/${planId}` }}
         />
       );
-    }
     case 'newFolder':
       return (
         <FolderNameDialog

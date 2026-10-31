@@ -38,17 +38,25 @@ interface SessionRow {
   readonly name: string;
 }
 
-function sessions(db: Database, exerciseId: number, now: Date, limit: number, offset: number): ExerciseSession[] {
+function sessions(
+  db: Database,
+  exerciseId: number,
+  now: Date,
+  limit: number,
+  offset: number,
+  templateId?: number,
+): ExerciseSession[] {
   const selected = db.all<SessionRow>(
     `
     SELECT w.id AS workoutId, w.startedAt AS date, w.name
     FROM workout w
     WHERE w.isInProgress = 0 AND w.startedAt <= ?
+      AND (? IS NULL OR w.templateId = ?)
       AND EXISTS (SELECT 1 FROM workoutExercise we WHERE we.workoutId = w.id AND we.exerciseId = ?)
     ORDER BY w.startedAt DESC, w.id DESC
     LIMIT ? OFFSET ?
     `,
-    [now.toISOString(), exerciseId, limit, offset],
+    [now.toISOString(), templateId ?? null, templateId ?? null, exerciseId, limit, offset],
   );
   if (selected.length === 0) return [];
   const placeholders = selected.map(() => '?').join(', ');
@@ -112,16 +120,22 @@ function maximums(history: ExerciseSeriesHistory, valueOf: (set: WorkoutSet) => 
 /** Queries and descriptive series for finished sessions. Ties retain the first logged set; sessions stay distinct even on the same day. */
 export const ExerciseSeries = Object.freeze({
   /** Completed sets, newest sessions first; a bounded page, including warm-ups for History. */
-  history(db: Database, exerciseId: number, offset = 0, now = new Date()): readonly ExerciseSession[] {
-    return sessions(db, exerciseId, now, ExerciseHistoryPolicy.pageSize, Math.max(0, Math.floor(offset)));
+  history(
+    db: Database,
+    exerciseId: number,
+    offset = 0,
+    now = new Date(),
+    templateId?: number,
+  ): readonly ExerciseSession[] {
+    return sessions(db, exerciseId, now, ExerciseHistoryPolicy.pageSize, Math.max(0, Math.floor(offset)), templateId);
   },
 
   /** All finished history through now, oldest first, read once per Charts or Records request. */
-  read(db: Database, exerciseId: number, now = new Date()): ExerciseSeriesHistory {
+  read(db: Database, exerciseId: number, now = new Date(), templateId?: number): ExerciseSeriesHistory {
     const row = db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [exerciseId]);
     return {
       exercise: row === undefined ? null : fromExerciseRow(row),
-      sessions: row === undefined ? [] : sessions(db, exerciseId, now, -1, 0).reverse(),
+      sessions: row === undefined ? [] : sessions(db, exerciseId, now, -1, 0, templateId).reverse(),
     };
   },
 

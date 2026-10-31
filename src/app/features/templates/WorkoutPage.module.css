@@ -1,0 +1,113 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-m);
+}
+@media (max-width: 359px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+.card {
+  position: relative;
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+  width: 100%;
+  min-height: 7.5rem;
+  padding: var(--space-m);
+  padding-right: var(--space-xl);
+  text-align: left;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: 0;
+  font: var(--font-callout);
+}
+.cardName,
+.summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.cardName {
+  -webkit-line-clamp: 2;
+  font: var(--font-headline);
+}
+.summary {
+  -webkit-line-clamp: 3;
+  color: var(--color-text-secondary);
+}
+.secondary {
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+}
+.cardMenu {
+  position: absolute;
+  right: var(--space-s);
+  top: var(--space-s);
+}
+.headerActions {
+  display: flex;
+  gap: var(--space-s);
+  align-items: center;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  padding-bottom: calc(var(--tab-bar-height) + var(--space-xl));
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-m);
+  padding: var(--space-m);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  text-decoration: none;
+}
+.rowText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+.picture {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-small);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.picture figure {
+  margin: 0;
+}
+.picture img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+}
+.picture figcaption {
+  display: none;
+}
+.footer {
+  position: fixed;
+  bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  padding: var(--space-s) var(--space-m);
+  background: var(--color-background);
+  text-align: center;
+}
+.footer button {
+  width: 100%;
+}

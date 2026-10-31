@@ -83,12 +83,15 @@ test('plan cards link to a page, report count and last use, and keep unfiled wor
   expect(markup).not.toMatch(/Template|Folder/);
 });
 
-test('plan route shows its name, three sections, gear and Workout back link; new workout is scoped to the plan', () => {
+test('plan route shows its name, three sections and Workout back link; new workout is scoped to the plan', () => {
   const markup = route('/workout/plans/7');
   expect(markup).toContain('Synthetic plan');
+  expect(markup).toContain('Synthetic day');
+  expect(markup).toContain('Synthetic exercise');
+  expect(markup).toContain('Last done');
   for (const label of ['Workouts', 'History', 'Analytics', '+ Workout']) expect(markup).toContain(`>${label}<`);
   expect(markup).toContain('href="/"');
-  expect(markup).toContain('aria-label="Settings"');
+  expect(markup).not.toContain('aria-label="Settings"');
   expect(markup).toContain('/workout/templates/new?plan=7');
   expect(redirect).not.toHaveBeenCalled();
 });

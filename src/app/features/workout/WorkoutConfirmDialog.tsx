@@ -13,7 +13,22 @@ export function WorkoutConfirmDialog({
 }) {
   const { title, message, confirmLabel } = confirmationText(confirmation);
   return (
-    <ConfirmDialog title={title} confirmLabel={confirmLabel} onConfirm={onConfirm} onCancel={onCancel}>
+    <ConfirmDialog
+      title={title}
+      confirmLabel={confirmLabel}
+      cancelLabel={
+        confirmation.kind === 'empty'
+          ? 'Keep logging'
+          : confirmation.kind === 'short'
+            ? 'Discard'
+            : confirmation.kind === 'leftRunning'
+              ? 'Keep current time'
+              : 'Cancel'
+      }
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+      onDismiss={confirmation.kind === 'short' ? () => {} : onCancel}
+    >
       {message}
     </ConfirmDialog>
   );

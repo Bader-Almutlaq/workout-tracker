@@ -160,11 +160,11 @@ Measure uses grouped body-part rows with latest values on the right and separate
 
 Visible wording uses **Plan** for a saved template folder, **Workout** for a saved template, and **Session** for a finished History entry. Storage and internal code names stay unchanged.
 
-The Workout tab keeps Start empty workout first. Plans are separate navigation cards with a name, workout count, workout names and latest finished-session date; the card menu keeps rename, reorder and delete. Other workouts follow below. A plan opens `/workout/plans/:folderId`, with a Workout back link, Settings gear and management menu. Unknown/deleted ids return to Workout.
+The Workout tab keeps Start empty workout first. Plans are separate navigation cards with a name, workout count, workout names and latest finished-session date; the card menu keeps rename, reorder and delete. Other workouts follow below. A plan opens `/workout/plans/:folderId`, with a Workout back link and management menu. Unknown/deleted ids return to Workout.
 
 Plan pages use Workouts · History · Analytics. Workouts are ordered cards with an exercise summary, last done and management menu. + Workout opens the existing editor with that plan selected. History links every finished session in the current plan to History. Analytics shows weekly session sums, mean session volume and mean known duration, followed by a per-workout table including never-performed workouts.
 
-Workout sheets have a title, Edit and Close, description (or Add a description), Last performed, and Exercises · History · Analytics. The body scrolls independently of the pinned Start workout footer and respects the bottom safe area. Exercise rows retain targets and add sets × name and main muscles, including archived exercise metadata. Analytics uses mean session volume/duration and best per-session e1RM for the first saved exercise, named explicitly. Missing estimates and unknown durations remain absent. History keeps separate sessions even on the same day.
+Workout pages show a description, last done date, and Exercises · History · Analytics tabs. A Start this workout button stays above the tab bar and is disabled during an active workout. Exercise rows link to workout-specific History and Charts, with a link to all sessions. Plan workouts appear in a two-column card grid, collapsing below 360px.
 
 
 
@@ -201,3 +201,6 @@ pass these dates. The PR step line retains its existing appearance and still cou
 ### Analytics tab
 
 Overview and Muscles share whole Monday-week period chips (4W, 12W, 6M, 1Y, All). Overview shows weekly totals and previous-period changes, the recent versus baseline card, workout frequency, and ranked lift trends. Deloads count in totals and are marked on frequency charts but excluded from lift trends. Muscles retains its week selector and uses the selected period for history.
+
+
+The tab bar is Workout, Exercises, Measure, Analytics and Settings. The Workout header links to full History. Plan cards highlight during a held drag; a lifted label follows the finger.

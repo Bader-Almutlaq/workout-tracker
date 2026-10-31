@@ -1,3 +1,4 @@
+import { useWorkoutDrag } from '../../design/drag/WorkoutDrag';
 import type { WorkoutSummary } from '../../../core/queries/WorkoutHistory';
 import { dayText } from '../../format/dateText';
 import styles from './RecentWorkoutRow.module.css';
@@ -17,8 +18,18 @@ export function RecentWorkoutRow({
   readonly isDisabled: boolean;
   readonly onPress: () => void;
 }) {
+  const drag = useWorkoutDrag();
   return (
-    <button type="button" className={styles.row} disabled={isDisabled} onClick={onPress}>
+    <button
+      type="button"
+      className={styles.row}
+      disabled={isDisabled}
+      onPointerDown={(event) => drag?.start(event, { kind: 'past', id: workout.id, name: workout.name })}
+      onContextMenu={(event) => event.preventDefault()}
+      onClick={() => {
+        if (!drag?.consumeClick()) onPress();
+      }}
+    >
       <span className={styles.main}>
         <span className={styles.name}>{workout.name}</span>
         <span className={styles.meta}>{dayText(workout.startedAt)}</span>

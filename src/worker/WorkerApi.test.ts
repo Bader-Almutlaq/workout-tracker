@@ -290,3 +290,39 @@ test('warm-up edit protection and deletion suppression survive separate worker A
     store.database.close();
   }
 });
+
+test('past workouts are distinct by name, newest first, and limited to eight', async () => {
+  const { store, api } = await setup(false);
+  for (let index = 0; index < 10; index += 1) {
+    store.database.run(
+      `INSERT INTO workout (name, startedAt, endedAt, source, isInProgress) VALUES (?, ?, ?, 'app', 0)`,
+      [
+        index === 9 ? 'WORKOUT 8' : `Workout ${index}`,
+        `2026-10-${String(index + 1).padStart(2, '0')}T12:00:00.000Z`,
+        '2026-10-31T12:00:00.000Z',
+      ],
+    );
+  }
+  const recent = await api.recentWorkouts();
+  expect(recent).toHaveLength(8);
+  expect(recent[0]?.name).toBe('WORKOUT 8');
+  expect(recent.some((item) => item.name === 'Workout 8')).toBe(false);
+  expect(recent[1]?.name).toBe('Workout 7');
+  store.database.close();
+});
+
+test('finishing at a chosen last-set time stores that timestamp', async () => {
+  const { store, api } = await setup(false);
+  const exercise = await api.createExercise(draft);
+  const workoutId = await api.startWorkout('Timed workout', [exercise]);
+  const entryId = store.database.value<number>('SELECT id FROM workoutExercise WHERE workoutId = ?', [workoutId]);
+  if (entryId === undefined) throw new Error('Missing entry');
+  await api.addSet(entryId);
+  const setId = store.database.value<number>('SELECT id FROM workoutSet WHERE workoutExerciseId = ?', [entryId]);
+  if (setId === undefined) throw new Error('Missing set');
+  await api.setCompleted(setId, true);
+  const endedAt = '2026-10-31T18:42:00.000Z';
+  await api.finishWorkout(workoutId, endedAt);
+  expect((await api.workoutDetail(workoutId))?.workout.endedAt).toBe(endedAt);
+  store.database.close();
+});

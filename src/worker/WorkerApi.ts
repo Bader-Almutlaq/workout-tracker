@@ -130,7 +130,7 @@ export interface RestoreResult {
 }
 
 /** How many finished workouts the Workout tab offers to repeat. */
-const RECENT_WORKOUT_LIMIT = 6;
+const RECENT_WORKOUT_LIMIT = 8;
 
 /** A review cannot proceed without a valid, unambiguous selection. */
 class StrongImportFlowError extends Error {
@@ -707,9 +707,18 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       return workoutLogger((await liveStore()).database).activeWorkoutId() ?? null;
     }),
 
-    /** The latest finished workouts, newest first, offered under "Repeat a past workout". */
+    // Past workouts and finishing (T-067)
+    /** The latest session per case-insensitive workout name, newest first. */
     recentWorkouts: serially(async (): Promise<WorkoutSummary[]> => {
-      return workoutSummaries((await liveStore()).database).slice(0, RECENT_WORKOUT_LIMIT);
+      const names = new Set<string>();
+      return workoutSummaries((await liveStore()).database)
+        .filter((workout) => {
+          const name = workout.name.toLocaleLowerCase();
+          if (names.has(name)) return false;
+          names.add(name);
+          return true;
+        })
+        .slice(0, RECENT_WORKOUT_LIMIT);
     }),
 
     /** The totals of one finished workout, or `null` when it doesn't exist (for example, nothing was logged). */
@@ -750,11 +759,12 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       return workoutId;
     }),
 
-    /** Drops the sets that were never completed and ends the workout (or deletes it if nothing was completed). */
-    finishWorkout: serially(async (workoutId: number): Promise<FinishResult> => {
+    // Past workouts and finishing (T-067)
+    /** Drops planned sets and ends the workout at the supplied ISO time or now; an empty workout is deleted. */
+    finishWorkout: serially(async (workoutId: number, endedAt?: string): Promise<FinishResult> => {
       const db = (await liveStore()).database;
       const result = db.transaction(() => {
-        const finished = workoutLogger(db).finish(workoutId, new Date());
+        const finished = workoutLogger(db).finish(workoutId, endedAt === undefined ? new Date() : new Date(endedAt));
         // Dropbox backup (T-042): commit the retry flag with the workout, before the app can close.
         if (
           finished.workoutId !== null &&
@@ -913,14 +923,16 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
 
     // Exercise page (T-057)
 
+    // Workout page (T-066): optional template scope is applied before pagination and machine filtering.
+
     /** A bounded newest-first page of finished sessions, including completed warm-ups. */
-    exerciseHistory: serially(async (exerciseId: number, offset: number = 0) => {
-      return ExerciseSeries.history((await liveStore()).database, exerciseId, offset);
+    exerciseHistory: serially(async (exerciseId: number, offset: number = 0, templateId?: number) => {
+      return ExerciseSeries.history((await liveStore()).database, exerciseId, offset, new Date(), templateId);
     }),
 
     /** All applicable per-session chart series, in kg, kg × reps, reps or seconds; formulas live in core. */
-    exerciseCharts: serially(async (exerciseId: number, machine?: string | null) => {
-      const allHistory = ExerciseSeries.read((await liveStore()).database, exerciseId);
+    exerciseCharts: serially(async (exerciseId: number, machine?: string | null, templateId?: number) => {
+      const allHistory = ExerciseSeries.read((await liveStore()).database, exerciseId, new Date(), templateId);
       const history = machine === undefined ? allHistory : ExerciseSeries.filterMachine(allHistory, machine);
       return {
         machineBrands: ExerciseSeries.machineBrands(allHistory),
@@ -935,6 +947,8 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
         duration: ExerciseSeries.duration(history),
       };
     }),
+
+    // End of Workout page (T-066)
 
     /** Dated lifetime records and rep-max performances/predictions, kept in exact kg until display. */
     exerciseRecords: serially(async (exerciseId: number) => {

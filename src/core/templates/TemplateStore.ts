@@ -213,11 +213,16 @@ export const TemplateStore = {
       assign(db, 'template', orderedTemplates(db, folderId));
     });
   },
-  /** Creates a template from a finished workout; targets remain unspecified. */
+  /**
+   * Creates a template from a finished workout; targets remain unspecified. Finished sessions with the
+   * same name (ignoring case) that belong to no template, the source included, are linked to the new
+   * template, so history imported without templates (Strong) shows on its workout and plan pages.
+   * Only the empty `templateId` is filled in; no session data changes.
+   */
   createFromWorkout(db: Database, workoutId: number, name: string, folderId: number | null, now: Date): number {
     return db.transaction(() => {
-      const workout = db.get<{ isInProgress: number; endedAt: string | null }>(
-        'SELECT isInProgress, endedAt FROM workout WHERE id = ?',
+      const workout = db.get<{ isInProgress: number; endedAt: string | null; name: string }>(
+        'SELECT isInProgress, endedAt, name FROM workout WHERE id = ?',
         [workoutId],
       );
       if (workout === undefined || workout.isInProgress !== 0 || workout.endedAt === null)
@@ -241,7 +246,15 @@ export const TemplateStore = {
             .all<{ kind: SetKind }>('SELECT kind FROM workoutSet WHERE workoutExerciseId = ? ORDER BY position', [id])
             .map(({ kind }) => ({ kind, targetRepsLow: null, targetRepsHigh: null, targetRpe: null })),
         }));
-      return TemplateStore.save(db, { name, folderId, notes: null, exercises }, now);
+      const templateId = TemplateStore.save(db, { name, folderId, notes: null, exercises }, now);
+      db.run(
+        `
+        UPDATE workout SET templateId = ?
+        WHERE templateId IS NULL AND isInProgress = 0 AND (id = ? OR lower(trim(name)) = lower(trim(?)))
+      `,
+        [templateId, workoutId, workout.name],
+      );
+      return templateId;
     });
   },
 };
