@@ -99,3 +99,16 @@ The list, migration and template storage are reviewed and committed. Finish the 
 - Progression gives no suggestion from another machine's values.
 - `LiveWorkout`, `WorkoutHistory` and `ExerciseSeries` (or the Charts helper) expose the brand per entry/session, plus the distinct brands of an exercise and a filter by brand or "not recorded".
 - Tests for every item, as listed in the acceptance criteria. `make format` and `make verify` must pass. Update the Handoff.
+
+## Round 3 (lead): screens, plus one core fix
+
+Round 2 is reviewed and committed. Do all of this in this run.
+
+- **Core fix:** in `LiveWorkout`, deload's `prior` and `deloadBaseline` still pick the previous entry on any machine, while the greyed values follow the brand. When the entry has a brand, both should prefer the previous entries **with the same brand** (fall back to today's behaviour when none). Keep `DeloadPlan` itself unchanged. Add a test: deload on Panatta after a heavier Hammer Strength session suggests from the Panatta baseline.
+- **Screens** (spec 2, 4 and 6):
+  - `MachineBrandSheet` (+ test) and the **Machine…** item in the exercise ⋯ menu, only when `usesMachineBrand` is true.
+  - The brand on the info line (tap reopens the sheet) and "Previous: other machine" when `previousOtherMachine` is true.
+  - The template editor card control.
+  - The History tab label per session, and the Charts tab chips with `?machine=` (hidden with fewer than two distinct values; the full-screen view respects the filter).
+- Components stay small, use existing design components and tokens, and work at 430 × 932 in dark and light.
+- `make format` and `make verify` must pass. Update the Handoff.
