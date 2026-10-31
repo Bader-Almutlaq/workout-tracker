@@ -124,15 +124,18 @@ export function WorkoutPage() {
         {tab === 'exercises' && template.exercises.length === 0 && (
           <EmptyState message="No exercises yet. Edit this workout to add one." />
         )}
-        {tab === 'exercises' &&
-          template.exercises.map((exercise, index) => (
-            <WorkoutExerciseRow
-              key={index}
-              exercise={exercise}
-              detail={details.value[index]}
-              to={workoutExercisePath(id, exercise.exerciseId)}
-            />
-          ))}
+        {tab === 'exercises' && template.exercises.length > 0 && (
+          <div className={styles.exerciseList}>
+            {template.exercises.map((exercise, index) => (
+              <WorkoutExerciseRow
+                key={index}
+                exercise={exercise}
+                detail={details.value[index]}
+                to={workoutExercisePath(id, exercise.exerciseId)}
+              />
+            ))}
+          </div>
+        )}
         {tab === 'history' && <TemplateSessionHistory sessions={report.value.sessions} />}
         {tab === 'analytics' && <TemplateSessionCharts report={report.value} />}
       </div>

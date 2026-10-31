@@ -9,9 +9,10 @@ import {
 } from '../../../core/analytics/TimeBuckets';
 import { FORMAT_LOCALE } from '../../format/formatLocale';
 import { ChartFrame } from './ChartFrame';
+import { compactTick } from './compactTick';
 import { ChartTable } from './ChartTable';
 import { TouchRule } from './TouchRule';
-import { chartScales } from './chartScales';
+import { ChartLayout, chartScales } from './chartScales';
 import { useChartSize } from './useChartSize';
 import type { LongRangeChartProps } from './LongRangeChart';
 import styles from './LongRangeChart.module.css';
@@ -41,6 +42,7 @@ export function LongRangePlot({
   aggregation,
   overviewBucket,
   formatValue,
+  formatTick = compactTick,
   shape = 'line',
   marks,
   height: requestedHeight,
@@ -72,17 +74,22 @@ export function LongRangePlot({
   const observations = buckets
     .flatMap((item) => item.buckets.map((bucket) => ({ ...bucket, name: item.name, date: bucket.start })))
     .toSorted((a, b) => Date.parse(a.date) - Date.parse(b.date));
-  const scales = chartScales(
+  const scalePoints =
     aggregation === 'sum'
       ? observations
       : observations.flatMap((point) => [
           point,
           { date: point.date, value: point.min },
           { date: point.date, value: point.max },
-        ]),
-    width,
-    { zeroBaseline: aggregation === 'sum', height },
-  );
+        ]);
+  const options = { zeroBaseline: aggregation === 'sum', height };
+  const initialScales = chartScales(scalePoints, width, options);
+  // Heuristic: reserve eight pixels per label character plus the label's right gap.
+  const labelWidth =
+    Math.max(...initialScales.gridValues.map((value) => formatTick(value).length), 0) *
+      ChartLayout.labelCharacterWidth +
+    ChartLayout.labelGap;
+  const scales = chartScales(scalePoints, width, { ...options, left: Math.max(ChartLayout.padding.left, labelWidth) });
   const singleBucket = observations[0]?.date === observations.at(-1)?.date;
   if (shown !== null && !(range === 'all' && singleBucket)) {
     const firstBucket = observations[0]?.date ?? shown.from;
@@ -114,7 +121,7 @@ export function LongRangePlot({
           )
           .join(' · ')}${deloadBuckets.has(picked.start) ? ' · Deload' : ''}`;
   const plot = (
-    <ChartFrame width={width} height={height} scales={scales} label={title}>
+    <ChartFrame width={width} height={height} scales={scales} label={title} formatTick={formatTick}>
       {markedStarts.map((start) => {
         const center = scales.x(new Date(start));
         const left = Math.max(scales.left, center - plotMarks.deloadHalfWidth);

@@ -4,6 +4,7 @@
   background: var(--color-surface);
   border: var(--hairline) solid var(--color-border);
   border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-card);
 }
 
 .main {
@@ -35,4 +36,12 @@
 .target {
   border-color: var(--color-accent);
   background: var(--color-surface-raised);
+}
+
+.menu > div > button svg {
+  box-sizing: content-box;
+  padding: 4px 6px;
+  border-radius: var(--radius-small);
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
 }

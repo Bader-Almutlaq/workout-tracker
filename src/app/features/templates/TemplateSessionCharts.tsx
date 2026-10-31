@@ -3,7 +3,8 @@ import { LongRangeChart } from '../../design/charts/LongRangeChart';
 import { EmptyState } from '../../design/components/EmptyState';
 import { Section } from '../../design/components/Section';
 import { volumeText, weightText } from '../../format/weightText';
-import { sessionDurationText } from './sessionDurationText';
+import { compactTick } from '../../design/charts/compactTick';
+import { sessionDurationText, sessionDurationTick } from './sessionDurationText';
 
 /** Shared plan/workout trends; aggregation math remains in WorkoutCore's TimeBuckets. */
 export function TemplateSessionCharts({
@@ -25,6 +26,7 @@ export function TemplateSessionCharts({
             overviewBucket="week"
             series={[{ name: 'Sessions', points: sessions.map((session) => ({ date: session.startedAt, value: 1 })) }]}
             formatValue={(value) => `${value} sessions`}
+            formatTick={(value) => (Number.isInteger(value) ? String(value) : '')}
           />
         </Section>
       )}
@@ -39,6 +41,7 @@ export function TemplateSessionCharts({
             },
           ]}
           formatValue={volumeText}
+          formatTick={(value) => `${compactTick(value)} kg`}
         />
       </Section>
       <Section label="Session duration">
@@ -54,6 +57,7 @@ export function TemplateSessionCharts({
             },
           ]}
           formatValue={sessionDurationText}
+          formatTick={sessionDurationTick}
         />
       </Section>
       {topExercise !== null && (

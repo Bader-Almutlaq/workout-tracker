@@ -62,3 +62,7 @@
 .heading {
   font: var(--font-title);
 }
+
+.table thead th {
+  white-space: nowrap;
+}

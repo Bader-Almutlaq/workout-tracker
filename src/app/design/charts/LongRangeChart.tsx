@@ -27,6 +27,8 @@ export interface LongRangeChartProps {
   readonly overviewBucket?: TimeBucketSize;
   /** Line interpolation; defaults to straight segments. */
   readonly shape?: 'line' | 'step';
+  /** Optional y-axis formatter; defaults to compact numbers. */
+  readonly formatTick?: (value: number) => string;
   readonly formatValue: (value: number) => string;
 }
 

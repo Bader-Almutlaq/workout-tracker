@@ -76,6 +76,12 @@ describe('TemplateSessions', () => {
     expect(report.sessions.map((session) => session.id)).toEqual([2, 1]);
     expect(report.workouts[0]?.averageDurationSeconds).toBe(0);
   });
+  test('over-limit duration is excluded without losing the session or its volume', () => {
+    db.exec(`UPDATE workout SET endedAt = '2024-01-02T00:00:01Z' WHERE id = 1`);
+    const report = TemplateSessions.read(db, { templateId: 1 });
+    expect(report.sessions[1]).toMatchObject({ durationSeconds: null, volumeKilograms: 620 });
+    expect(report.workouts[0]).toMatchObject({ sessionCount: 2, averageDurationSeconds: null });
+  });
   test('membership follows current plan assignments; deleting a workout preserves its History rows', () => {
     db.exec(`UPDATE template SET folderId = 2 WHERE id = 1`);
     expect(TemplateSessions.read(db, { folderId: 1 }).sessions.map((session) => session.id)).toEqual([3]);
