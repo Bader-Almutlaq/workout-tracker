@@ -88,3 +88,14 @@ Attachments and grips (also in §8) are **not** part of this task.
 - Remaining: workout and worker operations, defaults, used-brand picker and UI, machine-aware previous performance and progression, History and Charts filtering with URL state, and their tests. No UI verification was performed.
 - Repeated entries in one workout can have different brands. Match the intended occurrence and brand together when selecting previous sets; choosing only the workout can mix brands. Deload rules remain unchanged.
 - Ran `make format` and `make verify`: 166 test files, 1,240 tests passed, production build passed. Changes are uncommitted; the board was not changed.
+
+## Round 2 (lead): core and worker
+
+The list, migration and template storage are reviewed and committed. Finish the **core and worker** part now; the screens come in Round 3. Do all of it in this run.
+
+- Move the 40-character limit into a named frozen constant (`MachineBrandLimits`) with its `Heuristic:` note.
+- `WorkoutLogger` and the worker API: set and clear a workout exercise's brand (normalized); defaults when an exercise enters a workout (spec 3); a query for the brands used before, most recent first.
+- `previousPerformance` follows the machine (spec 5): same brand first (same template first), matching the **occurrence and the brand together** for repeated entries; otherwise fall back and report it came from another machine. Return that flag in the live workout data so the screen can show "Previous: other machine".
+- Progression gives no suggestion from another machine's values.
+- `LiveWorkout`, `WorkoutHistory` and `ExerciseSeries` (or the Charts helper) expose the brand per entry/session, plus the distinct brands of an exercise and a filter by brand or "not recorded".
+- Tests for every item, as listed in the acceptance criteria. `make format` and `make verify` must pass. Update the Handoff.
