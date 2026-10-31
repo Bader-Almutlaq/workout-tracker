@@ -9,7 +9,7 @@ import type { ValueSuggestion } from './ValueSuggestion';
  * Only the text is rounded: acceptance uses exact unit load so kg overrides survive lb display.
  */
 export function progressionValueSuggestion(
-  progression: ProgressionSuggestion,
+  progression: Pick<ProgressionSuggestion, 'weightKilograms' | 'reps'>,
   set: WorkoutSet,
   previous: WorkoutSet,
   field: 'weight' | 'reps',

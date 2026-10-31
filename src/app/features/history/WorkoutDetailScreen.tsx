@@ -1,3 +1,4 @@
+import { DeloadChip } from '../workout/DeloadChip';
 import { useState } from 'react';
 import { LoggingErrorBanner } from '../workout/LoggingErrorBanner';
 import { PastWorkoutActions } from './PastWorkoutActions';
@@ -52,6 +53,7 @@ export function WorkoutDetailScreen() {
         const labels = setLabels(sets);
         return (
           <Section key={entry.id} label={exercise.name} {...(entry.notes === null ? {} : { footnote: entry.notes })}>
+            {(entry.deloadStage ?? null) !== null && <DeloadChip />}
             {sets.map((set, index) => (
               <SetRow key={set.id} set={set} label={labels[index] ?? ''} />
             ))}

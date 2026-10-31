@@ -211,3 +211,23 @@ Automatic warm-ups default to off; exercise counts opt in, and a live exercise c
   uses the stored baseline. Completed or entered cells hide amber. On reload a changed value is
   treated as entered; an identical accepted value cannot be distinguished without persisting provenance,
   so it may show amber again. No new provenance or suggestion rows are stored.
+
+## 2026-10-31: Deload is a stored exercise stage with optional suggestions (T-062)
+
+- The owner's choice supersedes the earlier week/volume proposal: sets and reps stay unchanged;
+  barbell compounds use −20% then −10%, others −10% then −5%, before returning to normal logging.
+  This is a descriptive heuristic, differing from the research report §12.9's 40–50% fewer sets plus
+  −10% load or +2–3 RIR. There is no fatigue trigger or automatic calendar-based deload.
+- `DeloadPlan` owns the pure stage and suggestion rules. Warm-ups and deload share the exact
+  `isBigBarbellCompound` classification. `LoadableWeight` owns rounding in the set's entry unit.
+  The brief's 30 kg curl example conflicts with its round-down rule: 27 kg rounds down to **25 kg**
+  on the default 2.5 kg ladder, while stage 2's 28.5 kg rounds down to **27.5 kg**. The rule wins.
+- Each new live occurrence inherits stage 2 only from stage 1 in its latest finished predecessor,
+  ordered by start time then id. Different workouts participate in the same exercise cycle;
+  repeated occurrences are matched independently. A discarded session never advances the cycle.
+- Stage 2 uses the original normal load, not the rounded reduced load from stage 1. A missing
+  original position has no invented load. Reps come from the immediately preceding performed set.
+  Ending deload or finishing stage 2 restores ordinary previous-value/progression behavior; neither
+  writes a forced return load. The stage survives finishing and History edits in schema v9.
+- Chart annotations are presentation only. Deload sessions still contribute to all metrics and PRs.
+  Their performance buckets are hollow/shaded and labelled in tables; the PR step line is unmarked.

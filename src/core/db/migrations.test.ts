@@ -71,7 +71,7 @@ test('v7 → v8 preserves every row, defaults progression to NULL, and validates
     DataSafetyFixture.seed(db);
     const before = DataSafetyFixture.read(db);
     await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
-    expect(migrate(db)).toEqual(['v8-template-progression']);
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 8))).toEqual(['v8-template-progression']);
     const after = DataSafetyFixture.read(db);
     for (const [table, records] of Object.entries(before)) {
       if (table === 'migration') continue;
@@ -84,7 +84,39 @@ test('v7 → v8 preserves every row, defaults progression to NULL, and validates
     db.run("UPDATE templateExercise SET progression = 'double'");
     expect(db.all('PRAGMA foreign_key_check')).toEqual([]);
     await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 8))).toEqual([]);
+  } finally {
+    db.close();
+  }
+});
+
+test('v8 → v9 preserves every row, defaults deload to NULL, constrains stages and validates backups', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db, new Date('2026-01-01'), MIGRATIONS.slice(0, 8));
+    DataSafetyFixture.seed(db);
+    const before = DataSafetyFixture.read(db);
+    await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+    expect(migrate(db)).toEqual(['v9-deload']);
+    const after = DataSafetyFixture.read(db);
+    for (const [table, records] of Object.entries(before)) {
+      if (table === 'migration') continue;
+      expect(
+        after[table]?.map((row) => Object.fromEntries(Object.keys(records[0] ?? {}).map((key) => [key, row[key]]))),
+      ).toEqual(records);
+    }
+    expect(db.all('SELECT deloadStage FROM workoutExercise')).toEqual([{ deloadStage: null }, { deloadStage: null }]);
+    for (const invalid of [0, 3, -1, 1.5, 'invalid']) {
+      expect(() => db.run('UPDATE workoutExercise SET deloadStage = ?', [invalid])).toThrow();
+    }
+    for (const stage of [1, 2, null]) {
+      db.run('UPDATE workoutExercise SET deloadStage = ?', [stage]);
+      await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+    }
+    expect(db.all('PRAGMA foreign_key_check')).toEqual([]);
+    const bytes = db.exportBytes();
     expect(migrate(db)).toEqual([]);
+    expect(db.exportBytes()).toEqual(bytes);
   } finally {
     db.close();
   }

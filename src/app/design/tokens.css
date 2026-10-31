@@ -23,6 +23,7 @@
   --color-warmup-row: #e7e9fb;
   --color-warmup-label: #505bb8;
   --color-suggestion: #946000;
+  --color-deload: #946000;
   --color-status-bad: #d03b3b;
   /* Heuristic: iPhone tap target and input size that avoids Safari focus zoom. */
   --workout-tap-size: 44px;
@@ -84,6 +85,7 @@
     --color-warmup-row: #30355e;
     --color-warmup-label: #b6bdff;
     --color-suggestion: #f4bf50;
+    --color-deload: #f4bf50;
   }
 }
 
@@ -102,4 +104,5 @@
   --color-warmup-row: #30355e;
   --color-warmup-label: #b6bdff;
   --color-suggestion: #f4bf50;
+  --color-deload: #f4bf50;
 }

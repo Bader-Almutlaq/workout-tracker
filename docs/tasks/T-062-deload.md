@@ -72,4 +72,7 @@ It's measured, not prescribed: the deload changes suggestions only, and the owne
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+- **Status:** done. The implementer's run stopped at its usage limit before writing this handoff; the lead fixed three test type errors, reviewed the code and verified it on screen.
+- **What was done:** migration v9 adds `workoutExercise.deloadStage` (1, 2, NULL), with a snapshot first. `DeloadPlan` computes stage suggestions: big barbell compounds −20% then −10%, others −10% then −5%, loads rounded down, same reps and sets, bodyweight load unchanged. Stage 2 starts automatically on the next session after stage 1 and uses the pre-deload load. The exercise menu has **Deload this exercise** and the workout menu **Deload whole workout**, both in deload yellow. A **Deload · −20%** chip on the info line ends it. Deload suggestions replace progression ones. History shows a Deload tag, and exercise charts mark deload buckets hollow with a faint yellow column, also listed in the table.
+- **Note:** the brief's dumbbell example was wrong: 30 kg × 0.9 = 27 kg rounds down to 25 kg on 2.5 kg steps. The implementation follows the rule.
+- **Verified:** `make verify` (1,231 tests). On screen: menu item, chip, and 82.5 kg → 65 kg × 5 suggestion.

@@ -1,3 +1,4 @@
+import { fromWorkoutExerciseRow, type WorkoutExercise, type WorkoutExerciseRow } from '../models/WorkoutExercise';
 import type { Database } from '../db/Database';
 import { fromWorkoutSetRow, type WorkoutSet, type WorkoutSetRow } from '../models/WorkoutSet';
 
@@ -56,4 +57,64 @@ export function matchPreviousSets<T extends { readonly kind: string }>(
   let warmupIndex = 0;
   let workIndex = 0;
   return current.map((set) => (set.kind === 'warmup' ? warmups[warmupIndex++] : workSets[workIndex++]));
+}
+
+/** Previous finished occurrence before this entry's session (date then id); never another entry in this workout.
+ * Heuristic: repeated exercises follow the same occurrence across sessions; missing occurrences have no predecessor.
+ */
+export function previousExerciseEntry(db: Database, entryId: number): WorkoutExercise | undefined {
+  const current = db.get<{ exerciseId: number; workoutId: number; position: number; startedAt: string }>(
+    `
+    SELECT we.exerciseId, we.workoutId, we.position, w.startedAt
+    FROM workoutExercise we JOIN workout w ON w.id = we.workoutId WHERE we.id = ?
+  `,
+    [entryId],
+  );
+  if (current === undefined) return undefined;
+  const occurrence =
+    db.value<number>(
+      `
+    SELECT COUNT(*) FROM workoutExercise WHERE workoutId = ? AND exerciseId = ? AND position < ?
+  `,
+      [current.workoutId, current.exerciseId, current.position],
+    ) ?? 0;
+  const workoutId = db.value<number>(
+    `
+    SELECT w.id FROM workout w WHERE w.isInProgress = 0 AND w.id <> ?
+      AND (w.startedAt < ? OR (w.startedAt = ? AND w.id < ?))
+      AND EXISTS (SELECT 1 FROM workoutExercise we WHERE we.workoutId = w.id AND we.exerciseId = ?)
+    ORDER BY w.startedAt DESC, w.id DESC LIMIT 1
+  `,
+    [current.workoutId, current.startedAt, current.startedAt, current.workoutId, current.exerciseId],
+  );
+  if (workoutId === undefined) return undefined;
+  const row = db.get<WorkoutExerciseRow>(
+    `
+    SELECT * FROM workoutExercise WHERE workoutId = ? AND exerciseId = ? ORDER BY position LIMIT 1 OFFSET ?
+  `,
+    [workoutId, current.exerciseId, occurrence],
+  );
+  return row === undefined ? undefined : fromWorkoutExerciseRow(row);
+}
+
+/** Pre-cycle completed sets for deload load calculations; walks stage rows back to the first normal predecessor.
+ * Missing normal history returns no load baseline rather than guessing an unrounded original weight.
+ */
+export function deloadBaseline(db: Database, entryId: number): WorkoutSet[] {
+  let previous = previousExerciseEntry(db, entryId);
+  while (previous !== undefined && (previous.deloadStage ?? null) !== null)
+    previous = previousExerciseEntry(db, previous.id);
+  return previous === undefined ? [] : completedEntrySets(db, previous.id);
+}
+
+/** Completed sets of one known occurrence in logged order, with no template/session fallback. */
+export function completedEntrySets(db: Database, entryId: number): WorkoutSet[] {
+  return db
+    .all<WorkoutSetRow>(
+      `
+    SELECT * FROM workoutSet WHERE workoutExerciseId = ? AND isCompleted = 1 ORDER BY position
+  `,
+      [entryId],
+    )
+    .map(fromWorkoutSetRow);
 }

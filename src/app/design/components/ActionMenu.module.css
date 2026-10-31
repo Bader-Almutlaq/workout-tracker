@@ -58,3 +58,7 @@
 .rowLabel {
   flex: 1;
 }
+
+.row[data-deload='true'] {
+  color: var(--color-deload);
+}

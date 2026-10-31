@@ -1,3 +1,4 @@
+import { DeloadChip } from '../workout/DeloadChip';
 import { Link } from 'react-router';
 import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
 import type { ExerciseSession } from '../../../core/queries/ExerciseSeries';
@@ -22,6 +23,10 @@ export function ExerciseSessionRow({
       {session.sets.map((set) => (
         <span className={styles.set} key={set.id}>
           <span className={styles.kind}>
+            {session.deloadEntryIds.includes(set.workoutExerciseId) &&
+              session.sets.find((row) => row.workoutExerciseId === set.workoutExerciseId)?.id === set.id && (
+                <DeloadChip />
+              )}
             {set.kind === 'warmup'
               ? 'Warm-up'
               : set.kind === 'drop'

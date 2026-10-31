@@ -9,6 +9,8 @@ export interface ActionMenuItem {
   readonly isSelected?: boolean;
   readonly isDisabled?: boolean;
   readonly isDestructive?: boolean;
+  /** Owner-requested yellow deload action. */
+  readonly isDeload?: boolean;
   readonly onSelect: () => void;
 }
 
@@ -20,6 +22,7 @@ export function ActionMenuRow({ item, onChosen }: { readonly item: ActionMenuIte
       type="button"
       role="menuitem"
       className={styles.row}
+      data-deload={item.isDeload === true}
       data-destructive={item.isDestructive === true}
       disabled={item.isDisabled === true}
       onClick={() => {

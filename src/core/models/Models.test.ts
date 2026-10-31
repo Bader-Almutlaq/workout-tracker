@@ -151,6 +151,7 @@ describe('row conversion', () => {
       position: 0,
       supersetGroup: 2,
       notes: 'Pause reps',
+      deloadStage: null,
     });
   });
 

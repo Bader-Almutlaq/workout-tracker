@@ -1,3 +1,4 @@
+import { DeloadChip } from './DeloadChip';
 import { useState } from 'react';
 import { ExerciseInfoLine } from './ExerciseInfoLine';
 import { ExerciseNoteDialog } from './ExerciseNoteDialog';
@@ -60,7 +61,14 @@ export function ExerciseCard({
   return (
     <section className={styles.card} aria-label={entry.exercise.name}>
       <ExerciseCardHeader entry={entry} index={index} count={count} actions={actions} unit={unit} live={live} />
-      {notes === undefined && <ExerciseInfoLine entry={entry} />}
+      {notes === undefined ? (
+        <ExerciseInfoLine
+          entry={entry}
+          onEndDeload={actions.setDeload === undefined ? undefined : () => actions.setDeload?.(entry.entry.id, false)}
+        />
+      ) : (entry.entry.deloadStage ?? null) !== null ? (
+        <DeloadChip />
+      ) : null}
       {suggestions.status === 'failed' && (
         <p className={styles.error} role="alert">
           {suggestions.message}

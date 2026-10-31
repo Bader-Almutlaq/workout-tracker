@@ -229,3 +229,24 @@ latest finished session anywhere. Completed non-warm-up sets are paired by worki
 A tick saves the baseline values; only accepting amber or typing changes them. Untouched suggestions
 reappear after reload. A value differing from its historical baseline suppresses that cell's suggestion;
 accepting or typing an identical value is distinguishable only during the mounted editor session.
+
+## Deload stages (T-062, schema v9)
+
+`v9-deload` appends nullable `workoutExercise.deloadStage INTEGER CHECK (deloadStage IN (1, 2))`.
+Every existing exercise entry stays normal (NULL); no sets or kilogram values are rewritten.
+The existing worker snapshot-before-migration boundary applies. Complete SQLite backups carry the
+stage automatically, and validation upgrades older backups on an in-memory copy. CSV formats are
+unchanged and do not carry deload stages; use a database backup to retain them.
+
+Starting deload sets stage 1 on the chosen live entry, or all entries currently in the workout.
+The next performed session of that exercise occurrence starts at stage 2; after stage 2 it starts
+normal. Discarding a session does not consume a stage. Occurrences follow their position among
+entries of the same exercise, across workouts; this is independent of template progression mode.
+Historical additions stay normal. Ending deload clears only the current entry. Finishing and editing
+history preserve the stored stage, including set edits, unit switches and exercise reordering.
+
+Suggestions never edit a set until accepted. Both stages use the normal session immediately before
+the cycle as their load baseline, so stage 2 builds back toward that load instead of reducing stage 1
+again. Reps repeat the immediate previous completed working position; sets stay unchanged. Missing
+original positions omit their load suggestion. Normal logging resumes after stage 2 using the existing
+previous-performance/progression behavior; it does not force a return to a particular weight.

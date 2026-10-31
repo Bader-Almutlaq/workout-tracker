@@ -311,6 +311,12 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE templateExercise ADD COLUMN progression TEXT CHECK (progression IN ('double'));
     `,
   },
+  {
+    id: 'v9-deload',
+    sql: `
+      ALTER TABLE workoutExercise ADD COLUMN deloadStage INTEGER CHECK (deloadStage IN (1, 2));
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

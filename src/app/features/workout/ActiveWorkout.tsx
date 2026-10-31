@@ -33,7 +33,9 @@ export function ActiveWorkout({ snapshot }: { readonly snapshot: LiveWorkoutSnap
       trailing={null}
       title={<WorkoutTitle name={workout.name} onPress={model.startRenaming} />}
       subtitle={<WorkoutMetadata startedAt={workout.startedAt} />}
-      titleAccessory={<WorkoutMenu onRename={model.startRenaming} onDiscard={model.requestDiscard} />}
+      titleAccessory={
+        <WorkoutMenu onRename={model.startRenaming} onDiscard={model.requestDiscard} onDeload={model.deloadWorkout} />
+      }
       leading={<ActiveWorkoutBar startedAt={workout.startedAt} onFinish={model.requestFinish} />}
     >
       {editing === undefined && <LoggingErrorBanner />}

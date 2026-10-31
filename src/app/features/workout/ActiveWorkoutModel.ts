@@ -22,6 +22,8 @@ export interface ActiveWorkoutModel {
   /** Renames the workout; a blank name is ignored. */
   rename(name: string): void;
   cancelRenaming(): void;
+  /** Starts stage 1 on every exercise currently shown. */
+  deloadWorkout(): void;
   requestDiscard(): void;
   requestFinish(): void;
   confirm(): void;

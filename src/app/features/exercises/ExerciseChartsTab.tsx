@@ -1,3 +1,4 @@
+import type { LongRangeMark } from '../../design/charts/LongRangeChart';
 import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
 import { database, useDatabaseQuery } from '../../data/database';
 import { estimateText } from '../../format/estimateText';
@@ -16,11 +17,13 @@ export function ExerciseChartsTab({
   const query = useDatabaseQuery(`exercise-charts-${exerciseId}`, () => database.exerciseCharts(exerciseId));
   if (query.status !== 'ready') return <ExerciseQueryMessage query={query} />;
   const series = query.value;
+  const marks = series.deloadDates.map<LongRangeMark>((date) => ({ date, kind: 'deload' }));
   return (
     <>
       {tracking === 'weight-reps' && (
         <ExerciseChart
           title="Best set, est. 1RM"
+          marks={marks}
           points={series.estimatedOneRepMax}
           formatValue={(value) => estimateText(value, 'kg')}
         />
@@ -28,6 +31,7 @@ export function ExerciseChartsTab({
       {(tracking === 'weight-reps' || tracking === 'weight-duration') && (
         <ExerciseChart
           title="Heaviest weight"
+          marks={marks}
           points={series.heaviestWeight}
           formatValue={(value) => weightText(value, 'kg')}
         />
@@ -35,6 +39,7 @@ export function ExerciseChartsTab({
       {tracking === 'weight-reps' && (
         <ExerciseChart
           title="Session volume · per session"
+          marks={marks}
           points={series.sessionVolume}
           aggregation="mean"
           formatValue={volumeText}
@@ -43,6 +48,7 @@ export function ExerciseChartsTab({
       {(tracking === 'weight-reps' || tracking === 'bodyweight-reps') && (
         <ExerciseChart
           title="Best reps at any weight"
+          marks={marks}
           points={series.bestReps}
           formatValue={(value) => `${value} reps`}
         />
@@ -56,7 +62,12 @@ export function ExerciseChartsTab({
         />
       )}
       {(tracking === 'duration' || tracking === 'weight-duration') && (
-        <ExerciseChart title="Longest duration" points={series.duration} formatValue={(value) => `${value} s`} />
+        <ExerciseChart
+          marks={marks}
+          title="Longest duration"
+          points={series.duration}
+          formatValue={(value) => `${value} s`}
+        />
       )}
     </>
   );

@@ -64,6 +64,10 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
       editor.close();
       actions.addSet(entryId);
     },
+    setDeload: (entryId, enabled) => {
+      editor.close();
+      actions.setDeload(entryId, enabled);
+    },
     toggleWarmups: (entryId, remove) => {
       editor.close();
       actions.toggleWarmups(entryId, remove);
@@ -113,6 +117,10 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
       if (trimmed !== '') actions.renameWorkout(workout.id, trimmed, workout.notes);
     },
     cancelRenaming: () => setIsRenaming(false),
+    deloadWorkout: () => {
+      editor.close();
+      actions.deloadWorkout(workout.id);
+    },
     requestDiscard: () => {
       editor.close();
       setConfirmation({ kind: 'discard' });

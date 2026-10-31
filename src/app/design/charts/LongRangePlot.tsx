@@ -26,7 +26,7 @@ function periodCaption(size: TimeBucketSize, aggregation: TimeAggregation): stri
 }
 
 /** Heuristic: small marks keep period values and single-bucket spreads visible without overpowering the line. */
-const marks = Object.freeze({ dotRadius: 2, spreadHalfWidth: 3 });
+const plotMarks = Object.freeze({ dotRadius: 2, spreadHalfWidth: 3, deloadHalfWidth: 8 });
 
 const dateFormat = new Intl.DateTimeFormat(FORMAT_LOCALE, {
   year: 'numeric',
@@ -42,6 +42,7 @@ export function LongRangePlot({
   overviewBucket,
   formatValue,
   shape = 'line',
+  marks,
   height: requestedHeight,
   range = 'all',
   detailed = false,
@@ -90,6 +91,17 @@ export function LongRangePlot({
     // Keep the shared scale's padded domain only when the shown window is a single instant.
     if (from !== to) scales.x.domain([new Date(from), new Date(to)]);
   }
+  const deloadBuckets = new Set(
+    TimeBuckets.aggregate(
+      (marks ?? []).filter((mark) => mark.kind === 'deload').map((mark) => ({ date: mark.date, value: 1 })),
+      size,
+      'sum',
+      shown ?? undefined,
+    ).map((bucket) => bucket.start),
+  );
+  const markedStarts = [...new Set(observations.map((point) => point.start))].filter((start) =>
+    deloadBuckets.has(start),
+  );
   const picked = selected === null ? undefined : observations[selected];
   const readout =
     picked === undefined
@@ -100,9 +112,24 @@ export function LongRangePlot({
             (point) =>
               `${point.name}: ${formatValue(point.value)} (min ${formatValue(point.min)}, max ${formatValue(point.max)}; ${point.count} entries)`,
           )
-          .join(' · ')}`;
+          .join(' · ')}${deloadBuckets.has(picked.start) ? ' · Deload' : ''}`;
   const plot = (
     <ChartFrame width={width} height={height} scales={scales} label={title}>
+      {markedStarts.map((start) => {
+        const center = scales.x(new Date(start));
+        const left = Math.max(scales.left, center - plotMarks.deloadHalfWidth);
+        const right = Math.min(scales.right, center + plotMarks.deloadHalfWidth);
+        return (
+          <rect
+            key={start}
+            className={styles.deloadColumn}
+            x={left}
+            y={scales.top}
+            width={right - left}
+            height={scales.bottom - scales.top}
+          />
+        );
+      })}
       {buckets.map((item, index) => {
         const band = area<TimeBucket>()
           .x((point) => scales.x(new Date(point.start)))
@@ -125,9 +152,9 @@ export function LongRangePlot({
                     <rect
                       key={point.start}
                       className={styles.band}
-                      x={scales.x(new Date(point.start)) - marks.spreadHalfWidth}
+                      x={scales.x(new Date(point.start)) - plotMarks.spreadHalfWidth}
                       y={scales.y(point.max)}
-                      width={marks.spreadHalfWidth * 2}
+                      width={plotMarks.spreadHalfWidth * 2}
                       height={scales.y(point.min) - scales.y(point.max)}
                     />
                   ),
@@ -136,10 +163,11 @@ export function LongRangePlot({
             {item.buckets.map((point) => (
               <circle
                 key={point.start}
-                className={styles.dot}
+                className={deloadBuckets.has(point.start) ? styles.deloadDot : styles.dot}
+                aria-label={deloadBuckets.has(point.start) ? 'Deload' : undefined}
                 cx={scales.x(new Date(point.start))}
                 cy={scales.y(point.value)}
-                r={marks.dotRadius}
+                r={plotMarks.dotRadius}
               />
             ))}
           </g>
@@ -185,9 +213,10 @@ export function LongRangePlot({
           </button>
         )}
       </div>
+      {markedStarts.length > 0 && <p className={styles.caption}>Hollow points and yellow shading: Deload</p>}
       <ChartTable
         caption={`${title} · ${periodCaption(size, aggregation)}`}
-        columns={['Period start', 'Series', 'Value', 'Min', 'Max', 'Count']}
+        columns={['Period start', 'Series', 'Value', 'Min', 'Max', 'Count', ...(marks === undefined ? [] : ['Notes'])]}
         rows={observations.map((point) => ({
           key: `${point.name}-${point.start}`,
           cells: [
@@ -197,6 +226,7 @@ export function LongRangePlot({
             formatValue(point.min),
             formatValue(point.max),
             String(point.count),
+            ...(marks === undefined ? [] : [deloadBuckets.has(point.start) ? 'Deload' : '']),
           ],
         }))}
       />

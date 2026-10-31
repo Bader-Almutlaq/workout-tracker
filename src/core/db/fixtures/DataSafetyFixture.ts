@@ -28,7 +28,7 @@ export const DataSafetyFixture = {
         (1, '2026-10-01T10:00:00.123Z', '2026-10-01T11:00:00.456Z', 'History α',
          'Workout\nnotes', 'strong', 'strong:synthetic', 0, 1),
         (2, '2026-10-02T10:00:00.000Z', NULL, 'Active', NULL, 'app', NULL, 1, NULL);
-      INSERT INTO workoutExercise VALUES (1, 1, 1, 0, 5, 'Entry α'), (2, 2, 2, 0, NULL, NULL);
+      INSERT INTO workoutExercise (id, workoutId, exerciseId, position, supersetGroup, notes) VALUES (1, 1, 1, 0, 5, 'Entry α'), (2, 2, 2, 0, NULL, NULL);
       INSERT INTO workoutSet
         (id, workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, rpe,
          durationSeconds, distanceMeters, side, restBeforeSeconds, completedAt, isCompleted, notes)

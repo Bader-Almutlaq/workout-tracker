@@ -1,3 +1,4 @@
+import { DeloadPlan, type DeloadStage } from './DeloadPlan';
 import { fromExerciseRow, type ExerciseRow } from '../models/Exercise';
 import { loadProfileFor } from '../units/LoadableWeight';
 import { suggestedWarmupCount, refreshWarmups, warmupSets } from './WarmupPlan';
@@ -5,7 +6,7 @@ import type { Database } from '../db/Database';
 import type { SetKind } from '../models/SetKind';
 import type { WorkoutSetRow } from '../models/WorkoutSet';
 import type { WeightUnit } from '../units/WeightUnit';
-import { matchPreviousSets, previousPerformance } from '../queries/PreviousPerformance';
+import { matchPreviousSets, previousPerformance, previousExerciseEntry } from '../queries/PreviousPerformance';
 import { WorkoutLoggerError } from './WorkoutLoggerError';
 import type { ExerciseTracking } from '../library/ExerciseTracking';
 
@@ -332,6 +333,28 @@ export class WorkoutLogger {
     });
   }
 
+  /** Sets/clears the entry's stored stage without changing sets, including during a snapshotted History edit. */
+  setDeloadStage(entryId: number, stage: DeloadStage | null): void {
+    this.db.transaction(() => {
+      this.requireEntry(entryId);
+      this.db.run('UPDATE workoutExercise SET deloadStage = ? WHERE id = ?', [stage, entryId]);
+    });
+  }
+
+  /** Starts stage 1 on every exercise currently in the workout, atomically; never edits set values. */
+  deloadWorkout(workoutId: number): void {
+    this.db.transaction(() => {
+      this.requireWorkout(workoutId);
+      this.db.run('UPDATE workoutExercise SET deloadStage = 1 WHERE workoutId = ?', [workoutId]);
+    });
+  }
+
+  private initializeDeload(entryId: number): void {
+    const entry = this.requireEntry(entryId);
+    if (this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) !== 1) return;
+    this.setDeloadStage(entryId, DeloadPlan.nextStage(previousExerciseEntry(this.db, entryId)?.deloadStage ?? null));
+  }
+
   /** Saves exercise notes; an empty string clears them without changing the exercise definition. */
   updateExerciseNotes(entryId: number, notes: string): void {
     this.db.transaction(() => {
@@ -436,6 +459,7 @@ export class WorkoutLogger {
             ],
           );
         });
+        this.initializeDeload(entry);
         this.initializeWarmups(entry, true);
       }
       return workoutId;
@@ -566,6 +590,7 @@ export class WorkoutLogger {
           );
         });
       }
+      this.initializeDeload(entryId);
       this.initializeWarmups(entryId);
       return entryId;
     });
