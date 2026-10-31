@@ -4,14 +4,24 @@ import { localDateKey } from '../../../core/support/localDate';
 import { database, useDatabaseQuery } from '../../data/database';
 import { EmptyState } from '../../design/components/EmptyState';
 import { MuscleBars } from './MuscleBars';
+import { MuscleCoverage } from './MuscleCoverage';
 import { MuscleHistory } from './MuscleHistory';
 import { VolumeTable } from './VolumeTable';
 import { WeekChips } from './WeekChips';
 import { chooseVolume, VolumePeriods, type WeekChoice } from './volumeLayout';
 import styles from './Analytics.module.css';
 
-/** Weekly fractional hard sets by muscle, with a selected-period history and table. */
-export function AnalyticsMuscles({ from, to }: { readonly from: Date; readonly to: Date }) {
+/** Weekly fractional hard sets by muscle, with a selected-period history and table, then coverage over the period. */
+export function AnalyticsMuscles({
+  from,
+  to,
+  lastDay,
+}: {
+  readonly from: Date;
+  readonly to: Date;
+  /** The period's last local day, for the coverage section's inclusive range. */
+  readonly lastDay: Date;
+}) {
   const [choice, setChoice] = useState<WeekChoice>('this');
   const [selected, setSelected] = useState<Muscle | null>(null);
   const [table, setTable] = useState(false);
@@ -50,6 +60,7 @@ export function AnalyticsMuscles({ from, to }: { readonly from: Date; readonly t
               onClose={() => setSelected(null)}
             />
           )}
+          <MuscleCoverage from={from} to={lastDay} />
         </>
       )}
     </>

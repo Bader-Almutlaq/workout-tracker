@@ -84,4 +84,6 @@ Product rule: **measure, don't prescribe.** Descriptive labels only. Balance rat
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+Implemented standalone coverage and intensity queries, worker methods, and components; the tab integration remains with T-064. The selected range uses inclusive local dates, with Monday-week denominators. Neglected uses 28 days ending at the selected end date; direct history determines days since training. Pattern counts do not multiply across muscle tags. Intensity uses the existing daily strength trend including the current day and excludes sets without a positive load and available trend.
+
+Synthetic core tests cover the requested calculations and exclusions. Server-rendered component tests check copy, initial smaller-muscle visibility, ratio formatting and table availability. Interactive toggle/filter/table behavior and phone-size light/dark rendering still need browser verification. Changes are uncommitted; see the verification report for the final check result.

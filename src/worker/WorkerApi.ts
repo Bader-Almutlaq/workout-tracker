@@ -1,5 +1,7 @@
 import { TrainingSummary } from '../core/queries/TrainingSummary';
 import { LiftTrends } from '../core/queries/LiftTrends';
+import { muscleCoverage } from '../core/queries/MuscleCoverage';
+import { intensityMix } from '../core/queries/IntensityMix';
 import { usedMachineBrands } from '../core/queries/PreviousPerformance';
 import type { DeloadStage } from '../core/logging/DeloadPlan';
 import { ExerciseSeries } from '../core/queries/ExerciseSeries';
@@ -889,6 +891,17 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       };
     }),
     // End of analytics overview (T-064)
+
+    // Muscle coverage and intensity (T-065)
+    /** Descriptive muscle coverage over inclusive local calendar dates. */
+    muscleCoverage: serially(async (from: string, to: string) =>
+      muscleCoverage((await liveStore()).database, new Date(from), new Date(to)),
+    ),
+    /** Working-set distributions and weekly intensity over inclusive local calendar dates. */
+    intensityMix: serially(async (from: string, to: string, muscle?: Muscle) =>
+      intensityMix((await liveStore()).database, new Date(from), new Date(to), muscle),
+    ),
+    // End of Muscle coverage and intensity (T-065)
 
     // Strength (T-034)
 
