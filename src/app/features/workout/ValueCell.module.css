@@ -2,9 +2,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: var(--space-xs);
   min-width: 0;
-  height: 44px;
+  height: var(--workout-tap-size);
   background: var(--set-cell-background, var(--color-surface-raised));
   border-radius: var(--radius-small);
   box-shadow: inset 0 0 0 var(--hairline) var(--color-border);
@@ -25,4 +25,28 @@
 .unit {
   font: var(--font-caption);
   color: var(--color-text-tertiary);
+}
+
+.values {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.values .cell {
+  flex: 1;
+  padding: 0 var(--space-xs);
+}
+.suggestion {
+  min-width: var(--space-xxl);
+  min-height: var(--workout-tap-size);
+  padding: 0 var(--space-xs);
+  color: var(--color-suggestion);
+  font: var(--font-callout);
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--radius-small);
+}
+
+/* An untouched value that is itself the suggestion reads in the suggestion colour, without a second copy beside it. */
+.cell[data-suggested='true'] .value {
+  color: var(--color-suggestion);
 }

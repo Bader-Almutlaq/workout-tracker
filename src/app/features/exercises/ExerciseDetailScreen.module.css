@@ -15,3 +15,21 @@
   color: var(--color-text-tertiary);
   overflow-wrap: anywhere;
 }
+
+.tabs {
+  overflow-x: auto;
+}
+
+.tabs > div {
+  min-width: max-content;
+}
+
+.tabs button {
+  padding-inline: var(--space-s);
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}

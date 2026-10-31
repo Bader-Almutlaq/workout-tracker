@@ -2,9 +2,9 @@ import { SET_KINDS, type SetKind } from '../../../core/models/SetKind';
 
 /** Name of each set kind in the menu on the set label. */
 export const SET_KIND_NAMES: Readonly<Record<SetKind, string>> = {
-  working: 'Working set',
+  working: 'Normal',
   warmup: 'Warm-up',
-  drop: 'Drop set',
+  drop: 'Drop',
   failure: 'Failure',
 };
 

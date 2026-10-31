@@ -1,3 +1,4 @@
+import { Flame } from 'lucide-react';
 import type { WorkoutSet } from '../../../core/models/WorkoutSet';
 import type { ActionMenuItem } from '../../design/components/ActionMenuRow';
 
@@ -11,6 +12,7 @@ export function warmupMenuItem(sets: readonly WorkoutSet[], toggle: (remove: boo
       : hasWorkingWeight
         ? 'Add warm-up sets'
         : 'Add warm-up sets (enter a working weight first)',
+    icon: Flame,
     isDisabled: !hasWarmups && !hasWorkingWeight,
     onSelect: () => toggle(hasWarmups),
   };

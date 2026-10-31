@@ -1,76 +1,57 @@
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import { database, useDatabaseQuery } from '../../data/database';
 import { BackLink } from '../../design/components/BackLink';
 import { EmptyState } from '../../design/components/EmptyState';
 import { Screen } from '../../design/components/Screen';
-import { Section, SectionRow } from '../../design/components/Section';
-import { setCountsText } from '../history/setCountsText';
-import { dayWithYearText } from '../../format/dateText';
+import { SegmentedControl } from '../../design/components/SegmentedControl';
+import { exercisePageTab, exercisePageTabParams, exercisePageTabs } from './exercisePageTabs';
+import { ExerciseSummaryTab } from './ExerciseSummaryTab';
+import { ExerciseHistoryTab } from './ExerciseHistoryTab';
+import { ExerciseChartsTab } from './ExerciseChartsTab';
+import { ExerciseRecordsTab } from './ExerciseRecordsTab';
+import { ExerciseHowToTab } from './ExerciseHowToTab';
+import { ExerciseQueryMessage } from './ExerciseQueryMessage';
 import styles from './ExerciseDetailScreen.module.css';
-import { ExerciseInstructions } from './ExerciseInstructions';
-import { ExercisePictures } from './ExercisePictures';
-import { ExerciseActions } from './ExerciseActions';
-import { exerciseTraitsText } from './exerciseText';
-import { MuscleChips } from './MuscleChips';
-import { RecentSessionRow } from './RecentSessionRow';
-import { StrengthCard } from './StrengthCard';
 
-const MISSING_MESSAGE = 'This exercise no longer exists.';
-
-/** One exercise: the muscles it trains, how often it was logged, recent sessions, and its actions. */
+/** Exercise sections selected by URL; mounting only the active section defers its queries and picture loads. */
 export function ExerciseDetailScreen() {
   const exerciseId = Number(useParams().exerciseId);
+  const [params, setParams] = useSearchParams();
+  const tab = exercisePageTab(params);
   const detail = useDatabaseQuery(`exercise-${exerciseId}`, () => database.exerciseDetail(exerciseId));
   const back = <BackLink to="/exercises" label="Exercises" />;
-
   if (detail.status !== 'ready' || detail.value === null) {
-    const message =
-      detail.status === 'loading' ? 'Loading…' : detail.status === 'failed' ? detail.message : MISSING_MESSAGE;
     return (
       <Screen title="Exercise" leading={back}>
-        <EmptyState message={message} />
+        {detail.status === 'ready' ? (
+          <EmptyState message="This exercise no longer exists." />
+        ) : (
+          <ExerciseQueryMessage query={detail} />
+        )}
       </Screen>
     );
   }
-
-  const { exercise, aliases, recentSessions } = detail.value;
-  const traits = exerciseTraitsText(exercise);
-
+  const { exercise } = detail.value;
   return (
     <Screen title={exercise.name} leading={back}>
+      <div className={styles.tabs}>
+        <SegmentedControl
+          label="Exercise sections"
+          options={exercisePageTabs}
+          value={tab}
+          onChange={(next) => setParams(exercisePageTabParams(params, next))}
+        />
+      </div>
       {exercise.isArchived && <p className={styles.note}>Archived: hidden from search and lists. History is kept.</p>}
-      <Section label="Muscles">
-        <MuscleChips primary={detail.value.primaryMuscles} secondary={detail.value.secondaryMuscles} />
-        {traits !== '' && <p className={styles.traits}>{traits}</p>}
-      </Section>
-      <ExercisePictures key={exercise.id} imageKeys={exercise.imageKeys} />
-      <ExerciseInstructions instructions={exercise.instructions} />
-      {detail.value.workoutCount > 0 && (
-        <Section label="Usage">
-          <SectionRow
-            label="Logged"
-            value={`${detail.value.workoutCount} workout${detail.value.workoutCount === 1 ? '' : 's'} · ${setCountsText(detail.value.setCount, detail.value.warmupCount ?? 0)}`}
-          />
-          {detail.value.firstUsedAt !== null && (
-            <SectionRow label="First" value={dayWithYearText(detail.value.firstUsedAt.toISOString())} />
-          )}
-          {detail.value.lastUsedAt !== null && (
-            <SectionRow label="Last" value={dayWithYearText(detail.value.lastUsedAt.toISOString())} />
-          )}
-        </Section>
-      )}
-      {exercise.tracking === 'weight-reps' && (
-        <StrengthCard key={exercise.id} exerciseId={exercise.id} unit={exercise.defaultEntryUnit} />
-      )}
-      {recentSessions.length > 0 && (
-        <Section label="Recent">
-          {recentSessions.map((session) => (
-            <RecentSessionRow key={session.workoutId} session={session} />
-          ))}
-        </Section>
-      )}
-      {aliases.length > 0 && <p className={styles.aliases}>Also known as: {aliases.join(', ')}</p>}
-      <ExerciseActions detail={detail.value} />
+      <div className={styles.tabContent} key={`${exerciseId}-${tab}`}>
+        {tab === 'summary' && <ExerciseSummaryTab detail={detail.value} />}
+        {tab === 'history' && <ExerciseHistoryTab exerciseId={exerciseId} tracking={exercise.tracking} />}
+        {tab === 'charts' && <ExerciseChartsTab exerciseId={exerciseId} tracking={exercise.tracking} />}
+        {tab === 'records' && (
+          <ExerciseRecordsTab exerciseId={exerciseId} unit={exercise.defaultEntryUnit} tracking={exercise.tracking} />
+        )}
+        {tab === 'how-to' && <ExerciseHowToTab exercise={exercise} />}
+      </div>
     </Screen>
   );
 }

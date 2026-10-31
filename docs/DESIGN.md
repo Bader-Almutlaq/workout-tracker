@@ -18,6 +18,10 @@ Tokens live in `src/app/design/tokens.css` as CSS variables (`--color-surface`, 
 | `textTertiary` | `#62666D` | `#8A8F98` | Units, captions, axis labels |
 | `accent` | `#7C85E8` | `#5E6AD2` | Primary action, selection, single-series lines |
 | `accentSubtle` | accent 16% | accent 12% | Selected chip fill, completed-set row tint |
+| `warmupRow` | `#30355E` | `#E7E9FB` | Full warm-up row; explicit accent-derived purple tint |
+| `warmupLabel` | `#B6BDFF` | `#505BB8` | W label, brighter purple against the warm-up row |
+| `suggestion` | `#F4BF50` | `#946000` | Optional amber value beside a set cell; tap to accept |
+| `statusBad` | `#D03B3B` | `#D03B3B` | Failure-set F label (`--color-status-bad`) |
 
 **Status** (always paired with an icon and a label, never color alone): good `#0CA30C`, warning `#FAB219`, serious `#EC835A`, critical `#D03B3B`.
 
@@ -112,6 +116,37 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
 - Concept: the end of a loaded barbell from the side. The plates grow left to right, so the mark also reads as a rising bar chart. It is the indigo accent on the near-black background, with no text.
 - Graphics are drawn as SVG by agents. A design tool such as Figma isn't needed for marks this simple.
 
+## Live workout
+
+The sticky top bar keeps elapsed time and Finish visible. The session header shows its name,
+a menu for rename/discard, local date and elapsed time. Each exercise name opens its exercise
+page and uses the accent. An info line shows only saved rest targets and session exercise notes;
+unset fields take no space. Rest targets are display metadata here; completing a set does not
+open a rest timer.
+
+Live rows use Set · Previous · kg/lb · Reps (or Time) · ✓, followed by Add set. RPE sits on an
+independent badge at the check: logged effort is visible, empty badges require Show RPE for that
+exercise. Tapping a badge or holding the check for 500 ms opens the existing RPE pad. A hold
+never completes a set. History editing retains its separate RPE column, notes and disabled check.
+
+Untouched planned weight/reps stay greyed; completion accepts their already-saved values. A
+separate amber suggestion is optional and only copied on tap. `ValueSuggestion` uses the cell's
+entry unit (seconds for timed cells), so future progression can supply the same slot. Generated
+warm-ups use their existing planned values as suggestions; generation and protected-row rules
+remain in WorkoutCore. Entered/accepted styling is local to the mounted editor; reopening safely
+shows saved planned values as greyed again. Suggested warm-up identity after reload follows the
+existing conservative core provenance rules.
+
+Warm-ups use an explicit purple surface across the whole row with a hairline before the first
+working row. Set labels are W (purple), normal-set numbers, D (accent), F (bad-status red).
+The menu lists only existing capabilities: session note, warm-ups, rest target, Show RPE, kg/lb,
+move and remove. Sticky notes, replacement and superset editing have no live operation yet.
+
+Heuristic layout tokens: `--workout-tap-size: 44px`, `--workout-weight-width: 88px`,
+`--workout-reps-width: 76px` keep headers aligned with rows at 430 px, including suggestions.
+`--font-input: 400 16px/1.4 var(--font-family)` avoids Safari focus zoom in note inputs.
+
+
 ## Long-range charts
 
 `LongRangeChart` is the shared period chart for Measure and future entity pages. Its small view shows all recorded history: daily buckets through 92 elapsed days, ISO weeks through 730 days, and calendar months beyond. A caller chooses mean (measurements and session totals), maximum (strength), last, or sum (session counts). Plan frequency fixes the overview to ISO weeks; its expanded view uses the usual finer automatic periods. Sum charts omit the per-observation spread band, which does not describe a total. Period boundaries use the phone's local calendar; missing periods are not filled. The 2 px line shows the aggregate, with a faint min–max band only where buckets contain multiple observations. A single populated bucket retains a dot and a narrow spread mark. Paired parts use independent named series on one axis; legend text stays in ink colors.
@@ -130,3 +165,17 @@ The Workout tab keeps Start empty workout first. Plans are separate navigation c
 Plan pages use Workouts · History · Analytics. Workouts are ordered cards with an exercise summary, last done and management menu. + Workout opens the existing editor with that plan selected. History links every finished session in the current plan to History. Analytics shows weekly session sums, mean session volume and mean known duration, followed by a per-workout table including never-performed workouts.
 
 Workout sheets have a title, Edit and Close, description (or Add a description), Last performed, and Exercises · History · Analytics. The body scrolls independently of the pinned Start workout footer and respects the bottom safe area. Exercise rows retain targets and add sets × name and main muscles, including archived exercise metadata. Analytics uses mean session volume/duration and best per-session e1RM for the first saved exercise, named explicitly. Missing estimates and unknown durations remain absent. History keeps separate sessions even on the same day.
+
+
+
+## Exercise page (T-057)
+
+Exercises open a Summary · History · Charts · Records · How-to segmented control. The `tab` URL parameter preserves the section through browser Back; unknown values open Summary. Each section mounts its own data query when opened. The five labels stay on one line with horizontal overflow on narrower displays, using the shared control and existing theme tokens.
+
+Summary keeps primary/secondary muscle chips, equipment and traits, usage dates/counts, the existing smoothed e1RM headline, loading preferences and the existing Edit/actions. History shows finished sessions newest first, including repeated exercise entries and all completed set kinds with their recorded load, reps or seconds and RPE. Each session links to its History entry. Older/newer controls keep at most 200 sessions mounted.
+
+Charts use `LongRangeChart` and its expansion, range picker and table. Best qualifying e1RM, heaviest load and best reps use maximum buckets. Working-set volume uses mean buckets explicitly labelled per session. PR progression retains the running e1RM maximum at each qualifying session. Timed tracking shows longest duration; loaded duration also shows heaviest load. Bodyweight tracking shows reps without inventing total mass. Each applicable series with fewer than two sessions is replaced by one explanatory line.
+
+Records show dated lifetime e1RM, heaviest load (with reps and recorded effort) and session volume. The 1–12-rep table uses the heaviest actual set achieving at least the row's reps, even without effort data. Predictions invert the canonical e1RM formula at RIR 0, from the best qualifying estimate, with shared estimate display rounding (0.5 kg / 1 lb); absent performances do not hide predictions. Unclassified exercises retain actual records but have no predictions. Reps and duration charts are the alternatives for unsupported weight records.
+
+How-to defers the existing preference-controlled pictures until opened and retains bundled numbered instructions. Missing instructions read “No instructions for this exercise.”
