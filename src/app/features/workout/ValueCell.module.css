@@ -5,9 +5,11 @@
   gap: var(--space-xs);
   min-width: 0;
   height: var(--workout-tap-size);
+  border: 6px solid transparent;
   background: var(--set-cell-background, var(--color-surface-raised));
+  background-clip: padding-box;
   border-radius: var(--radius-small);
-  box-shadow: inset 0 0 0 var(--hairline) var(--color-border);
+
   font: var(--font-body);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);

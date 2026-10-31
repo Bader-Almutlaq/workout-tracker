@@ -1,5 +1,7 @@
 .row {
   padding: 0 var(--space-m);
+  height: calc(var(--space-xxl) + var(--space-xs));
+  grid-template-rows: calc(var(--space-xxl) + var(--space-xs));
 }
 
 .remove {

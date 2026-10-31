@@ -120,8 +120,8 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
 
 The sticky top bar keeps elapsed time and Finish visible. The session header shows its name,
 a menu for rename/discard, local date and elapsed time. Each exercise name opens its exercise
-page and uses the accent. An info line shows only saved rest targets and session exercise notes;
-unset fields take no space. Rest targets are display metadata here; completing a set does not
+page and uses the accent. An info line shows planned rep targets, saved rest targets and other existing exercise metadata;
+session notes appear on a separate editable line and unset fields take no space. Rest targets are display metadata here; completing a set does not
 open a rest timer.
 
 Live rows use Set · Previous · kg/lb · Reps (or Time) · ✓, followed by Add set. RPE sits on an
@@ -137,8 +137,8 @@ remain in WorkoutCore. Entered/accepted styling is local to the mounted editor; 
 shows saved planned values as greyed again. Suggested warm-up identity after reload follows the
 existing conservative core provenance rules.
 
-Warm-ups use an explicit purple surface across the whole row with a hairline before the first
-working row. Set labels are W (purple), normal-set numbers, D (accent), F (bad-status red).
+Warm-ups use an amber tint across the whole row with a hairline before the first
+working row. Set labels are W (amber), normal-set numbers, D (purple), F (red).
 The menu lists only existing capabilities: session note, warm-ups, rest target, Show RPE, kg/lb,
 move and remove. Sticky notes, replacement and superset editing have no live operation yet.
 
@@ -210,3 +210,5 @@ Plan and plan-workout cards use a subtle card shadow in light mode and an inset 
 Long-range chart axes use compact numbers by default. Session volume adds its unit, duration uses minutes or hours, and session counts use plain numbers. The y-axis reserves room for its widest formatted label; chart text has inner padding.
 
 Set types use warm-up amber, failure red and drop purple with faint row tints; working sets remain plain. The workout editor uses compact value boxes within larger touch targets.
+
+Live exercise metadata places the first planned working set's rep target and saved rest time in accent under the name; notes appear separately as an editable italic line. Template exercises show their saved rest and editable note in the same position. Compact set rows use 32 px visible value and completion boxes inside 44 px touch areas, with 4 px between visible boxes and a compact 36 px add-action row, preserving the set-type colours in both editors.

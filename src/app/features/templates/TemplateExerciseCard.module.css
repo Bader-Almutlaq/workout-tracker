@@ -15,7 +15,8 @@
   justify-content: center;
   gap: var(--space-xs);
   width: 100%;
-  min-height: 44px;
+  position: relative;
+  min-height: calc(var(--space-xxl) + var(--space-xs));
   border-top: var(--hairline) solid var(--color-border);
   font: var(--font-callout);
   color: var(--color-accent);
@@ -48,4 +49,28 @@
 .progressionButton {
   box-shadow: inset 0 0 0 var(--hairline) var(--color-failure);
   border-radius: var(--radius-small);
+}
+
+.info {
+  padding: 0 var(--space-m) var(--space-xs);
+  color: var(--color-accent);
+  font: var(--font-body);
+  font-size: calc(var(--space-m) + var(--space-xs) / 2);
+}
+.note {
+  display: block;
+  width: 100%;
+  padding: var(--space-xs) var(--space-m);
+  color: var(--color-text-secondary);
+  font: var(--font-body);
+  font-style: italic;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.addSet::after {
+  content: '';
+  position: absolute;
+  inset: calc(var(--space-xs) * -1) 0;
 }

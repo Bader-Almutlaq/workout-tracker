@@ -13,8 +13,12 @@ export function TemplateExerciseHeader({
   isSupersetWithNext,
   actions,
   progression,
+  onNote,
+  hasNote,
 }: {
   readonly progression?: React.ReactNode;
+  readonly onNote: () => void;
+  readonly hasNote: boolean;
   readonly name: string;
   /** Position in the template (0-based) and the number of exercises, to disable Move up / Move down / Superset at the ends. */
   readonly index: number;
@@ -31,6 +35,7 @@ export function TemplateExerciseHeader({
       <ActionMenu
         label="Exercise options"
         items={[
+          { label: hasNote ? 'Edit note' : 'Add note', onSelect: onNote },
           { label: 'Move up', icon: ArrowUp, isDisabled: index === 0, onSelect: () => actions.move(index, -1) },
           {
             label: 'Move down',

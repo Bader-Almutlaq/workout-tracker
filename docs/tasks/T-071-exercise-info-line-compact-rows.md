@@ -45,4 +45,6 @@ Colours stay as decided: warm-up yellow, failure red, drop purple.
 
 ## Handoff
 
-_Not started._
+Implemented planned target and rest metadata, separately editable live and template notes, and compact set rows in both editors. Template targets are exposed on `LiveWorkoutEntry.plannedTargets` even with progression off or deload active; `TemplateEditorActions.setExerciseNotes` updates the draft. Incomplete one-sided rep targets display their available endpoint; the first normal working set determines the line. Rest remains the exercise-level target.
+
+Changes cover the live workout and template card components, their styles and tests, `LiveWorkout`, and `docs/DESIGN.md`. No schema or storage changes. `make format` and `make verify` passed: 181 test files, 1,289 tests, and production build. The browser host was unavailable, so dark/light, touch overlap and 430 × 932 visual checks including long weights still need device review. The 36 px row spacing means adjacent 44 px touch regions overlap by 8 px; verify tap behaviour on the phone.
