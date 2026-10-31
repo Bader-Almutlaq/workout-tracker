@@ -98,6 +98,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-068](T-068-workout-tab-plan-polish.md) | Workout tab, plan cards, plan charts, compact workout page (R4/R5) | done | Codex Terra (high), reviewed and polished by lead | merged |
 | [T-069](T-069-plan-summary-active-plan.md) | Plan Summary (sets per muscle), workout day, active plan (R4) | in progress | Codex Terra (high) | task/T-069-plan-summary |
 | [T-070](T-070-set-types-warmups-progression-button.md) | Compact editor, coloured set types, warm-ups on top, Progress button (R5/R6) | done | Codex Terra (high), reviewed by lead | merged |
+| [T-071](T-071-exercise-info-line-compact-rows.md) | Exercise info line (rep range, rest, notes), Strong-sized rows (R6) | in progress | Codex Terra (high) | task/T-071-info-line |
 
 ## Next milestones (tasks are written when the milestone starts)
 
