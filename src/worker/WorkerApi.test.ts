@@ -262,6 +262,7 @@ test('warm-up edit protection and deletion suppression survive separate worker A
       mechanic: 'compound',
       pattern: 'horizontal-push',
     });
+    await api.updateExerciseLoading(exerciseId, { warmupSetCount: 3 });
     const workoutId = await api.startWorkout('Warm-up test', [exerciseId]);
     const entry = (await api.liveWorkout())?.entries[0];
     const work = entry?.sets[0];

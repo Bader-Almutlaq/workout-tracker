@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { loadProfileFor } from '../units/LoadableWeight';
-import { defaultWarmupCount, refreshWarmups, warmupSets } from './WarmupPlan';
+import { suggestedWarmupCount, refreshWarmups, warmupSets } from './WarmupPlan';
 
 const barbell = loadProfileFor({ equipment: 'barbell' }, 'kg');
 const compound = {
@@ -52,16 +52,14 @@ describe('warm-up plans', () => {
     expect(warmupSets(NaN, 3, barbell)).toEqual([]);
   });
   test('defaults cover heavy barbell compounds, other compounds, isolation and exclusions', () => {
-    expect(defaultWarmupCount(compound)).toBe(3);
-    expect(defaultWarmupCount({ ...compound, equipment: 'machine' })).toBe(2);
-    expect(defaultWarmupCount({ ...compound, movementPattern: 'lunge' })).toBe(2);
-    expect(defaultWarmupCount({ ...compound, mechanic: 'isolation' })).toBe(1);
-    expect(defaultWarmupCount({ ...compound, equipment: 'bodyweight' })).toBe(0);
-    expect(defaultWarmupCount({ ...compound, equipment: 'band' })).toBe(0);
-    expect(defaultWarmupCount({ ...compound, tracking: 'weight-duration' })).toBe(0);
-    expect(defaultWarmupCount({ ...compound, mechanic: null })).toBe(0);
-    expect(defaultWarmupCount({ ...compound, warmupSetCount: 0 })).toBe(0);
-    expect(defaultWarmupCount({ ...compound, warmupSetCount: 4 })).toBe(4);
+    expect(suggestedWarmupCount(compound)).toBe(3);
+    expect(suggestedWarmupCount({ ...compound, equipment: 'machine' })).toBe(2);
+    expect(suggestedWarmupCount({ ...compound, movementPattern: 'lunge' })).toBe(2);
+    expect(suggestedWarmupCount({ ...compound, mechanic: 'isolation' })).toBe(1);
+    expect(suggestedWarmupCount({ ...compound, equipment: 'bodyweight' })).toBe(0);
+    expect(suggestedWarmupCount({ ...compound, equipment: 'band' })).toBe(0);
+    expect(suggestedWarmupCount({ ...compound, tracking: 'weight-duration' })).toBe(0);
+    expect(suggestedWarmupCount({ ...compound, mechanic: null })).toBe(0);
   });
   test('refresh preserves completed and edited slots, updating only untouched slots', () => {
     const existing = [

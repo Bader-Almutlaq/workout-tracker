@@ -60,4 +60,8 @@ The warm-up colours and row layout wait for the owner's Strong screenshots: keep
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+Implemented opt-in automatic counts, explicit add/remove of protected suggestions, and cable add-on steps. Null counts do not copy previous warm-ups into newly added exercises; explicit warm-up rows in templates remain intact. Existing in-progress warm-ups are protected after reopening. A request uses the classification heuristic even when an exercise has a different automatic count; classifications with a zero heuristic produce no suggestions. After a worker reload, suggestion provenance is unavailable, so remove leaves existing rows intact.
+
+Changed the warm-up and loadable-weight core and tests, worker warm-up API and test, workout menu/actions and menu test, exercise loading field, DATA, ARCHITECTURE, and this decision in DECISIONS. Public API: `suggestedWarmupCount`, `WorkoutLogger.addSuggestedWarmups` / `removeSuggestedWarmups`, and matching worker methods.
+
+Verification: `make format` and `make verify` passed; 1,008 tests passed. Menu behavior has an automated state test; visual checks on iPhone dark/light remain for review. Changes are uncommitted.
