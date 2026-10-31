@@ -78,16 +78,13 @@ describe('measurement screen helpers', () => {
     expect(siteUnit(site, units)).toBe('cm');
     expect(siteUnit({ ...site, kind: 'mass' }, { lengthUnit: 'in', weightUnit: 'lb' })).toBe('lb');
   });
-  test.each(['UTC', 'Asia/Riyadh', 'America/New_York'])(
-    'local datetime editing preserves the instant and fractional seconds in %s',
-    (zone) => {
-      vi.stubEnv('TZ', zone);
-      try {
-        const iso = '2026-10-31T10:15:43.123Z';
-        expect(new Date(measurementDateInput(iso)).toISOString()).toBe(iso);
-      } finally {
-        vi.unstubAllEnvs();
-      }
-    },
-  );
+  test.each(['UTC', 'Asia/Riyadh', 'America/New_York'])('local datetime editing shows local minutes in %s', (zone) => {
+    vi.stubEnv('TZ', zone);
+    try {
+      const iso = '2026-10-31T10:15:43.123Z';
+      expect(new Date(measurementDateInput(iso)).toISOString()).toBe('2026-10-31T10:15:00.000Z');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });

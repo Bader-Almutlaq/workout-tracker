@@ -18,12 +18,14 @@ export function MeasurementLogSheet({
   initialSite,
   entry,
   onClose,
+  onDelete,
 }: {
   readonly sites: readonly MeasurementSite[];
   readonly units: MeasurementUnits;
   readonly initialSite?: string;
   readonly entry?: BodyMeasurement;
   readonly onClose: () => void;
+  readonly onDelete?: (entry: BodyMeasurement) => void;
 }) {
   const first = sites.find((site) => site.key === (entry?.site ?? initialSite)) ?? sites[0];
   const [key, setKey] = useState(first?.key ?? '');
@@ -114,7 +116,7 @@ export function MeasurementLogSheet({
           <input
             className={styles.input}
             type="datetime-local"
-            step="any"
+            step="60"
             required
             value={date}
             onChange={(event) => setDate(event.target.value)}
@@ -124,6 +126,11 @@ export function MeasurementLogSheet({
         <Button variant="primary" isDisabled={action.busy || value.trim() === '' || date === ''} onPress={save}>
           Save measurement
         </Button>
+        {entry !== undefined && onDelete !== undefined && (
+          <Button variant="destructive" isDisabled={action.busy} onPress={() => onDelete(entry)}>
+            Delete measurement
+          </Button>
+        )}
         <Button isDisabled={action.busy} onPress={onClose}>
           Cancel
         </Button>

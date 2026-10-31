@@ -67,7 +67,8 @@ describe('muscle coverage', () => {
     add('Old', 'horizontal-push', 'chest', 'primary', new Date(2023, 11, 10), 16);
     add('Recent', 'horizontal-pull', 'lats', 'primary', new Date(2024, 0, 7), 16);
     const result = muscleCoverage(db, new Date(2023, 11, 1), new Date(2024, 0, 7));
-    expect(result.neglected.some((item) => item.muscle === 'chest')).toBe(true);
+    expect(result.neglected.find((item) => item.muscle === 'chest')?.recentSetsPerWeek).toBe(0);
+    expect(result.muscles.find((item) => item.muscle === 'lats')?.recentSetsPerWeek).toBe(4);
     expect(result.neglected.some((item) => item.muscle === 'lats')).toBe(false);
   });
   test('counts each pattern once and returns no ratio if a side is zero', () => {

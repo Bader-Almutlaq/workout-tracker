@@ -1,4 +1,5 @@
 import type { TrainingSummaryResult } from '../../../core/queries/TrainingSummary';
+import { weeklyDurationText } from './weeklyDurationText';
 import styles from './Analytics.module.css';
 
 /** Weekly figures and percentage changes; zero baselines have no meaningful percentage. */
@@ -11,10 +12,6 @@ export function SummaryTiles({
   readonly previous: TrainingSummaryResult | null;
   readonly weeks: number;
 }) {
-  const duration = (seconds: number) => {
-    const minutes = Math.round(seconds / 60);
-    return `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`;
-  };
   const number = (value: number) => new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(value);
   const tiles = [
     {
@@ -33,7 +30,7 @@ export function SummaryTiles({
       label: 'Time / week',
       value: current.secondsPerWeek,
       prior: previous?.secondsPerWeek,
-      text: duration(current.secondsPerWeek),
+      text: weeklyDurationText(current.secondsPerWeek),
     },
     {
       label: 'Volume / week',

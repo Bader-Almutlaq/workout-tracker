@@ -17,7 +17,12 @@ export function AddToPlanDialog({
   readonly onClose: () => void;
 }) {
   const list = useDatabaseQuery('template-list', () => database.templateList());
-  const [choice, setChoice] = useState('new');
+  const active = useDatabaseQuery('active-plan', () => database.activePlanId());
+  const [selection, setChoice] = useState<string | null>(null);
+  const folders = list.status === 'ready' ? list.value.folders : [];
+  const activeId = active.status === 'ready' ? active.value : null;
+  const defaultFolder = folders.find((folder) => folder.id === activeId) ?? folders[0];
+  const choice = selection ?? (defaultFolder === undefined ? 'new' : String(defaultFolder.id));
   const [newName, setNewName] = useState('');
   const [error, setError] = useState<string | undefined>();
   const [busy, setBusy] = useState(false);

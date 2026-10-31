@@ -43,3 +43,8 @@ export function rpeText(rpe: number): string {
 export function setCountText(count: number): string {
   return count === 1 ? '1 set' : `${count} sets`;
 }
+
+/** Effort suffix for a logged set; omit it when no RPE was recorded. */
+export function loggedRpeSuffix(rpe: number | null): string {
+  return rpe === null ? '' : ` @ ${rpeText(rpe)}`;
+}

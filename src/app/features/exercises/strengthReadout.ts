@@ -2,7 +2,7 @@ import type { ExerciseStrengthSession } from '../../../core/queries/ExerciseStre
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { dayWithYearText } from '../../format/dateText';
 import { FORMAT_LOCALE } from '../../format/formatLocale';
-import { rpeText } from '../../format/setText';
+import { loggedRpeSuffix } from '../../format/setText';
 import { weightText } from '../../format/weightText';
 import { estimateText } from '../../format/estimateText';
 
@@ -12,10 +12,10 @@ const rateFormat = new Intl.NumberFormat(FORMAT_LOCALE, {
   signDisplay: 'exceptZero',
 });
 
-/** Best qualifying set in the exercise's display unit; unknown effort stays explicitly unknown. */
+/** Best qualifying set in the exercise's display unit; unrecorded effort is omitted. */
 export function strengthBestSetText(session: ExerciseStrengthSession, unit: WeightUnit): string {
   const set = session.bestSet;
-  return `${weightText(set.weightKilograms, unit)} × ${set.reps} @ ${set.rpe === null ? 'RPE unknown' : rpeText(set.rpe)}`;
+  return `${weightText(set.weightKilograms, unit)} × ${set.reps}${loggedRpeSuffix(set.rpe)}`;
 }
 
 /** A calendar-key session readout with both weight units; UTC prevents date shifts on western phones. */

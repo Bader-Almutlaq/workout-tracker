@@ -4,7 +4,7 @@ import { LoggingErrorBanner } from '../workout/LoggingErrorBanner';
 import { PastWorkoutActions } from './PastWorkoutActions';
 import { PastWorkoutEditor } from './PastWorkoutEditor';
 import { PersonalBestsSection } from '../workout/PersonalBestsSection';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 import { database, useDatabaseQuery } from '../../data/database';
 import { BackLink } from '../../design/components/BackLink';
 import { EmptyState } from '../../design/components/EmptyState';
@@ -19,13 +19,16 @@ const MISSING_MESSAGE = 'This workout no longer exists.';
 
 /** One past workout: each exercise with its sets, weights in the unit they were typed in. */
 export function WorkoutDetailScreen() {
+  const location = useLocation();
+  const from: unknown = location.state?.from;
+  const backPath = typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') ? from : null;
   const workoutId = Number(useParams().workoutId);
   const [editingWorkoutId, setEditingWorkoutId] = useState<number | undefined>();
   const detail = useDatabaseQuery(`workout-${workoutId}`, async () => ({
     detail: await database.pastWorkout(workoutId),
     bests: await database.personalBestsForWorkout(workoutId),
   }));
-  const back = <BackLink to="/history" label="History" />;
+  const back = <BackLink to={backPath ?? '/history'} label={backPath === null ? 'History' : 'Back'} />;
 
   if (detail.status !== 'ready' || detail.value.detail === undefined) {
     const message =

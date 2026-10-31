@@ -35,9 +35,7 @@ describe('strengthReadout', () => {
   });
 
   it('does not invent missing RPE and preserves half steps', () => {
-    expect(strengthBestSetText({ ...session, bestSet: { ...session.bestSet, rpe: null } }, 'kg')).toBe(
-      '100 kg × 6 @ RPE unknown',
-    );
+    expect(strengthBestSetText({ ...session, bestSet: { ...session.bestSet, rpe: null } }, 'kg')).toBe('100 kg × 6');
     expect(strengthBestSetText({ ...session, bestSet: { ...session.bestSet, rpe: 8.5 } }, 'kg')).toBe(
       '100 kg × 6 @ RPE 8.5',
     );

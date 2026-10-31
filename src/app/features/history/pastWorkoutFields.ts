@@ -8,14 +8,23 @@ export function localWorkoutStart(timestamp: string): string {
   return `${date.getFullYear()}-${padded(date.getMonth() + 1)}-${padded(date.getDate())}T${padded(date.getHours())}:${padded(date.getMinutes())}`;
 }
 
-/** Elapsed minutes as an editable number; an unknown imported end stays blank. */
+/** Rounded elapsed minutes as an editable number; an unknown imported end stays blank. */
 export function workoutDurationMinutes(startedAt: string, endedAt: string | null): string {
   return endedAt === null
     ? ''
-    : String((Date.parse(endedAt) - Date.parse(startedAt)) / TIME_UNITS.millisecondsPerMinute);
+    : String(Math.max(1, Math.round((Date.parse(endedAt) - Date.parse(startedAt)) / TIME_UNITS.millisecondsPerMinute)));
 }
 
 /** Minutes typed into the duration field, converted to seconds; blank preserves an unknown end. Core validates numbers. */
 export function durationSecondsFromMinutes(value: string): number | null {
   return value.trim() === '' ? null : Number(value) * TIME_UNITS.secondsPerMinute;
+}
+
+/** Convert an edited duration only when its displayed value changed; undefined preserves the original seconds. */
+export function changedDurationSeconds(
+  value: string,
+  startedAt: string,
+  endedAt: string | null,
+): number | null | undefined {
+  return value === workoutDurationMinutes(startedAt, endedAt) ? undefined : durationSecondsFromMinutes(value);
 }

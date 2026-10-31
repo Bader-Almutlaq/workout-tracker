@@ -66,11 +66,11 @@ export function groupValues(group: MeasurementGroup, state: MeasurementState, un
   return `${values.join(' · ')} ${unit}`;
 }
 
-/** A local datetime input value that retains seconds and milliseconds for existing entries. */
+/** A local datetime input value that uses minute precision. */
 export function measurementDateInput(iso: string): string {
   const date = new Date(iso);
   const offsetMilliseconds = date.getTimezoneOffset() * textPolicy.millisecondsPerMinute;
-  return new Date(date.getTime() - offsetMilliseconds).toISOString().slice(0, -1);
+  return new Date(date.getTime() - offsetMilliseconds).toISOString().slice(0, 16);
 }
 
 /** Display-only body regions; custom parts retain their own section and pairs stay intact. */

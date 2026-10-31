@@ -1,5 +1,10 @@
 import { afterEach, expect, test, vi } from 'vitest';
-import { durationSecondsFromMinutes, localWorkoutStart, workoutDurationMinutes } from './pastWorkoutFields';
+import {
+  changedDurationSeconds,
+  durationSecondsFromMinutes,
+  localWorkoutStart,
+  workoutDurationMinutes,
+} from './pastWorkoutFields';
 
 afterEach(() => vi.unstubAllEnvs());
 
@@ -15,9 +20,9 @@ test('the local start input follows daylight-saving offsets without treating UTC
 });
 
 test('duration preserves zero, unknown values and fractional minutes across midnight', () => {
-  expect(workoutDurationMinutes('2026-10-25T23:59:00.000Z', '2026-10-26T00:00:30.000Z')).toBe('1.5');
+  expect(workoutDurationMinutes('2026-10-25T23:59:00.000Z', '2026-10-26T00:00:30.000Z')).toBe('2');
   expect(workoutDurationMinutes('2026-10-25T23:59:00.000Z', null)).toBe('');
-  expect(workoutDurationMinutes('2026-10-25T23:59:00.000Z', '2026-10-25T23:59:00.000Z')).toBe('0');
+  expect(workoutDurationMinutes('2026-10-25T23:59:00.000Z', '2026-10-25T23:59:00.000Z')).toBe('1');
   expect(durationSecondsFromMinutes('1.5')).toBe(90);
   expect(durationSecondsFromMinutes('')).toBeNull();
   expect(durationSecondsFromMinutes('0')).toBe(0);
@@ -27,4 +32,12 @@ test('invalid numeric durations reach core validation rather than silently becom
   expect(durationSecondsFromMinutes('invalid')).toBeNaN();
   expect(durationSecondsFromMinutes('-1')).toBe(-60);
   expect(durationSecondsFromMinutes('Infinity')).toBe(Infinity);
+});
+
+test('unchanged rounded duration leaves original seconds intact', () => {
+  const start = '2026-10-25T23:59:00.000Z';
+  const end = '2026-10-25T23:59:50.973Z';
+  expect(workoutDurationMinutes(start, end)).toBe('1');
+  expect(changedDurationSeconds('1', start, end)).toBeUndefined();
+  expect(changedDurationSeconds('2', start, end)).toBe(120);
 });

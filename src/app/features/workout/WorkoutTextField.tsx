@@ -11,17 +11,19 @@ export function WorkoutTextField({
   onSave,
   type = 'text',
   isMultiline = false,
+  initiallyOpen = false,
 }: {
   readonly label: string;
   readonly value: string;
   readonly onSave: (value: string) => void;
   readonly type?: 'text' | 'datetime-local' | 'number';
   readonly isMultiline?: boolean;
+  readonly initiallyOpen?: boolean;
 }) {
   const [draft, setDraft] = useState<string | undefined>(undefined);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
   const save = (typed: string) => {
-    if (typed !== value) onSave(typed);
+    if (typed !== value || initiallyOpen) onSave(typed);
     setDraft(undefined);
   };
   if (isMultiline && value === '' && draft === undefined && !isOpen) {
