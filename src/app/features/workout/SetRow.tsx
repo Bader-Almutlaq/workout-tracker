@@ -1,4 +1,5 @@
 import { displayValue } from '../../../core/units/Weight';
+import { progressionValueSuggestion } from './progressionValueSuggestion';
 import type { ValueSuggestion } from './ValueSuggestion';
 import type { Field } from './Cell';
 import { cellText } from './setCellText';
@@ -74,7 +75,12 @@ export function SetRow({
     !isPastWorkout && !set.isCompleted && actions.isValueEntered?.(set.id, field) !== true;
   const suggestion = (field: 'weight' | 'reps'): ValueSuggestion | undefined => {
     const apply = actions.applySuggestion;
-    if (!isSuggested || !isPrefilled(field) || apply === undefined || isPastWorkout) return undefined;
+    if (!isPrefilled(field) || apply === undefined || isPastWorkout) return undefined;
+    const progression = entry.progression?.suggestions.find((item) => item.setId === set.id);
+    if (progression !== undefined && previous !== undefined) {
+      return progressionValueSuggestion(progression, set, previous, field, (value) => apply(set.id, field, value));
+    }
+    if (!isSuggested) return undefined;
     return {
       value:
         field === 'weight'

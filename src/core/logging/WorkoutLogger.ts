@@ -384,6 +384,7 @@ export class WorkoutLogger {
         notes: string | null;
         defaultEntryUnit: WeightUnit;
         tracking: ExerciseTracking;
+        progression: 'double' | null;
       }>(
         `
         SELECT te.*, e.defaultEntryUnit, e.tracking FROM templateExercise te JOIN exercise e ON e.id = te.exerciseId
@@ -391,14 +392,22 @@ export class WorkoutLogger {
       `,
         [templateId],
       );
-      for (const exercise of exercises) {
+      for (const [exerciseIndex, exercise] of exercises.entries()) {
         const entry = this.db.run(
           `
           INSERT INTO workoutExercise (workoutId, exerciseId, position, supersetGroup, notes) VALUES (?, ?, ?, ?, ?)
         `,
           [workoutId, exercise.exerciseId, exercise.position, exercise.supersetGroup, exercise.notes],
         ).lastInsertRowId;
-        const previous = previousPerformance(this.db, exercise.exerciseId, workoutId);
+        const previous = previousPerformance(
+          this.db,
+          exercise.exerciseId,
+          workoutId,
+          exercise.progression === 'double' ? templateId : null,
+          exercise.progression === 'double'
+            ? exercises.slice(0, exerciseIndex).filter((entry) => entry.exerciseId === exercise.exerciseId).length
+            : null,
+        );
         const sets = this.db.all<{ kind: SetKind; targetRepsLow: number | null }>(
           `
           SELECT kind, targetRepsLow FROM templateSet WHERE templateExerciseId = ? ORDER BY position

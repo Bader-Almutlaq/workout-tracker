@@ -2,6 +2,12 @@ import type { TargetCell } from './TargetCell';
 
 /** What a tap in the template editor's exercise cards can do. Every index is a position in the draft. */
 export interface TemplateEditorActions {
+  /** Sets this exercise's mode; an optional confirmed range fills incomplete working targets. */
+  setProgression(
+    exerciseIndex: number,
+    progression: 'double' | null,
+    range?: { readonly low: number; readonly high: number },
+  ): void;
   /** Opens the number pad on a target. */
   edit(cell: TargetCell): void;
   addSet(exerciseIndex: number): void;

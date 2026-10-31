@@ -213,3 +213,19 @@ Metadata and notes save when leaving their field, matching the live number pad's
 Imported edits retain `workout.sourceKey`, even when the name or start time changes. Deleting any externally imported workout writes its non-null source key to **`appSetting.deletedSourceKeys`**, a JSON array of strings, in the same transaction as the cascading delete. `WorkoutLogger` owns reading/writing this protection; the shared importer and its preview counts treat tombstoned keys as already imported. This applies to Strong and the other supported source prefixes without a schema change. Malformed JSON or non-string elements block import and imported deletion instead of silently losing protection. Database backups include tombstones; restoring a backup restores the tombstone state from that backup, so restoring a copy from before deletion intentionally restores that earlier history.
 
 History weight and rep commits run the existing live typo check, excluding the edited workout from its own baseline. The value is already saved, consistently with immediate editing; **Save anyway** acknowledges it and **Fix** reopens the doubtful cell. Done waits for queued writes and stays in edit mode if a check needs an answer or a save failed. Each successful database write sends one notification, refreshing history, bests, comparisons and analytics through their existing queries.
+
+## Per-workout progression (T-060, schema v8)
+
+`v8-template-progression` appends `templateExercise.progression TEXT CHECK (progression IN ('double'))`.
+NULL (including every existing row) is off. `double` enables reps-then-load suggestions for that
+exercise occurrence in this saved workout. Rep ranges and optional RPE remain in each `templateSet`.
+Saving and duplicating a template retain the setting; saving a performed session as a new template
+leaves it off. Existing history and exact kilogram values are unchanged. The worker's existing
+snapshot-before-migration boundary applies, and older backups validate by migrating an in-memory copy.
+
+Suggestions are calculated on query, never stored. Both the grey baseline and progression calculation
+prefer the latest finished session of the same template containing the exercise, falling back to the
+latest finished session anywhere. Completed non-warm-up sets are paired by working position.
+A tick saves the baseline values; only accepting amber or typing changes them. Untouched suggestions
+reappear after reload. A value differing from its historical baseline suppresses that cell's suggestion;
+accepting or typing an identical value is distinguishable only during the mounted editor session.
