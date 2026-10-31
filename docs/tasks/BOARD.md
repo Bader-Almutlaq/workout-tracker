@@ -96,9 +96,11 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-066](T-066-workout-page.md) | Workout page, plan workout cards, exercise-in-workout view (R4/R5) | done | Codex Terra (high), reviewed and polished by lead | merged |
 | [T-067](T-067-tab-bar-drag-finish-checks.md) | Settings tab, past workouts into plans, accidental-workout checks (R4/R6) | done | Codex Terra (high), reviewed and extended by lead | merged |
 | [T-068](T-068-workout-tab-plan-polish.md) | Workout tab, plan cards, plan charts, compact workout page (R4/R5) | done | Codex Terra (high), reviewed and polished by lead | merged |
-| [T-069](T-069-plan-summary-active-plan.md) | Plan Summary (sets per muscle), workout day, active plan (R4) | in progress | Codex Terra (high) | task/T-069-plan-summary |
+| [T-069](T-069-plan-summary-active-plan.md) | Plan Summary (sets per muscle), workout day, active plan (R4) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-070](T-070-set-types-warmups-progression-button.md) | Compact editor, coloured set types, warm-ups on top, Progress button (R5/R6) | done | Codex Terra (high), reviewed by lead | merged |
-| [T-071](T-071-exercise-info-line-compact-rows.md) | Exercise info line (rep range, rest, notes), Strong-sized rows (R6) | in progress | Codex Terra (high) | task/T-071-info-line |
+| [T-071](T-071-exercise-info-line-compact-rows.md) | Exercise info line (rep range, rest, notes), Strong-sized rows (R6) | done | Codex Terra (high), reviewed by lead | merged |
+| [T-072](T-072-uat-fixes-workouts-plans.md) | Test-pass fixes: workouts, plans, live workout | in progress | Codex Terra (high) | task/T-072-uat-workouts |
+| [T-073](T-073-uat-fixes-measure-history-analytics.md) | Test-pass fixes: measurements, history, analytics | in progress | Codex Terra (high) | task/T-073-uat-measure |
 
 ## Next milestones (tasks are written when the milestone starts)
 
