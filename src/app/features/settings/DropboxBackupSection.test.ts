@@ -18,7 +18,10 @@ const view = vi.hoisted(() => ({
   } as DropboxBackupState, // This fixture is checked against every field of the public view-state type.
 }));
 vi.mock('../../data/dropbox/useDropboxBackup', () => ({ useDropboxBackup: () => view.state }));
-vi.mock('../../data/dropbox/cloudBackup', () => ({ dropboxBackup: {} }));
+vi.mock('../../data/dropbox/cloudBackup', () => ({
+  dropboxBackup: {},
+  dropboxRedirectUri: 'https://example.com/workout-tracker/settings',
+}));
 
 afterEach(() => {
   view.state = {
@@ -48,18 +51,26 @@ test('without a key Settings offers setup only and the finish row disappears', (
   expect(finishMarkup()).toBe('');
 });
 
-test('disconnected Settings offers Connect and displays the copy-code instructions and field after authorization', () => {
+test('disconnected Settings offers redirect connection and shows the copy-code field only for the fallback', () => {
   expect(settingsMarkup()).toContain('Open Dropbox');
   expect(settingsMarkup()).not.toContain('>Disconnect</button>');
   expect(finishMarkup()).toContain('Not connected');
-  expect(settingsMarkup()).toContain('Open Dropbox first.');
-  expect(settingsMarkup()).toContain('id="dropbox-code"');
+  expect(settingsMarkup()).toContain('You&#x27;ll come straight back here.');
+  expect(settingsMarkup()).toContain('Paste a code instead');
+  expect(settingsMarkup()).not.toContain('id="dropbox-code"');
   expect(settingsMarkup()).not.toContain('<details open');
   view.state = { ...view.state, awaitingCode: true };
   const markup = settingsMarkup();
   expect(markup).toContain('2. Paste the code Dropbox shows');
   expect(markup).toContain('id="dropbox-code"');
   expect(markup).toContain('Connect</button>');
+  expect(markup).not.toContain('come straight back here');
+});
+
+test('advanced setup shows the deployment redirect URI as selectable text', () => {
+  const markup = settingsMarkup();
+  expect(markup).toContain('Add this redirect URI in your app&#x27;s settings:');
+  expect(markup).toContain('https://example.com/workout-tracker/settings</span>');
 });
 
 test('connected Settings exposes manual cloud backup and Disconnect, disabling them during upload', () => {

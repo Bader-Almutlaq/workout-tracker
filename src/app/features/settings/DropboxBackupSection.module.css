@@ -78,3 +78,17 @@
 .codeInput:disabled {
   color: var(--color-text-tertiary);
 }
+
+.fallback {
+  display: block;
+  min-height: calc(var(--space-xxl) + var(--space-m));
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+  text-decoration: underline;
+}
+
+.redirectUri {
+  user-select: text;
+  -webkit-user-select: text;
+  overflow-wrap: anywhere;
+}

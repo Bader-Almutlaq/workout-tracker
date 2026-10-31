@@ -56,9 +56,14 @@ export class DropboxApi {
     this.appKey = appKey;
   }
 
-  /** Exchange the pasted code and pending verifier; requires Dropbox to return an offline refresh token. */
-  async exchange(code: string, verifier: string): Promise<void> {
-    const result = await this.tokenRequest({ grant_type: 'authorization_code', code, code_verifier: verifier });
+  /** Exchange a code with its verifier and the exact authorize redirect URI, omitted for copy-code grants. */
+  async exchange(code: string, verifier: string, redirectUri?: string): Promise<void> {
+    const result = await this.tokenRequest({
+      grant_type: 'authorization_code',
+      code,
+      code_verifier: verifier,
+      ...(redirectUri === undefined ? {} : { redirect_uri: redirectUri }),
+    });
     if (typeof result['refresh_token'] !== 'string' || result['refresh_token'].length === 0) {
       throw new DropboxError('response', 'Dropbox did not allow automatic backups. Try Connect again.');
     }
