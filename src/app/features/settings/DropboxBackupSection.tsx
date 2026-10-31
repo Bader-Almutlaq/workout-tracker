@@ -1,5 +1,5 @@
 import { dropboxBackup } from '../../data/dropbox/cloudBackup';
-import { dropboxCaption } from '../../data/dropbox/dropboxCaption';
+import { dropboxCaption, dropboxStatusTone } from '../../data/dropbox/dropboxCaption';
 import { useDropboxBackup } from '../../data/dropbox/useDropboxBackup';
 import { Section } from '../../design/components/Section';
 import { DropboxAppKeyForm } from './DropboxAppKeyForm';
@@ -10,6 +10,7 @@ import styles from './DropboxBackupSection.module.css';
 export function DropboxBackupSection() {
   const state = useDropboxBackup();
   const busy = state.phase !== 'idle';
+  const tone = dropboxStatusTone(state);
   const connect = () => {
     void dropboxBackup.beginConnect(() => {
       // Open synchronously in the tap: awaiting SHA-256 first loses iOS Safari's user activation.
@@ -29,9 +30,14 @@ export function DropboxBackupSection() {
       label="Dropbox"
       footnote="Automatic full backups go only to this app’s folder in your Dropbox. Disconnect never deletes your files."
     >
-      {state.enabled && (
-        <p className={styles.caption} role={state.message === undefined ? 'status' : 'alert'}>
-          {dropboxCaption(state, new Date())}
+      <p className={styles.caption} data-status={tone} role={tone === 'bad' ? 'alert' : 'status'}>
+        {tone === 'good' && <span aria-hidden="true">✓ </span>}
+        {tone === 'bad' && <span aria-hidden="true">! </span>}
+        {dropboxCaption(state, new Date())}
+      </p>
+      {state.notice !== undefined && (
+        <p className={styles.caption} role="status">
+          {state.notice}
         </p>
       )}
       {state.enabled &&
@@ -50,17 +56,19 @@ export function DropboxBackupSection() {
             </button>
           </>
         ) : (
-          <button className={styles.action} type="button" disabled={busy} onClick={connect}>
-            {state.reconnect ? 'Reconnect Dropbox' : 'Connect Dropbox'}
-          </button>
+          <>
+            <div className={styles.step}>
+              <p>
+                1. Open Dropbox and tap <strong>Allow</strong>
+              </p>
+              <button className={styles.finish} type="button" disabled={busy} onClick={connect}>
+                Open Dropbox
+              </button>
+            </div>
+            <DropboxCodeForm disabled={busy} awaitingCode={state.awaitingCode} message={state.codeMessage} />
+          </>
         ))}
-      {state.awaitingCode && <DropboxCodeForm disabled={busy} />}
-      {!state.enabled && state.message !== undefined && (
-        <p className={styles.caption} role="alert">
-          {state.message}
-        </p>
-      )}
-      <DropboxAppKeyForm disabled={busy} expanded={!state.enabled} />
+      <DropboxAppKeyForm disabled={busy} message={state.appKeyMessage} invalid={state.appKeyInvalid ?? false} />
     </Section>
   );
 }

@@ -11,3 +11,11 @@
   align-content: center;
   color: var(--color-accent);
 }
+
+.line [data-status='good'] {
+  color: var(--color-status-good);
+}
+
+.line [data-status='bad'] {
+  color: var(--color-status-critical);
+}

@@ -54,7 +54,7 @@ export class DropboxApi {
     this.appKey = appKey;
   }
 
-  /** Exchange the pasted code and in-memory verifier; requires Dropbox to return an offline refresh token. */
+  /** Exchange the pasted code and pending verifier; requires Dropbox to return an offline refresh token. */
   async exchange(code: string, verifier: string): Promise<void> {
     const result = await this.tokenRequest({ grant_type: 'authorization_code', code, code_verifier: verifier });
     if (typeof result['refresh_token'] !== 'string' || result['refresh_token'].length === 0) {
@@ -153,7 +153,10 @@ export class DropboxApi {
     const result = await this.json(response);
     if (!response.ok) {
       if (parameters['grant_type'] === 'authorization_code' && response.status === 400) {
-        throw new DropboxError('code', "That code didn't work; codes expire after a few minutes. Try Connect again.");
+        throw new DropboxError(
+          'code',
+          "Dropbox didn't accept that code. Codes work once and expire after a few minutes. Tap Open Dropbox for a new one.",
+        );
       }
       if (isRecord(result) && result['error'] === 'invalid_grant' && parameters['grant_type'] === 'refresh_token') {
         this.clear();
@@ -222,7 +225,7 @@ export class DropboxApi {
         signal: AbortSignal.timeout(DropboxHttp.timeoutMilliseconds),
       });
     } catch {
-      throw new DropboxError('connection', 'Check your connection and try again when you are online.');
+      throw new DropboxError('connection', "No connection. Try again when you're online.");
     }
   }
 

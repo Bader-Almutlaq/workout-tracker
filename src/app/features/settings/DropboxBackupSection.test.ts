@@ -42,21 +42,24 @@ function finishMarkup(): string {
 
 test('without a key Settings offers setup only and the finish row disappears', () => {
   view.state = { ...view.state, enabled: false, connected: true, message: 'old error' };
-  expect(settingsMarkup()).toContain('Use your own Dropbox app key');
-  expect(settingsMarkup()).not.toContain('Connect Dropbox');
+  expect(settingsMarkup()).toContain('Advanced: use your own Dropbox app');
+  expect(settingsMarkup()).toContain('old error');
   expect(settingsMarkup()).not.toContain('Disconnect</button>');
   expect(finishMarkup()).toBe('');
 });
 
 test('disconnected Settings offers Connect and displays the copy-code instructions and field after authorization', () => {
-  expect(settingsMarkup()).toContain('Connect Dropbox');
+  expect(settingsMarkup()).toContain('Open Dropbox');
   expect(settingsMarkup()).not.toContain('>Disconnect</button>');
-  expect(finishMarkup()).toBe('');
+  expect(finishMarkup()).toContain('Not connected');
+  expect(settingsMarkup()).toContain('Open Dropbox first.');
+  expect(settingsMarkup()).toContain('id="dropbox-code"');
+  expect(settingsMarkup()).not.toContain('<details open');
   view.state = { ...view.state, awaitingCode: true };
   const markup = settingsMarkup();
-  expect(markup).toContain('Approve in Dropbox, copy the code it shows, and paste it here');
+  expect(markup).toContain('2. Paste the code Dropbox shows');
   expect(markup).toContain('id="dropbox-code"');
-  expect(markup).toContain('Finish connecting');
+  expect(markup).toContain('Connect</button>');
 });
 
 test('connected Settings exposes manual cloud backup and Disconnect, disabling them during upload', () => {
@@ -64,7 +67,7 @@ test('connected Settings exposes manual cloud backup and Disconnect, disabling t
   const markup = settingsMarkup();
   expect(markup).toContain('Back up to Dropbox now');
   expect(markup).toContain('Disconnect');
-  expect(markup).toContain('Backing up to Dropbox…');
+  expect(markup).toContain('Backing up…');
   expect(markup.match(/disabled=""/g)).toHaveLength(4);
 });
 
@@ -73,7 +76,29 @@ test('finish failure has an alert and Try again; revoked connections instead lin
   expect(finishMarkup()).toContain('role="alert"');
   expect(finishMarkup()).toContain('Try again');
   view.state = { ...view.state, connected: false, reconnect: true };
-  expect(settingsMarkup()).toContain('Reconnect Dropbox');
+  expect(settingsMarkup()).toContain('Open Dropbox');
   expect(finishMarkup()).toContain('href="/settings"');
   expect(finishMarkup()).not.toContain('Try again');
+});
+
+test('status, first-backup confirmation and inline errors are visible with semantic status tokens', () => {
+  view.state = {
+    ...view.state,
+    connected: true,
+    notice: 'Connected. First backup saved to your Dropbox (Apps folder).',
+  };
+  expect(settingsMarkup()).toContain('data-status="good"');
+  expect(settingsMarkup()).toContain('Connected · no backup yet');
+  expect(finishMarkup()).toContain('Connected · no backup yet');
+  expect(settingsMarkup()).toContain('First backup saved');
+  view.state = {
+    ...view.state,
+    connected: false,
+    codeMessage: 'Tap Open Dropbox first, then paste the new code.',
+    appKeyMessage: "That doesn't look like a Dropbox app key.",
+    appKeyInvalid: true,
+  };
+  expect(settingsMarkup()).toContain('id="dropbox-code-error"');
+  expect(settingsMarkup()).toContain('id="dropbox-key-message"');
+  expect(settingsMarkup()).toContain('aria-invalid="true"');
 });

@@ -52,3 +52,29 @@
   display: grid;
   gap: var(--space-m);
 }
+
+.caption[data-status='good'] {
+  color: var(--color-status-good);
+}
+
+.caption[data-status='bad'],
+.error {
+  color: var(--color-status-critical);
+}
+
+.step {
+  padding: var(--space-m);
+  border-top: var(--hairline) solid var(--color-border);
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+}
+
+.step p,
+.codeForm p {
+  margin: 0;
+}
+
+.inactive,
+.codeInput:disabled {
+  color: var(--color-text-tertiary);
+}

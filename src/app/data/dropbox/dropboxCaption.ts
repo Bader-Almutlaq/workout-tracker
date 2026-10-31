@@ -14,16 +14,21 @@ function backupAge(timestamp: string | undefined, now: Date): string {
   return `last backup ${days} ${days === 1 ? 'day' : 'days'} ago`;
 }
 
-/** Owner-facing Settings/finish captions; a failed request takes precedence over the last successful upload date. */
-export function dropboxCaption(state: DropboxBackupState, now: Date, finishSummary = false): string {
-  if (state.phase === 'backingUp') return 'Backing up to Dropbox…';
-  if (state.phase === 'authorizing') return 'Connecting Dropbox…';
-  if (state.phase === 'disconnecting') return 'Disconnecting Dropbox…';
+/** Owner-facing status shared verbatim by Settings and the finish summary; current problems take priority. */
+export function dropboxCaption(state: DropboxBackupState, now: Date): string {
+  if (state.phase === 'backingUp') return 'Backing up…';
+  if (state.phase === 'authorizing') return 'Connecting…';
+  if (state.phase === 'disconnecting') return 'Disconnecting…';
   if (state.phase === 'loading') return 'Checking Dropbox…';
-  if (state.message !== undefined) return `Dropbox backup didn't finish: ${state.message}`;
-  if (state.reconnect) return 'Reconnect Dropbox';
-  if (!state.connected) return 'Connect Dropbox for automatic backups after each workout.';
-  const age = backupAge(state.lastBackupAt, now);
-  if (finishSummary && age === 'last backup just now') return 'Backed up to Dropbox just now';
-  return `Connected · ${age}`;
+  if (state.message !== undefined) return state.message;
+  if (state.reconnect) return 'Reconnect Dropbox to continue automatic backups.';
+  if (!state.connected) return 'Not connected';
+  return `Connected · ${backupAge(state.lastBackupAt, now)}`;
+}
+
+/** Semantic status for the existing status tokens; busy rows stay neutral even after an earlier failure. */
+export function dropboxStatusTone(state: DropboxBackupState): 'neutral' | 'good' | 'bad' {
+  if (state.phase !== 'idle') return 'neutral';
+  if (state.message !== undefined || state.reconnect) return 'bad';
+  return state.connected ? 'good' : 'neutral';
 }

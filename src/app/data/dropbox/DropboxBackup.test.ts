@@ -71,6 +71,14 @@ function setup(appKey = 'synthetic-app-key') {
     tokens,
     storage,
     database,
+    restart: () =>
+      new DropboxBackup(
+        appKey,
+        database,
+        tokens,
+        new DropboxApi(appKey, tokens, request, () => clock),
+        () => new Date(clock),
+      ),
     request,
     bytes,
     popup,
@@ -112,7 +120,7 @@ describe('Dropbox connection and backup orchestration', () => {
     expect(database.exportBackup).not.toHaveBeenCalled();
   });
 
-  test('connect exchanges a pasted code with the same in-memory verifier, and immediately uploads', async () => {
+  test('connect exchanges a pasted code with the same pending verifier, and immediately uploads', async () => {
     const { backup, popup, connect, request, storage, database, bytes, settings } = setup();
     await connect();
     const authorization = new URL(String(popup.navigate.mock.calls[0]?.[0]));
@@ -146,6 +154,7 @@ describe('Dropbox connection and backup orchestration', () => {
       awaitingCode: false,
       phase: 'idle',
       message: undefined,
+      notice: 'Connected. First backup saved to your Dropbox (Apps folder).',
     });
   });
 
@@ -166,12 +175,143 @@ describe('Dropbox connection and backup orchestration', () => {
     await backup.beginConnect(() => popup);
     await backup.finishConnecting('expired');
     expect(backup.snapshot()).toMatchObject({ connected: false, awaitingCode: false });
-    expect(backup.snapshot().message).toContain("That code didn't work");
+    expect(backup.snapshot().message).toBe(
+      "Dropbox didn't accept that code. Codes work once and expire after a few minutes. Tap Open Dropbox for a new one.",
+    );
+    expect(backup.snapshot().codeMessage).toBe(backup.snapshot().message);
     expect(storage.length).toBe(0);
     expect(JSON.stringify(vi.mocked(log.backup.error).mock.calls)).not.toContain(ACCESS);
     request.mockClear();
     await backup.finishConnecting('reuse');
     expect(request).not.toHaveBeenCalled();
+  });
+
+  test('persists the verifier before navigating and restores it after a restart to upload exactly once', async () => {
+    const { backup, tokens, popup, restart, request, database } = setup();
+    const navigate = vi.fn((url: string) => {
+      expect(tokens.readPendingVerifier(Date.parse(NOW), 'synthetic-app-key')).toBeDefined();
+      popup.navigate(url);
+    });
+    await backup.beginConnect(() => ({ navigate, close: popup.close }));
+    const verifier = tokens.readPendingVerifier(Date.parse(NOW), 'synthetic-app-key');
+    const resumed = restart();
+    await resumed.initialize();
+    expect(resumed.snapshot()).toMatchObject({ awaitingCode: true, connected: false });
+    await resumed.finishConnecting('resumed-code');
+    const parameters = new URLSearchParams(String(request.mock.calls[0]?.[1]?.body));
+    expect(parameters.get('code_verifier')).toBe(verifier);
+    expect(tokens.readPendingVerifier(Date.parse(NOW), 'synthetic-app-key')).toBeUndefined();
+    expect(database.exportBackup).toHaveBeenCalledOnce();
+    expect(resumed.snapshot().notice).toBe('Connected. First backup saved to your Dropbox (Apps folder).');
+  });
+
+  test('a pending verifier expires at ten minutes both after restart and in the open app', async () => {
+    const { backup, popup, tokens, storage, advance, restart, request } = setup();
+    await backup.beginConnect(() => popup);
+    advance(599_999);
+    expect(tokens.readPendingVerifier(Date.parse(NOW) + 599_999, 'synthetic-app-key')).toBeDefined();
+    advance(1);
+    const resumed = restart();
+    await resumed.initialize();
+    expect(resumed.snapshot().awaitingCode).toBe(false);
+    expect(storage.length).toBe(0);
+    await backup.finishConnecting('old-code');
+    expect(backup.snapshot().codeMessage).toBe('Tap Open Dropbox first, then paste the new code.');
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  test('disconnect and a changed key clear a pending grant without making token requests', async () => {
+    const { backup, popup, tokens, request } = setup();
+    await backup.beginConnect(() => popup);
+    await backup.disconnect();
+    expect(tokens.readPendingVerifier(Date.parse(NOW), 'synthetic-app-key')).toBeUndefined();
+    await backup.beginConnect(() => popup);
+    await backup.saveAppKey('changedKey');
+    expect(tokens.readPendingVerifier(Date.parse(NOW), 'synthetic-app-key')).toBeUndefined();
+    expect(backup.snapshot().awaitingCode).toBe(false);
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  test('a missing step and an offline exchange answer under the field without logging code or verifier', async () => {
+    const { backup, popup, tokens, request } = setup();
+    await backup.finishConnecting('private-code');
+    expect(backup.snapshot().codeMessage).toBe('Tap Open Dropbox first, then paste the new code.');
+    expect(request).not.toHaveBeenCalled();
+    await backup.beginConnect(() => popup);
+    const verifier = tokens.readPendingVerifier(Date.parse(NOW), 'synthetic-app-key');
+    request.mockRejectedValue(new Error('private-code'));
+    await backup.finishConnecting('private-code');
+    expect(backup.snapshot().codeMessage).toBe("No connection. Try again when you're online.");
+    const logs = JSON.stringify(vi.mocked(log.backup.error).mock.calls);
+    expect(logs).not.toContain('private-code');
+    expect(logs).not.toContain(verifier);
+  });
+
+  test('empty codes leave the pending step available', async () => {
+    const { backup, popup, tokens, request } = setup();
+    await backup.beginConnect(() => popup);
+    await backup.finishConnecting('  ');
+    expect(backup.snapshot().codeMessage).toBe('Paste the code Dropbox shows, then tap Connect.');
+    expect(tokens.readPendingVerifier(Date.parse(NOW), 'synthetic-app-key')).toBeDefined();
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  test('key saves answer for new, same, blank and malformed values without disrupting an unchanged grant', async () => {
+    const { backup, popup, tokens, request } = setup();
+    await backup.saveAppKey('validKey');
+    expect(backup.snapshot().appKeyMessage).toBe('Saved. Tap Open Dropbox to connect with it.');
+    await backup.beginConnect(() => popup);
+    await backup.saveAppKey(' validKey ');
+    expect(backup.snapshot().appKeyMessage).toBe('That key is already in use.');
+    expect(tokens.readPendingVerifier(Date.parse(NOW), 'validKey')).toBeDefined();
+    for (const key of ['abcd', 'a'.repeat(41), 'wrong-key', 'key with spaces']) {
+      await backup.saveAppKey(key);
+      expect(backup.snapshot().appKeyMessage).toBe("That doesn't look like a Dropbox app key.");
+      expect(backup.snapshot().appKeyInvalid).toBe(true);
+      expect(tokens.readAppKey()).toBe('validKey');
+      expect(backup.snapshot().awaitingCode).toBe(true);
+    }
+    await backup.saveAppKey('   ');
+    expect(backup.snapshot().appKeyMessage).toBe("Using JEM's built-in key.");
+    expect(tokens.readAppKey()).toBeUndefined();
+    expect(backup.snapshot().awaitingCode).toBe(false);
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  test.each(['a'.repeat(5), 'B'.repeat(40)])('key validation accepts boundary length: %s', async (key) => {
+    const { backup, tokens } = setup();
+    await backup.saveAppKey(key);
+    expect(tokens.readAppKey()).toBe(key);
+    expect(backup.snapshot().appKeyInvalid).toBe(false);
+  });
+
+  test('a pending-step storage failure closes the popup and surfaces a safe error before navigation', async () => {
+    const { backup, storage, popup } = setup();
+    vi.spyOn(storage, 'setItem').mockImplementation(() => {
+      throw new Error('private-storage-details');
+    });
+    await backup.beginConnect(() => popup);
+    expect(popup.navigate).not.toHaveBeenCalled();
+    expect(popup.close).toHaveBeenCalledOnce();
+    expect(backup.snapshot()).toMatchObject({
+      awaitingCode: false,
+      message: expect.stringContaining('could not be saved'),
+    });
+    expect(JSON.stringify(vi.mocked(log.backup.error).mock.calls)).not.toContain('private-storage-details');
+  });
+
+  test('saving the built-in key or blank again preserves a pending step and returns the matching feedback', async () => {
+    const { backup, popup, tokens } = setup('');
+    await backup.saveAppKey('');
+    await backup.beginConnect(() => popup);
+    const authorization = new URL(String(popup.navigate.mock.lastCall?.[0]));
+    const selectedKey = authorization.searchParams.get('client_id') ?? '';
+    await backup.saveAppKey('');
+    expect(backup.snapshot().appKeyMessage).toBe("Using JEM's built-in key.");
+    expect(tokens.readPendingVerifier(Date.parse(NOW), selectedKey)).toBeDefined();
+    await backup.saveAppKey(selectedKey);
+    expect(backup.snapshot().appKeyMessage).toBe('That key is already in use.');
+    expect(backup.snapshot().awaitingCode).toBe(true);
   });
 
   test('refreshes an expired access token, using only client_id and the stored refresh token', async () => {
@@ -310,7 +450,7 @@ describe('Dropbox connection and backup orchestration', () => {
     expect(tokens.read()).toBe(REFRESH);
     expect(backup.snapshot()).toMatchObject({
       connected: true,
-      message: 'Check your connection and try again when you are online.',
+      message: "No connection. Try again when you're online.",
     });
     expect(JSON.stringify(vi.mocked(log.backup.error).mock.calls)).not.toContain(ACCESS);
   });
@@ -320,31 +460,31 @@ describe('Dropbox connection and backup orchestration', () => {
     await connect();
     advance(3_600_000);
     request.mockClear();
-    await backup.saveAppKey('  another-key  ');
+    await backup.saveAppKey('  anotherKey  ');
     const refresh = new URLSearchParams(String(request.mock.calls[0]?.[1]?.body));
     expect(refresh.get('client_id')).toBe('synthetic-app-key');
     expect(String(request.mock.calls[1]?.[0])).toContain('/token/revoke');
     expect(tokens.read()).toBeUndefined();
-    expect(tokens.readAppKey()).toBe('another-key');
+    expect(tokens.readAppKey()).toBe('anotherKey');
     expect(backup.snapshot()).toMatchObject({ connected: false, enabled: true });
     await backup.beginConnect(() => popup);
-    expect(new URL(String(popup.navigate.mock.lastCall?.[0])).searchParams.get('client_id')).toBe('another-key');
+    expect(new URL(String(popup.navigate.mock.lastCall?.[0])).searchParams.get('client_id')).toBe('anotherKey');
   });
 
   test('failed revocation preserves the original key and connection', async () => {
     const { connect, backup, tokens, request } = setup();
     await connect();
     request.mockRejectedValue(new Error('offline'));
-    await backup.saveAppKey('another-key');
+    await backup.saveAppKey('anotherKey');
     expect(tokens.readAppKey()).toBeUndefined();
     expect(tokens.read()).toBe(REFRESH);
-    expect(backup.snapshot()).toMatchObject({ connected: true, message: expect.stringContaining('connection') });
+    expect(backup.snapshot()).toMatchObject({ connected: true, message: expect.stringContaining('No connection') });
   });
 
   test('saving a key enables a previously disabled coordinator', async () => {
     const { backup, tokens } = setup('');
-    await backup.saveAppKey('new-key');
-    expect(tokens.readAppKey()).toBe('new-key');
+    await backup.saveAppKey('newKey');
+    expect(tokens.readAppKey()).toBe('newKey');
     expect(backup.snapshot().enabled).toBe(true);
   });
 
