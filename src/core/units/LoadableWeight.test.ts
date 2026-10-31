@@ -50,7 +50,7 @@ describe('loadable weight ladders', () => {
     ['landmine', 20, 1.25],
     ['kettlebell', 4, 4],
     ['machine', 5, 5],
-    ['cable', 5, 5],
+    ['cable', 2.5, 1.25],
   ])('%s defaults to %s + n × %s kg', (equipment, minimum, step) => {
     expect(loadProfileFor({ equipment }, 'kg')).toEqual({ minimumKilograms: minimum, stepKilograms: step });
   });
@@ -66,6 +66,18 @@ describe('loadable weight ladders', () => {
     expect(profile).toEqual({ minimumKilograms: 17, stepKilograms: 3 });
     expect(roundToLoadable(24, profile, 'down')).toBe(23);
     expect(loadProfileFor({ equipment: 'dumbbell', loadStepKilograms: 2 }, 'kg').minimumKilograms).toBe(2);
+  });
+
+  test('cable add-on plate ladder rounds in kg and lb and accepts overrides', () => {
+    const cable = loadProfileFor({ equipment: 'cable' }, 'kg');
+    expect(roundToLoadable(23, cable, 'down')).toBe(22.5);
+    expect(roundToLoadable(23, cable, 'nearest')).toBe(22.5);
+    expect(roundToLoadable(23.2, cable, 'nearest')).toBe(23.75);
+    const pounds = loadProfileFor({ equipment: 'cable' }, 'lb');
+    expect(pounds.minimumKilograms).toBe(toKilograms(5, 'lb'));
+    expect(pounds.stepKilograms).toBe(toKilograms(2.5, 'lb'));
+    expect(loadProfileFor({ equipment: 'cable', loadStepKilograms: 3 }, 'kg').stepKilograms).toBe(3);
+    expect(loadProfileFor({ equipment: 'machine', loadStepKilograms: 3 }, 'kg').stepKilograms).toBe(3);
   });
 
   test('bounded ladder includes an exactly loadable ceiling and no value above it', () => {

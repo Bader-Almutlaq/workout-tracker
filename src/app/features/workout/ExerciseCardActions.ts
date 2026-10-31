@@ -14,6 +14,8 @@ export interface ExerciseCardActions {
   deleteSet(setId: number): void;
   addSet(entryId: number): void;
   switchUnit(entryId: number, unit: WeightUnit): void;
+  /** Adds or removes untouched suggested warm-ups in a live workout. */
+  toggleWarmups?(entryId: number, remove: boolean): void;
   /** Moves the exercise up (`-1`) or down (`1`) one place. */
   move(entryId: number, offset: -1 | 1): void;
   /** Removes the exercise, asking first when it has completed sets. */

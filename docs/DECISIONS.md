@@ -151,3 +151,8 @@ stop all picture loads. Instructions stay bundled. Workbox CacheFirst caches onl
 host/path with a 600-frame limit; uncached/failed frames render nothing. There is no background
 image prefetch or wholesale picture download. Credits live under Settings using a query parameter,
 so this task does not modify the shared app route table.
+
+
+### 2026-10-31: Warm-ups on request and cable add-on plates (T-053)
+
+Automatic warm-ups default to off; exercise counts opt in, and a live exercise can request the heuristic plan. Existing saved warm-ups remain protected after reload. Cable ladders assume 1.25 kg (2.5 lb) add-on steps from 2.5 kg (5 lb); machine defaults remain 5 kg (10 lb). Per-exercise step overrides remain available.

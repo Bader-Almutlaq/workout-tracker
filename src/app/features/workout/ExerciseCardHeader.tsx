@@ -6,6 +6,7 @@ import type { ExerciseCardActions } from './ExerciseCardActions';
 import styles from './ExerciseCardHeader.module.css';
 import { recordsWeight } from './trackingKinds';
 import { UnitChip } from './UnitChip';
+import { warmupMenuItem } from './warmupMenuItem';
 
 /** The top of an exercise card: its name, the kg/lb chip and the "…" menu (move up, move down, remove). */
 export function ExerciseCardHeader({
@@ -34,6 +35,9 @@ export function ExerciseCardHeader({
       <ActionMenu
         label="Exercise options"
         items={[
+          ...(actions.toggleWarmups === undefined
+            ? []
+            : [warmupMenuItem(entry.sets, (remove) => actions.toggleWarmups?.(entryId, remove))]),
           { label: 'Move up', icon: ArrowUp, isDisabled: index === 0, onSelect: () => actions.move(entryId, -1) },
           {
             label: 'Move down',

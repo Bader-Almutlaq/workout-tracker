@@ -59,8 +59,8 @@ describe('Logging a workout live', () => {
     const { db, logger } = await fixture();
     const { entry } = setup(logger);
     const planned = sets(db, entry);
-    expect(planned.map((set) => set.kind)).toEqual(['warmup', 'working', 'working']);
-    expect(planned.map((set) => set.reps)).toEqual([10, 8, 7]);
+    expect(planned.map((set) => set.kind)).toEqual(['working', 'working']);
+    expect(planned.map((set) => set.reps)).toEqual([8, 7]);
     expect(planned.every((set) => set.isCompleted === 0 && set.entryUnit === 'lb')).toBe(true);
     expect(planned[1]?.weightKilograms).toBe(61.23497);
   });
@@ -75,7 +75,7 @@ describe('Logging a workout live', () => {
     const { entry } = setup(logger);
     logger.setCompleted(idAt(db, entry, 0), true, new Date(now.getTime() + 60000));
     logger.setCompleted(idAt(db, entry, 1), true, new Date(now.getTime() + 210000));
-    expect(sets(db, entry).map((set) => set.restBeforeSeconds)).toEqual([null, 150, null]);
+    expect(sets(db, entry).map((set) => set.restBeforeSeconds)).toEqual([null, 150]);
     logger.setCompleted(idAt(db, entry, 1), false, now);
     expect(sets(db, entry)[1]?.completedAt).toBeNull();
   });
@@ -94,10 +94,10 @@ describe('Logging a workout live', () => {
     const { db, logger } = await fixture();
     const { entry } = setup(logger);
     logger.addSet(entry);
-    expect(sets(db, entry)).toHaveLength(4);
-    expect(sets(db, entry)[3]?.reps).toBe(7);
+    expect(sets(db, entry)).toHaveLength(3);
+    expect(sets(db, entry)[2]?.reps).toBe(7);
     logger.deleteSet(idAt(db, entry, 1));
-    expect(sets(db, entry).map((set) => set.position)).toEqual([0, 1, 2]);
+    expect(sets(db, entry).map((set) => set.position)).toEqual([0, 1]);
   });
   test('Exercises can be moved and removed; positions stay dense', async () => {
     const { db, logger } = await fixture();
@@ -123,7 +123,7 @@ describe('Logging a workout live', () => {
     const id = idAt(db, entry, 1);
     logger.setCompleted(id, true, now);
     const end = new Date('2026-02-01T11:00:00.000Z');
-    expect(logger.finish(workout, end)).toEqual({ workoutId: workout, completedSets: 1, droppedSets: 3 });
+    expect(logger.finish(workout, end)).toEqual({ workoutId: workout, completedSets: 1, droppedSets: 2 });
     expect(workoutDetail(db, workout)?.workout).toMatchObject({ isInProgress: false, endedAt: end.toISOString() });
     expect(workoutDetail(db, workout)?.entries).toHaveLength(1);
     expect(sets(db, entry)[0]?.position).toBe(0);
