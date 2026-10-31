@@ -5,7 +5,7 @@ import { DropboxApi } from './DropboxApi';
 import { DropboxError } from './DropboxError';
 import { DropboxTokenStore } from './DropboxTokenStore';
 import { effectiveDropboxAppKey } from './effectiveDropboxAppKey';
-import { authorizationUrl, createVerifier, verifierChallenge } from './pkce';
+import { authorizationUrl, createState, createVerifier, verifierChallenge } from './pkce';
 
 /**
  * Shared connection/upload view state; credentials and the verifier never appear here.
@@ -82,7 +82,8 @@ export class DropboxBackup {
     return this.run(async () => {
       const settings = await this.database.cloudBackupSettings();
       const connected = this.tokens.read() !== undefined;
-      const awaitingCode = this.tokens.readPendingVerifier(this.now().getTime(), this.appKey) !== undefined;
+      const pending = this.tokens.readPendingAuthorization(this.now().getTime(), this.appKey);
+      const awaitingCode = pending !== undefined && pending.state === undefined;
       this.update({
         connected,
         awaitingCode: !connected && awaitingCode,
@@ -90,7 +91,73 @@ export class DropboxBackup {
         reconnect: !connected && settings.pending,
       });
       await this.database.updateCloudBackupSettings({ provider: connected ? 'dropbox' : null });
-      if (connected && settings.pending) await this.upload();
+      // Preserve a callback failure instead of immediately retrying its first backup and hiding the error.
+      if (connected && settings.pending && this.state.message === undefined) await this.upload();
+    });
+  }
+
+  /** Save an independent state and PKCE verifier before navigating the same window to Dropbox. */
+  beginRedirectConnect(redirectUri: string, navigate: (url: string) => void): Promise<void> {
+    if (!this.state.enabled) return Promise.resolve();
+    this.update({ phase: 'authorizing', message: undefined, codeMessage: undefined, notice: undefined });
+    return this.run(async () => {
+      try {
+        const verifier = createVerifier();
+        const state = createState();
+        const challenge = await verifierChallenge(verifier);
+        this.tokens.writePendingVerifier(verifier, this.now().getTime(), this.appKey, state);
+        this.update({ awaitingCode: false });
+        navigate(authorizationUrl(this.appKey, challenge, { redirectUri, state }));
+      } catch (error) {
+        this.tokens.clearPendingVerifier();
+        this.update({ awaitingCode: false });
+        if (error instanceof DropboxError) throw error;
+        throw new DropboxError('connection', 'Dropbox could not open securely. Tap Open Dropbox to try again.');
+      }
+    });
+  }
+
+  /**
+   * Consume only Settings OAuth queries, removing secrets synchronously before any asynchronous work.
+   * The caller supplies the same deployment URI as beginRedirectConnect; reloads see a clean URL.
+   */
+  handleRedirect(redirectUri: string, currentUrl: string, replace: (url: string) => void): Promise<void> {
+    const url = new URL(currentUrl);
+    if (url.pathname !== new URL(redirectUri).pathname) return Promise.resolve();
+    if (!url.searchParams.has('code') && !url.searchParams.has('state') && !url.searchParams.has('error')) {
+      return Promise.resolve();
+    }
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    const error = url.searchParams.get('error');
+    for (const parameter of ['code', 'state', 'error', 'error_description', 'error_uri']) {
+      url.searchParams.delete(parameter);
+    }
+    replace(`${url.pathname}${url.search}${url.hash}`);
+    return this.run(async () => {
+      this.update({ phase: 'authorizing', message: undefined, codeMessage: undefined, notice: undefined });
+      if (error !== null) {
+        this.tokens.clearPendingVerifier();
+        this.update({ awaitingCode: false });
+        throw new DropboxError(
+          'connection',
+          error === 'access_denied'
+            ? "Dropbox access wasn't allowed."
+            : 'Dropbox could not finish connecting. Tap Open Dropbox again.',
+        );
+      }
+      if (state === null || state.length === 0) throw this.replyMismatch();
+      const pending = this.tokens.readPendingAuthorization(this.now().getTime(), this.appKey);
+      if (pending === undefined) {
+        this.update({ awaitingCode: false });
+        throw new DropboxError('code', 'That Dropbox step expired or was already used. Tap Open Dropbox again.');
+      }
+      if (pending.state !== state || code === null || code.trim().length === 0) throw this.replyMismatch();
+      // Consume before exchanging: a returned code works once even if its response is lost.
+      this.tokens.clearPendingVerifier();
+      this.update({ awaitingCode: false });
+      await this.api.exchange(code, pending.verifier, redirectUri);
+      await this.completeConnection();
     });
   }
 
@@ -144,10 +211,7 @@ export class DropboxBackup {
         if (error instanceof DropboxError) this.update({ codeMessage: error.message });
         throw error;
       }
-      this.update({ connected: true, reconnect: false });
-      await this.database.updateCloudBackupSettings({ provider: 'dropbox', pending: true });
-      await this.upload();
-      this.update({ notice: 'Connected. First backup saved to your Dropbox (Apps folder).' });
+      await this.completeConnection();
     });
   }
 
@@ -217,6 +281,17 @@ export class DropboxBackup {
           trimmed.length === 0 ? "Using JEM's built-in key." : 'Saved. Tap Open Dropbox to connect with it.',
       });
     }, true);
+  }
+
+  private replyMismatch(): DropboxError {
+    return new DropboxError('code', "That Dropbox reply didn't match this phone. Tap Open Dropbox again.");
+  }
+
+  private async completeConnection(): Promise<void> {
+    this.update({ connected: true, reconnect: false });
+    await this.database.updateCloudBackupSettings({ provider: 'dropbox', pending: true });
+    await this.upload();
+    this.update({ notice: 'Connected. First backup saved to your Dropbox (Apps folder).' });
   }
 
   private async upload(): Promise<void> {

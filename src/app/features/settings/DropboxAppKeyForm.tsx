@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { dropboxBackup } from '../../data/dropbox/cloudBackup';
+import { dropboxBackup, dropboxRedirectUri } from '../../data/dropbox/cloudBackup';
 import styles from './DropboxBackupSection.module.css';
 
 /** Advanced device-specific Dropbox app setup, always collapsed until requested. */
@@ -21,6 +21,9 @@ export function DropboxAppKeyForm({
         Create an app at <a href="https://www.dropbox.com/developers/apps">dropbox.com/developers/apps</a> with Scoped
         access and App folder. Enable files.metadata.read, files.content.write and files.content.read, then copy the App
         key. Saving a different key disconnects the current app; connect again afterwards.
+      </p>
+      <p>
+        Add this redirect URI in your app's settings: <span className={styles.redirectUri}>{dropboxRedirectUri}</span>
       </p>
       <form
         className={styles.keyForm}

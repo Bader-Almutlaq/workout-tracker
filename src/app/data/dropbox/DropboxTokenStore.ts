@@ -14,6 +14,14 @@ const PendingAuthorization = {
   verifierPattern: /^[A-Za-z0-9._~-]{43,128}$/,
 } as const;
 
+/** A phone-local grant, bound to its public app key and creation time in milliseconds; legacy copy-code grants have no state. */
+export interface PendingDropboxAuthorization {
+  readonly verifier: string;
+  readonly state: string | undefined;
+  readonly appKey: string;
+  readonly createdAt: number;
+}
+
 /**
  * Stores this phone's refresh token and a pending PKCE verifier for at most ten minutes.
  * The verifier alone cannot obtain a token: Dropbox also requires its single-use authorization code.
@@ -63,10 +71,10 @@ export class DropboxTokenStore {
     }
   }
 
-  /** Save the pending verifier before opening Dropbox, bound to the public key and creation time in milliseconds. */
-  writePendingVerifier(verifier: string, createdAt: number, appKey: string): void {
+  /** Save the pending grant before navigation; state is present only for the redirect flow. */
+  writePendingVerifier(verifier: string, createdAt: number, appKey: string, state?: string): void {
     try {
-      this.storage().setItem(PENDING_VERIFIER_KEY, JSON.stringify({ verifier, createdAt, appKey }));
+      this.storage().setItem(PENDING_VERIFIER_KEY, JSON.stringify({ verifier, state, createdAt, appKey }));
     } catch {
       throw new DropboxError(
         'storage',
@@ -75,8 +83,14 @@ export class DropboxTokenStore {
     }
   }
 
-  /** Restore a valid pending step; expired, malformed, future-dated or different-key entries are removed. */
+  /** Restore a valid copy-code verifier; redirect grants require readPendingAuthorization and state validation. */
   readPendingVerifier(now: number, appKey: string): string | undefined {
+    const pending = this.readPendingAuthorization(now, appKey);
+    return pending?.state === undefined ? pending?.verifier : undefined;
+  }
+
+  /** Restore a valid grant with its state; invalid or expired entries are removed, including different-key grants. */
+  readPendingAuthorization(now: number, appKey: string): PendingDropboxAuthorization | undefined {
     try {
       const stored = this.storage().getItem(PENDING_VERIFIER_KEY);
       if (stored === null) return undefined;
@@ -92,6 +106,8 @@ export class DropboxTokenStore {
         'verifier' in value &&
         typeof value.verifier === 'string' &&
         PendingAuthorization.verifierPattern.test(value.verifier) &&
+        (!('state' in value) ||
+          (typeof value.state === 'string' && PendingAuthorization.verifierPattern.test(value.state))) &&
         'appKey' in value &&
         value.appKey === appKey &&
         'createdAt' in value &&
@@ -100,7 +116,12 @@ export class DropboxTokenStore {
         value.createdAt <= now &&
         now - value.createdAt < PendingAuthorization.lifetimeMilliseconds
       )
-        return value.verifier;
+        return {
+          verifier: value.verifier,
+          state: 'state' in value && typeof value.state === 'string' ? value.state : undefined,
+          appKey,
+          createdAt: value.createdAt,
+        };
       this.storage().removeItem(PENDING_VERIFIER_KEY);
       return undefined;
     } catch {

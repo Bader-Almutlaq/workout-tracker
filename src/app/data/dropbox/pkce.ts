@@ -13,14 +13,29 @@ export function createVerifier(): string {
   return base64Url(crypto.getRandomValues(new Uint8Array(PKCE.randomBytes)));
 }
 
+/** RFC 6749 §10.12: an independent, unpredictable value binds the authorization reply to this phone. */
+export function createState(): string {
+  return base64Url(crypto.getRandomValues(new Uint8Array(PKCE.randomBytes)));
+}
+
+/** The deployment's own Settings URL, without query parameters, for both OAuth requests. */
+export function settingsRedirectUri(origin: string, baseUrl: string): string {
+  const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  return new URL(`${base}settings`, origin).href;
+}
+
 /** RFC 7636 §4.2: BASE64URL(SHA256(ASCII(verifier))), without padding. */
 export async function verifierChallenge(verifier: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
   return base64Url(new Uint8Array(digest));
 }
 
-/** Dropbox's copy-code PKCE authorization URL; deliberately omits redirect_uri and any client secret. */
-export function authorizationUrl(appKey: string, challenge: string): string {
+/** Dropbox PKCE URL; omitting redirect keeps the copy-code fallback. Never includes a client secret. */
+export function authorizationUrl(
+  appKey: string,
+  challenge: string,
+  redirect?: { readonly redirectUri: string; readonly state: string },
+): string {
   const url = new URL('https://www.dropbox.com/oauth2/authorize');
   url.search = new URLSearchParams({
     client_id: appKey,
@@ -29,6 +44,7 @@ export function authorizationUrl(appKey: string, challenge: string): string {
     code_challenge_method: 'S256',
     token_access_type: 'offline',
     scope: 'files.content.write files.metadata.read',
+    ...(redirect === undefined ? {} : { redirect_uri: redirect.redirectUri, state: redirect.state }),
   }).toString();
   return url.href;
 }
