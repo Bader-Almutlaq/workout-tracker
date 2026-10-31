@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { daysSinceBackup } from '../../../core/backup/BackupAge';
 import { parseBackupFileName } from '../../../core/backup/BackupFile';
 import { database, messageOf, useDatabaseQuery } from '../../data/database';
+import { readPickedFiles } from '../../data/readPickedFiles';
 import { Section, SectionRow } from '../../design/components/Section';
 import styles from './BackupSection.module.css';
 import { useBackupFile } from './useBackupFile';
@@ -48,13 +49,16 @@ export function BackupSection() {
   }, [picked]);
 
   const pick = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (file === undefined) return;
+    const picker = event.currentTarget;
+    if ((picker.files?.length ?? 0) === 0) return;
     setNotice(undefined);
     clearNotice();
     try {
-      setPicked({ name: file.name, bytes: new Uint8Array(await file.arrayBuffer()) });
+      const [first] = await readPickedFiles(picker, async (file) => ({
+        name: file.name,
+        bytes: new Uint8Array(await file.arrayBuffer()),
+      }));
+      if (first !== undefined) setPicked(first);
     } catch (error) {
       setNotice({ tone: 'bad', text: `That file could not be read: ${messageOf(error)}` });
     }

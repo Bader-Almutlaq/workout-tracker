@@ -124,6 +124,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Non-secret cloud backup settings and pending flag committed with Finish | `src/worker/WorkerApi.ts` → Dropbox backup (T-042) blocks; upload completion checks the export write revision before clearing pending |
 | When to remind the owner to back up | `src/core/backup/BackupReminder.ts` (`BackupReminderPolicy`) |
 | Preparing and sharing the backup file on screen (Settings and finish summary) | `src/app/features/settings/useBackupFile.ts` |
+| Reading files the owner picks (read first, then clear the picker; iOS Safari drops picked files once it is cleared) | `src/app/data/readPickedFiles.ts` |
 | Backup file naming, age, validation and the restore sequence | `src/core/backup/BackupFile.ts`, `BackupAge.ts`, `BackupValidation.ts`, `BackupRestore.ts`; `OnDeviceStore` implements its storage |
 | Muscle taxonomy (23 muscles, delts split), regions and roles | `src/core/library/Muscle.ts`, `MuscleRegion.ts`, `MuscleRole.ts`; rows frozen in `v1-schema` (a test compares them) |
 | Equipment, movement patterns, mechanic, tracking kinds | `src/core/library/Equipment.ts`, `MovementPattern.ts`, `Mechanic.ts`, `ExerciseTracking.ts` |

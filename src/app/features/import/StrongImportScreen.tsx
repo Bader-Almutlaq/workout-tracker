@@ -5,6 +5,7 @@ import type { ImportResult } from '../../../core/import/StrongImporter';
 import { log } from '../../../core/support/log';
 import { toKilograms } from '../../../core/units/Weight';
 import { database, messageOf } from '../../data/database';
+import { readPickedFiles } from '../../data/readPickedFiles';
 import { BackLink } from '../../design/components/BackLink';
 import { Screen } from '../../design/components/Screen';
 import { weightNumberText } from '../../format/weightText';
@@ -45,11 +46,10 @@ export function StrongImportScreen() {
     }
   };
   const pick = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
-    event.target.value = '';
-    if (files.length === 0) return;
+    const picker = event.currentTarget;
+    if ((picker.files?.length ?? 0) === 0) return;
     void work('Reading and checking files…', async () => {
-      const contents = await Promise.all(files.map(async (file) => ({ name: file.name, text: await file.text() })));
+      const contents = await readPickedFiles(picker, async (file) => ({ name: file.name, text: await file.text() }));
       const next = await database.planStrongImport(contents);
       setOptions(makeImportOptions());
       setPlan(next);
