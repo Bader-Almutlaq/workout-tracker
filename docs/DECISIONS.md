@@ -254,3 +254,12 @@ cached for offline use. The owner can choose photos only or turn pictures off.
 Frequency counts a local day only when its muscle's fractional hard sets add to at least one. Selected-range weekly means divide by the number of Monday weeks touched; the numerator uses the selected inclusive dates. Neglected uses the 28 local days ending at the selected end date and divides by four. Days since training counts direct hard sets only. Pattern balance counts each hard set once, independent of muscle associations. Trunk, neck, carries and Olympic patterns are neither upper nor lower; upper/lower counts otherwise follow the limb moved. Ratios have no target and are absent when either side is zero.
 
 Relative intensity uses the existing daily exercise strength trend, including a day's own qualifying estimates, without future observations. Weekly points include only hard weight-and-reps sets with a positive load and a trend. Effort buckets use logged RPE, including failure sets; unlogged effort stays separate. Fractional RIR is assigned to the lower integer bucket, with five and above grouped. Rep ranges exclude invalid or nonpositive reps. The smaller-muscle list follows the owner's explicit choice.
+
+
+## 2026-10-31: Settings and History navigation
+
+Settings occupies the fifth tab. Full History opens from the Workout header, while session histories remain in their relevant pages.
+
+## 2026-10-31: Confirm accidental workout finishes
+
+Ask before discarding a workout with no completed sets. For a workout under five minutes ask whether to save; when the last completed set is over sixty minutes old offer to end at that set. Ask about remaining planned sets after these checks. These thresholds are owner-requested heuristics.

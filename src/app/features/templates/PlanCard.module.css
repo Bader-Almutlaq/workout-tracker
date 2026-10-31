@@ -31,3 +31,8 @@
 .menu {
   padding: var(--space-s);
 }
+
+.target {
+  border-color: var(--color-accent);
+  background: var(--color-surface-raised);
+}

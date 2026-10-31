@@ -1,3 +1,4 @@
+import { useWorkoutDrag } from '../../design/drag/WorkoutDrag';
 import { Link } from 'react-router';
 import type { TemplateFolderSummary } from '../../../core/queries/TemplateCatalog';
 import { lastDoneText } from './lastDoneText';
@@ -20,8 +21,13 @@ export function PlanCard({
   readonly now: Date;
   readonly actions: TemplateListActions;
 }) {
+  const drag = useWorkoutDrag();
   return (
-    <article className={styles.card}>
+    <article
+      className={`${styles.card} ${drag?.state?.target === folder.id ? styles.target : ''}`}
+      data-plan-id={folder.id}
+      data-plan-name={folder.name}
+    >
       <Link className={styles.main} to={planPath(folder.id)}>
         <h2>{folder.name}</h2>
         <span>

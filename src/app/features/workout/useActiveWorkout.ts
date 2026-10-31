@@ -1,4 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { WorkoutDetail } from '../../../core/queries/WorkoutHistory';
+import { database } from '../../data/database';
+import { loggingQueue } from './loggingQueue';
 import { useNavigate } from 'react-router';
 import type { LiveWorkoutEntry, LiveWorkoutSnapshot } from '../../../core/queries/LiveWorkout';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
@@ -6,6 +9,7 @@ import type { ActiveWorkoutModel } from './ActiveWorkoutModel';
 import type { Confirmation } from './confirmation';
 import type { ExerciseCardActions } from './ExerciseCardActions';
 import { plannedSetCount } from './liveWorkoutLookup';
+import { finishCheck } from './finishCheck';
 import type { TypoPrompt } from './typoPrompt';
 import { useCellEditor } from './useCellEditor';
 import * as actions from './workoutActions';
@@ -24,11 +28,44 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
   const [isRenaming, setIsRenaming] = useState(false);
   const { workout, entries } = snapshot;
 
-  const finish = () => {
+  const finish = (endedAt?: string) => {
     editor.close();
-    void actions.finishWorkout(workout.id).then((savedId) => {
+    void actions.finishWorkout(workout.id, endedAt).then((savedId) => {
       if (savedId !== undefined) navigate(summaryPath(savedId));
     });
+  };
+
+  const finishDetail = useRef<WorkoutDetail | undefined>(undefined);
+  const [finishTime, setFinishTime] = useState<string | undefined>(undefined);
+  const continueFinish = (stage: 'short' | 'idle' | 'planned', endedAt?: string) => {
+    const detail = finishDetail.current;
+    if (detail === undefined) return;
+    const now = new Date();
+    const completed = detail.entries.flatMap((entry) => entry.sets).filter((set) => set.isCompleted);
+    const check = stage === 'planned' ? undefined : finishCheck(detail, now, stage);
+    if (check === 'empty') {
+      setConfirmation({ kind: 'empty' });
+      return;
+    }
+    if (check === 'short') {
+      const minutes = Math.floor((now.getTime() - new Date(detail.workout.startedAt).getTime()) / 60_000);
+      setConfirmation({ kind: 'short', minutes });
+      return;
+    }
+    const last = completed
+      .map((set) => set.completedAt)
+      .filter((value): value is string => value !== null)
+      .sort()
+      .at(-1);
+    if (check === 'idle' && last !== undefined) {
+      const time = new Date(last).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+      setConfirmation({ kind: 'leftRunning', time, endedAt: last });
+      return;
+    }
+    setFinishTime(endedAt);
+    const plannedSets = plannedSetCount(detail.entries);
+    if (plannedSets > 0) setConfirmation({ kind: 'finish', plannedSets });
+    else finish(endedAt);
   };
 
   const cardActions: ExerciseCardActions = {
@@ -131,9 +168,13 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
     },
     requestFinish: () => {
       editor.close();
-      const plannedSets = plannedSetCount(entries);
-      if (plannedSets > 0) setConfirmation({ kind: 'finish', plannedSets });
-      else finish();
+      void loggingQueue
+        .enqueue(() => database.workoutDetail(workout.id))
+        .then((detail) => {
+          if (detail === undefined) return;
+          finishDetail.current = detail;
+          continueFinish('short');
+        });
     },
     confirm: () => {
       const answered = confirmation;
@@ -141,17 +182,29 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
       if (answered === undefined) return;
       switch (answered.kind) {
         case 'discard':
+        case 'empty':
           actions.discardWorkout(workout.id);
           break;
+        case 'short':
+          continueFinish('idle');
+          break;
+        case 'leftRunning':
+          continueFinish('planned', answered.endedAt);
+          break;
         case 'finish':
-          finish();
+          finish(finishTime);
           break;
         case 'removeExercise':
           actions.removeExercise(answered.entryId);
           break;
       }
     },
-    cancelConfirmation: () => setConfirmation(undefined),
+    cancelConfirmation: () => {
+      const answered = confirmation;
+      setConfirmation(undefined);
+      if (answered?.kind === 'short') actions.discardWorkout(workout.id);
+      if (answered?.kind === 'leftRunning') continueFinish('planned');
+    },
     saveFlaggedSetAnyway: () => {
       if (typoPrompt !== undefined) actions.completeSet(typoPrompt.setId);
       setTypoPrompt(undefined);

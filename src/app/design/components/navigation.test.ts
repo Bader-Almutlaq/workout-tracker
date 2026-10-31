@@ -10,23 +10,26 @@ function render(path: string, child: ReturnType<typeof createElement>) {
 }
 
 test('the five tabs have the requested order and Measure owns its nested route', () => {
-  expect(TABS.map((tab) => tab.label)).toEqual(['Workout', 'History', 'Exercises', 'Measure', 'Analytics']);
+  expect(TABS.map((tab) => tab.label)).toEqual(['Workout', 'Exercises', 'Measure', 'Analytics', 'Settings']);
   const markup = render('/measure/waist', createElement(TabBar));
   expect(markup).toContain('href="/measure"');
   expect(markup).toContain('lucide-ruler');
-  expect(markup).not.toContain('href="/settings"');
+  expect(markup).toContain('href="/settings"');
+  expect(markup).not.toContain('href="/history"');
   expect(markup).toMatch(/class="[^"]*active" href="\/measure"/);
 });
 
 test.each(['/', '/history', '/exercises', '/measure', '/analytics'])(
-  'main tab %s has one accessible Settings gear',
+  'screen %s has no default Settings gear',
   (path) => {
     const markup = render(path, createElement(Screen, { title: 'Test', children: 'Content' }));
-    expect(markup.match(/aria-label="Settings"/g)).toHaveLength(1);
-    expect(markup).toContain('href="/settings"');
-    expect(markup).toContain('lucide-settings');
+    expect(markup).not.toContain('aria-label="Settings"');
   },
 );
+
+test('History belongs to Workout', () => {
+  expect(render('/history/1', createElement(TabBar))).toMatch(/class="[^"]*active" href="\/"/);
+});
 
 test.each(['/settings', '/settings/import', '/measure/waist', '/history/example'])(
   'pushed page %s does not acquire a main-tab gear',

@@ -60,4 +60,8 @@ From the owner's review (2026-10-31):
 
 ## Handoff
 
-_Not started._
+Implementation: Settings replaces History in the tab bar; Workout links to History. Past sessions open their details, where they can be repeated or added to a plan. Held past-session and unfiled-workout rows can be dropped on plan cards. Finishing checks the saved state after queued logging writes, offers the requested choices, and can persist the last set's time.
+
+The shared SettingsButton is retained as a no-op because PlanPage imports it and is outside this task's scope. The plan page should remove that import and component when the parallel work is integrated. Existing Measure and plan screen tests were adjusted for the shared header change. Drag targets and dialogs require a real iPhone Safari check: the browser access host was unavailable and the dev server could not bind (EPERM) in this environment, so neither the 430 × 932 dark/light visual check nor touch scrolling was verified here. Automated interaction coverage does not exercise every dialog answer or the complete drop-to-database flow; review those paths on device.
+
+Verification: `make format` and `make verify` passed (176 test files, 1,271 tests). Changes cover the shared navigation/dialog components, workout and history features, plan cards and rows, the new drag helper, the worker API and its tests, and the navigation/design/decision docs. The worker's `finishWorkout` accepts an optional ISO end time; `recentWorkouts` returns up to eight distinct names. The drag helper exports its state, gesture and thresholds; the finish-check helper exports its thresholds and decision function. All changes are uncommitted.

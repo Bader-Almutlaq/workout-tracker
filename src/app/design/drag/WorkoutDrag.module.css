@@ -1,0 +1,13 @@
+.lifted {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  transform: translate(-50%, -110%);
+  padding: var(--space-m);
+  border: var(--hairline) solid var(--color-accent);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface-raised);
+  color: var(--color-text-primary);
+  font: var(--font-body);
+  opacity: 0.9;
+}

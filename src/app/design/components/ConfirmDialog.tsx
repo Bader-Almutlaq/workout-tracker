@@ -14,6 +14,7 @@ export function ConfirmDialog({
   isBusy = false,
   onConfirm,
   onCancel,
+  onDismiss,
   children,
 }: {
   readonly title: string;
@@ -22,6 +23,8 @@ export function ConfirmDialog({
   readonly isBusy?: boolean;
   readonly onConfirm: () => void;
   readonly onCancel: () => void;
+  /** Escape action when different from the secondary button. */
+  readonly onDismiss?: () => void;
   readonly children?: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -31,7 +34,14 @@ export function ConfirmDialog({
   }, []);
 
   return (
-    <dialog ref={dialog} className={styles.dialog} onCancel={onCancel}>
+    <dialog
+      ref={dialog}
+      className={styles.dialog}
+      onCancel={(event) => {
+        event.preventDefault();
+        (onDismiss ?? onCancel)();
+      }}
+    >
       <h2 className={styles.title}>{title}</h2>
       {children !== undefined && <div className={styles.body}>{children}</div>}
       <div className={styles.actions}>

@@ -64,14 +64,14 @@ function fixtureGroups(): MeasurementGroup[] {
   }));
 }
 
-test('Measure hides never-recorded parts and bodyweight, with a row-level quick log and a Settings gear', () => {
+test('Measure hides never-recorded parts and bodyweight, with a row-level quick log', () => {
   const markup = renderToStaticMarkup(
     createElement(MemoryRouter, { initialEntries: ['/measure'] }, createElement(MeasureScreen)),
   );
   expect(markup).toContain('Waist');
   expect(markup).toContain('71.5 cm');
   expect(markup).toContain('aria-label="Log Waist"');
-  expect(markup).toContain('aria-label="Settings"');
+  expect(markup).not.toContain('aria-label="Settings"');
   expect(markup).toContain('Add body part');
   expect(markup).not.toContain('Neck');
   expect(markup).not.toContain('Bodyweight');
