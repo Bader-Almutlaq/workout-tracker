@@ -90,7 +90,7 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-060](T-060-progression-suggestions.md) | Opt-in progression suggestions, reps then weight, in amber (R5, R6) | done | Codex Sol (high), reviewed by lead | merged |
 | [T-061](T-061-illustrated-exercise-pictures.md) | Illustrated exercise drawings where available (R2) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-062](T-062-deload.md) | Deload button, stored deload stages, shaded on charts (R13) | done | Codex Sol (high), finished and reviewed by lead | merged |
-| [T-063](T-063-machine-brands.md) | Machine manufacturer per exercise, per-machine chart filter (R2/R5) | in progress | Codex Terra (high) | task/T-063-machine-brands |
+| [T-063](T-063-machine-brands.md) | Machine manufacturer per exercise, per-machine chart filter (R2/R5) | done | Codex Terra (high, three rounds), reviewed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
