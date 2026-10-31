@@ -6,7 +6,7 @@ import { ExerciseInstructions } from './ExerciseInstructions';
 export function ExerciseHowToTab({ exercise }: { readonly exercise: Exercise }) {
   return (
     <>
-      <ExercisePictures imageKeys={exercise.imageKeys} />
+      <ExercisePictures imageKeys={exercise.imageKeys} libraryKey={exercise.libraryKey} />
       {exercise.instructions?.trim() ? (
         <ExerciseInstructions instructions={exercise.instructions} />
       ) : (

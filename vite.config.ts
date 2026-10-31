@@ -46,6 +46,16 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern:
+              /^https:\/\/cdn\.jsdelivr\.net\/gh\/everkinetic\/data@446bb9a3d0c3beb6b84f7c9d77dfc8af707a2ab6\/dist\/png\/\d{4}-(relaxation|tension)\.png$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'exercise-illustrations',
+              expiration: { maxEntries: PICTURE_CACHE_ENTRIES },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
+            urlPattern:
               /^https:\/\/cdn\.jsdelivr\.net\/gh\/yuhonas\/free-exercise-db@f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5\/exercises\/[\w-]+\/[01]\.jpg$/,
             handler: 'CacheFirst',
             options: {

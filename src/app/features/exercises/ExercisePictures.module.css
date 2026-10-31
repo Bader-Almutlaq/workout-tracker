@@ -14,7 +14,9 @@
 .frame img {
   display: block;
   width: 100%;
-  height: auto;
+  /* Start and end frames differ in shape; a shared square keeps them level, fitted without cropping. */
+  aspect-ratio: 1;
+  object-fit: contain;
   border-radius: var(--radius-small);
 }
 
@@ -24,4 +26,8 @@
 
 .pictures:empty {
   display: none;
+}
+
+.drawing {
+  background: var(--color-on-accent);
 }

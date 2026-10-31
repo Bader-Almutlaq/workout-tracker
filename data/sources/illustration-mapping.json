@@ -1,0 +1,1170 @@
+{
+  "0001": {
+    "action": "skip",
+    "reason": "Static neck resistance drill has no matching bodyweight exercise."
+  },
+  "0002": {
+    "action": "skip",
+    "reason": "Static lateral neck resistance drill has no matching bodyweight exercise."
+  },
+  "0003": {
+    "action": "match",
+    "libraryKey": "shoulder-press-machine"
+  },
+  "0004": {
+    "action": "match",
+    "libraryKey": "seated-overhead-press-barbell"
+  },
+  "0005": {
+    "action": "match",
+    "libraryKey": "shrug-dumbbell"
+  },
+  "0006": {
+    "action": "match",
+    "libraryKey": "arnold-press-dumbbell"
+  },
+  "0007": {
+    "action": "match",
+    "libraryKey": "front-raise-barbell"
+  },
+  "0008": {
+    "action": "match",
+    "libraryKey": "front-raise-cable"
+  },
+  "0009": {
+    "action": "match",
+    "libraryKey": "shrug-cable"
+  },
+  "0010": {
+    "action": "match",
+    "libraryKey": "front-raise-dumbbell"
+  },
+  "0011": {
+    "action": "skip",
+    "reason": "Seated barbell press duplicates the drawing selected for seated overhead press (0004)."
+  },
+  "0012": {
+    "action": "match",
+    "libraryKey": "seated-overhead-press-dumbbell"
+  },
+  "0013": {
+    "action": "match",
+    "libraryKey": "upright-row-smith-machine"
+  },
+  "0014": {
+    "action": "match",
+    "libraryKey": "upright-row-barbell"
+  },
+  "0015": {
+    "action": "match",
+    "libraryKey": "upright-row-cable"
+  },
+  "0016": {
+    "action": "match",
+    "libraryKey": "upright-row-dumbbell"
+  },
+  "0017": {
+    "action": "match",
+    "libraryKey": "bent-over-low-pulley-side-lateral-cable"
+  },
+  "0018": {
+    "action": "match",
+    "libraryKey": "lateral-raise-dumbbell"
+  },
+  "0019": {
+    "action": "skip",
+    "reason": "Swiss-ball wall mobility drill has no corresponding strength exercise."
+  },
+  "0020": {
+    "action": "skip",
+    "reason": "Source repeats this image id for different exercises."
+  },
+  "0021": {
+    "action": "match",
+    "libraryKey": "flat-bench-lying-leg-raise"
+  },
+  "0022": {
+    "action": "skip",
+    "reason": "Smith-machine rear delt row has no matching Smith-machine variant."
+  },
+  "0023": {
+    "action": "match",
+    "libraryKey": "lying-rear-lateral-raise-dumbbell"
+  },
+  "0024": {
+    "action": "match",
+    "libraryKey": "rear-delt-row-dumbbell"
+  },
+  "0025": {
+    "action": "match",
+    "libraryKey": "seated-row-cable"
+  },
+  "0026": {
+    "action": "match",
+    "libraryKey": "bent-over-row-underhand-barbell"
+  },
+  "0027": {
+    "action": "skip",
+    "reason": "Abdominal draw-in is a breathing drill without a matching library exercise."
+  },
+  "0028": {
+    "action": "match",
+    "libraryKey": "rear-delt-row-barbell"
+  },
+  "0029": {
+    "action": "skip",
+    "reason": "Source describes an unsupported standing T-bar machine row; the machine library entry is chest-supported."
+  },
+  "0030": {
+    "action": "match",
+    "libraryKey": "shrug-barbell"
+  },
+  "0031": {
+    "action": "skip",
+    "reason": "Incline bench angle and pressing path are unclear for an exact shoulder press variant."
+  },
+  "0032": {
+    "action": "match",
+    "libraryKey": "bent-over-rear-delt-raise-with-head-on-bench-dumbbell"
+  },
+  "0033": {
+    "action": "skip",
+    "reason": "Front dumbbell raise duplicates the selected front raise (0010)."
+  },
+  "0034": {
+    "action": "match",
+    "libraryKey": "internal-rotation-cable"
+  },
+  "0035": {
+    "action": "skip",
+    "reason": "Seated rear-delt cable raise has no matching seated rear-delt cable variant."
+  },
+  "0037": {
+    "action": "match",
+    "libraryKey": "lying-one-arm-rear-lateral-raise-dumbbell"
+  },
+  "0038": {
+    "action": "match",
+    "libraryKey": "one-arm-shoulder-press-dumbbell"
+  },
+  "0039": {
+    "action": "match",
+    "libraryKey": "one-arm-upright-row-dumbbell"
+  },
+  "0040": {
+    "action": "skip",
+    "reason": "Dumbbell upright row duplicates the selected illustration (0016)."
+  },
+  "0041": {
+    "action": "match",
+    "libraryKey": "shrug-smith-machine"
+  },
+  "0042": {
+    "action": "match",
+    "libraryKey": "bench-press-barbell"
+  },
+  "0043": {
+    "action": "match",
+    "libraryKey": "incline-bench-press-barbell"
+  },
+  "0044": {
+    "action": "skip",
+    "reason": "Incline press uses bands; the library has no incline band press."
+  },
+  "0045": {
+    "action": "match",
+    "libraryKey": "bent-arm-pullover-barbell"
+  },
+  "0046": {
+    "action": "skip",
+    "reason": "Bent-arm pullover differs from the selected straight-arm dumbbell pullover."
+  },
+  "0047": {
+    "action": "match",
+    "libraryKey": "chest-fly-machine"
+  },
+  "0048": {
+    "action": "match",
+    "libraryKey": "cable-crossover"
+  },
+  "0049": {
+    "action": "match",
+    "libraryKey": "bench-press-close-grip-barbell"
+  },
+  "0050": {
+    "action": "skip",
+    "reason": "Band crossover has no matching band crossover variant."
+  },
+  "0051": {
+    "action": "match",
+    "libraryKey": "decline-bench-press-barbell"
+  },
+  "0052": {
+    "action": "match",
+    "libraryKey": "decline-bench-press-dumbbell"
+  },
+  "0053": {
+    "action": "match",
+    "libraryKey": "decline-fly-dumbbell"
+  },
+  "0054": {
+    "action": "match",
+    "libraryKey": "chest-dip"
+  },
+  "0055": {
+    "action": "match",
+    "libraryKey": "bench-press-dumbbell"
+  },
+  "0056": {
+    "action": "match",
+    "libraryKey": "chest-fly-dumbbell"
+  },
+  "0057": {
+    "action": "match",
+    "libraryKey": "chest-fly-cable"
+  },
+  "0058": {
+    "action": "match",
+    "libraryKey": "front-raise-and-pullover-barbell"
+  },
+  "0059": {
+    "action": "match",
+    "libraryKey": "hammer-grip-incline-db-bench-press-dumbbell"
+  },
+  "0060": {
+    "action": "match",
+    "libraryKey": "incline-chest-fly-cable"
+  },
+  "0061": {
+    "action": "match",
+    "libraryKey": "incline-bench-press-dumbbell"
+  },
+  "0062": {
+    "action": "match",
+    "libraryKey": "incline-chest-fly-dumbbell"
+  },
+  "0063": {
+    "action": "match",
+    "libraryKey": "incline-fly-with-a-twist-dumbbell"
+  },
+  "0064": {
+    "action": "match",
+    "libraryKey": "wide-grip-decline-pullover-barbell"
+  },
+  "0066": {
+    "action": "match",
+    "libraryKey": "chest-press-machine"
+  },
+  "0067": {
+    "action": "match",
+    "libraryKey": "neck-press-barbell"
+  },
+  "0068": {
+    "action": "match",
+    "libraryKey": "one-arm-bench-press-dumbbell"
+  },
+  "0069": {
+    "action": "skip",
+    "reason": "Bosu push-up has no corresponding Bosu variant."
+  },
+  "0070": {
+    "action": "match",
+    "libraryKey": "one-arm-floor-press-barbell"
+  },
+  "0071": {
+    "action": "match",
+    "libraryKey": "one-arm-flat-bench-fly-dumbbell"
+  },
+  "0072": {
+    "action": "skip",
+    "reason": "Bosu-assisted one-arm push-up has no corresponding Bosu variant."
+  },
+  "0073": {
+    "action": "match",
+    "libraryKey": "pushups-close-and-wide-hand-positions"
+  },
+  "0075": {
+    "action": "skip",
+    "reason": "Feet-elevated push-up duplicates the selected illustration (0301)."
+  },
+  "0076": {
+    "action": "skip",
+    "reason": "Exercise-ball push-up is excluded as a ball-only variant."
+  },
+  "0077": {
+    "action": "match",
+    "libraryKey": "push-up"
+  },
+  "0078": {
+    "action": "match",
+    "libraryKey": "bench-press-smith-machine"
+  },
+  "0079": {
+    "action": "match",
+    "libraryKey": "pullover-dumbbell"
+  },
+  "0080": {
+    "action": "skip",
+    "reason": "Incline dumbbell press duplicates the selected illustration (0061)."
+  },
+  "0081": {
+    "action": "match",
+    "libraryKey": "incline-bench-press-smith-machine"
+  },
+  "0082": {
+    "action": "match",
+    "libraryKey": "wide-grip-bench-press-barbell"
+  },
+  "0083": {
+    "action": "match",
+    "libraryKey": "wide-grip-decline-bench-press-barbell"
+  },
+  "0084": {
+    "action": "match",
+    "libraryKey": "incline-chest-press-machine"
+  },
+  "0085": {
+    "action": "match",
+    "libraryKey": "decline-chest-press-machine"
+  },
+  "0086": {
+    "action": "match",
+    "libraryKey": "inverted-row"
+  },
+  "0087": {
+    "action": "match",
+    "libraryKey": "pull-up"
+  },
+  "0088": {
+    "action": "match",
+    "libraryKey": "gironda-sternum-chins"
+  },
+  "0089": {
+    "action": "match",
+    "libraryKey": "chin-up"
+  },
+  "0090": {
+    "action": "match",
+    "libraryKey": "neutral-grip-pull-up"
+  },
+  "0091": {
+    "action": "skip",
+    "reason": "Pulls toward one side of the bar; the ordinary chin-up does not specify this movement."
+  },
+  "0092": {
+    "action": "match",
+    "libraryKey": "straight-arm-pulldown-cable"
+  },
+  "0093": {
+    "action": "match",
+    "libraryKey": "lat-pulldown-underhand-cable"
+  },
+  "0094": {
+    "action": "skip",
+    "reason": "Band upright row is excluded as a band-only variant."
+  },
+  "0095": {
+    "action": "skip",
+    "reason": "Underhand pulldown duplicates the selected illustration (0093)."
+  },
+  "0096": {
+    "action": "match",
+    "libraryKey": "lat-pulldown-close-grip-cable"
+  },
+  "0097": {
+    "action": "match",
+    "libraryKey": "lat-pulldown-cable"
+  },
+  "0098": {
+    "action": "skip",
+    "reason": "Pullover on a stability ball is excluded as a ball-only variant."
+  },
+  "0099": {
+    "action": "match",
+    "libraryKey": "deadlift-barbell"
+  },
+  "0100": {
+    "action": "match",
+    "libraryKey": "deadlift-smith-machine"
+  },
+  "0101": {
+    "action": "match",
+    "libraryKey": "good-morning-barbell"
+  },
+  "0102": {
+    "action": "match",
+    "libraryKey": "good-morning-smith-machine"
+  },
+  "0103": {
+    "action": "match",
+    "libraryKey": "back-extension"
+  },
+  "0104": {
+    "action": "skip",
+    "reason": "Back extension on a stability ball is excluded as a ball-only variant."
+  },
+  "0105": {
+    "action": "skip",
+    "reason": "Bodyweight superman has no matching library exercise."
+  },
+  "0107": {
+    "action": "match",
+    "libraryKey": "deadlift-dumbbell"
+  },
+  "0109": {
+    "action": "match",
+    "libraryKey": "glute-bridge"
+  },
+  "0111": {
+    "action": "skip",
+    "reason": "Standing unweighted rear leg lift differs from the cable kickback variant."
+  },
+  "0112": {
+    "action": "match",
+    "libraryKey": "glute-kickback-cable"
+  },
+  "0113": {
+    "action": "match",
+    "libraryKey": "side-plank"
+  },
+  "0114": {
+    "action": "match",
+    "libraryKey": "lunge-barbell"
+  },
+  "0115": {
+    "action": "match",
+    "libraryKey": "lunge-dumbbell"
+  },
+  "0116": {
+    "action": "skip",
+    "reason": "Source is a prone hip extension, not the usual supine flutter kick."
+  },
+  "0117": {
+    "action": "match",
+    "libraryKey": "lying-leg-curl-machine"
+  },
+  "0118": {
+    "action": "match",
+    "libraryKey": "romanian-deadlift-barbell"
+  },
+  "0119": {
+    "action": "match",
+    "libraryKey": "seated-leg-curl-machine"
+  },
+  "0120": {
+    "action": "match",
+    "libraryKey": "standing-leg-curl-machine"
+  },
+  "0121": {
+    "action": "skip",
+    "reason": "The source allows either barbell or dumbbells without identifying the depicted equipment."
+  },
+  "0122": {
+    "action": "match",
+    "libraryKey": "squat-barbell"
+  },
+  "0123": {
+    "action": "match",
+    "libraryKey": "hack-squat-machine"
+  },
+  "0124": {
+    "action": "match",
+    "libraryKey": "squat-smith-machine"
+  },
+  "0125": {
+    "action": "match",
+    "libraryKey": "hack-squat-barbell"
+  },
+  "0126": {
+    "action": "skip",
+    "reason": "Smith hack squat posture differs from the library Smith squat."
+  },
+  "0127": {
+    "action": "match",
+    "libraryKey": "leg-press-machine"
+  },
+  "0128": {
+    "action": "match",
+    "libraryKey": "reverse-lunge-barbell"
+  },
+  "0129": {
+    "action": "match",
+    "libraryKey": "reverse-lunge-dumbbell"
+  },
+  "0130": {
+    "action": "match",
+    "libraryKey": "squat-dumbbell"
+  },
+  "0131": {
+    "action": "skip",
+    "reason": "Barbell side squat lacks an exact side-squat variant in the library."
+  },
+  "0132": {
+    "action": "skip",
+    "reason": "Single-leg barbell squat lacks a matching barbell single-leg squat variant."
+  },
+  "0133": {
+    "action": "skip",
+    "reason": "Source says not to sit on the bench; a box squat involves sitting back onto the box."
+  },
+  "0134": {
+    "action": "match",
+    "libraryKey": "step-up-barbell"
+  },
+  "0135": {
+    "action": "match",
+    "libraryKey": "hip-adductor-cable"
+  },
+  "0136": {
+    "action": "match",
+    "libraryKey": "squat-to-a-bench-dumbbell"
+  },
+  "0137": {
+    "action": "match",
+    "libraryKey": "step-up-dumbbell"
+  },
+  "0138": {
+    "action": "match",
+    "libraryKey": "front-squat-barbell"
+  },
+  "0139": {
+    "action": "match",
+    "libraryKey": "front-squat-to-a-bench-barbell"
+  },
+  "0140": {
+    "action": "match",
+    "libraryKey": "iron-cross-dumbbell"
+  },
+  "0141": {
+    "action": "match",
+    "libraryKey": "jefferson-squats-barbell"
+  },
+  "0142": {
+    "action": "match",
+    "libraryKey": "leg-extension-machine"
+  },
+  "0143": {
+    "action": "match",
+    "libraryKey": "narrow-stance-leg-press-machine"
+  },
+  "0144": {
+    "action": "match",
+    "libraryKey": "lying-machine-squat-machine"
+  },
+  "0145": {
+    "action": "match",
+    "libraryKey": "narrow-stance-hack-squats-machine"
+  },
+  "0146": {
+    "action": "match",
+    "libraryKey": "narrow-stance-squats-barbell"
+  },
+  "0147": {
+    "action": "skip",
+    "reason": "Single-leg squat onto a bench lacks a matching barbell variant."
+  },
+  "0148": {
+    "action": "skip",
+    "reason": "One-arm barbell snatch has no matching barbell variant."
+  },
+  "0150": {
+    "action": "match",
+    "libraryKey": "one-arm-side-deadlift-barbell"
+  },
+  "0151": {
+    "action": "match",
+    "libraryKey": "overhead-squat-barbell"
+  },
+  "0152": {
+    "action": "match",
+    "libraryKey": "plie-squat-dumbbell"
+  },
+  "0154": {
+    "action": "match",
+    "libraryKey": "speed-squats-barbell"
+  },
+  "0155": {
+    "action": "skip",
+    "reason": "Band squat is excluded as a band-only variant."
+  },
+  "0156": {
+    "action": "match",
+    "libraryKey": "hip-abductor-machine"
+  },
+  "0157": {
+    "action": "match",
+    "libraryKey": "hip-adductor-machine"
+  },
+  "0158": {
+    "action": "skip",
+    "reason": "Plate-loaded sissy squat has no explicit plate variant."
+  },
+  "0160": {
+    "action": "match",
+    "libraryKey": "wide-stance-squat-barbell"
+  },
+  "0161": {
+    "action": "match",
+    "libraryKey": "zercher-squats-barbell"
+  },
+  "0162": {
+    "action": "match",
+    "libraryKey": "bench-dips"
+  },
+  "0163": {
+    "action": "match",
+    "libraryKey": "incline-pushdown-cable"
+  },
+  "0164": {
+    "action": "match",
+    "libraryKey": "incline-triceps-extension-cable"
+  },
+  "0165": {
+    "action": "match",
+    "libraryKey": "skullcrusher-cable"
+  },
+  "0166": {
+    "action": "match",
+    "libraryKey": "one-arm-tricep-extension-cable"
+  },
+  "0167": {
+    "action": "match",
+    "libraryKey": "triceps-extension-dumbbell"
+  },
+  "0168": {
+    "action": "skip",
+    "reason": "Source instructions describe a flat bench despite the decline title."
+  },
+  "0169": {
+    "action": "match",
+    "libraryKey": "decline-triceps-extension-dumbbell"
+  },
+  "0170": {
+    "action": "match",
+    "libraryKey": "decline-ez-bar-triceps-extension-ez-bar"
+  },
+  "0171": {
+    "action": "skip",
+    "reason": "Seated dip machine differs from the bodyweight triceps dip."
+  },
+  "0172": {
+    "action": "match",
+    "libraryKey": "triceps-dip"
+  },
+  "0173": {
+    "action": "match",
+    "libraryKey": "one-arm-triceps-extension-dumbbell"
+  },
+  "0174": {
+    "action": "match",
+    "libraryKey": "incline-triceps-extension-barbell"
+  },
+  "0175": {
+    "action": "match",
+    "libraryKey": "jm-press-barbell"
+  },
+  "0176": {
+    "action": "skip",
+    "reason": "Kneeling single-arm concentration cable extension has no matching library variant."
+  },
+  "0177": {
+    "action": "match",
+    "libraryKey": "kneeling-triceps-extension-cable"
+  },
+  "0178": {
+    "action": "match",
+    "libraryKey": "low-triceps-extension-cable"
+  },
+  "0179": {
+    "action": "match",
+    "libraryKey": "lying-close-grip-triceps-extension-behind-the-head-barbell"
+  },
+  "0180": {
+    "action": "skip",
+    "reason": "Source uses a barbell; the corresponding library variant is an EZ bar."
+  },
+  "0181": {
+    "action": "match",
+    "libraryKey": "skullcrusher-dumbbell"
+  },
+  "0182": {
+    "action": "skip",
+    "reason": "Across-face lying dumbbell extension has no exact library variant."
+  },
+  "0183": {
+    "action": "skip",
+    "reason": "Lying EZ-bar press does not establish the same motion as the available skullcrusher."
+  },
+  "0184": {
+    "action": "skip",
+    "reason": "Two-hand single dumbbell lying extension differs from the paired-dumbbell skullcrusher."
+  },
+  "0185": {
+    "action": "skip",
+    "reason": "Reverse extension instructions do not identify an unambiguous matching variant."
+  },
+  "0186": {
+    "action": "match",
+    "libraryKey": "one-arm-pronated-triceps-extension-dumbbell"
+  },
+  "0187": {
+    "action": "match",
+    "libraryKey": "one-arm-supinated-triceps-extension-dumbbell"
+  },
+  "0188": {
+    "action": "match",
+    "libraryKey": "push-up-close-triceps-position"
+  },
+  "0189": {
+    "action": "match",
+    "libraryKey": "reverse-grip-triceps-pushdown-cable"
+  },
+  "0190": {
+    "action": "match",
+    "libraryKey": "reverse-triceps-bench-press-barbell"
+  },
+  "0191": {
+    "action": "skip",
+    "reason": "Seated one-arm extension duplicates the selected one-arm extension (0173)."
+  },
+  "0192": {
+    "action": "skip",
+    "reason": "Seated paired-dumbbell extension differs from the single-dumbbell seated press."
+  },
+  "0193": {
+    "action": "skip",
+    "reason": "Seated overhead barbell extension differs from the standing variant."
+  },
+  "0194": {
+    "action": "match",
+    "libraryKey": "seated-triceps-press-dumbbell"
+  },
+  "0195": {
+    "action": "match",
+    "libraryKey": "bench-press-close-grip-smith-machine"
+  },
+  "0196": {
+    "action": "match",
+    "libraryKey": "standing-bent-over-one-arm-triceps-extension-dumbbell"
+  },
+  "0197": {
+    "action": "match",
+    "libraryKey": "standing-bent-over-two-arm-triceps-extension-dumbbell"
+  },
+  "0198": {
+    "action": "skip",
+    "reason": "Standing dumbbell extension duplicates the selected illustration (0167)."
+  },
+  "0199": {
+    "action": "match",
+    "libraryKey": "standing-low-pulley-one-arm-triceps-extension-cable"
+  },
+  "0200": {
+    "action": "match",
+    "libraryKey": "standing-one-arm-triceps-extension-dumbbell"
+  },
+  "0201": {
+    "action": "match",
+    "libraryKey": "triceps-extension-barbell"
+  },
+  "0202": {
+    "action": "match",
+    "libraryKey": "standing-towel-triceps-extension"
+  },
+  "0203": {
+    "action": "match",
+    "libraryKey": "tate-press-dumbbell"
+  },
+  "0204": {
+    "action": "match",
+    "libraryKey": "triceps-kickback-dumbbell"
+  },
+  "0205": {
+    "action": "match",
+    "libraryKey": "triceps-pushdown-cable-straight-bar"
+  },
+  "0206": {
+    "action": "match",
+    "libraryKey": "triceps-pushdown-cable-rope"
+  },
+  "0207": {
+    "action": "match",
+    "libraryKey": "triceps-pushdown-cable-v-bar"
+  },
+  "0208": {
+    "action": "skip",
+    "reason": "Weighted side bend on an exercise ball is excluded as a ball-only variant."
+  },
+  "0209": {
+    "action": "skip",
+    "reason": "Incline dumbbell triceps extension has no exact incline dumbbell variant."
+  },
+  "0210": {
+    "action": "skip",
+    "reason": "Machine triceps extension posture and machine type are not specified."
+  },
+  "0211": {
+    "action": "match",
+    "libraryKey": "bicep-curl-barbell"
+  },
+  "0212": {
+    "action": "match",
+    "libraryKey": "bicep-curl-cable"
+  },
+  "0213": {
+    "action": "match",
+    "libraryKey": "alternate-hammer-curl-dumbbell"
+  },
+  "0214": {
+    "action": "match",
+    "libraryKey": "alternate-incline-curl-dumbbell"
+  },
+  "0215": {
+    "action": "match",
+    "libraryKey": "curls-lying-against-an-incline-barbell"
+  },
+  "0216": {
+    "action": "match",
+    "libraryKey": "hammer-curl-cable"
+  },
+  "0217": {
+    "action": "match",
+    "libraryKey": "preacher-curl-cable"
+  },
+  "0218": {
+    "action": "match",
+    "libraryKey": "close-grip-ez-bar-curl-ez-bar"
+  },
+  "0219": {
+    "action": "match",
+    "libraryKey": "close-grip-standing-curl-barbell"
+  },
+  "0220": {
+    "action": "match",
+    "libraryKey": "concentration-curl-dumbbell"
+  },
+  "0221": {
+    "action": "match",
+    "libraryKey": "cross-body-hammer-curl-dumbbell"
+  },
+  "0222": {
+    "action": "match",
+    "libraryKey": "drag-curl-barbell"
+  },
+  "0223": {
+    "action": "match",
+    "libraryKey": "alternating-bicep-curl-dumbbell"
+  },
+  "0224": {
+    "action": "match",
+    "libraryKey": "bicep-curl-dumbbell"
+  },
+  "0225": {
+    "action": "match",
+    "libraryKey": "prone-incline-curl-dumbbell"
+  },
+  "0226": {
+    "action": "match",
+    "libraryKey": "bicep-curl-ez-bar"
+  },
+  "0227": {
+    "action": "match",
+    "libraryKey": "hammer-curl-dumbbell"
+  },
+  "0228": {
+    "action": "match",
+    "libraryKey": "flexor-incline-curls-dumbbell"
+  },
+  "0229": {
+    "action": "skip",
+    "reason": "Source is lying on a bench; library high cable curl does not specify that posture."
+  },
+  "0230": {
+    "action": "match",
+    "libraryKey": "incline-curl-dumbbell"
+  },
+  "0231": {
+    "action": "match",
+    "libraryKey": "incline-inner-biceps-curl-dumbbell"
+  },
+  "0232": {
+    "action": "match",
+    "libraryKey": "lying-curl-cable"
+  },
+  "0233": {
+    "action": "match",
+    "libraryKey": "lying-close-grip-bar-curl-on-high-pulley-cable"
+  },
+  "0234": {
+    "action": "match",
+    "libraryKey": "lying-high-bench-curl-barbell"
+  },
+  "0235": {
+    "action": "match",
+    "libraryKey": "lying-supine-curl-dumbbell"
+  },
+  "0236": {
+    "action": "match",
+    "libraryKey": "preacher-curl-machine"
+  },
+  "0237": {
+    "action": "match",
+    "libraryKey": "one-arm-preacher-curl-dumbbell"
+  },
+  "0238": {
+    "action": "match",
+    "libraryKey": "overhead-curl-cable"
+  },
+  "0239": {
+    "action": "match",
+    "libraryKey": "preacher-curl-barbell"
+  },
+  "0240": {
+    "action": "match",
+    "libraryKey": "preacher-hammer-curl-dumbbell"
+  },
+  "0241": {
+    "action": "match",
+    "libraryKey": "reverse-plate-curls-plate"
+  },
+  "0242": {
+    "action": "match",
+    "libraryKey": "seated-close-grip-concentration-curl-barbell"
+  },
+  "0243": {
+    "action": "match",
+    "libraryKey": "seated-curl-dumbbell"
+  },
+  "0244": {
+    "action": "match",
+    "libraryKey": "seated-inner-biceps-curl-dumbbell"
+  },
+  "0245": {
+    "action": "match",
+    "libraryKey": "spider-curl-barbell"
+  },
+  "0246": {
+    "action": "match",
+    "libraryKey": "standing-inner-biceps-curl-dumbbell"
+  },
+  "0247": {
+    "action": "match",
+    "libraryKey": "standing-one-arm-curl-cable"
+  },
+  "0248": {
+    "action": "match",
+    "libraryKey": "standing-one-arm-curl-over-incline-bench-dumbbell"
+  },
+  "0249": {
+    "action": "match",
+    "libraryKey": "preacher-curl-dumbbell"
+  },
+  "0250": {
+    "action": "match",
+    "libraryKey": "wide-grip-standing-curl-barbell"
+  },
+  "0251": {
+    "action": "match",
+    "libraryKey": "zottman-curl-dumbbell"
+  },
+  "0252": {
+    "action": "match",
+    "libraryKey": "zottman-preacher-curl-dumbbell"
+  },
+  "0253": {
+    "action": "match",
+    "libraryKey": "bicep-curl-machine"
+  },
+  "0254": {
+    "action": "skip",
+    "reason": "One-arm barbell curl has no matching one-arm barbell variant."
+  },
+  "0255": {
+    "action": "skip",
+    "reason": "Seated curl on a stability ball is excluded as a ball-only variant."
+  },
+  "0256": {
+    "action": "skip",
+    "reason": "Combined squat and curl has no matching combined exercise."
+  },
+  "0257": {
+    "action": "match",
+    "libraryKey": "reverse-curl-dumbbell"
+  },
+  "0258": {
+    "action": "skip",
+    "reason": "Concentration curl on a stability ball is excluded as a ball-only variant."
+  },
+  "0259": {
+    "action": "skip",
+    "reason": "Combined deadlift and curl has no matching combined exercise."
+  },
+  "0260": {
+    "action": "skip",
+    "reason": "Combined curl and extension on a stability ball is excluded as a ball-only variant."
+  },
+  "0261": {
+    "action": "skip",
+    "reason": "Band curl is excluded as a band-only variant."
+  },
+  "0262": {
+    "action": "skip",
+    "reason": "Medicine-ball curl with bowling lunge has no matching combined exercise."
+  },
+  "0263": {
+    "action": "skip",
+    "reason": "Curl on a stability ball is excluded as a ball-only variant."
+  },
+  "0264": {
+    "action": "skip",
+    "reason": "Lateral lunge combined with a curl has no matching combined exercise."
+  },
+  "0265": {
+    "action": "skip",
+    "reason": "Forward lunge combined with a curl has no matching combined exercise."
+  },
+  "0266": {
+    "action": "skip",
+    "reason": "Step-up and curl combined with single-leg balance has no matching combined exercise."
+  },
+  "0267": {
+    "action": "skip",
+    "reason": "Medicine-ball curl on a stability ball is excluded as a ball-only variant."
+  },
+  "0268": {
+    "action": "skip",
+    "reason": "Single-leg stork stance curl differs from the standing dumbbell curl."
+  },
+  "0269": {
+    "action": "skip",
+    "reason": "Dome V-sit curl is excluded as a Bosu-only variant."
+  },
+  "0270": {
+    "action": "skip",
+    "reason": "Ankle circles are a mobility drill."
+  },
+  "0271": {
+    "action": "skip",
+    "reason": "Balance board is a balance drill."
+  },
+  "0272": {
+    "action": "match",
+    "libraryKey": "seated-calf-raise-barbell"
+  },
+  "0273": {
+    "action": "match",
+    "libraryKey": "calf-press-on-leg-press"
+  },
+  "0274": {
+    "action": "skip",
+    "reason": "Band calf raise is excluded as a band-only variant."
+  },
+  "0275": {
+    "action": "skip",
+    "reason": "Source uses a partner for resistance; the library variant is bodyweight."
+  },
+  "0276": {
+    "action": "match",
+    "libraryKey": "seated-one-leg-calf-raise-dumbbell"
+  },
+  "0277": {
+    "action": "skip",
+    "reason": "Knee circles are a mobility drill."
+  },
+  "0278": {
+    "action": "match",
+    "libraryKey": "rocking-standing-calf-raise-barbell"
+  },
+  "0279": {
+    "action": "match",
+    "libraryKey": "seated-calf-raise-machine"
+  },
+  "0280": {
+    "action": "match",
+    "libraryKey": "tibialis-raise-smith-machine"
+  },
+  "0281": {
+    "action": "match",
+    "libraryKey": "standing-calf-raise-barbell"
+  },
+  "0282": {
+    "action": "match",
+    "libraryKey": "standing-calf-raise-machine"
+  },
+  "0283": {
+    "action": "match",
+    "libraryKey": "standing-calf-raise-dumbbell"
+  },
+  "0284": {
+    "action": "match",
+    "libraryKey": "air-bike"
+  },
+  "0285": {
+    "action": "match",
+    "libraryKey": "ab-rollout-barbell"
+  },
+  "0286": {
+    "action": "match",
+    "libraryKey": "ab-rollout-on-knees-barbell"
+  },
+  "0287": {
+    "action": "match",
+    "libraryKey": "bent-knee-hip-raise"
+  },
+  "0288": {
+    "action": "match",
+    "libraryKey": "seated-crunch-cable"
+  },
+  "0289": {
+    "action": "match",
+    "libraryKey": "cross-body-crunch"
+  },
+  "0290": {
+    "action": "skip",
+    "reason": "Crunch with legs on a stability ball is excluded as a ball-only variant."
+  },
+  "0291": {
+    "action": "match",
+    "libraryKey": "crunch"
+  },
+  "0292": {
+    "action": "match",
+    "libraryKey": "decline-crunch"
+  },
+  "0293": {
+    "action": "match",
+    "libraryKey": "decline-oblique-crunch"
+  },
+  "0294": {
+    "action": "match",
+    "libraryKey": "side-bend-dumbbell"
+  },
+  "0295": {
+    "action": "skip",
+    "reason": "Stability-ball crunch is excluded as a ball-only variant."
+  },
+  "0296": {
+    "action": "match",
+    "libraryKey": "exercise-ball-pull-in"
+  },
+  "0298": {
+    "action": "match",
+    "libraryKey": "bent-over-row-barbell"
+  },
+  "0300": {
+    "action": "match",
+    "libraryKey": "cuban-press-dumbbell"
+  },
+  "0301": {
+    "action": "match",
+    "libraryKey": "push-up-with-feet-elevated"
+  },
+  "0302": {
+    "action": "skip",
+    "reason": "Smith incline press duplicates the selected illustration (0081)."
+  },
+  "0303": {
+    "action": "skip",
+    "reason": "Smith deadlift duplicates the selected illustration (0100)."
+  }
+}
