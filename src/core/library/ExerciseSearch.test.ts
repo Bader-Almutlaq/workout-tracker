@@ -80,6 +80,16 @@ function top(query: string, count: number, library: ExerciseSearch): string[] {
   return names(library.results(query, {}, NOW)).slice(0, count);
 }
 
+/**
+ * Heuristic: regression guards, not benchmarks. A search normally takes a few milliseconds on the Mac,
+ * but the suite often runs beside other builds, so each check takes the fastest of several rounds.
+ */
+const TIMED_ROUNDS = 5;
+/** Per-search limit on a 1,500-entry library. */
+const LARGE_LIBRARY_BUDGET_MILLISECONDS = 5;
+/** Per-keystroke limit on the bundled library; still catches an accidental slowdown of several times. */
+const KEYSTROKE_BUDGET_MILLISECONDS = 20;
+
 describe('ExerciseSearch.results', () => {
   test('an exact name beats longer names', () => {
     expect(search.results('pull up', {}, NOW)[0]?.name).toBe('Pull Up');
@@ -292,9 +302,13 @@ describe('ExerciseSearch on the bundled library', () => {
     const large = new ExerciseSearch(entries);
     const queries = ['chest', 'chest machine', 'rear delt cable', 'quad isolation'];
     for (const query of queries) large.results(query, {}, NOW);
-    const start = performance.now();
-    for (const query of queries) large.results(query, {}, NOW);
-    expect((performance.now() - start) / queries.length).toBeLessThan(5);
+    // The fastest of several rounds: a busy machine slows some rounds, a real regression slows all of them.
+    const roundAverages = Array.from({ length: TIMED_ROUNDS }, () => {
+      const start = performance.now();
+      for (const query of queries) large.results(query, {}, NOW);
+      return (performance.now() - start) / queries.length;
+    });
+    expect(Math.min(...roundAverages)).toBeLessThan(LARGE_LIBRARY_BUDGET_MILLISECONDS);
   });
 
   test('common equipment breaks equal bench press matches, after usage', () => {
@@ -330,15 +344,6 @@ describe('ExerciseSearch on the bundled library', () => {
     expect(best('Seated Palms Up Wrist Curl (Dumbbell)')[0]).toBe('Wrist Curl (Dumbbell)');
     expect(best('Reverse Forearm Extension')[0]?.startsWith('Reverse Wrist Curl')).toBe(true);
   });
-
-  /**
-   * Heuristic: a regression guard, not a benchmark. A search normally takes a few milliseconds on the
-   * Mac, but the suite often runs beside other builds, so a tight limit made this test flaky. 20 ms
-   * still catches an accidental slowdown of several times.
-   */
-  const KEYSTROKE_BUDGET_MILLISECONDS = 20;
-  /** Timed rounds; the fastest one is compared with the budget. */
-  const TIMED_ROUNDS = 5;
 
   describe('speed', () => {
     test('an empty query lists the whole library, and each keystroke search stays within budget', () => {
