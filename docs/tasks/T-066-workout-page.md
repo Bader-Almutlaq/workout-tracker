@@ -68,4 +68,8 @@ Product rule: measure, don't prescribe. Descriptive labels only.
 
 ## Handoff
 
-_Not started._
+Implemented the plan workout grid, workout page, and workout-specific exercise History and Charts. The old preview sheets were removed; list previews now route to the workout page. Workout session filtering happens in `ExerciseSeries` before pagination and combines with the existing machine filter. The worker's `exerciseHistory` and `exerciseCharts` methods accept an optional template ID; existing calls remain unfiltered. Records remain lifetime-wide.
+
+The rename menu opens the existing editor, where the workout name can be changed. Back navigation uses the originating plan or Workout tab when opened from a list, with the saved plan as the deep-link fallback. The existing picture preference controls exercise images.
+
+Verification: `make format` and `make verify` were run. The dark/light phone viewport and interactive navigation could not be checked: the development server was denied permission to bind a port and the browser host was unavailable. The automated page tests cover rendered grid content, tab selection, active-workout disabling, unknown IDs, scoped exercise props, and the start action; they do not exercise tab changes or card taps in a browser. Changes are uncommitted.

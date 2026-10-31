@@ -10,23 +10,34 @@ import styles from './ExercisePage.module.css';
 export function ExerciseHistoryPage({
   exerciseId,
   tracking,
+  templateId,
   offset,
   onPrevious,
   onNext,
 }: {
   readonly exerciseId: number;
   readonly tracking: ExerciseTracking;
+  readonly templateId?: number | undefined;
   readonly offset: number;
   readonly onPrevious: () => void;
   readonly onNext: () => void;
 }) {
-  const query = useDatabaseQuery(`exercise-history-${exerciseId}-${offset}`, () =>
-    database.exerciseHistory(exerciseId, offset),
+  const query = useDatabaseQuery(
+    `exercise-history-${exerciseId}-${offset}${templateId === undefined ? '' : `-${templateId}`}`,
+    () => database.exerciseHistory(exerciseId, offset, templateId),
   );
   if (query.status !== 'ready') return <ExerciseQueryMessage query={query} />;
   return (
     <>
-      {query.value.length === 0 && <p>{offset === 0 ? 'No sessions for this exercise yet.' : 'No more sessions.'}</p>}
+      {query.value.length === 0 && (
+        <p>
+          {offset === 0
+            ? templateId === undefined
+              ? 'No sessions for this exercise yet.'
+              : 'No sessions of this exercise in this workout yet.'
+            : 'No more sessions.'}
+        </p>
+      )}
       {query.value.map((session) => (
         <ExerciseSessionRow key={session.workoutId} session={session} tracking={tracking} />
       ))}

@@ -69,6 +69,28 @@ function add(
 }
 
 describe('ExerciseSeries', () => {
+  it('limits chart and paged history to a workout before applying a machine filter', () => {
+    db.exec(`
+      INSERT INTO template (id, name, position, createdAt, updatedAt) VALUES (10, 'A', 0, '2026-01-01', '2026-01-01'), (11, 'B', 1, '2026-01-01', '2026-01-01');
+    `);
+    const first = session('2026-01-01');
+    const second = session('2026-01-02');
+    const other = session('2026-01-03');
+    const unfiled = session('2026-01-04');
+    for (const id of [first, second, other, unfiled]) add(id);
+    db.run('UPDATE workout SET templateId = ? WHERE id = ?', [10, first]);
+    db.run('UPDATE workout SET templateId = ? WHERE id = ?', [10, second]);
+    db.run('UPDATE workout SET templateId = ? WHERE id = ?', [11, other]);
+    db.run('UPDATE workoutExercise SET machineBrand = ? WHERE workoutId = ?', ['Panatta', first]);
+    db.run('UPDATE workoutExercise SET machineBrand = ? WHERE workoutId = ?', ['Other', second]);
+    const scoped = ExerciseSeries.read(db, 1, now, 10);
+    expect(scoped.sessions.map((item) => item.workoutId)).toEqual([first, second]);
+    expect(ExerciseSeries.history(db, 1, 0, now, 10).map((item) => item.workoutId)).toEqual([second, first]);
+    expect(ExerciseSeries.filterMachine(scoped, 'panatta').sessions.map((item) => item.workoutId)).toEqual([first]);
+    expect(ExerciseSeries.read(db, 1, now, 999).sessions).toEqual([]);
+    expect(ExerciseSeries.history(db, 1, 0, now, 999)).toEqual([]);
+  });
+
   it('returns empty series and History for empty or missing exercises', () => {
     for (const id of [1, 999]) {
       const history = ExerciseSeries.read(db, id, now);

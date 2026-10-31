@@ -7,9 +7,11 @@ import { ExerciseHistoryPage } from './ExerciseHistoryPage';
 export function ExerciseHistoryTab({
   exerciseId,
   tracking,
+  templateId,
 }: {
   readonly exerciseId: number;
   readonly tracking: ExerciseTracking;
+  readonly templateId?: number;
 }) {
   const [offset, setOffset] = useState(0);
   return (
@@ -17,6 +19,7 @@ export function ExerciseHistoryTab({
       key={offset}
       exerciseId={exerciseId}
       tracking={tracking}
+      templateId={templateId}
       offset={offset}
       onPrevious={() => setOffset(Math.max(0, offset - ExerciseHistoryPolicy.pageSize))}
       onNext={() => setOffset(offset + ExerciseHistoryPolicy.pageSize)}
