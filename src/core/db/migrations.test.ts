@@ -97,7 +97,7 @@ test('v8 → v9 preserves every row, defaults deload to NULL, constrains stages 
     DataSafetyFixture.seed(db);
     const before = DataSafetyFixture.read(db);
     await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
-    expect(migrate(db)).toEqual(['v9-deload']);
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 9))).toEqual(['v9-deload']);
     const after = DataSafetyFixture.read(db);
     for (const [table, records] of Object.entries(before)) {
       if (table === 'migration') continue;
@@ -115,8 +115,35 @@ test('v8 → v9 preserves every row, defaults deload to NULL, constrains stages 
     }
     expect(db.all('PRAGMA foreign_key_check')).toEqual([]);
     const bytes = db.exportBytes();
-    expect(migrate(db)).toEqual([]);
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 9))).toEqual([]);
     expect(db.exportBytes()).toEqual(bytes);
+  } finally {
+    db.close();
+  }
+});
+
+test('v9 → v10 preserves rows, defaults brands to NULL and validates backups', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db, new Date('2026-01-01'), MIGRATIONS.slice(0, 9));
+    DataSafetyFixture.seed(db);
+    const before = DataSafetyFixture.read(db);
+    await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+    expect(migrate(db)).toEqual(['v10-machine-brand']);
+    const after = DataSafetyFixture.read(db);
+    for (const [table, records] of Object.entries(before)) {
+      if (table === 'migration') continue;
+      expect(
+        after[table]?.map((row) => Object.fromEntries(Object.keys(records[0] ?? {}).map((key) => [key, row[key]]))),
+      ).toEqual(records);
+    }
+    expect(db.all('SELECT machineBrand FROM workoutExercise')).toEqual([
+      { machineBrand: null },
+      { machineBrand: null },
+    ]);
+    expect(db.all('SELECT machineBrand FROM templateExercise')).toEqual([{ machineBrand: null }]);
+    expect(db.all('PRAGMA foreign_key_check')).toEqual([]);
+    await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
   } finally {
     db.close();
   }

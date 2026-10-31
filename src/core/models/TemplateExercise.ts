@@ -6,6 +6,8 @@ export interface TemplateExercise {
   readonly position: number;
   readonly supersetGroup: number | null;
   readonly notes: string | null;
+  /** Manufacturer, or null when not recorded. */
+  readonly machineBrand?: string | null;
   /** Null disables suggestions; double progresses reps before load for this template only. */
   readonly progression: 'double' | null;
 }

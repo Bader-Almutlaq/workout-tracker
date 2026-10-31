@@ -240,3 +240,11 @@ cached for offline use. The owner can choose photos only or turn pictures off.
   writes a forced return load. The stage survives finishing and History edits in schema v9.
 - Chart annotations are presentation only. Deload sessions still contribute to all metrics and PRs.
   Their performance buckets are hollow/shaded and labelled in tables; the PR step line is unmarked.
+
+
+### Machine manufacturer storage (T-063, partial)
+
+- Store a nullable manufacturer on each workout and template exercise. The convenience list is
+  non-exhaustive; custom names retain their spelling after whitespace normalization. Known names
+  use the list spelling, ignoring case. A name is limited to 40 characters for phone readability.
+- Matching repeated exercise occurrences by manufacturer remains to be implemented and reviewed.

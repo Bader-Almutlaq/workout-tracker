@@ -81,4 +81,10 @@ Attachments and grips (also in §8) are **not** part of this task.
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+**Partial; not ready for review or merge.**
+
+- Added the frozen convenience list, equipment eligibility, normalization and readable length error in `MachineBrands.ts`, with tests.
+- Added v10 nullable columns, v9-to-v10 row-preservation and backup validation test, model fields, and template draft/catalog/store persistence, including normalization and copies from workouts. Updated DATA, ARCHITECTURE and DECISIONS.
+- Remaining: workout and worker operations, defaults, used-brand picker and UI, machine-aware previous performance and progression, History and Charts filtering with URL state, and their tests. No UI verification was performed.
+- Repeated entries in one workout can have different brands. Match the intended occurrence and brand together when selecting previous sets; choosing only the workout can mix brands. Deload rules remain unchanged.
+- Ran `make format` and `make verify`: 166 test files, 1,240 tests passed, production build passed. Changes are uncommitted; the board was not changed.
