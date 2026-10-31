@@ -213,3 +213,11 @@ Metadata and notes save when leaving their field, matching the live number pad's
 Imported edits retain `workout.sourceKey`, even when the name or start time changes. Deleting any externally imported workout writes its non-null source key to **`appSetting.deletedSourceKeys`**, a JSON array of strings, in the same transaction as the cascading delete. `WorkoutLogger` owns reading/writing this protection; the shared importer and its preview counts treat tombstoned keys as already imported. This applies to Strong and the other supported source prefixes without a schema change. Malformed JSON or non-string elements block import and imported deletion instead of silently losing protection. Database backups include tombstones; restoring a backup restores the tombstone state from that backup, so restoring a copy from before deletion intentionally restores that earlier history.
 
 History weight and rep commits run the existing live typo check, excluding the edited workout from its own baseline. The value is already saved, consistently with immediate editing; **Save anyway** acknowledges it and **Fix** reopens the doubtful cell. Done waits for queued writes and stays in edit mode if a check needs an answer or a save failed. Each successful database write sends one notification, refreshing history, bests, comparisons and analytics through their existing queries.
+
+
+### Exercise illustrations
+
+The pinned everkinetic source and licence are in `data/sources/everkinetic/SOURCE.md`.
+`data/sources/illustration-mapping.json` records a decision for each source image ID;
+`tools/build-illustrations.ts` validates it against the library and generates the bundled
+`src/core/library/illustrations.json` lookup. Images are fetched only when viewed.

@@ -87,6 +87,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | SQLite access (queries, transactions, export/import bytes) | `src/core/db/Database.ts` |
 | Deterministic library conversion and reviewed source decisions | `tools/build-library.ts`, `data/sources/library-mapping.json` (frozen original families plus every source id) |
 | Library instruction steps and optional pinned picture frames | `LibraryFile.ts` → `LibraryExercise.ts` → `ExerciseLibrarySeeder.ts`; nullable `Exercise.instructions`/`imageKeys` |
+| Reviewed exercise illustration mapping | `tools/build-illustrations.ts`, `data/sources/illustration-mapping.json`, `src/core/library/illustrations.json` |
 | Exercise picture display preference, safe URLs and frame visibility | `src/app/features/exercises/picturePreference.ts`, `ExercisePictures.tsx`, `ExercisePicture.tsx`; cache policy in `vite.config.ts` |
 | Library source credits | `src/app/features/settings/CreditsScreen.tsx` |
 | Schema and migrations | `src/core/db/migrations.ts` |

@@ -1,27 +1,33 @@
 import { useState } from 'react';
 import { Section, SectionRow } from '../../design/components/Section';
-import { savedExercisePictures, saveExercisePictures } from '../exercises/picturePreference';
+import { savedExercisePictures, saveExercisePictures, type PicturePreference } from '../exercises/picturePreference';
 
-/** Phone-local picture preference, on by default; instructions are always available. */
+/** Phone-local picture preference; instructions are always available. */
 export function ExercisePicturesSetting() {
-  const [show, setShow] = useState(savedExercisePictures);
+  const [preference, setPreference] = useState(savedExercisePictures);
   const [error, setError] = useState<string | null>(null);
-  const choose = (value: boolean) => {
+  const choose = (value: PicturePreference) => {
     const failure = saveExercisePictures(value);
     setError(failure);
-    if (failure === null) setShow(value);
+    if (failure === null) setPreference(value);
   };
   return (
     <Section label="Exercise pictures" footnote="Pictures download when viewed and are saved for offline use.">
       <SectionRow
-        label="Show exercise pictures"
+        label="Exercise pictures"
         value={
-          <input
-            aria-label="Show exercise pictures"
-            type="checkbox"
-            checked={show}
-            onChange={(event) => choose(event.target.checked)}
-          />
+          <select
+            aria-label="Exercise pictures"
+            value={preference}
+            onChange={(event) => {
+              const value = event.target.value;
+              if (value === 'drawings' || value === 'photos' || value === 'off') choose(value);
+            }}
+          >
+            <option value="drawings">Drawings first</option>
+            <option value="photos">Photos only</option>
+            <option value="off">Off</option>
+          </select>
         }
       />
       {error !== null && <p role="alert">{error}</p>}

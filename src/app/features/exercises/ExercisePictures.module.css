@@ -25,3 +25,7 @@
 .pictures:empty {
   display: none;
 }
+
+.drawing {
+  background: var(--color-on-accent);
+}
