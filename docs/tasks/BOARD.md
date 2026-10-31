@@ -91,6 +91,8 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-061](T-061-illustrated-exercise-pictures.md) | Illustrated exercise drawings where available (R2) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-062](T-062-deload.md) | Deload button, stored deload stages, shaded on charts (R13) | done | Codex Sol (high), finished and reviewed by lead | merged |
 | [T-063](T-063-machine-brands.md) | Machine manufacturer per exercise, per-machine chart filter (R2/R5) | done | Codex Terra (high, three rounds), reviewed by lead | merged |
+| [T-064](T-064-analytics-overview.md) | Analytics tab: views, period and the Overview (W6/R5) | in progress | Codex Terra (high) | task/T-064-analytics-overview |
+| [T-065](T-065-muscle-coverage-intensity.md) | Muscle coverage and intensity sections for Analytics (W6) | in progress | Codex Terra (high) | task/T-065-muscle-coverage-intensity |
 
 ## Next milestones (tasks are written when the milestone starts)
 
