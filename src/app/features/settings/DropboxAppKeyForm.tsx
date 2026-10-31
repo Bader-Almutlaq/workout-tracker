@@ -2,12 +2,21 @@ import { useState } from 'react';
 import { dropboxBackup } from '../../data/dropbox/cloudBackup';
 import styles from './DropboxBackupSection.module.css';
 
-/** Device-specific Dropbox app setup, collapsed until requested when a key is available. */
-export function DropboxAppKeyForm({ disabled, expanded }: { readonly disabled: boolean; readonly expanded: boolean }) {
+/** Advanced device-specific Dropbox app setup, always collapsed until requested. */
+export function DropboxAppKeyForm({
+  disabled,
+  message,
+  invalid,
+}: {
+  readonly disabled: boolean;
+  readonly message: string | undefined;
+  readonly invalid: boolean;
+}) {
   const [key, setKey] = useState('');
   return (
-    <details className={styles.codeForm} open={expanded || undefined}>
-      <summary>Use your own Dropbox app key</summary>
+    <details className={styles.codeForm}>
+      <summary>Advanced: use your own Dropbox app</summary>
+      <p>JEM already includes a Dropbox app key. You only need this to use an app you created yourself.</p>
       <p>
         Create an app at <a href="https://www.dropbox.com/developers/apps">dropbox.com/developers/apps</a> with Scoped
         access and App folder. Enable files.metadata.read, files.content.write and files.content.read, then copy the App
@@ -30,10 +39,21 @@ export function DropboxAppKeyForm({ disabled, expanded }: { readonly disabled: b
           autoCapitalize="none"
           spellCheck={false}
           disabled={disabled}
+          aria-describedby={message === undefined ? undefined : 'dropbox-key-message'}
+          aria-invalid={invalid}
         />
         <button className={styles.finish} type="submit" disabled={disabled}>
           Save
         </button>
+        {message !== undefined && (
+          <p
+            id="dropbox-key-message"
+            className={invalid ? styles.error : undefined}
+            role={invalid ? 'alert' : 'status'}
+          >
+            {message}
+          </p>
+        )}
       </form>
     </details>
   );

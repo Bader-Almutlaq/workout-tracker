@@ -151,3 +151,11 @@ stop all picture loads. Instructions stay bundled. Workbox CacheFirst caches onl
 host/path with a 600-frame limit; uncached/failed frames render nothing. There is no background
 image prefetch or wholesale picture download. Credits live under Settings using a query parameter,
 so this task does not modify the shared app route table.
+
+
+## 2026-10-31: Keep a pending Dropbox verifier briefly across Home Screen restarts (T-052)
+
+- **Why:** iOS can restart the Home Screen app while the owner switches to Safari to approve Dropbox. An in-memory-only verifier loses the first step and makes the pasted code unusable.
+- **Lifetime:** store the PKCE verifier, creation time and public app key in phone-local `localStorage`, beside the refresh token and outside SQLite/backups. Heuristic: expire after 10 minutes to allow the Safari round trip without retaining unfinished grants indefinitely. Remove it before a nonblank code exchange, on disconnect, or on a key change; discard malformed, expired, future-dated or different-key entries when checked. A failed exchange requires opening Dropbox for a fresh code; the pasted text stays visible for context.
+- **Security:** the verifier alone cannot obtain a token: Dropbox also requires the corresponding authorization code, which works once. Codes are never persisted, access tokens remain in memory, and credentials are never logged. The existing App folder grant limits access to the app's own Dropbox folder.
+- **Feedback:** Settings and the finish summary share status wording. Connection success is confirmed only after the first backup completes. Saving the advanced app-key override always answers inline; saving the same effective key preserves any pending connection.

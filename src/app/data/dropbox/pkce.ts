@@ -8,7 +8,7 @@ function base64Url(bytes: Uint8Array): string {
     .replaceAll('=', '');
 }
 
-/** A fresh cryptographically random RFC 7636 verifier, held only in memory until code exchange. */
+/** A fresh cryptographically random RFC 7636 verifier; the coordinator owns its short pending lifetime. */
 export function createVerifier(): string {
   return base64Url(crypto.getRandomValues(new Uint8Array(PKCE.randomBytes)));
 }

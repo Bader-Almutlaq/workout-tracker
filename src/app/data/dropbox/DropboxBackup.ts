@@ -7,7 +7,10 @@ import { DropboxTokenStore } from './DropboxTokenStore';
 import { effectiveDropboxAppKey } from './effectiveDropboxAppKey';
 import { authorizationUrl, createVerifier, verifierChallenge } from './pkce';
 
-/** The shared view state; credentials and the verifier never appear here. */
+/**
+ * Shared connection/upload view state; credentials and the verifier never appear here.
+ * message is a status failure, codeMessage/appKeyMessage answer their forms, and notice confirms the first backup.
+ */
 export interface DropboxBackupState {
   readonly enabled: boolean;
   readonly phase: 'loading' | 'idle' | 'authorizing' | 'backingUp' | 'disconnecting';
@@ -16,7 +19,14 @@ export interface DropboxBackupState {
   readonly reconnect: boolean;
   readonly lastBackupAt: string | undefined;
   readonly message: string | undefined;
+  readonly codeMessage?: string | undefined;
+  readonly appKeyMessage?: string | undefined;
+  readonly appKeyInvalid?: boolean | undefined;
+  readonly notice?: string | undefined;
 }
+
+/** Heuristic: the task's 5–40 alphanumeric format catches pasted secrets/URLs before changing the public app key. */
+const DropboxAppKeyPolicy = { pattern: /^[A-Za-z0-9]{5,40}$/ } as const;
 
 /** Only the existing validated export and non-secret worker settings are available to cloud orchestration. */
 export interface DropboxBackupDatabase {
@@ -39,7 +49,6 @@ export class DropboxBackup {
   private state: DropboxBackupState;
   private readonly listeners = new Set<() => void>();
   private tail: Promise<void> = Promise.resolve();
-  private verifier: string | undefined;
 
   constructor(
     private appKey: string,
@@ -73,13 +82,19 @@ export class DropboxBackup {
     return this.run(async () => {
       const settings = await this.database.cloudBackupSettings();
       const connected = this.tokens.read() !== undefined;
-      this.update({ connected, lastBackupAt: settings.lastCloudBackupAt, reconnect: !connected && settings.pending });
+      const awaitingCode = this.tokens.readPendingVerifier(this.now().getTime(), this.appKey) !== undefined;
+      this.update({
+        connected,
+        awaitingCode: !connected && awaitingCode,
+        lastBackupAt: settings.lastCloudBackupAt,
+        reconnect: !connected && settings.pending,
+      });
       await this.database.updateCloudBackupSettings({ provider: connected ? 'dropbox' : null });
       if (connected && settings.pending) await this.upload();
     });
   }
 
-  /** Open a tab inside the tap; keep the verifier only in this instance, and show the copy-code field. */
+  /** Open a tab inside the tap; persist its short-lived verifier before navigation so a restart can resume. */
   beginConnect(open: () => DropboxAuthorizationWindow | null): Promise<void> {
     if (!this.state.enabled) return Promise.resolve();
     let popup: DropboxAuthorizationWindow | null;
@@ -88,20 +103,22 @@ export class DropboxBackup {
     } catch {
       popup = null;
     }
-    this.update({ phase: 'authorizing' });
+    this.update({ phase: 'authorizing', message: undefined, codeMessage: undefined, notice: undefined });
     return this.run(async () => {
-      if (popup === null)
-        throw new DropboxError('connection', 'Allow a new tab to open, then try Connect Dropbox again.');
+      if (popup === null) throw new DropboxError('connection', 'Allow a new tab to open, then tap Open Dropbox again.');
       this.update({ message: undefined });
       try {
-        this.verifier = createVerifier();
-        const challenge = await verifierChallenge(this.verifier);
+        const verifier = createVerifier();
+        const challenge = await verifierChallenge(verifier);
+        this.tokens.writePendingVerifier(verifier, this.now().getTime(), this.appKey);
         popup.navigate(authorizationUrl(this.appKey, challenge));
         this.update({ awaitingCode: true });
-      } catch {
+      } catch (error) {
         popup.close();
-        this.verifier = undefined;
-        throw new DropboxError('connection', 'Dropbox could not open securely. Try Connect again.');
+        this.tokens.clearPendingVerifier();
+        this.update({ awaitingCode: false });
+        if (error instanceof DropboxError) throw error;
+        throw new DropboxError('connection', 'Dropbox could not open securely. Tap Open Dropbox to try again.');
       }
     });
   }
@@ -109,16 +126,28 @@ export class DropboxBackup {
   /** Exchange the pasted code, persist the connection, and upload its first full backup immediately. */
   finishConnecting(code: string): Promise<void> {
     return this.run(async () => {
-      const verifier = this.verifier;
-      this.verifier = undefined;
-      this.update({ awaitingCode: false, phase: 'authorizing' });
-      if (verifier === undefined || code.trim().length === 0) {
-        throw new DropboxError('code', "That code didn't work; codes expire after a few minutes. Try Connect again.");
+      this.update({ phase: 'authorizing', message: undefined, codeMessage: undefined, notice: undefined });
+      try {
+        const verifier = this.tokens.readPendingVerifier(this.now().getTime(), this.appKey);
+        this.update({ awaitingCode: verifier !== undefined });
+        if (verifier === undefined) {
+          throw new DropboxError('code', 'Tap Open Dropbox first, then paste the new code.');
+        }
+        if (code.trim().length === 0) {
+          throw new DropboxError('code', 'Paste the code Dropbox shows, then tap Connect.');
+        }
+        // Consume before exchanging: a code works once, even if a response is lost in transit.
+        this.tokens.clearPendingVerifier();
+        this.update({ awaitingCode: false });
+        await this.api.exchange(code.trim(), verifier);
+      } catch (error) {
+        if (error instanceof DropboxError) this.update({ codeMessage: error.message });
+        throw error;
       }
-      await this.api.exchange(code.trim(), verifier);
       this.update({ connected: true, reconnect: false });
       await this.database.updateCloudBackupSettings({ provider: 'dropbox', pending: true });
       await this.upload();
+      this.update({ notice: 'Connected. First backup saved to your Dropbox (Apps folder).' });
     });
   }
 
@@ -144,36 +173,54 @@ export class DropboxBackup {
   /** Revoke before forgetting credentials; on network failure retain them so Disconnect can be retried. */
   disconnect(): Promise<void> {
     return this.run(async () => {
-      this.update({ phase: 'disconnecting', message: undefined });
-      await this.api.revoke();
-      this.verifier = undefined;
+      this.update({ phase: 'disconnecting', message: undefined, codeMessage: undefined, notice: undefined });
+      this.tokens.clearPendingVerifier();
+      this.update({ awaitingCode: false });
+      if (this.tokens.read() !== undefined) await this.api.revoke();
       this.update({ connected: false, reconnect: false, awaitingCode: false, lastBackupAt: undefined });
       await this.database.updateCloudBackupSettings({ provider: null, pending: false, lastCloudBackupAt: null });
     });
   }
 
-  /** Save a device key only after revoking the old connection; an empty key selects the default. */
+  /** Validate and save a device key with inline feedback; a changed key revokes the old connection, blank selects the default. */
   saveAppKey(key: string): Promise<void> {
     return this.run(async () => {
       const trimmed = key.trim();
-      // An empty value explicitly removes the override, so compare against the built-in default.
+      this.update({ appKeyMessage: undefined, appKeyInvalid: false });
+      if (trimmed.length > 0 && !DropboxAppKeyPolicy.pattern.test(trimmed)) {
+        this.update({ appKeyMessage: "That doesn't look like a Dropbox app key.", appKeyInvalid: true });
+        return;
+      }
       const selectedKey = trimmed || effectiveDropboxAppKey(undefined);
-      if (selectedKey !== this.appKey && this.tokens.read() !== undefined) {
+      if (selectedKey === this.appKey) {
+        this.tokens.writeAppKey(trimmed);
+        this.update({
+          appKeyMessage: trimmed.length === 0 ? "Using JEM's built-in key." : 'That key is already in use.',
+        });
+        return;
+      }
+      this.tokens.clearPendingVerifier();
+      this.update({ awaitingCode: false, codeMessage: undefined, notice: undefined });
+      if (this.tokens.read() !== undefined) {
         this.update({ phase: 'disconnecting', message: undefined });
         await this.api.revoke();
-        this.update({ connected: false, reconnect: false, awaitingCode: false, lastBackupAt: undefined });
+        this.update({ connected: false, reconnect: false, lastBackupAt: undefined });
         await this.database.updateCloudBackupSettings({ provider: null, pending: false, lastCloudBackupAt: null });
       }
       this.tokens.writeAppKey(trimmed);
-      this.verifier = undefined;
       this.appKey = selectedKey;
       this.api.setAppKey(this.appKey);
-      this.update({ enabled: this.appKey.length > 0, awaitingCode: false, message: undefined });
+      this.update({
+        enabled: this.appKey.length > 0,
+        message: undefined,
+        appKeyMessage:
+          trimmed.length === 0 ? "Using JEM's built-in key." : 'Saved. Tap Open Dropbox to connect with it.',
+      });
     }, true);
   }
 
   private async upload(): Promise<void> {
-    this.update({ phase: 'backingUp', message: undefined });
+    this.update({ phase: 'backingUp', message: undefined, notice: undefined });
     await this.database.updateCloudBackupSettings({ pending: true });
     const backup = await this.database.exportBackup();
     await this.api.upload(backup.fileName, backup.bytes);
@@ -209,6 +256,7 @@ export class DropboxBackup {
                 'The Dropbox backup could not be prepared or recorded on this phone. Try again.',
               );
         log.backup.error(failure.message);
+        if (allowDisabled) this.update({ appKeyMessage: failure.message, appKeyInvalid: true });
         if (failure.kind === 'revoked') this.update({ connected: false, reconnect: true, awaitingCode: false });
         this.update({ phase: 'idle', message: failure.message });
         try {
