@@ -1,6 +1,6 @@
 import { fromExerciseRow, type ExerciseRow } from '../models/Exercise';
 import { loadProfileFor } from '../units/LoadableWeight';
-import { defaultWarmupCount, refreshWarmups, warmupSets } from './WarmupPlan';
+import { suggestedWarmupCount, refreshWarmups, warmupSets } from './WarmupPlan';
 import type { Database } from '../db/Database';
 import type { SetKind } from '../models/SetKind';
 import type { WorkoutSetRow } from '../models/WorkoutSet';
@@ -61,7 +61,7 @@ const TIME_UNITS = { millisecondsPerSecond: 1000 } as const;
 export class WorkoutLogger {
   private readonly warmupState = new Map<
     number,
-    { edited: Set<number>; suggested: Set<number>; suppressed: boolean }
+    { edited: Set<number>; suggested: Set<number>; suppressed: boolean; requestedCount: number | null }
   >();
 
   constructor(private readonly db: Database) {}
@@ -79,6 +79,41 @@ export class WorkoutLogger {
       )
       .filter((set) => state.suggested.has(set.id))
       .map((set) => set.id);
+  }
+
+  /** Adds the heuristic plan to a live entry with a positive first working weight. */
+  addSuggestedWarmups(entryId: number): void {
+    this.db.transaction(() => {
+      const entry = this.requireEntry(entryId);
+      if (this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) !== 1) return;
+      const first = this.db.get<WorkoutSetRow>(
+        `SELECT * FROM workoutSet WHERE workoutExerciseId = ? AND kind <> 'warmup' ORDER BY position LIMIT 1`,
+        [entryId],
+      );
+      if (first === undefined || first.weightKilograms <= 0) return;
+      const row = this.db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [entry.exerciseId]);
+      if (row === undefined) throw new WorkoutLoggerError('exerciseNotFound');
+      const state = this.warmupStateFor(entryId);
+      state.requestedCount = suggestedWarmupCount(fromExerciseRow(row));
+      state.suppressed = false;
+      this.refreshEntryWarmups(entryId);
+    });
+  }
+
+  /** Removes only untouched, uncompleted suggestions and suppresses automatic regeneration for this entry. */
+  removeSuggestedWarmups(entryId: number): void {
+    this.db.transaction(() => {
+      const entry = this.requireEntry(entryId);
+      if (this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) !== 1) return;
+      const state = this.warmupStateFor(entryId);
+      for (const id of this.suggestedWarmupSetIds(entryId)) {
+        this.db.run('DELETE FROM workoutSet WHERE id = ?', [id]);
+        state.suggested.delete(id);
+      }
+      state.suppressed = true;
+      state.requestedCount = null;
+      this.renumberSets(entryId);
+    });
   }
 
   private warmupStateFor(entryId: number) {
@@ -102,14 +137,35 @@ export class WorkoutLogger {
         edited: new Set(existing.map((set) => set.id)),
         suggested: new Set<number>(),
         suppressed: existing.length === 0 && workingWeight > 0,
+        requestedCount: null,
       };
       this.warmupState.set(entryId, state);
     }
     return state;
   }
 
-  private initializeWarmups(entryId: number): void {
-    this.warmupState.set(entryId, { edited: new Set(), suggested: new Set(), suppressed: false });
+  private initializeWarmups(entryId: number, preserveTemplateWarmups = false): void {
+    const entry = this.requireEntry(entryId);
+    const count = this.db.value<number | null>('SELECT warmupSetCount FROM exercise WHERE id = ?', [entry.exerciseId]);
+    const inherited =
+      preserveTemplateWarmups && (count === null || count === undefined)
+        ? this.db.all<{ id: number }>(`SELECT id FROM workoutSet WHERE workoutExerciseId = ? AND kind = 'warmup'`, [
+            entryId,
+          ])
+        : [];
+    this.warmupState.set(entryId, {
+      edited: new Set(inherited.map((set) => set.id)),
+      suggested: new Set(),
+      suppressed: false,
+      requestedCount: null,
+    });
+    if ((count === null || count === undefined) && !preserveTemplateWarmups) {
+      const live = this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) === 1;
+      if (live) {
+        this.db.run("DELETE FROM workoutSet WHERE workoutExerciseId = ? AND kind = 'warmup'", [entryId]);
+        this.renumberSets(entryId);
+      }
+    }
     this.refreshEntryWarmups(entryId);
   }
 
@@ -119,9 +175,6 @@ export class WorkoutLogger {
     const row = this.db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [entry.exerciseId]);
     if (row === undefined) throw new WorkoutLoggerError('exerciseNotFound');
     const exercise = fromExerciseRow(row);
-    // Unclassified legacy exercises keep their historical/template warm-ups until an owner sets a count.
-    if (exercise.mechanic === null && (exercise.warmupSetCount === null || exercise.warmupSetCount === undefined))
-      return;
     const existing = this.db.all<WorkoutSetRow>(
       `
       SELECT * FROM workoutSet WHERE workoutExerciseId = ? AND kind = 'warmup' ORDER BY position
@@ -129,7 +182,11 @@ export class WorkoutLogger {
       [entryId],
     );
     const state = this.warmupStateFor(entryId);
-    if (state.suppressed) return;
+    if (
+      state.suppressed ||
+      (state.requestedCount === null && (exercise.warmupSetCount === null || exercise.warmupSetCount === undefined))
+    )
+      return;
     const first = this.db.get<WorkoutSetRow>(
       `
       SELECT * FROM workoutSet WHERE workoutExerciseId = ? AND kind <> 'warmup' ORDER BY position LIMIT 1
@@ -138,7 +195,7 @@ export class WorkoutLogger {
     );
     const plan = warmupSets(
       first?.weightKilograms ?? 0,
-      defaultWarmupCount(exercise),
+      state.requestedCount ?? exercise.warmupSetCount ?? 0,
       loadProfileFor(exercise, exercise.defaultEntryUnit),
     );
     const refreshed = refreshWarmups(
@@ -370,7 +427,7 @@ export class WorkoutLogger {
             ],
           );
         });
-        this.initializeWarmups(entry);
+        this.initializeWarmups(entry, true);
       }
       return workoutId;
     });
@@ -688,7 +745,12 @@ export class WorkoutLogger {
             [set.workoutExerciseId],
           ) ?? 0;
         if (remaining === 0)
-          this.warmupState.set(set.workoutExerciseId, { edited: new Set(), suggested: new Set(), suppressed: true });
+          this.warmupState.set(set.workoutExerciseId, {
+            edited: new Set(),
+            suggested: new Set(),
+            suppressed: true,
+            requestedCount: null,
+          });
       } else {
         this.refreshEntryWarmups(set.workoutExerciseId);
       }

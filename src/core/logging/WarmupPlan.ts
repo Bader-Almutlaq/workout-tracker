@@ -38,11 +38,10 @@ const WarmupDefaults = {
   heavyPatterns: new Set(['squat', 'hinge', 'horizontal-push', 'vertical-push', 'horizontal-pull', 'vertical-pull']),
 } as const;
 
-/** The override (0–4), otherwise a descriptive equipment/mechanic default; timed and bodyweight exercises default to zero. */
-export function defaultWarmupCount(
-  exercise: Pick<Exercise, 'warmupSetCount' | 'equipment' | 'tracking' | 'mechanic' | 'movementPattern'>,
+/** Heuristic count for an explicit request; timed and bodyweight exercises suggest none. */
+export function suggestedWarmupCount(
+  exercise: Pick<Exercise, 'equipment' | 'tracking' | 'mechanic' | 'movementPattern'>,
 ): number {
-  if (exercise.warmupSetCount !== null && exercise.warmupSetCount !== undefined) return exercise.warmupSetCount;
   if (exercise.equipment === 'bodyweight' || exercise.equipment === 'band' || exercise.tracking !== 'weight-reps')
     return WarmupDefaults.none;
   if (exercise.mechanic === 'compound') {

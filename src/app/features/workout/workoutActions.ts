@@ -134,6 +134,13 @@ export function addSet(entryId: number): void {
   void loggingQueue.enqueue(() => database.addSet(entryId));
 }
 
+/** Adds or removes the entry's suggested warm-ups in tap order. */
+export function toggleWarmups(entryId: number, remove: boolean): void {
+  void loggingQueue.enqueue(() =>
+    remove ? database.removeSuggestedWarmups(entryId) : database.addSuggestedWarmups(entryId),
+  );
+}
+
 /** Deletes a set. */
 export function deleteSet(setId: number): void {
   void loggingQueue.enqueue(() => database.deleteSet(setId));

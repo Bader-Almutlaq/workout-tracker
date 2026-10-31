@@ -7,8 +7,10 @@ import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { SelectField } from '../../design/components/SelectField';
 import { LoadingWeightField } from './LoadingWeightField';
 
-/** Count choices from the owner-approved T-044 schemes; Default uses the exercise classification. */
-const WARMUP_OPTIONS = Object.keys(WarmupSchemes).map((count) => ({ value: count, label: count }));
+/** Count choices from the owner-approved T-044 schemes; Off is the default. */
+const WARMUP_OPTIONS = Object.keys(WarmupSchemes)
+  .filter((count) => count !== '0')
+  .map((count) => ({ value: count, label: count }));
 
 /** Optional exact kg loading overrides, displayed in this exercise's entry unit; blank inputs reset defaults. */
 export function ExerciseLoadingFields({
@@ -50,7 +52,7 @@ export function ExerciseLoadingFields({
       )}
       <SelectField
         label="Warm-up sets"
-        noneLabel="Default"
+        noneLabel="Off (default)"
         options={WARMUP_OPTIONS}
         value={
           settings.warmupSetCount === null || settings.warmupSetCount === undefined

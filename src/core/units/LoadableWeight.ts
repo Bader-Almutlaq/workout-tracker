@@ -9,10 +9,12 @@ export interface LoadProfile {
   readonly stepKilograms: number | null;
 }
 
-/** Heuristic: typical gym equipment, as agreed in docs/tasks/T-044-loadable-weights-and-warmups.md. */
+/** Heuristic: typical gym equipment and cable add-on plates, as agreed in T-044 and T-053. */
 const LoadingDefaults = {
   plateStep: { kg: 2.5, lb: 5 },
   landmineStep: { kg: 1.25, lb: 2.5 },
+  cableStep: { kg: 1.25, lb: 2.5 },
+  cableMinimum: { kg: 2.5, lb: 5 },
   stackStep: { kg: 5, lb: 10 },
   kettlebellStep: { kg: 4, lb: 5 },
   bars: {
@@ -65,8 +67,12 @@ export function loadProfileFor(
       );
       minimumKilograms = exercise.loadStepKilograms ?? stepKilograms;
       break;
-    case 'machine':
     case 'cable':
+      stepKilograms = toKilograms(LoadingDefaults.cableStep[unitSystem], unitSystem);
+      minimumKilograms =
+        exercise.loadStepKilograms ?? toKilograms(LoadingDefaults.cableMinimum[unitSystem], unitSystem);
+      break;
+    case 'machine':
       stepKilograms = toKilograms(LoadingDefaults.stackStep[unitSystem], unitSystem);
       minimumKilograms = exercise.loadStepKilograms ?? stepKilograms;
       break;
