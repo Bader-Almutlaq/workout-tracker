@@ -93,6 +93,8 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-063](T-063-machine-brands.md) | Machine manufacturer per exercise, per-machine chart filter (R2/R5) | done | Codex Terra (high, three rounds), reviewed by lead | merged |
 | [T-064](T-064-analytics-overview.md) | Analytics tab: views, period and the Overview (W6/R5) | done | Codex Terra (high), wired and polished by lead | merged |
 | [T-065](T-065-muscle-coverage-intensity.md) | Muscle coverage and intensity sections for Analytics (W6) | done | Codex Terra (high), reviewed by lead | merged |
+| [T-066](T-066-workout-page.md) | Workout page, plan workout cards, exercise-in-workout view (R4/R5) | done | Codex Terra (high), reviewed and polished by lead | merged |
+| [T-067](T-067-tab-bar-drag-finish-checks.md) | Settings tab, past workouts into plans, accidental-workout checks (R4/R6) | done | Codex Terra (high), reviewed and extended by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
