@@ -139,6 +139,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Exercise search and import-name suggestions | `src/core/library/ExerciseSearch.ts` (`SearchTuning` holds every score) |
 | Exercise list, detail and unmatched-import queries | `src/core/queries/ExerciseCatalog.ts` |
 | Loadable weight ladders, equipment defaults, kg/lb overrides and rounding | `src/core/units/LoadableWeight.ts` |
+| Per-template double-progression calculation, per-set rep/RPE gates and loadable steps | `src/core/logging/ProgressionPlan.ts`; live query attaches ephemeral suggestions |
 | Warm-up schemes, suggested counts and protected-slot refresh | `src/core/logging/WarmupPlan.ts`; provenance in `WorkoutLogger`, retained per database connection by `WorkerApi` |
 | Logging live and editing finished workouts, notes, timing, dense positions and historical completion semantics | `src/core/logging/WorkoutLogger.ts` (`WorkoutLoggerLimits`, `FinishedWorkoutChange`) |
 | Deleted imported source keys (appSetting JSON tombstones), shared with importer duplicate detection | `WorkoutLogger.deletedSourceKeys` / `deleteFinished`; `StrongImporter` skips these keys in import and preview counts |

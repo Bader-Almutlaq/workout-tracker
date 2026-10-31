@@ -188,3 +188,26 @@ Automatic warm-ups default to off; exercise counts opt in, and a live exercise c
 - **Totals:** Count every completed non-warm-up set, including drop/failure and low-effort work. Hard sets are a distinct measure and would undercount this requested working-set total. Reuse the existing e1RM qualification rules. Unknown, invalid or reversed duration is absent from duration means; a genuine zero remains zero.
 - **Top exercise:** Interpret this as the first exercise in the saved workout order, named on the chart. Take its best qualifying e1RM across all repeated entries in each session, retaining separate same-day sessions. An unsupported exercise produces no estimate; do not silently substitute a different lift.
 - **Charts:** Add sum aggregation and an optional overview period to the shared long-range chart for weekly session counts. Other callers retain their defaults. Expanded charts retain range clipping and finer automatic periods; the caption identifies the actual period. Sum charts omit observation spread bands because their min/max is not a spread of totals.
+
+## 2026-10-31: Per-workout double progression is an opt-in calculation (T-060)
+
+- Store only nullable `templateExercise.progression = 'double'`; keep per-set ranges and RPE in
+  existing targets. Offer 8–12 for confirmation when enabling with incomplete working targets.
+  Reject incomplete working ranges on save while enabled. Timed exercises get no progression control.
+- Reuse `PreviousPerformance` for same-template preference with global fallback, and use that same
+  history to seed grey values. Warm-ups are excluded from progression; working, drop and failure sets
+  share the existing non-warm-up positional convention. Reordered exercises match by exercise id and
+  occurrence because live entries have no persistent template-exercise id. Editing a template during
+  a live session therefore changes its on-the-fly targets; deleting the template disables its suggestions.
+- `ProgressionPlan` owns the calculation. Each position climbs one rep to its own upper bound; a load
+  jump requires all historical/planned working positions to match and reach their bounds with effort
+  at/below their own RPE targets (unknown effort or target permits progress). A below-range set rises
+  to its minimum first; an in-range above-target set repeats. The report's double-progression section
+  supports the model; the precise step and effort gate are the owner's descriptive heuristic.
+- The load jump uses the existing equipment ladder in the live entry unit, including kg overrides.
+  Bodyweight gets reps only and repeats at the top. Unrestricted equipment repeats at the top because
+  no owner-defined load step exists. No load decrement is inferred.
+- Amber stays separate and tappable even when equal to grey. It never writes until accepted; ticking
+  uses the stored baseline. Completed or entered cells hide amber. On reload a changed value is
+  treated as entered; an identical accepted value cannot be distinguished without persisting provenance,
+  so it may show amber again. No new provenance or suggestion rows are stored.

@@ -1,3 +1,4 @@
+import { ProgressionControl } from './ProgressionControl';
 import { Plus } from 'lucide-react';
 import type { TemplateExerciseDraft } from '../../../core/templates/TemplateDraft';
 import type { TargetCell } from './TargetCell';
@@ -39,6 +40,7 @@ export function TemplateExerciseCard({
         isSupersetWithNext={isSupersetWithNext}
         actions={actions}
       />
+      {!isTimed && <ProgressionControl exercise={exercise} index={index} actions={actions} />}
       <TemplateSetColumnHeader isTimed={isTimed} />
       {exercise.sets.map((set, setIndex) => (
         <TemplateSetRow

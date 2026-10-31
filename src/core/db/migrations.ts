@@ -305,6 +305,12 @@ export const MIGRATIONS: readonly Migration[] = [
         AND guide = 'Upper abs: halfway between the belly button and the bottom of the breastbone, relaxed, after a normal exhale.';
     `,
   },
+  {
+    id: 'v8-template-progression',
+    sql: `
+      ALTER TABLE templateExercise ADD COLUMN progression TEXT CHECK (progression IN ('double'));
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

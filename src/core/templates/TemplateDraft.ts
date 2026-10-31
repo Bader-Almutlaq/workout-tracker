@@ -13,6 +13,8 @@ export interface TemplateExerciseDraft {
   readonly supersetGroup: number | null;
   readonly notes: string | null;
   readonly sets: readonly TemplateSetDraft[];
+  /** Omitted/null means off, preserving older draft callers. Targets belong to each set. */
+  readonly progression?: 'double' | null;
 }
 /** Editable template data; id is absent for a new template. */
 export interface TemplateDraft {

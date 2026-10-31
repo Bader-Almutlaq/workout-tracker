@@ -20,3 +20,7 @@
   font: var(--font-callout);
   color: var(--color-accent);
 }
+
+.progression {
+  padding: var(--space-s) var(--space-m);
+}

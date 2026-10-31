@@ -72,4 +72,61 @@ AGENTS.md product rule: measure, don't prescribe. The suggestion is an opt-in ca
 
 ## Handoff
 
-_Filled in by the implementer when stopping or finishing._
+Implementation is complete, but **not ready to mark done**: the full verification has one
+out-of-scope existing test failure awaiting the requested scope exception. Changes are uncommitted;
+`docs/tasks/BOARD.md` is unchanged.
+
+- **Core and schema:** added `src/core/logging/ProgressionPlan.ts` and its tests; appended
+  `v8-template-progression` and the v7-to-v8 preservation/backup test in `src/core/db/migrations*`.
+  Updated `models/TemplateExercise.ts`, `templates/TemplateDraft.ts`, `TemplateStore.ts`,
+  `queries/TemplateCatalog.ts`, `PreviousPerformance.ts`, `LiveWorkout.ts`, and
+  `logging/WorkoutLogger.ts`. The shared synthetic `db/fixtures/DataSafetyFixture.ts` now names
+  the template-exercise columns so it works on both old and new schemas. Added
+  `queries/LiveWorkout.progression.test.ts`.
+- **Editor:** added `ProgressionControl.tsx`, `ProgressionRangeDialog.tsx`,
+  `templateProgressionEdits.ts`, and two matching test files under `src/app/features/templates/`.
+  Updated `TemplateExerciseCard.tsx`/its CSS module, `TemplateEditorActions.ts`, and
+  `useTemplateEditor.ts`. Enabling with missing working targets asks to confirm a range (8–12
+  offered); complete per-set ranges and optional RPE remain unchanged.
+- **Live screen:** updated `SetRow.tsx`, `ValueCell.tsx`, `ValueSuggestion.ts`, and
+  `ExerciseInfoLine.tsx`; added `progressionValueSuggestion.ts`, `progressionText.ts`, and
+  `progressionSuggestions.test.ts` under `src/app/features/workout/`. Previous values stay grey;
+  amber uses the existing accept action. Only display text is rounded, preserving exact kg even
+  when a kg override displays as fractional lb. Per-set ladders handle switching units after a
+  completed set. No new worker method is needed.
+- **Public API:** `progressionPlan(previous, targets, exercise, unit?)` returns nullable suggestions
+  aligned with target positions; `ProgressionSuggestion` describes exact kg/null bodyweight load,
+  reps, range and reason. `TemplateExercise.progression` and optional draft `progression` hold
+  `'double' | null`. `previousPerformance` adds optional preferred-template and zero-based
+  occurrence arguments. `LiveWorkoutEntry.progression` carries targets plus transient set-id
+  suggestions. UI exports are the two controls, `withProgression`, `ProgressionRangeDefaults`,
+  `progressionText`, and `progressionValueSuggestion`; actions add `setProgression`, and the
+  existing suggestion slot gains optional `keepsPrevious`.
+- **Interpretations:** non-warm-up sets include drop/failure, following existing positional
+  matching. Each position uses its own range and effort target; missing or extra historical
+  positions block a load jump. Unknown RPE or an unspecified RPE target permits progress.
+  Bodyweight and equipment without a discrete step repeat at the top without a load suggestion.
+  Repeated exercises match by occurrence within the chosen finished session. Current template
+  targets drive live calculations, so template edits during a session affect them. No snapshots
+  of targets or persisted suggestion/provenance fields were added.
+- **Reload limit:** values differing from their baseline suppress that cell's amber suggestion.
+  An identical accepted/typed value is distinguishable only while the editor is mounted and can
+  show amber again after reload. This is documented in DATA and DECISIONS.
+- **Docs:** DATA describes v8 and persistence; ARCHITECTURE assigns ownership; DECISIONS records
+  the rules and interpretations. No charts, analytics, import/export, measurements implementation,
+  Dropbox, or warm-up generation rules were changed.
+- **Validation:** `make format`, formatting/ESLint, strict type checks, and `make build` pass.
+  Full test run: **1,192 passed, 1 failed (1,193 total)**, including **42 added passing tests**.
+  Required hand-computed examples, v7/v8 backup validation, same-template fallback, reload,
+  tick-without-acceptance, amber callbacks, exact loads, repeated exercises and mixed units are
+  covered. `git diff --check` passes. An intermediate run alongside the production build also
+  exceeded the existing exercise-search speed budget; it passed again on the final serialized
+  verification run without source changes. The final run has only the v7 assertion failure.
+- **Remaining verification blocker:** `src/core/measurements/MeasurementGuidesMigration.test.ts:17`
+  assumes `migrate(db)` applies only v7. Appending v8 correctly returns both ids. Requested a
+  test-only scope exception to pin its migration and idempotence checks to
+  `migrate(db, new Date(), MIGRATIONS.slice(0, 7))`. The file is untouched because the task explicitly
+  excludes measurements. Until this is authorized, `make verify` fails on this one assertion.
+- **Visual check still needed:** `make dev` fails with `listen EPERM` on `0.0.0.0:5173` in this
+  sandbox and browser access is unavailable. Rendered markup and callback tests pass; dark/light
+  screenshots at 430 × 932 and an interactive device check could not be completed here.
