@@ -13,12 +13,12 @@ export function DeleteFolderDialog({
 }) {
   return (
     <ConfirmDialog
-      title={`Delete folder “${folder.name}”?`}
-      confirmLabel="Delete folder"
+      title={`Delete plan “${folder.name}”?`}
+      confirmLabel="Delete plan"
       onConfirm={onConfirm}
       onCancel={onCancel}
     >
-      Its templates are kept, and move out of any folder.
+      Its workouts are kept under Other workouts. Sessions stay in History.
     </ConfirmDialog>
   );
 }

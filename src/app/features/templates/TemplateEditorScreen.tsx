@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { useParams, useSearchParams } from 'react-router';
 import { database, useDatabaseQuery } from '../../data/database';
 import { BackLink } from '../../design/components/BackLink';
 import { EmptyState } from '../../design/components/EmptyState';
@@ -6,7 +6,7 @@ import { Screen } from '../../design/components/Screen';
 import { NEW_TEMPLATE_DRAFT } from './templateExerciseEdits';
 import { TemplateEditor } from './TemplateEditor';
 
-const MISSING_MESSAGE = 'This template no longer exists.';
+const MISSING_MESSAGE = 'This workout no longer exists.';
 
 /**
  * The route for creating (`/workout/templates/new`) or editing (`/workout/templates/ID`) a template.
@@ -14,8 +14,10 @@ const MISSING_MESSAGE = 'This template no longer exists.';
  */
 export function TemplateEditorScreen() {
   const templateId = useParams().templateId;
+  const [search] = useSearchParams();
+  const planId = Number(search.get('plan'));
   const isNew = templateId === undefined;
-  const title = isNew ? 'New template' : 'Edit template';
+  const title = isNew ? 'New workout' : 'Edit workout';
   const draft = useDatabaseQuery(`template-${templateId ?? 'new'}`, () =>
     isNew ? Promise.resolve(NEW_TEMPLATE_DRAFT) : database.templateDetail(Number(templateId)),
   );
@@ -32,7 +34,11 @@ export function TemplateEditorScreen() {
     return (
       <TemplateEditor
         key={templateId ?? 'new'}
-        initial={draft.value}
+        initial={
+          isNew && list.value.folders.some((folder) => folder.id === planId)
+            ? { ...draft.value, folderId: planId }
+            : draft.value
+        }
         entries={entries.value}
         folders={list.value.folders}
       />

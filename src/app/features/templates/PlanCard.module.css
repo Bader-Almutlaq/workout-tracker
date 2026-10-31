@@ -1,0 +1,33 @@
+.card {
+  display: flex;
+  align-items: flex-start;
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--space-s);
+  padding: var(--space-l);
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.main h2 {
+  font: var(--font-title);
+  color: var(--color-text-primary);
+}
+
+.main p {
+  font: var(--font-body);
+}
+
+.menu {
+  padding: var(--space-s);
+}

@@ -6,13 +6,20 @@
 
 /* No clipping: the "…" menus open outside the card. */
 .card {
-  background: var(--color-surface);
-  border: var(--hairline) solid var(--color-border);
-  border-radius: var(--radius-medium);
+  display: flex;
+  flex-direction: column;
 }
 
 .empty {
   padding: var(--space-m);
   font: var(--font-callout);
   color: var(--color-text-tertiary);
+}
+
+.label {
+  font: var(--font-caption);
+  letter-spacing: var(--tracking-caption);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  overflow-wrap: anywhere;
 }

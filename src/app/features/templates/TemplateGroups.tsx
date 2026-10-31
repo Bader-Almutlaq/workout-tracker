@@ -1,12 +1,11 @@
 import type { TemplateList } from '../../../core/queries/TemplateCatalog';
 import { EmptyState } from '../../design/components/EmptyState';
+import { PlanCard } from './PlanCard';
 import { TemplateGroup } from './TemplateGroup';
 import type { TemplateListActions } from './TemplateListActions';
+import styles from './PlanPage.module.css';
 
-/**
- * The templates in no folder under "Templates", then each folder under its name, in stored order.
- * With nothing at all it says how to get a first template.
- */
+/** Ordered plan navigation cards followed by workouts outside any plan. */
 export function TemplateGroups({
   list,
   now,
@@ -16,34 +15,24 @@ export function TemplateGroups({
   readonly now: Date;
   readonly actions: TemplateListActions;
 }) {
-  const { folders, unfiled } = list;
-  if (folders.length === 0 && unfiled.length === 0)
-    return <EmptyState message="No templates yet. Create one, or save a finished workout as a template." />;
+  if (list.folders.length === 0 && list.unfiled.length === 0)
+    return <EmptyState message="No plans or workouts yet. Create one, or save a finished session as a workout." />;
   return (
-    <>
-      {unfiled.length > 0 && (
-        <TemplateGroup
-          label="Templates"
-          folder={undefined}
-          folderIndex={0}
-          folderCount={0}
-          templates={unfiled}
-          now={now}
-          actions={actions}
-        />
-      )}
-      {folders.map((folder, index) => (
-        <TemplateGroup
+    <div className={styles.stack}>
+      {list.folders.length > 0 && <h2 className={styles.heading}>Plans</h2>}
+      {list.folders.map((folder, index) => (
+        <PlanCard
           key={folder.id}
-          label={folder.name}
           folder={folder}
-          folderIndex={index}
-          folderCount={folders.length}
-          templates={folder.templates}
+          index={index}
+          count={list.folders.length}
           now={now}
           actions={actions}
         />
       ))}
-    </>
+      {list.unfiled.length > 0 && (
+        <TemplateGroup label="Other workouts" templates={list.unfiled} now={now} actions={actions} />
+      )}
+    </div>
   );
 }

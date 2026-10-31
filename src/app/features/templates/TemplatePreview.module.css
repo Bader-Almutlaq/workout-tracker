@@ -1,11 +1,6 @@
 .notes {
   font: var(--font-body);
   color: var(--color-text-secondary);
+  white-space: pre-wrap;
   overflow-wrap: anywhere;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-s);
 }

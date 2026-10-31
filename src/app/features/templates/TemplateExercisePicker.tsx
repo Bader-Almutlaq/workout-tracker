@@ -13,7 +13,7 @@ export function TemplateExercisePicker({
   readonly entries: readonly ExerciseSearchEntry[];
 }) {
   return (
-    <Screen title="Add exercise" leading={<BackButton label="Template" onPress={model.stopPicking} />}>
+    <Screen title="Add exercise" leading={<BackButton label="Workout" onPress={model.stopPicking} />}>
       <ExercisePicker entries={entries} onAdd={model.addPicked} />
     </Screen>
   );

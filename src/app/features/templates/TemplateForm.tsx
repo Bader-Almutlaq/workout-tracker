@@ -36,7 +36,7 @@ export function TemplateForm({
       </Button>
       {model.error !== undefined && <ErrorBanner message={model.error} onDismiss={model.dismissError} />}
       <Button variant="primary" isDisabled={model.isSaving} onPress={model.save}>
-        Save template
+        Save workout
       </Button>
       {pad.editing !== undefined && (
         <NumberPad

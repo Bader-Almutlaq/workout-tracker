@@ -4,7 +4,7 @@ import styles from './SaveAsTemplate.module.css';
 import { SaveAsTemplateDialog } from './SaveAsTemplateDialog';
 
 /**
- * The "Save as template" button of the finish summary. After saving it becomes a quiet line saying
+ * The "Save as workout" button of the finish summary. After saving it becomes a quiet line saying
  * what the template is called, so the same workout is not saved twice by accident.
  */
 export function SaveAsTemplate({
@@ -17,10 +17,10 @@ export function SaveAsTemplate({
   const [isAsking, setIsAsking] = useState(false);
   const [savedName, setSavedName] = useState<string | undefined>(undefined);
 
-  if (savedName !== undefined) return <p className={styles.saved}>Saved as template “{savedName}”.</p>;
+  if (savedName !== undefined) return <p className={styles.saved}>Saved as workout “{savedName}”.</p>;
   return (
     <>
-      <Button onPress={() => setIsAsking(true)}>Save as template</Button>
+      <Button onPress={() => setIsAsking(true)}>Save as workout</Button>
       {isAsking && (
         <SaveAsTemplateDialog
           workoutId={workoutId}

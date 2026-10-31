@@ -42,6 +42,7 @@ describe('TimeBuckets', () => {
     ]);
   });
   test.each([
+    ['sum', 18],
     ['mean', 6],
     ['max', 10],
     ['last', 4],

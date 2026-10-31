@@ -13,7 +13,7 @@ export function DeleteTemplateDialog({
 }) {
   return (
     <ConfirmDialog title={`Delete “${template.name}”?`} confirmLabel="Delete" onConfirm={onConfirm} onCancel={onCancel}>
-      Workouts you did from it stay in History.
+      Sessions you recorded from it stay in History.
     </ConfirmDialog>
   );
 }

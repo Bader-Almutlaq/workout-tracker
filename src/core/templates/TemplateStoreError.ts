@@ -10,8 +10,8 @@ export class TemplateStoreError extends Error {
       noSets: 'Add at least one set to each exercise.',
       invalidReps: 'Enter a valid rep range.',
       invalidRpe: 'RPE must be between 1 and 10.',
-      notFound: 'That template or folder no longer exists.',
-      workoutNotFinished: 'Choose a finished workout.',
+      notFound: 'That workout or plan no longer exists.',
+      workoutNotFinished: 'Choose a finished session.',
     };
     super(messages[kind]);
     this.name = 'TemplateStoreError';

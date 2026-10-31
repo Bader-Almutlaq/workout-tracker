@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { area, line } from 'd3-shape';
-import { TimeBuckets, type TimeBucket, type TimeRange } from '../../../core/analytics/TimeBuckets';
+import {
+  TimeBuckets,
+  type TimeAggregation,
+  type TimeBucketSize,
+  type TimeBucket,
+  type TimeRange,
+} from '../../../core/analytics/TimeBuckets';
 import { FORMAT_LOCALE } from '../../format/formatLocale';
 import { ChartFrame } from './ChartFrame';
 import { ChartTable } from './ChartTable';
@@ -11,8 +17,9 @@ import type { LongRangeChartProps } from './LongRangeChart';
 import styles from './LongRangeChart.module.css';
 
 /** Plain words for the bucket and aggregation, e.g. "Monthly average" or "Weekly best". */
-function periodCaption(size: 'day' | 'week' | 'month', aggregation: 'mean' | 'max' | 'last'): string {
+function periodCaption(size: TimeBucketSize, aggregation: TimeAggregation): string {
   const period = size === 'day' ? 'Daily' : size === 'week' ? 'Weekly' : 'Monthly';
+  if (aggregation === 'sum') return `${period} total`;
   if (size === 'day')
     return aggregation === 'last' ? 'Each entry' : `${period} ${aggregation === 'mean' ? 'average' : 'best'}`;
   return `${period} ${aggregation === 'mean' ? 'average' : aggregation === 'max' ? 'best' : 'last value'}`;
@@ -32,6 +39,7 @@ export function LongRangePlot({
   title,
   series,
   aggregation,
+  overviewBucket,
   formatValue,
   range = 'all',
   detailed = false,
@@ -47,7 +55,12 @@ export function LongRangePlot({
     series.flatMap((item) => item.points),
     range,
   );
-  const size = shown === null ? 'day' : TimeBuckets.choose(shown.from, shown.to, detailed);
+  const size =
+    !detailed && overviewBucket !== undefined
+      ? overviewBucket
+      : shown === null
+        ? 'day'
+        : TimeBuckets.choose(shown.from, shown.to, detailed);
   const buckets = series.map((item) => ({
     name: item.name,
     buckets: TimeBuckets.aggregate(item.points, size, aggregation, shown ?? undefined),
@@ -56,12 +69,15 @@ export function LongRangePlot({
     .flatMap((item) => item.buckets.map((bucket) => ({ ...bucket, name: item.name, date: bucket.start })))
     .toSorted((a, b) => Date.parse(a.date) - Date.parse(b.date));
   const scales = chartScales(
-    observations.flatMap((point) => [
-      point,
-      { date: point.date, value: point.min },
-      { date: point.date, value: point.max },
-    ]),
+    aggregation === 'sum'
+      ? observations
+      : observations.flatMap((point) => [
+          point,
+          { date: point.date, value: point.min },
+          { date: point.date, value: point.max },
+        ]),
     width,
+    { zeroBaseline: aggregation === 'sum' },
   );
   const singleBucket = observations[0]?.date === observations.at(-1)?.date;
   if (shown !== null && !(range === 'all' && singleBucket)) {
@@ -94,8 +110,11 @@ export function LongRangePlot({
           .y((point) => scales.y(point.value))(item.buckets);
         return (
           <g key={item.name} className={index === 0 ? styles.primary : styles.secondary}>
-            {item.buckets.some((point) => point.count > 1) && <path className={styles.band} d={band ?? undefined} />}
-            {item.buckets.length === 1 &&
+            {aggregation !== 'sum' && item.buckets.some((point) => point.count > 1) && (
+              <path className={styles.band} d={band ?? undefined} />
+            )}
+            {aggregation !== 'sum' &&
+              item.buckets.length === 1 &&
               item.buckets.map(
                 (point) =>
                   point.count > 1 && (

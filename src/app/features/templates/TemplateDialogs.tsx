@@ -42,7 +42,7 @@ export function TemplateDialogs({
       return (
         <TemplatePreviewSheet
           templateId={templateId}
-          name={summary?.name ?? 'Template'}
+          name={summary?.name ?? 'Workout'}
           isBusy={isBusy}
           onStart={answer(() => onStart(templateId))}
           onEdit={() => navigate(templatePath(templateId))}
@@ -53,7 +53,7 @@ export function TemplateDialogs({
     case 'newFolder':
       return (
         <FolderNameDialog
-          title="New folder"
+          title="New plan"
           confirmLabel="Create"
           initialName=""
           onConfirm={answer(createFolder)}
@@ -64,7 +64,7 @@ export function TemplateDialogs({
       const { folder } = dialog;
       return (
         <FolderNameDialog
-          title="Rename folder"
+          title="Rename plan"
           confirmLabel="Rename"
           initialName={folder.name}
           onConfirm={answer((name: string) => renameFolder(folder.id, name))}

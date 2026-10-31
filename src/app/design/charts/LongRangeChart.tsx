@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { DatedValue, TimeAggregation } from '../../../core/analytics/TimeBuckets';
+import type { DatedValue, TimeAggregation, TimeBucketSize } from '../../../core/analytics/TimeBuckets';
 import { LongRangePlot } from './LongRangePlot';
 import { LongRangeChartSheet } from './LongRangeChartSheet';
 import styles from './LongRangeChart.module.css';
@@ -15,6 +15,8 @@ export interface LongRangeChartProps {
   readonly title: string;
   readonly series: readonly LongRangeSeries[];
   readonly aggregation: TimeAggregation;
+  /** Optional overview period, e.g. weekly session totals; expanded charts still use finer automatic detail. */
+  readonly overviewBucket?: TimeBucketSize;
   readonly formatValue: (value: number) => string;
 }
 

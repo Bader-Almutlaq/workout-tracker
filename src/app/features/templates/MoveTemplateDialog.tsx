@@ -4,7 +4,7 @@ import { ConfirmDialog } from '../../design/components/ConfirmDialog';
 import { SelectField } from '../../design/components/SelectField';
 import { folderIdOf, folderOptions, folderValueOf, type FolderChoice } from './FolderChoice';
 
-/** Asks which folder a template goes to; "No folder" takes it out of every folder. It lands at the end of that folder. */
+/** Asks which folder a template goes to; "No plan" takes it out of every folder. It lands at the end of that folder. */
 export function MoveTemplateDialog({
   template,
   folders,
@@ -19,14 +19,14 @@ export function MoveTemplateDialog({
   const [value, setValue] = useState(folderValueOf(template.folderId));
   return (
     <ConfirmDialog
-      title="Move to folder"
+      title="Move to plan"
       confirmLabel="Move"
       onConfirm={() => onMove(folderIdOf(value))}
       onCancel={onCancel}
     >
       <SelectField
-        label="Folder"
-        noneLabel="No folder"
+        label="Plan"
+        noneLabel="No plan"
         options={folderOptions(folders)}
         value={value}
         onChange={setValue}

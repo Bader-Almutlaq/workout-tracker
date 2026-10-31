@@ -7,14 +7,19 @@ export function PreviewExercise({
   exercise,
   name,
   isTimed,
+  mainMuscle,
 }: {
   readonly exercise: TemplateExerciseDraft;
   readonly name: string;
   readonly isTimed: boolean;
+  readonly mainMuscle: string;
 }) {
   return (
     <div className={styles.exercise} data-superset={exercise.supersetGroup !== null}>
-      <span className={styles.name}>{name}</span>
+      <span className={styles.name}>
+        {exercise.sets.length} × {name}
+      </span>
+      <span className={styles.sets}>{mainMuscle}</span>
       <span className={styles.sets}>{setRunsText(exercise.sets, isTimed)}</span>
     </div>
   );

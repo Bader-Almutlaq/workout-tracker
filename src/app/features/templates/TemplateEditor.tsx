@@ -46,7 +46,7 @@ export function TemplateEditor({
     );
   return (
     <Screen
-      title={initial.id === undefined ? 'New template' : 'Edit template'}
+      title={initial.id === undefined ? 'New workout' : 'Edit workout'}
       leading={<BackLink to="/" label="Workout" />}
     >
       {tracking.status === 'failed' ? (

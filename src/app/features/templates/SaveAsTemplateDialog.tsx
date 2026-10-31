@@ -45,12 +45,12 @@ export function SaveAsTemplateDialog({
   };
 
   return (
-    <ConfirmDialog title="Save as template" confirmLabel="Save" isBusy={isSaving} onConfirm={save} onCancel={onCancel}>
+    <ConfirmDialog title="Save as workout" confirmLabel="Save" isBusy={isSaving} onConfirm={save} onCancel={onCancel}>
       <TextField label="Name" value={name} onChange={setName} />
       {folders.length > 0 && (
         <SelectField
-          label="Folder"
-          noneLabel="No folder"
+          label="Plan"
+          noneLabel="No plan"
           options={folderOptions(folders)}
           value={folder}
           onChange={setFolder}
