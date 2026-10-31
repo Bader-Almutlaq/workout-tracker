@@ -119,3 +119,16 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
 Tap the chart to open a full-screen native dialog, with safe-area padding, a Close button and Escape support. Range chips are 3M, 6M, 1Y and All, anchored to the latest recorded observation so older history remains readable. Month subtraction clamps at month ends. Full-screen periods are one step finer (month → week, week → day); daily is the floor. Touch/arrow-key selection uses the shared rule and reads out all series at that period, including value, min, max and count. Each view offers a table of the same buckets. Range selection clips observations before aggregation, so boundary buckets contain only observations inside the chosen window.
 
 Measure uses grouped body-part rows with latest values on the right and separate + targets. Never-recorded parts appear only in Add body part; selecting one opens the existing log sheet and a first saved entry reveals it. Creating a custom part opens its page immediately for logging. Bodyweight is excluded from this navigation without changing its data. Body-part pages share the Chart · History segmented control; History includes both states, newest first.
+
+
+## Exercise page (T-057)
+
+Exercises open a Summary · History · Charts · Records · How-to segmented control. The `tab` URL parameter preserves the section through browser Back; unknown values open Summary. Each section mounts its own data query when opened. The five labels stay on one line with horizontal overflow on narrower displays, using the shared control and existing theme tokens.
+
+Summary keeps primary/secondary muscle chips, equipment and traits, usage dates/counts, the existing smoothed e1RM headline, loading preferences and the existing Edit/actions. History shows finished sessions newest first, including repeated exercise entries and all completed set kinds with their recorded load, reps or seconds and RPE. Each session links to its History entry. Older/newer controls keep at most 200 sessions mounted.
+
+Charts use `LongRangeChart` and its expansion, range picker and table. Best qualifying e1RM, heaviest load and best reps use maximum buckets. Working-set volume uses mean buckets explicitly labelled per session. PR progression retains the running e1RM maximum at each qualifying session. Timed tracking shows longest duration; loaded duration also shows heaviest load. Bodyweight tracking shows reps without inventing total mass. Each applicable series with fewer than two sessions is replaced by one explanatory line.
+
+Records show dated lifetime e1RM, heaviest load (with reps and recorded effort) and session volume. The 1–12-rep table uses the heaviest actual set achieving at least the row's reps, even without effort data. Predictions invert the canonical e1RM formula at RIR 0, from the best qualifying estimate, with shared estimate display rounding (0.5 kg / 1 lb); absent performances do not hide predictions. Unclassified exercises retain actual records but have no predictions. Reps and duration charts are the alternatives for unsupported weight records.
+
+How-to defers the existing preference-controlled pictures until opened and retains bundled numbered instructions. Missing instructions read “No instructions for this exercise.”
