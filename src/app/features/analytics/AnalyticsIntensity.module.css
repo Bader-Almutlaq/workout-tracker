@@ -10,11 +10,17 @@
 }
 .row {
   display: grid;
-  grid-template-columns: 4rem 1fr 4rem;
+  grid-template-columns: 4rem 1fr auto;
   gap: var(--space-s);
   align-items: center;
   margin-block: var(--space-s);
   font: var(--font-callout);
+}
+.row > :last-child {
+  white-space: nowrap;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
 }
 .track {
   background: var(--color-surface-raised);
@@ -45,4 +51,9 @@
 .chart text {
   fill: currentColor;
   font: var(--font-caption);
+}
+
+.grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
 }

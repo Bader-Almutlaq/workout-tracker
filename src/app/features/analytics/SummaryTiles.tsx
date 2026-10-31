@@ -39,7 +39,7 @@ export function SummaryTiles({
       label: 'Volume / week',
       value: current.volumePerWeek,
       prior: previous?.volumePerWeek,
-      text: `${number(current.volumePerWeek)} kg`,
+      text: `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(current.volumePerWeek)} kg`,
     },
   ];
   return (

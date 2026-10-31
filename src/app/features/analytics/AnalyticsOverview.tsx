@@ -5,6 +5,7 @@ import { SignatureCard } from './SignatureCard';
 import { SummaryTiles } from './SummaryTiles';
 import { LiftTrendList } from './LiftTrendList';
 import { VolumePeriods } from './volumeLayout';
+import styles from './Analytics.module.css';
 
 /** Training totals, session frequency and lift trends for the selected period. */
 export function AnalyticsOverview({
@@ -52,6 +53,7 @@ export function AnalyticsOverview({
         formatValue={(value) => String(value)}
       />
       <h2>Lift trends</h2>
+      <p className={styles.quiet}>Estimated 1RM trend now, and its change over the period. Deloads are left out.</p>
       <LiftTrendList lifts={lifts} />
     </>
   );
