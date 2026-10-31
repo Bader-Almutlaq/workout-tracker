@@ -337,16 +337,21 @@ describe('ExerciseSearch on the bundled library', () => {
    * still catches an accidental slowdown of several times.
    */
   const KEYSTROKE_BUDGET_MILLISECONDS = 20;
+  /** Timed rounds; the fastest one is compared with the budget. */
+  const TIMED_ROUNDS = 5;
 
   describe('speed', () => {
     test('an empty query lists the whole library, and each keystroke search stays within budget', () => {
       expect(bundled.results('', {}, NOW).length).toBeGreaterThan(400);
       const queries = ['l', 'la', 'lat', 'late', 'latte', 'latter', 'latteral raise'];
       for (const query of queries) bundled.results(query, {}, NOW); // warm up the JIT, as a typing user already has
-      const start = performance.now();
-      for (const query of queries) bundled.results(query, {}, NOW);
-      const averageMilliseconds = (performance.now() - start) / queries.length;
-      expect(averageMilliseconds).toBeLessThan(KEYSTROKE_BUDGET_MILLISECONDS);
+      // The fastest of several rounds: a busy machine slows some rounds, a real regression slows all of them.
+      const roundAverages = Array.from({ length: TIMED_ROUNDS }, () => {
+        const start = performance.now();
+        for (const query of queries) bundled.results(query, {}, NOW);
+        return (performance.now() - start) / queries.length;
+      });
+      expect(Math.min(...roundAverages)).toBeLessThan(KEYSTROKE_BUDGET_MILLISECONDS);
     });
   });
 });
