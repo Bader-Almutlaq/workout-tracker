@@ -272,3 +272,7 @@ History imported from Strong has no templates, so a workout created from a past 
 ## 2026-11-01: Set groups and explicit progression
 
 Warm-ups are grouped before work when added or changed. Progression is applied only on the owner’s tap of the exercise’s Progress button; deload keeps its existing controls.
+
+### Plan summaries as a week (2026-11-01)
+
+A plan represents one week for planned set counts. Frequency counts each workout with at least one fractional set for a muscle, matching the muscle coverage threshold; this is a planning count rather than a prediction of completed training.

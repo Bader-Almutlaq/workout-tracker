@@ -1,3 +1,4 @@
+import { database, useDatabaseQuery } from '../../data/database';
 import type { TemplateList } from '../../../core/queries/TemplateCatalog';
 import { EmptyState } from '../../design/components/EmptyState';
 import { PlanCard } from './PlanCard';
@@ -15,16 +16,20 @@ export function TemplateGroups({
   readonly now: Date;
   readonly actions: TemplateListActions;
 }) {
+  const active = useDatabaseQuery('active-plan', () => database.activePlanId());
+  const activeId = active.status === 'ready' ? active.value : null;
+  const folders = [...list.folders].sort((a, b) => Number(b.id === activeId) - Number(a.id === activeId));
   if (list.folders.length === 0 && list.unfiled.length === 0)
     return <EmptyState message="No plans or workouts yet. Create one, or save a finished session as a workout." />;
   return (
     <div className={styles.stack}>
       {list.folders.length > 0 && <h2 className={styles.heading}>Plans</h2>}
-      {list.folders.map((folder, index) => (
+      {folders.map((folder) => (
         <PlanCard
           key={folder.id}
           folder={folder}
-          index={index}
+          index={list.folders.findIndex((item) => item.id === folder.id)}
+          isActive={folder.id === activeId}
           count={list.folders.length}
           now={now}
           actions={actions}

@@ -1,3 +1,5 @@
+import { WEEKDAYS } from './weekday';
+import styles from './TemplateMuscleList.module.css';
 import { Section } from '../../design/components/Section';
 import { SelectField } from '../../design/components/SelectField';
 import { TextField } from '../../design/components/TextField';
@@ -22,6 +24,18 @@ export function TemplateDetailsSection({
         value={folderValueOf(model.draft.folderId)}
         onChange={(value) => model.setFolder(folderIdOf(value))}
       />
+      <div className={styles.days} aria-label="Workout day">
+        {WEEKDAYS.map((day, index) => (
+          <button
+            type="button"
+            key={day}
+            aria-pressed={model.draft.weekday === index + 1}
+            onClick={() => model.setWeekday(model.draft.weekday === index + 1 ? null : index + 1)}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
       <TextField label="Description" value={model.draft.notes ?? ''} onChange={model.setNotes} />
     </Section>
   );

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import type { TemplateFolderSummary, TemplateList } from '../../../core/queries/TemplateCatalog';
 import { BackLink } from '../../design/components/BackLink';
 import { Screen } from '../../design/components/Screen';
 import { SegmentedControl } from '../../design/components/SegmentedControl';
 import { LoggingErrorBanner } from '../workout/LoggingErrorBanner';
+import { PlanSummary } from './PlanSummary';
 import { PlanMenu } from './PlanMenu';
 import { PlanSessions } from './PlanSessions';
 import { PlanWorkouts } from './PlanWorkouts';
@@ -17,6 +18,7 @@ import styles from './PlanPage.module.css';
 /** Plan page sections mirror the owner's Workouts · History · Analytics direction. */
 const sections = Object.freeze([
   { value: 'workouts', label: 'Workouts' },
+  { value: 'summary', label: 'Summary' },
   { value: 'history', label: 'History' },
   { value: 'analytics', label: 'Analytics' },
 ] as const);
@@ -24,7 +26,10 @@ const sections = Object.freeze([
 /** One plan's navigation, management and scoped session tabs; starting returns to the live Workout tab. */
 export function PlanPage({ folder, list }: { readonly folder: TemplateFolderSummary; readonly list: TemplateList }) {
   const navigate = useNavigate();
-  const [section, setSection] = useState<'workouts' | 'history' | 'analytics'>('workouts');
+  const [params, setParams] = useSearchParams();
+  const requested = params.get('tab');
+  const section =
+    requested === 'summary' || requested === 'history' || requested === 'analytics' ? requested : 'workouts';
   const [dialog, setDialog] = useState<TemplateDialogState | undefined>();
   const [isStarting, setIsStarting] = useState(false);
   const actions = makeTemplateListActions(list, setDialog);
@@ -51,9 +56,20 @@ export function PlanPage({ folder, list }: { readonly folder: TemplateFolderSumm
       }
     >
       <LoggingErrorBanner />
-      <SegmentedControl label="Plan view" options={sections} value={section} onChange={setSection} />
+      <SegmentedControl
+        label="Plan view"
+        options={sections}
+        value={section}
+        onChange={(next) => {
+          const updated = new URLSearchParams(params);
+          updated.set('tab', next);
+          setParams(updated);
+        }}
+      />
       {section === 'workouts' ? (
         <PlanWorkouts folder={folder} actions={actions} />
+      ) : section === 'summary' ? (
+        <PlanSummary folderId={folder.id} />
       ) : (
         <PlanSessions folderId={folder.id} section={section} />
       )}

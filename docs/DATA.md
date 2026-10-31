@@ -268,3 +268,7 @@ previous-performance/progression behavior; it does not force a return to a parti
 older backups are validated after migration on an in-memory copy. Template storage normalizes
 the name and preserves it when editing, duplicating, or creating a template from a workout.
 The picker and machine-aware workout behavior are not yet implemented.
+
+### Plan scheduling (schema v11)
+
+`template.weekday` is nullable and uses ISO weekdays (Monday 1 through Sunday 7). `appSetting.activePlanId` stores the selected plan folder id; deleting that folder clears it. Both are included in database backups.

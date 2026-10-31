@@ -24,5 +24,7 @@ export interface TemplateDraft {
   readonly name: string;
   readonly folderId: number | null;
   readonly notes: string | null;
+  /** ISO weekday, Monday = 1; absent or null means unscheduled. */
+  readonly weekday?: number | null;
   readonly exercises: readonly TemplateExerciseDraft[];
 }

@@ -3,6 +3,8 @@ import type { Database } from './Database';
 /** Every key stored in the `appSetting` table, so all stored settings are listed in one place. */
 export const AppSettingKey = {
   /** The library `version` last seeded into the database. */
+  /** The id of the active plan, when selected. */
+  activePlanId: 'activePlanId',
   seededLibraryVersion: 'seededLibraryVersion',
   /** UTC ISO time of the last backup the owner completed on this phone. Kept across restores. */
   lastBackupAt: 'lastBackupAt',

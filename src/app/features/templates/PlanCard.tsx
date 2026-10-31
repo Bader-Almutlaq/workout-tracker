@@ -1,3 +1,5 @@
+import { Chip } from '../../design/components/Chip';
+import { workoutPath } from './templatePaths';
 import { useWorkoutDrag } from '../../design/drag/WorkoutDrag';
 import { Link } from 'react-router';
 import type { TemplateFolderSummary } from '../../../core/queries/TemplateCatalog';
@@ -14,14 +16,17 @@ export function PlanCard({
   count,
   now,
   actions,
+  isActive,
 }: {
   readonly folder: TemplateFolderSummary;
   readonly index: number;
   readonly count: number;
   readonly now: Date;
   readonly actions: TemplateListActions;
+  readonly isActive: boolean;
 }) {
   const drag = useWorkoutDrag();
+  const today = folder.templates.find((template) => template.weekday === (now.getDay() || 7));
   return (
     <article
       className={`${styles.card} ${drag?.state?.target === folder.id ? styles.target : ''}`}
@@ -40,6 +45,12 @@ export function PlanCard({
         </p>
         <span>{lastDoneText(folder.lastStartedAt, now)?.replace('Last done ', 'Last: ') ?? 'Last: never'}</span>
       </Link>
+      {isActive && (
+        <div className={styles.active}>
+          <Chip tone="accent">Active</Chip>
+          {today !== undefined && <Link to={workoutPath(today.id)}>Today: {today.name}</Link>}
+        </div>
+      )}
       <div className={styles.menu}>
         <PlanMenu folder={folder} index={index} count={count} actions={actions} />
       </div>

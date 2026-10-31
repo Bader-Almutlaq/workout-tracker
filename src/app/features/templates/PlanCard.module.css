@@ -45,3 +45,15 @@
   color: var(--color-accent);
   background: var(--color-accent-subtle);
 }
+
+.active {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding-block: var(--space-m);
+  font: var(--font-caption);
+}
+.active a {
+  color: var(--color-accent);
+}

@@ -184,3 +184,17 @@ it('preserves normalized machine brands through template save, edit, duplication
   const fromWorkout = TemplateStore.createFromWorkout(db, 1, 'Copy', null, now);
   expect(TemplateCatalog.detail(db, fromWorkout)?.exercises[0]?.machineBrand).toBe('Panatta');
 });
+
+it('preserves weekdays across save, edit and duplicate, and clears a deleted active plan', () => {
+  const folder = TemplateStore.createFolder(db, 'Plan');
+  const id = TemplateStore.save(db, { ...draft, folderId: folder, weekday: 6 }, now);
+  const saved = TemplateCatalog.detail(db, id);
+  expect(saved?.weekday).toBe(6);
+  if (saved === undefined) throw new Error('Missing template');
+  TemplateStore.save(db, { ...saved, name: 'Edited' }, now);
+  const copy = TemplateStore.duplicate(db, id, now);
+  expect(TemplateCatalog.detail(db, copy)?.weekday).toBe(6);
+  db.run('INSERT INTO appSetting (key, value) VALUES (?, ?)', ['activePlanId', String(folder)]);
+  TemplateStore.deleteFolder(db, folder);
+  expect(db.value('SELECT value FROM appSetting WHERE key = ?', ['activePlanId'])).toBeUndefined();
+});

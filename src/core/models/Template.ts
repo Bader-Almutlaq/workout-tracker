@@ -3,6 +3,8 @@ export interface Template {
   readonly id: number;
   readonly name: string;
   readonly folderId: number | null;
+  /** ISO weekday, Monday = 1, or null when unscheduled. */
+  readonly weekday: number | null;
   readonly position: number;
   readonly notes: string | null;
   readonly createdAt: string;

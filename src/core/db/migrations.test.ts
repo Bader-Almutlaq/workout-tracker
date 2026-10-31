@@ -129,7 +129,7 @@ test('v9 → v10 preserves rows, defaults brands to NULL and validates backups',
     DataSafetyFixture.seed(db);
     const before = DataSafetyFixture.read(db);
     await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
-    expect(migrate(db)).toEqual(['v10-machine-brand']);
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 10))).toEqual(['v10-machine-brand']);
     const after = DataSafetyFixture.read(db);
     for (const [table, records] of Object.entries(before)) {
       if (table === 'migration') continue;
@@ -143,6 +143,29 @@ test('v9 → v10 preserves rows, defaults brands to NULL and validates backups',
     ]);
     expect(db.all('SELECT machineBrand FROM templateExercise')).toEqual([{ machineBrand: null }]);
     expect(db.all('PRAGMA foreign_key_check')).toEqual([]);
+    await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+  } finally {
+    db.close();
+  }
+});
+
+test('v10 to v11 preserves rows, defaults weekday to null, and validates backups', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db, new Date(), MIGRATIONS.slice(0, 10));
+    DataSafetyFixture.seed(db);
+    const before = DataSafetyFixture.read(db);
+    await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+    expect(migrate(db)).toEqual(['v11-template-weekday']);
+    const after = DataSafetyFixture.read(db);
+    for (const [table, records] of Object.entries(before)) {
+      if (table === 'migration') continue;
+      expect(
+        after[table]?.map((row) => Object.fromEntries(Object.keys(records[0] ?? {}).map((key) => [key, row[key]]))),
+      ).toEqual(records);
+    }
+    expect(db.all('SELECT weekday FROM template')).toEqual([{ weekday: null }]);
+    expect(() => db.run('UPDATE template SET weekday = 8')).toThrow();
     await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
   } finally {
     db.close();
