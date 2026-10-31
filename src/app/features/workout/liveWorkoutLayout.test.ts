@@ -1,6 +1,7 @@
 import { createElement, isValidElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, test, vi } from 'vitest';
+import type { TemplateSetDraft } from '../../../core/templates/TemplateDraft';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import type { ExerciseCardActions } from './ExerciseCardActions';
 import { CheckButton } from './CheckButton';
@@ -185,4 +186,36 @@ test('shared history card retains notes, separate RPE entry, mixed-unit labellin
   expect(html).toMatch(/aria-label="Completed"[^>]*disabled=""/);
   expect(html).toContain('>kg</span>');
   expect(html).not.toContain('Use suggested');
+});
+
+test('planned working targets show range, single reps and effort independently of progression', () => {
+  const target: TemplateSetDraft = { kind: 'working', targetRepsLow: 6, targetRepsHigh: 8, targetRpe: null };
+  const render = (changes: Partial<TemplateSetDraft>, restTargetSeconds: number | null = null) =>
+    renderToStaticMarkup(
+      createElement(ExerciseInfoLine, {
+        entry: { ...entry, exercise: makeExercise({ restTargetSeconds }), plannedTargets: [{ ...target, ...changes }] },
+      }),
+    );
+  expect(render({}, 120)).toContain('6–8 reps · Rest 2:00');
+  expect(render({ targetRepsLow: 8 })).toContain('8 reps');
+  expect(render({ targetRpe: 8 })).toContain('6–8 reps @ RPE 8');
+  expect(render({ targetRepsLow: null, targetRepsHigh: null })).toBe('');
+});
+
+test('exercise note is a separate button that opens its editor and is absent when blank', () => {
+  const open = vi.fn();
+  const element = ExerciseInfoLine({
+    entry: { ...entry, entry: { ...entry.entry, notes: 'Keep steady' } },
+    onNote: open,
+  });
+  if (element === null) throw new Error('Missing note');
+  const note: unknown = element.props.children[1];
+  if (!isValidElement<{ onClick: () => void }>(note)) throw new Error('Missing note button');
+  note.props.onClick();
+  expect(open).toHaveBeenCalledOnce();
+  expect(renderToStaticMarkup(createElement(ExerciseInfoLine, { entry }))).toBe('');
+});
+
+test('large weights remain present in the compact value cell', () => {
+  expect(row({ set: makeSet({ weightKilograms: 1000.5 }) })).toContain('1,000.5');
 });

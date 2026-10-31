@@ -2,6 +2,8 @@ import type { TargetCell } from './TargetCell';
 
 /** What a tap in the template editor's exercise cards can do. Every index is a position in the draft. */
 export interface TemplateEditorActions {
+  /** Sets or clears the exercise note in the draft. */
+  setExerciseNotes(exerciseIndex: number, notes: string): void;
   /** Sets the manufacturer in the draft. */
   setMachineBrand(exerciseIndex: number, brand: string | null): void;
   /** Sets this exercise's mode; an optional confirmed range fills incomplete working targets. */

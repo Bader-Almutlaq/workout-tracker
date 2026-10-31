@@ -1,5 +1,7 @@
 .row {
-  padding: var(--space-xs) var(--space-m);
+  padding: 0 var(--space-m);
+  height: calc(var(--space-xxl) + var(--space-xs));
+  grid-template-rows: calc(var(--space-xxl) + var(--space-xs));
   transition: background var(--motion-standard);
 }
 
@@ -10,7 +12,8 @@
 .previous {
   min-width: 0;
   overflow: hidden;
-  font: var(--font-callout);
+  font: var(--font-body);
+  font-size: calc(var(--space-m) + var(--space-xs) / 2);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-secondary);
   text-overflow: ellipsis;

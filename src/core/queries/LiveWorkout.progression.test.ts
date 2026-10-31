@@ -222,3 +222,13 @@ test('switching units after completing a set uses the pending set units for its 
   expect(after.progression?.suggestions[0]?.weightKilograms).toBeCloseTo(toKilograms(225, 'lb'), 12);
   expect(after.progression?.suggestions[0]?.reps).toBe(8);
 });
+
+test('template targets remain available when progression is disabled and during deload', () => {
+  db.run(`UPDATE templateExercise SET progression = NULL WHERE templateId = ?`, [templateId]);
+  const id = logger.startFromTemplate(templateId, now);
+  const entry = firstEntry(id);
+  expect(entry.progression).toBeUndefined();
+  expect(entry.plannedTargets).toEqual(targets);
+  db.run(`UPDATE workoutExercise SET deloadStage = 1 WHERE id = ?`, [entry.entry.id]);
+  expect(firstEntry(id).plannedTargets).toEqual(targets);
+});

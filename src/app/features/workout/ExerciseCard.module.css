@@ -10,7 +10,8 @@
   justify-content: center;
   gap: var(--space-xs);
   width: 100%;
-  min-height: 44px;
+  position: relative;
+  min-height: calc(var(--space-xxl) + var(--space-xs));
   border-top: var(--hairline) solid var(--color-border);
   font: var(--font-callout);
   color: var(--color-accent);
@@ -26,14 +27,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-xs) var(--space-m);
-  padding: 0 var(--space-m) var(--space-s);
+  padding: 0 var(--space-m) var(--space-xs);
   font: var(--font-callout);
   color: var(--color-text-secondary);
-}
-.note {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  min-width: 0;
 }
 .noteField {
   display: flex;
@@ -69,4 +65,28 @@
   background: var(--color-failure);
   color: var(--color-surface);
   border-radius: var(--radius-small);
+}
+
+.note {
+  display: block;
+  width: 100%;
+  padding: var(--space-xs) var(--space-m);
+  color: var(--color-text-secondary);
+  font: var(--font-body);
+  font-style: italic;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.targets {
+  color: var(--color-accent);
+  font: var(--font-body);
+  font-size: calc(var(--space-m) + var(--space-xs) / 2);
+}
+
+.addSet::after {
+  content: '';
+  position: absolute;
+  inset: calc(var(--space-xs) * -1) 0;
 }

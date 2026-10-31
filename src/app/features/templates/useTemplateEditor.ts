@@ -39,6 +39,13 @@ export function useTemplateEditor(initial: TemplateDraft, returnPlanId: number |
 
   const actions: TemplateEditorActions = {
     edit: pad.begin,
+    setExerciseNotes: (index, notes) =>
+      restructure((current) => ({
+        ...current,
+        exercises: current.exercises.map((exercise, position) =>
+          position === index ? { ...exercise, notes: notes === '' ? null : notes } : exercise,
+        ),
+      })),
     setMachineBrand: (index, brand) =>
       restructure((current) => ({
         ...current,

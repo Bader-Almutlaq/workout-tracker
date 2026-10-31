@@ -17,6 +17,8 @@ import {
 /** An exercise with planned and completed sets and the previous session's completed sets. */
 export interface LiveWorkoutEntry extends WorkoutDetailEntry {
   readonly previous: readonly WorkoutSet[];
+  /** Saved template targets, independent of progression and deload. */
+  readonly plannedTargets?: readonly TemplateSetDraft[];
   /** True when recorded machine history was unavailable and previous sets are from another machine. */
   readonly previousOtherMachine?: boolean;
   /** Ephemeral deload values replace progression; the stored stage remains visible without history. */
@@ -51,6 +53,7 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
         .slice(0, index)
         .filter((entry) => entry.exercise.id === item.exercise.id).length;
       const planned = template?.exercises.filter((entry) => entry.exerciseId === item.exercise.id)[occurrence];
+      const plannedTargets = planned === undefined ? {} : { plannedTargets: planned.sets };
       const stage = item.entry.deloadStage ?? null;
       const enabled = stage === null && detail.workout.isInProgress && planned?.progression === 'double';
       const result = machinePreviousPerformance(
@@ -76,6 +79,7 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
         );
         return {
           ...item,
+          ...plannedTargets,
           previous: (item.entry.machineBrand ?? null) === null ? prior : previous,
           previousOtherMachine: result.otherMachine,
           deload: {
@@ -89,7 +93,8 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
           },
         };
       }
-      if (!enabled || planned === undefined) return { ...item, previous, previousOtherMachine: result.otherMachine };
+      if (!enabled || planned === undefined)
+        return { ...item, ...plannedTargets, previous, previousOtherMachine: result.otherMachine };
       const targets = matchPreviousSets(item.sets, planned.sets);
       const units = new Set(item.sets.map((set) => set.entryUnit));
       const calculated = new Map(
@@ -98,6 +103,7 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
       const positions = new Map(planned.sets.map((target, position) => [target, position]));
       return {
         ...item,
+        ...plannedTargets,
         previous,
         previousOtherMachine: result.otherMachine,
         progression: {

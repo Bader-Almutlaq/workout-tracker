@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { database, useDatabaseQuery } from '../../data/database';
+import { clockText } from '../../format/clockText';
+import { ExerciseNoteDialog } from '../workout/ExerciseNoteDialog';
 import type { Equipment } from '../../../core/library/Equipment';
 import { usesMachineBrand } from '../../../core/library/MachineBrands';
 import { MachineBrandSheet } from '../workout/MachineBrandSheet';
@@ -36,11 +39,18 @@ export function TemplateExerciseCard({
   readonly actions: TemplateEditorActions;
 }) {
   const [showMachine, setShowMachine] = useState(false);
+  const [showNote, setShowNote] = useState(false);
+  const detail = useDatabaseQuery(`template-exercise-info-${exercise.exerciseId}`, () =>
+    database.exerciseDetail(exercise.exerciseId),
+  );
+  const rest = detail.status === 'ready' ? detail.value?.exercise.restTargetSeconds : null;
   const isInSuperset = exercise.supersetGroup !== null;
   return (
     <section className={styles.card} data-superset={isInSuperset} aria-label={name}>
       <TemplateExerciseHeader
         name={name}
+        hasNote={Boolean(exercise.notes)}
+        onNote={() => setShowNote(true)}
         index={index}
         count={count}
         isInSuperset={isInSuperset}
@@ -48,6 +58,23 @@ export function TemplateExerciseCard({
         actions={actions}
         progression={!isTimed ? <ProgressionControl exercise={exercise} index={index} actions={actions} /> : undefined}
       />
+      {detail.status === 'failed' && <p role="alert">{detail.message}</p>}
+      {rest !== null && rest !== undefined && <div className={styles.info}>Rest {clockText(rest)}</div>}
+      {exercise.notes && (
+        <button type="button" className={styles.note} onClick={() => setShowNote(true)}>
+          {exercise.notes}
+        </button>
+      )}
+      {showNote && (
+        <ExerciseNoteDialog
+          note={exercise.notes ?? ''}
+          onCancel={() => setShowNote(false)}
+          onSave={(note) => {
+            actions.setExerciseNotes(index, note);
+            setShowNote(false);
+          }}
+        />
+      )}
       {usesMachineBrand(equipment ?? null) && (
         <div className={styles.progression}>
           <button type="button" onClick={() => setShowMachine(true)}>

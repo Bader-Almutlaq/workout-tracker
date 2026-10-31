@@ -68,6 +68,7 @@ export function ExerciseCard({
         <ExerciseInfoLine
           entry={entry}
           onMachine={() => setDialog('machine')}
+          onNote={() => setDialog('note')}
           onEndDeload={actions.setDeload === undefined ? undefined : () => actions.setDeload?.(entry.entry.id, false)}
         />
       ) : (entry.entry.deloadStage ?? null) !== null ? (
