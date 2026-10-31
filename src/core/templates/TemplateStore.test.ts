@@ -198,3 +198,55 @@ it('preserves weekdays across save, edit and duplicate, and clears a deleted act
   TemplateStore.deleteFolder(db, folder);
   expect(db.value('SELECT value FROM appSetting WHERE key = ?', ['activePlanId'])).toBeUndefined();
 });
+
+it('updates a linked template from a finished session, retaining targets by set type and position', () => {
+  db.exec(`INSERT INTO exercise (id, name, source, createdAt) VALUES
+    (2, 'Removed', 'custom', '2026-01-01'), (3, 'Added', 'custom', '2026-01-01')`);
+  const entry = draft.exercises[0];
+  if (entry === undefined) throw new Error('Missing fixture');
+  const templateId = TemplateStore.save(db, { ...draft, exercises: [entry, { ...entry, exerciseId: 2 }] }, now);
+  db.run(
+    `INSERT INTO workout (id, startedAt, endedAt, name, source, templateId)
+    VALUES (1, '2025-01-01', '2025-01-02', 'Session', 'app', ?)`,
+    [templateId],
+  );
+  db.exec(`INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (1, 1, 1, 0), (2, 1, 3, 1);
+    INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps) VALUES
+      (1, 0, 'failure', 30, 'kg', 5), (1, 1, 'drop', 20, 'kg', 8), (2, 0, 'warmup', 10, 'kg', 8)`);
+  TemplateStore.updateFromWorkout(db, 1, now);
+  expect(TemplateCatalog.detail(db, templateId)?.exercises).toMatchObject([
+    {
+      exerciseId: 1,
+      sets: [
+        { kind: 'failure', targetRepsLow: 5, targetRepsHigh: 8, targetRpe: 8 },
+        { kind: 'drop', targetRepsLow: 5, targetRepsHigh: 8, targetRpe: 8 },
+      ],
+    },
+    { exerciseId: 3, sets: [{ kind: 'warmup', targetRepsLow: null, targetRepsHigh: null, targetRpe: null }] },
+  ]);
+});
+
+it('keeps working targets in place when a session adds a warm-up before them', () => {
+  const entry = draft.exercises[0];
+  if (entry === undefined) throw new Error('Missing fixture');
+  const templateId = TemplateStore.save(db, draft, now);
+  db.run(
+    `INSERT INTO workout (id, startedAt, endedAt, name, source, templateId)
+    VALUES (1, '2025-01-01', '2025-01-02', 'Session', 'app', ?)`,
+    [templateId],
+  );
+  db.exec(`INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (1, 1, 1, 0);
+    INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps) VALUES
+      (1, 0, 'warmup', 20, 'kg', 8), (1, 1, 'working', 30, 'kg', 5)`);
+  TemplateStore.updateFromWorkout(db, 1, now);
+  const planned = entry.sets.find((set) => set.kind !== 'warmup');
+  expect(TemplateCatalog.detail(db, templateId)?.exercises[0]?.sets).toMatchObject([
+    { kind: 'warmup', targetRepsLow: null, targetRepsHigh: null, targetRpe: null },
+    {
+      kind: 'working',
+      targetRepsLow: planned?.targetRepsLow ?? null,
+      targetRepsHigh: planned?.targetRepsHigh ?? null,
+      targetRpe: planned?.targetRpe ?? null,
+    },
+  ]);
+});

@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ExerciseSearch, type ExerciseSearchEntry } from '../../../core/library/ExerciseSearch';
 import { SearchField } from '../../design/components/SearchField';
 import {
@@ -29,11 +29,7 @@ export function ExercisePicker({
   const [state, setState] = useState<ExerciseBrowseState>(EMPTY_BROWSE_STATE);
   const [picked, setPicked] = useState<readonly number[]>([]);
   const search = useMemo(() => new ExerciseSearch(entries), [entries]);
-  const deferredState = useDeferredValue(state);
-  const results = useMemo(
-    () => search.results(deferredState.query, searchFilterOf(deferredState), new Date()),
-    [search, deferredState],
-  );
+  const results = useMemo(() => search.results(state.query, searchFilterOf(state), new Date()), [search, state]);
 
   const toggle = (exerciseId: number) =>
     setPicked((current) =>
@@ -53,8 +49,8 @@ export function ExercisePicker({
       <PickerListing
         entries={entries}
         results={results}
-        isSearching={isSearching(deferredState)}
-        query={deferredState.query.trim()}
+        isSearching={isSearching(state)}
+        query={state.query.trim()}
         picked={picked}
         onToggle={toggle}
       />

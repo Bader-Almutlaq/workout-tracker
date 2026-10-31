@@ -113,11 +113,11 @@ export function WorkoutPage() {
     >
       <div className={styles.stack}>
         <LoggingErrorBanner />
-        {template.weekday !== null && template.weekday !== undefined && (
-          <Chip tone="neutral">{weekdayText(template.weekday)}</Chip>
-        )}
         {template.notes?.trim() && <p>{template.notes}</p>}
         <p className={styles.secondary}>
+          {template.weekday !== null && template.weekday !== undefined && (
+            <Chip tone="neutral">{weekdayText(template.weekday)}</Chip>
+          )}{' '}
           {latest === undefined ? 'Never done' : `Last done: ${dayWithYearText(latest.startedAt)}`}
         </p>
         <SegmentedControl

@@ -14,7 +14,14 @@ export function RenameWorkoutDialog({
 }) {
   const [draft, setDraft] = useState(name);
   return (
-    <ConfirmDialog title="Rename workout" confirmLabel="Rename" onConfirm={() => onRename(draft)} onCancel={onCancel}>
+    <ConfirmDialog
+      submitOnReturn
+      isConfirmDisabled={draft.trim().length === 0}
+      title="Rename workout"
+      confirmLabel="Rename"
+      onConfirm={() => onRename(draft)}
+      onCancel={onCancel}
+    >
       <TextField label="Name" value={draft} onChange={setDraft} />
     </ConfirmDialog>
   );

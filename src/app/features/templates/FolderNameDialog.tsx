@@ -18,7 +18,14 @@ export function FolderNameDialog({
 }) {
   const [name, setName] = useState(initialName);
   return (
-    <ConfirmDialog title={title} confirmLabel={confirmLabel} onConfirm={() => onConfirm(name)} onCancel={onCancel}>
+    <ConfirmDialog
+      submitOnReturn
+      isConfirmDisabled={name.trim().length === 0}
+      title={title}
+      confirmLabel={confirmLabel}
+      onConfirm={() => onConfirm(name)}
+      onCancel={onCancel}
+    >
       <TextField label="Name" value={name} onChange={setName} />
     </ConfirmDialog>
   );

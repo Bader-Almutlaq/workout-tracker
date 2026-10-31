@@ -24,17 +24,20 @@ export function TemplateDetailsSection({
         value={folderValueOf(model.draft.folderId)}
         onChange={(value) => model.setFolder(folderIdOf(value))}
       />
-      <div className={styles.days} aria-label="Workout day">
-        {WEEKDAYS.map((day, index) => (
-          <button
-            type="button"
-            key={day}
-            aria-pressed={model.draft.weekday === index + 1}
-            onClick={() => model.setWeekday(model.draft.weekday === index + 1 ? null : index + 1)}
-          >
-            {day}
-          </button>
-        ))}
+      <div className={styles.dayField}>
+        <span>Day</span>
+        <div className={styles.days} aria-label="Workout day">
+          {WEEKDAYS.map((day, index) => (
+            <button
+              type="button"
+              key={day}
+              aria-pressed={model.draft.weekday === index + 1}
+              onClick={() => model.setWeekday(model.draft.weekday === index + 1 ? null : index + 1)}
+            >
+              {day}
+            </button>
+          ))}
+        </div>
       </div>
       <TextField label="Description" value={model.draft.notes ?? ''} onChange={model.setNotes} />
     </Section>

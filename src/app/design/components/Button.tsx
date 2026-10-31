@@ -10,14 +10,16 @@ export function Button({
   isDisabled = false,
   onPress,
   children,
+  type = 'button',
 }: {
   readonly variant?: ButtonVariant;
   readonly isDisabled?: boolean;
   readonly onPress: () => void;
   readonly children: ReactNode;
+  readonly type?: 'button' | 'submit';
 }) {
   return (
-    <button type="button" className={styles.button} data-variant={variant} disabled={isDisabled} onClick={onPress}>
+    <button type={type} className={styles.button} data-variant={variant} disabled={isDisabled} onClick={onPress}>
       {children}
     </button>
   );
