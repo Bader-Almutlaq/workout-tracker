@@ -64,6 +64,10 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
       editor.close();
       actions.addSet(entryId);
     },
+    setMachineBrand: (entryId, brand) => {
+      editor.close();
+      actions.setMachineBrand(entryId, brand);
+    },
     setDeload: (entryId, enabled) => {
       editor.close();
       actions.setDeload(entryId, enabled);

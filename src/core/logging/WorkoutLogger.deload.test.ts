@@ -180,3 +180,18 @@ test('missing workout or exercise fails without changing anything', () => {
   expect(() => logger.deloadWorkout(-1)).toThrow('That workout no longer exists.');
   expect(db.exportBytes()).toEqual(before);
 });
+
+test('deload prefers the selected machine baseline over a newer heavier machine', () => {
+  db.exec(`
+    UPDATE exercise SET equipment = 'machine' WHERE id = 1;
+    UPDATE workoutExercise SET machineBrand = 'Panatta' WHERE id = 1;
+  `);
+  const newer = start(2);
+  logger.setMachineBrand(entry(newer).entry.id, 'Hammer Strength');
+  finish(newer, 2, 150);
+  const current = start(3);
+  logger.setMachineBrand(entry(current).entry.id, 'Panatta');
+  logger.setDeloadStage(entry(current).entry.id, 1);
+  expect(entry(current).previous[0]?.weightKilograms).toBe(100);
+  expect(entry(current).deload?.suggestions[0]?.weightKilograms).toBe(90);
+});

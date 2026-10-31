@@ -233,3 +233,8 @@ export function setDeload(entryId: number, enabled: boolean): void {
 export function deloadWorkout(workoutId: number): void {
   void loggingQueue.enqueue(() => database.deloadWorkout(workoutId));
 }
+
+/** Saves the selected manufacturer in tap order. */
+export function setMachineBrand(entryId: number, brand: string | null): void {
+  void loggingQueue.enqueue(() => database.setMachineBrand(entryId, brand));
+}

@@ -1,3 +1,4 @@
+import { MachineBrandSheet } from './MachineBrandSheet';
 import { DeloadChip } from './DeloadChip';
 import { useState } from 'react';
 import { ExerciseInfoLine } from './ExerciseInfoLine';
@@ -38,12 +39,13 @@ export function ExerciseCard({
   };
 }) {
   const [showsRpe, setShowsRpe] = useState(false);
-  const [dialog, setDialog] = useState<'note' | 'rest' | undefined>(undefined);
+  const [dialog, setDialog] = useState<'note' | 'rest' | 'machine' | undefined>(undefined);
   const live =
     notes === undefined
       ? {
           editNote: () => setDialog('note'),
           editRest: () => setDialog('rest'),
+          editMachine: () => setDialog('machine'),
           showRpe: () => setShowsRpe(true),
           showsRpe,
         }
@@ -64,6 +66,7 @@ export function ExerciseCard({
       {notes === undefined ? (
         <ExerciseInfoLine
           entry={entry}
+          onMachine={() => setDialog('machine')}
           onEndDeload={actions.setDeload === undefined ? undefined : () => actions.setDeload?.(entry.entry.id, false)}
         />
       ) : (entry.entry.deloadStage ?? null) !== null ? (
@@ -100,6 +103,16 @@ export function ExerciseCard({
         <Plus size={16} strokeWidth={2} aria-hidden />
         <span>Add set</span>
       </button>
+      {dialog === 'machine' && (
+        <MachineBrandSheet
+          value={entry.entry.machineBrand ?? null}
+          onClose={() => setDialog(undefined)}
+          onSave={(brand) => {
+            actions.setMachineBrand?.(entry.entry.id, brand);
+            setDialog(undefined);
+          }}
+        />
+      )}
       {dialog === 'note' && (
         <ExerciseNoteDialog
           note={entry.entry.notes ?? ''}

@@ -126,7 +126,11 @@ export function matchPreviousSets<T extends { readonly kind: string }>(
 /** Previous finished occurrence before this entry's session (date then id); never another entry in this workout.
  * Heuristic: repeated exercises follow the same occurrence across sessions; missing occurrences have no predecessor.
  */
-export function previousExerciseEntry(db: Database, entryId: number): WorkoutExercise | undefined {
+export function previousExerciseEntry(
+  db: Database,
+  entryId: number,
+  machineBrand: string | null = null,
+): WorkoutExercise | undefined {
   const current = db.get<{ exerciseId: number; workoutId: number; position: number; startedAt: string }>(
     `
     SELECT we.exerciseId, we.workoutId, we.position, w.startedAt
@@ -142,6 +146,29 @@ export function previousExerciseEntry(db: Database, entryId: number): WorkoutExe
   `,
       [current.workoutId, current.exerciseId, current.position],
     ) ?? 0;
+  if (machineBrand !== null) {
+    const matching = db.get<WorkoutExerciseRow>(
+      `
+      SELECT we.* FROM workoutExercise we JOIN workout w ON w.id = we.workoutId
+      WHERE we.exerciseId = ? AND w.isInProgress = 0 AND w.id <> ?
+        AND (w.startedAt < ? OR (w.startedAt = ? AND w.id < ?))
+        AND we.machineBrand = ? COLLATE NOCASE
+        AND (SELECT COUNT(*) FROM workoutExercise earlier WHERE earlier.workoutId = we.workoutId
+          AND earlier.exerciseId = we.exerciseId AND earlier.position < we.position) = ?
+      ORDER BY w.startedAt DESC, w.id DESC LIMIT 1
+      `,
+      [
+        current.exerciseId,
+        current.workoutId,
+        current.startedAt,
+        current.startedAt,
+        current.workoutId,
+        machineBrand,
+        occurrence,
+      ],
+    );
+    if (matching !== undefined) return fromWorkoutExerciseRow(matching);
+  }
   const workoutId = db.value<number>(
     `
     SELECT w.id FROM workout w WHERE w.isInProgress = 0 AND w.id <> ?
@@ -164,10 +191,10 @@ export function previousExerciseEntry(db: Database, entryId: number): WorkoutExe
 /** Pre-cycle completed sets for deload load calculations; walks stage rows back to the first normal predecessor.
  * Missing normal history returns no load baseline rather than guessing an unrounded original weight.
  */
-export function deloadBaseline(db: Database, entryId: number): WorkoutSet[] {
-  let previous = previousExerciseEntry(db, entryId);
+export function deloadBaseline(db: Database, entryId: number, machineBrand: string | null = null): WorkoutSet[] {
+  let previous = previousExerciseEntry(db, entryId, machineBrand);
   while (previous !== undefined && (previous.deloadStage ?? null) !== null)
-    previous = previousExerciseEntry(db, previous.id);
+    previous = previousExerciseEntry(db, previous.id, machineBrand);
   return previous === undefined ? [] : completedEntrySets(db, previous.id);
 }
 

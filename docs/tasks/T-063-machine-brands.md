@@ -81,6 +81,15 @@ Attachments and grips (also in §8) are **not** part of this task.
 
 ## Handoff
 
+**Round 3 screens and deload fix implemented.**
+
+- `make format` and `make verify` passed: 167 test files, 1,247 tests, production build. Picker test covers ordering and available choices; it does not simulate Other/None taps. Phone visual checks remain outstanding.
+
+- The picker shares recent manufacturers across live exercises and template drafts; custom names use the core normalizer. Live changes use the existing logging queue.
+- Charts encode selections as `?machine=brand:<name>` or `?machine=unrecorded`; the omitted parameter means all machines. History labels repeated entries separately.
+- Deload predecessor and baseline searches prefer the matching manufacturer and fall back to the existing occurrence-based lookup. No deload formula changed.
+
+
 **Round 2 core and worker implemented; Round 3 screens remain.**
 
 - `WorkoutLogger.setMachineBrand` normalizes or clears the manufacturer. Template starts copy their brand, otherwise new entries use the latest finished entry's brand. `usedMachineBrands` returns finished-session names newest first, deduplicated without regard to case.

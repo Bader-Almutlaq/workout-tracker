@@ -83,3 +83,9 @@
   vertical-align: top;
   border-bottom: var(--hairline) solid var(--color-border);
 }
+
+.machineFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}

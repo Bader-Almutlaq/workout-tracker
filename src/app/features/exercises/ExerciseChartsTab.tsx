@@ -1,3 +1,5 @@
+import { ToggleChip } from '../../design/components/ToggleChip';
+import styles from './ExercisePage.module.css';
 import type { LongRangeMark } from '../../design/charts/LongRangeChart';
 import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
 import { database, useDatabaseQuery } from '../../data/database';
@@ -10,16 +12,45 @@ import { ExerciseQueryMessage } from './ExerciseQueryMessage';
 export function ExerciseChartsTab({
   exerciseId,
   tracking,
+  machine = null,
+  onMachine,
 }: {
   readonly exerciseId: number;
   readonly tracking: ExerciseTracking;
+  readonly machine?: string | null;
+  readonly onMachine?: (value: string | null) => void;
 }) {
-  const query = useDatabaseQuery(`exercise-charts-${exerciseId}`, () => database.exerciseCharts(exerciseId));
+  const filter =
+    machine === null
+      ? undefined
+      : machine === 'unrecorded'
+        ? null
+        : machine.startsWith('brand:')
+          ? machine.slice(6)
+          : undefined;
+  const query = useDatabaseQuery(`exercise-charts-${exerciseId}${machine === null ? '' : `-${machine}`}`, () =>
+    database.exerciseCharts(exerciseId, filter),
+  );
   if (query.status !== 'ready') return <ExerciseQueryMessage query={query} />;
   const series = query.value;
   const marks = series.deloadDates.map<LongRangeMark>((date) => ({ date, kind: 'deload' }));
   return (
     <>
+      {(series.machineBrands?.length ?? 0) >= 2 && (
+        <div className={styles.machineFilters} aria-label="Machine filter">
+          <ToggleChip isOn={machine === null} onToggle={() => onMachine?.(null)}>
+            All machines
+          </ToggleChip>
+          {series.machineBrands.map((brand) => {
+            const value = brand === null ? 'unrecorded' : `brand:${brand}`;
+            return (
+              <ToggleChip key={value} isOn={machine === value} onToggle={() => onMachine?.(value)}>
+                {brand ?? 'Not recorded'}
+              </ToggleChip>
+            );
+          })}
+        </div>
+      )}
       {tracking === 'weight-reps' && (
         <ExerciseChart
           title="Best set, est. 1RM"

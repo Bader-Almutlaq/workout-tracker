@@ -39,6 +39,13 @@ export function useTemplateEditor(initial: TemplateDraft, returnPlanId: number |
 
   const actions: TemplateEditorActions = {
     edit: pad.begin,
+    setMachineBrand: (index, brand) =>
+      restructure((current) => ({
+        ...current,
+        exercises: current.exercises.map((exercise, position) =>
+          position === index ? { ...exercise, machineBrand: brand } : exercise,
+        ),
+      })),
     setProgression: (index, mode, range) => restructure((current) => withProgression(current, index, mode, range)),
     addSet: (exerciseIndex) => restructure((current) => withSetAdded(current, exerciseIndex)),
     removeSet: (exerciseIndex, setIndex) => restructure((current) => withSetRemoved(current, exerciseIndex, setIndex)),

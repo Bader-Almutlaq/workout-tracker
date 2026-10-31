@@ -1,3 +1,7 @@
+import { useState } from 'react';
+import type { Equipment } from '../../../core/library/Equipment';
+import { usesMachineBrand } from '../../../core/library/MachineBrands';
+import { MachineBrandSheet } from '../workout/MachineBrandSheet';
 import { ProgressionControl } from './ProgressionControl';
 import { Plus } from 'lucide-react';
 import type { TemplateExerciseDraft } from '../../../core/templates/TemplateDraft';
@@ -11,6 +15,7 @@ import { TemplateSetRow } from './TemplateSetRow';
 /** One exercise of the template being edited: its name and menu, column titles, set rows and "Add set". */
 export function TemplateExerciseCard({
   exercise,
+  equipment,
   isTimed,
   name,
   index,
@@ -20,6 +25,7 @@ export function TemplateExerciseCard({
   actions,
 }: {
   readonly exercise: TemplateExerciseDraft;
+  readonly equipment?: Equipment | null;
   readonly isTimed: boolean;
   readonly name: string;
   readonly index: number;
@@ -29,6 +35,7 @@ export function TemplateExerciseCard({
   readonly editing: { readonly cell: TargetCell; readonly text: string } | undefined;
   readonly actions: TemplateEditorActions;
 }) {
+  const [showMachine, setShowMachine] = useState(false);
   const isInSuperset = exercise.supersetGroup !== null;
   return (
     <section className={styles.card} data-superset={isInSuperset} aria-label={name}>
@@ -40,6 +47,23 @@ export function TemplateExerciseCard({
         isSupersetWithNext={isSupersetWithNext}
         actions={actions}
       />
+      {usesMachineBrand(equipment ?? null) && (
+        <div className={styles.progression}>
+          <button type="button" onClick={() => setShowMachine(true)}>
+            Machine: {exercise.machineBrand ?? 'None'}
+          </button>
+        </div>
+      )}
+      {showMachine && (
+        <MachineBrandSheet
+          value={exercise.machineBrand ?? null}
+          onClose={() => setShowMachine(false)}
+          onSave={(brand) => {
+            actions.setMachineBrand(index, brand);
+            setShowMachine(false);
+          }}
+        />
+      )}
       {!isTimed && <ProgressionControl exercise={exercise} index={index} actions={actions} />}
       <TemplateSetColumnHeader isTimed={isTimed} />
       {exercise.sets.map((set, setIndex) => (

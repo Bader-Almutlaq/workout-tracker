@@ -15,6 +15,7 @@ const actions: TemplateEditorActions = {
   toggleSuperset: vi.fn(),
   removeExercise: vi.fn(),
   setProgression: vi.fn(),
+  setMachineBrand: vi.fn(),
 };
 const exercise: TemplateExerciseDraft = {
   exerciseId: 1,

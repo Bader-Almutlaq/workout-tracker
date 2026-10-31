@@ -1,4 +1,5 @@
-import { ArrowDown, ArrowLeftRight, ArrowUp, FileText, Gauge, Timer, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, ArrowUp, FileText, Gauge, Timer, Trash2, Factory } from 'lucide-react';
+import { usesMachineBrand } from '../../../core/library/MachineBrands';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import type { ActionMenuItem } from '../../design/components/ActionMenuRow';
@@ -25,6 +26,7 @@ export function exerciseMenuItems({
     | {
         readonly editNote: () => void;
         readonly editRest: () => void;
+        readonly editMachine?: () => void;
         readonly showRpe: () => void;
         readonly showsRpe: boolean;
       }
@@ -47,6 +49,9 @@ export function exerciseMenuItems({
     ...(actions.toggleWarmups === undefined
       ? []
       : [warmupMenuItem(entry.sets, (remove) => actions.toggleWarmups?.(entryId, remove))]),
+    ...(live?.editMachine !== undefined && usesMachineBrand(entry.exercise.equipment)
+      ? [{ label: 'Machine…', icon: Factory, onSelect: live.editMachine }]
+      : []),
     ...(live !== undefined && actions.setRestTarget !== undefined
       ? [{ label: 'Rest time', icon: Timer, onSelect: live.editRest }]
       : []),

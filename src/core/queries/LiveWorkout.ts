@@ -63,10 +63,10 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
       );
       const previous = result.sets;
       if (stage !== null && detail.workout.isInProgress) {
-        const priorEntry = previousExerciseEntry(db, item.entry.id);
+        const priorEntry = previousExerciseEntry(db, item.entry.id, item.entry.machineBrand ?? null);
         // Deload is per exercise across workouts, independent of an opt-in template progression mode.
         const prior = priorEntry === undefined ? [] : completedEntrySets(db, priorEntry.id);
-        const baseline = deloadBaseline(db, item.entry.id);
+        const baseline = deloadBaseline(db, item.entry.id, item.entry.machineBrand ?? null);
         const units = new Set(item.sets.map((set) => set.entryUnit));
         const calculated = new Map(
           [...units].map((unit) => [
