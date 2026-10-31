@@ -162,3 +162,49 @@
   height: 100%;
   background: var(--color-accent);
 }
+.controls {
+  display: grid;
+  gap: var(--space-m);
+  margin-bottom: var(--space-l);
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-s);
+  margin-bottom: var(--space-l);
+}
+.tile {
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-m);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+  font: var(--font-callout);
+}
+.tile strong {
+  font: var(--font-title);
+}
+.tile small,
+.lift small {
+  display: block;
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+}
+.lift {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4rem auto;
+  gap: var(--space-s);
+  align-items: center;
+  color: var(--color-text-primary);
+  padding: var(--space-m) 0;
+  border-bottom: var(--hairline) solid var(--color-border);
+  text-decoration: none;
+}
+.lift svg {
+  width: 100%;
+  color: var(--color-accent);
+}
+
+.tile:last-child strong {
+  font: var(--font-callout);
+}

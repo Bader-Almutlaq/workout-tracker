@@ -1,0 +1,59 @@
+.section {
+  margin-block: var(--space-xl);
+  color: var(--color-text-primary);
+}
+.filters {
+  display: flex;
+  gap: var(--space-s);
+  overflow-x: auto;
+  padding-block: var(--space-s);
+}
+.row {
+  display: grid;
+  grid-template-columns: 4rem 1fr auto;
+  gap: var(--space-s);
+  align-items: center;
+  margin-block: var(--space-s);
+  font: var(--font-callout);
+}
+.row > :last-child {
+  white-space: nowrap;
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+.track {
+  background: var(--color-surface-raised);
+  height: var(--space-xs);
+  border-radius: var(--radius-small);
+}
+.bar {
+  display: block;
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: var(--radius-small);
+}
+.chart {
+  width: 100%;
+  color: var(--color-text-secondary);
+}
+.dot {
+  fill: var(--color-text-tertiary);
+}
+.recent {
+  fill: var(--color-accent);
+}
+.quiet {
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+}
+
+.chart text {
+  fill: currentColor;
+  font: var(--font-caption);
+}
+
+.grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}

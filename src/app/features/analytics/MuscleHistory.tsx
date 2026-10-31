@@ -7,7 +7,7 @@ import styles from './Analytics.module.css';
 
 const weekFormat = new Intl.DateTimeFormat(FORMAT_LOCALE, { timeZone: 'UTC', month: 'short', day: 'numeric' });
 
-/** Modal showing twelve calendar weeks of one muscle's fractional hard sets. */
+/** Modal showing one muscle's fractional hard sets for each calendar week it is given. */
 export function MuscleHistory({
   muscle,
   weeks,
@@ -23,7 +23,10 @@ export function MuscleHistory({
   }));
   const maximum = Math.max(1, ...values.map((item) => item.value));
   return (
-    <BottomSheet title={`${MUSCLE_DISPLAY_NAMES[muscle]} · 12 weeks`} onClose={onClose}>
+    <BottomSheet
+      title={`${MUSCLE_DISPLAY_NAMES[muscle]} · ${weeks.length} ${weeks.length === 1 ? 'week' : 'weeks'}`}
+      onClose={onClose}
+    >
       <div className={styles.dialogHeader}>
         <button type="button" onClick={onClose}>
           Close

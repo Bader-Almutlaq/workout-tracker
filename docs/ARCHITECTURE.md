@@ -84,6 +84,7 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 
 | Concept | Owner |
 |---|---|
+| Training overview weekly totals and period lift trends | `src/core/queries/TrainingSummary.ts`, `src/core/queries/LiftTrends.ts` |
 | SQLite access (queries, transactions, export/import bytes) | `src/core/db/Database.ts` |
 | Deterministic library conversion and reviewed source decisions | `tools/build-library.ts`, `data/sources/library-mapping.json` (frozen original families plus every source id) |
 | Library instruction steps and optional pinned picture frames | `LibraryFile.ts` → `LibraryExercise.ts` → `ExerciseLibrarySeeder.ts`; nullable `Exercise.instructions`/`imageKeys` |
@@ -164,6 +165,9 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Per-exercise finished-session pages and chart series (e1RM, load, volume, reps, duration, cumulative PR) | `src/core/queries/ExerciseSeries.ts`; reuses `EstimatedOneRepMax` for estimates |
 | Dated lifetime exercise records and 1–12-rep best/predicted table | `src/core/queries/RepMaxTable.ts`; predictions invert the canonical unit-load estimate, display rounds through `estimateText` |
 | Exercise section URL state, lazy section queries and bounded history display | `src/app/features/exercises/exercisePageTabs.ts`, `ExerciseDetailScreen.tsx` and its tab components |
+| Muscle prominence and visibility | `src/core/library/MuscleProminence.ts` |
+| Muscle coverage, frequency, balance and exercise share | `src/core/queries/MuscleCoverage.ts` |
+| Rep and effort distributions; weekly relative intensity | `src/core/queries/IntensityMix.ts` |
 | Hard sets; fractional sets per muscle; volume zones | `src/core/analytics/HardSets.ts`, `MuscleVolume.ts`; weekly via `src/core/queries/WeeklyMuscleVolume.ts` |
 | Daily hard sets, zero-filled local days, all training or one muscle | `src/core/queries/DailyHardSets.ts` |
 | Recent vs baseline (signature chart math), range statistics | `src/core/analytics/RecentVsBaseline.ts` |
@@ -180,7 +184,9 @@ Developer tool: `tools/import-report.ts` (`make import-report`) dry-runs the imp
 
 | Concept | Owner |
 |---|---|
+| Training overview weekly totals and period lift trends | `src/core/queries/TrainingSummary.ts`, `src/core/queries/LiftTrends.ts` |
 | Local calendar period choice, range windows, sum/mean/max/last aggregation and min/max/count | `src/core/analytics/TimeBuckets.ts` (`TimeBuckets`) |
 | Period plot, spread band, full-screen range selection, touch readout and table | `src/app/design/charts/LongRangeChart.tsx`, `LongRangePlot.tsx`, `LongRangeChartSheet.tsx` |
 | Measure routes and grouped body-part navigation | `src/app/features/body/MeasureScreen.tsx` (`/measure`, `/measure/:bodyPart`) |
 | Main-tab Settings gear and trailing header slot | `src/app/design/components/SettingsButton.tsx`, `Screen.tsx` |
+

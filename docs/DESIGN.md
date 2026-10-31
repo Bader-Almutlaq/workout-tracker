@@ -197,3 +197,7 @@ calendar buckets and range clipping. A populated bucket containing a deload sess
 yellow-edged point and a faint yellow column. Overview and expanded plots include a text explanation,
 the touch readout names Deload, and marked table rows have a Deload note. Exercise performance plots
 pass these dates. The PR step line retains its existing appearance and still counts all sessions.
+
+### Analytics tab
+
+Overview and Muscles share whole Monday-week period chips (4W, 12W, 6M, 1Y, All). Overview shows weekly totals and previous-period changes, the recent versus baseline card, workout frequency, and ranked lift trends. Deloads count in totals and are marked on frequency charts but excluded from lift trends. Muscles retains its week selector and uses the selected period for history.

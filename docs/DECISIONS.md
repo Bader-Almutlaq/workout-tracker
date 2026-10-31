@@ -248,3 +248,9 @@ cached for offline use. The owner can choose photos only or turn pictures off.
   non-exhaustive; custom names retain their spelling after whitespace normalization. Known names
   use the list spelling, ignoring case. A name is limited to 40 characters for phone readability.
 - Matching repeated exercise occurrences by manufacturer remains to be implemented and reviewed.
+
+## 2026-10-31: Muscle coverage and intensity interpretations (T-065)
+
+Frequency counts a local day only when its muscle's fractional hard sets add to at least one. Selected-range weekly means divide by the number of Monday weeks touched; the numerator uses the selected inclusive dates. Neglected uses the 28 local days ending at the selected end date and divides by four. Days since training counts direct hard sets only. Pattern balance counts each hard set once, independent of muscle associations. Trunk, neck, carries and Olympic patterns are neither upper nor lower; upper/lower counts otherwise follow the limb moved. Ratios have no target and are absent when either side is zero.
+
+Relative intensity uses the existing daily exercise strength trend, including a day's own qualifying estimates, without future observations. Weekly points include only hard weight-and-reps sets with a positive load and a trend. Effort buckets use logged RPE, including failure sets; unlogged effort stays separate. Fractional RIR is assigned to the lower integer bucket, with five and above grouped. Rep ranges exclude invalid or nonpositive reps. The smaller-muscle list follows the owner's explicit choice.
