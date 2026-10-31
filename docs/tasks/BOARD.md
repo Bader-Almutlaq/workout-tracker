@@ -82,10 +82,10 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-052](T-052-dropbox-connection-clarity.md) | Clear, restart-proof Dropbox connection with visible feedback (R11) | done | Codex Sol (high), reviewed by lead | merged |
 | [T-053](T-053-warmups-opt-in-and-cable-steps.md) | Warm-ups only on request; cable add-on plate steps (R9) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-054](T-054-dropbox-redirect-connect.md) | Connect Dropbox by redirect, without copying a code (R11) | done | Codex Sol (high), reviewed by lead | merged |
-| [T-055](T-055-measure-tab-and-long-range-charts.md) | Measure tab, Settings gear, long-range charts (R1, R0) | in progress | Codex Sol (high) | task/T-055-measure-tab |
+| [T-055](T-055-measure-tab-and-long-range-charts.md) | Measure tab, Settings gear, long-range charts (R1, R0) | done | Codex Sol (high), reviewed by lead | merged |
 | [T-056](T-056-live-workout-layout.md) | Strong-style live workout screen (R6) | in progress | Codex Sol (high) | task/T-056-live-workout |
-| [T-057](T-057-exercise-page-tabs.md) | Exercise page tabs: Summary, History, Charts, Records, How-to (R5) | open, after T-055 | — | — |
-| [T-058](T-058-plans-and-workout-pages.md) | Plan pages and workout sheets with history and analytics (R4, R5) | open, after T-055 | — | — |
+| [T-057](T-057-exercise-page-tabs.md) | Exercise page tabs: Summary, History, Charts, Records, How-to (R5) | in progress | Codex Sol (high) | task/T-057-exercise-tabs |
+| [T-058](T-058-plans-and-workout-pages.md) | Plan pages and workout sheets with history and analytics (R4, R5) | in progress | Codex Sol (high) | task/T-058-plans |
 
 ## Next milestones (tasks are written when the milestone starts)
 
