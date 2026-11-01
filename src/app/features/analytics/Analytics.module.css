@@ -222,9 +222,11 @@
   background: var(--color-accent);
 }
 .pins {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: var(--space-s);
+  min-height: 11rem;
+  align-items: start;
+  overflow-x: auto;
 }
 .pin {
   border: var(--hairline) solid var(--color-border);
@@ -338,8 +340,8 @@
 }
 
 .pins .suggestionSlot {
-  min-height: 11rem;
-  align-self: stretch;
+  flex: 0 0 auto;
+  align-self: start;
   border: var(--hairline) solid var(--color-border-strong);
   border-radius: var(--radius-small);
   background: var(--color-surface);
@@ -348,5 +350,6 @@
   font: var(--font-callout);
 }
 .pin {
+  flex: 0 0 calc((100% - var(--space-s)) / 2);
   min-height: 11rem;
 }
