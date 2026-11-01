@@ -27,22 +27,37 @@ export const LiftTrendPolicy = Object.freeze({
 });
 
 /** Session maxima feed the shared EWMA; block change = (last / first − 1) × 100 (report §12). Deload entries are excluded. */
-export function LiftTrends(db: Database, from: Date, to: Date): readonly LiftTrend[] {
+export function LiftTrends(db: Database, from: Date, to: Date, folderId?: number): readonly LiftTrend[] {
   const ids = db.all<{ id: number }>(
     `
     SELECT DISTINCT e.id FROM exercise e JOIN workoutExercise we ON we.exerciseId = e.id
     JOIN workout w ON w.id = we.workoutId
     WHERE e.tracking = 'weight-reps' AND w.isInProgress = 0 AND w.startedAt >= ? AND w.startedAt < ?
+      AND (? IS NULL OR w.templateId IN (SELECT id FROM template WHERE folderId = ?))
   `,
-    [from.toISOString(), to.toISOString()],
+    [from.toISOString(), to.toISOString(), folderId ?? null, folderId ?? null],
   );
+  const workoutIds =
+    folderId === undefined
+      ? null
+      : new Set(
+          db
+            .all<{ id: number }>(
+              `SELECT w.id FROM workout w JOIN template t ON t.id = w.templateId WHERE t.folderId = ?`,
+              [folderId],
+            )
+            .map((row) => row.id),
+        );
   const result: LiftTrend[] = [];
   for (const { id } of ids) {
     const history = ExerciseSeries.read(db, id, to);
     const exercise = history.exercise;
     if (exercise === null) continue;
     const sessions = history.sessions.filter(
-      (session) => session.date < to.toISOString() && session.deloadEntryIds.length === 0,
+      (session) =>
+        session.date < to.toISOString() &&
+        session.deloadEntryIds.length === 0 &&
+        (workoutIds === null || workoutIds.has(session.workoutId)),
     );
     const observations = sessions.flatMap((session) => {
       let best: ReturnType<typeof estimatedOneRepMax> = null;

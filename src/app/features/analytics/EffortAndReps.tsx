@@ -9,9 +9,11 @@ import { WeeklyCharts } from './WeeklyCharts';
 export function EffortAndReps({
   mix,
   effort,
+  showWeekly = true,
 }: {
   readonly mix: IntensityMixResult;
   readonly effort: readonly WeeklyEffortPoint[];
+  readonly showWeekly?: boolean;
 }) {
   return (
     <section>
@@ -19,7 +21,7 @@ export function EffortAndReps({
       <RepRangeBars buckets={mix.reps} />
       <EffortHistogram buckets={mix.effort} notLogged={mix.notLogged} />
       <DistributionBars title="% of 1RM" buckets={mix.percentOfMax} />
-      <WeeklyCharts points={effort} />
+      {showWeekly && <WeeklyCharts points={effort} />}
     </section>
   );
 }

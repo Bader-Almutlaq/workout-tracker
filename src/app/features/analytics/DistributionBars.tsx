@@ -10,11 +10,9 @@ export function DistributionBars({
   readonly title: string;
   readonly buckets: readonly IntensityBucket[];
 }) {
-  const total = buckets.reduce((sum, bucket) => sum + bucket.count, 0);
   return (
     <section className={styles.section}>
       <h2>{title}</h2>
-      <p>{total} sets in this period. Each bar is a share of sets.</p>
       {buckets.map((bucket) => (
         <div className={styles.row} key={bucket.label}>
           <span>{bucket.label}</span>
@@ -22,7 +20,7 @@ export function DistributionBars({
             <span className={styles.bar} style={{ width: `${bucket.percent}%` }} />
           </span>
           <span>
-            {bucket.count} · {bucket.percent.toFixed(0)}%
+            {bucket.percent.toFixed(0)}% ({bucket.count})
           </span>
         </div>
       ))}

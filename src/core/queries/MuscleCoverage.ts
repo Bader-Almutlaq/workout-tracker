@@ -39,7 +39,7 @@ function monday(date: Date): Date {
 }
 
 /** Fractional hard sets and shares in inclusive local dates; report §12, item 10. */
-export function muscleCoverage(db: Database, from: Date, to: Date): MuscleCoverageResult {
+export function muscleCoverage(db: Database, from: Date, to: Date, folderId?: number): MuscleCoverageResult {
   if (!Number.isFinite(from.getTime()) || !Number.isFinite(to.getTime()) || from > to)
     return { muscles: [], shares: {} };
   const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
@@ -59,8 +59,9 @@ export function muscleCoverage(db: Database, from: Date, to: Date): MuscleCovera
     JOIN exercise e ON e.id = we.exerciseId JOIN workoutSet s ON s.workoutExerciseId = we.id
     JOIN exerciseMuscle em ON em.exerciseId = e.id
     WHERE w.isInProgress = 0 AND w.startedAt >= ? AND w.startedAt < ?
+      AND (? IS NULL OR w.templateId IN (SELECT id FROM template WHERE folderId = ?))
   `,
-      [start.toISOString(), end.toISOString()],
+      [start.toISOString(), end.toISOString(), folderId ?? null, folderId ?? null],
     )
     .map((row) => ({ ...row, isCompleted: row.isCompleted === 1 }))
     .filter(isHardSet);

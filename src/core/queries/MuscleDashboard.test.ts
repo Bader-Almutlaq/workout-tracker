@@ -65,3 +65,34 @@ test('muscle detail omits unlogged weeks and preserves zeros for sessions with n
     db.close();
   }
 });
+
+test('plan scope excludes other plans from muscle totals, effort, strength and distributions', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db);
+    db.exec(`
+      INSERT INTO templateFolder (id, name, position) VALUES (1, 'Plan', 0), (2, 'Other', 1);
+      INSERT INTO template (id, name, folderId, position, createdAt, updatedAt) VALUES
+        (1, 'A', 1, 0, '2024-01-01', '2024-01-01'), (2, 'B', 2, 0, '2024-01-01', '2024-01-01');
+      INSERT INTO exercise (id, name, source, createdAt, tracking, mechanic, movementPattern, equipment) VALUES (1, 'Press', 'custom', '2024-01-01', 'weight-reps', 'compound', 'horizontal-push', 'barbell');
+      INSERT INTO exerciseMuscle VALUES (1, 'chest', 'primary');
+      INSERT INTO workout (id, name, source, startedAt, isInProgress, templateId) VALUES
+        (1, 'A', 'app', '2024-01-02T12:00:00.000Z', 0, 1),
+        (2, 'B', 'app', '2024-01-03T12:00:00.000Z', 0, 2);
+      INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (1, 1, 1, 0), (2, 2, 1, 0);
+      INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, rpe, isCompleted) VALUES
+        (1, 0, 'working', 50, 'kg', 8, 8, 1), (2, 0, 'working', 70, 'kg', 4, 10, 1);
+    `);
+    const from = new Date(2024, 0, 1);
+    const to = new Date(2024, 0, 7);
+    const chest = MuscleDashboard(db, from, to, 1).find((item) => item.muscle === 'chest');
+    expect(chest).toMatchObject({ setsPerWeek: 1, averageRir: 2, strengthChangePercent: null });
+    const { intensityMix } = await import('./IntensityMix');
+    const mix = intensityMix(db, from, to, undefined, 1);
+    expect(mix.reps.map((bucket) => bucket.count)).toEqual([0, 1, 0, 0, 0]);
+    expect(mix.effort.map((bucket) => bucket.count)).toEqual([0, 0, 1, 0, 0, 0]);
+    expect(mix.percentOfMax.reduce((sum, bucket) => sum + bucket.count, 0)).toBe(1);
+  } finally {
+    db.close();
+  }
+});
