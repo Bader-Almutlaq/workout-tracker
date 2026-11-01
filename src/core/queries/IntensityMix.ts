@@ -1,3 +1,6 @@
+import { PercentOfMax } from '../analytics/PercentOfMax';
+import { estimatedOneRepMax } from '../analytics/EstimatedOneRepMax';
+import type { ExerciseRow } from '../models/Exercise';
 import { isHardSet } from '../analytics/HardSets';
 import type { Database } from '../db/Database';
 import type { Muscle } from '../library/Muscle';
@@ -10,6 +13,8 @@ export interface IntensityBucket {
   readonly label: string;
   readonly count: number;
   readonly percent: number;
+  /** Corresponding RPE label for effort buckets, when applicable. */
+  readonly rpeLabel?: string;
 }
 /** One Monday week's hard sets with a known strength trend and their mean relative intensity. */
 export interface IntensityPoint {
@@ -22,10 +27,12 @@ export interface IntensityMixResult {
   readonly reps: readonly IntensityBucket[];
   readonly effort: readonly IntensityBucket[];
   readonly notLogged: number;
+  readonly percentOfMax: readonly IntensityBucket[];
   readonly weeks: readonly IntensityPoint[];
 }
 interface Row {
   readonly exerciseId: number;
+  readonly workoutId: number;
   readonly startedAt: string;
   readonly kind: SetKind;
   readonly rpe: number | null;
@@ -34,7 +41,12 @@ interface Row {
   readonly tracking: string;
 }
 /** Report §12 buckets; 31+ preserves higher-repetition sets, and percentages are descriptive. */
-const policy = Object.freeze({ repEnds: [5, 10, 15, 30, Infinity], percent: 100, maximumRpe: 10 });
+const policy = Object.freeze({
+  repEnds: [5, 10, 15, 30, Infinity],
+  percent: 100,
+  maximumRpe: 10,
+  intensityEnds: [60, 70, 80, 90, Infinity],
+});
 function buckets(labels: readonly string[], counts: readonly number[]): IntensityBucket[] {
   const total = counts.reduce((sum, count) => sum + count, 0);
   return labels.map((label, index) => ({
@@ -52,13 +64,14 @@ export function intensityMix(db: Database, from: Date, to: Date, muscle?: Muscle
   const repCounts = [0, 0, 0, 0, 0];
   const effortCounts = [0, 0, 0, 0, 0, 0];
   let notLogged = 0;
+  const percentCounts = [0, 0, 0, 0, 0];
   const points = new Map<string, { sets: number; intensity: number }>();
   if (Number.isFinite(from.getTime()) && Number.isFinite(to.getTime()) && from <= to) {
     const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
     const end = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
     const rows = db.all<Row>(
       `
-      SELECT e.id AS exerciseId, e.tracking, w.startedAt, s.kind, s.rpe, s.reps, s.weightKilograms
+      SELECT e.id AS exerciseId, w.id AS workoutId, e.tracking, w.startedAt, s.kind, s.rpe, s.reps, s.weightKilograms
       FROM workout w JOIN workoutExercise we ON we.workoutId = w.id
       JOIN exercise e ON e.id = we.exerciseId JOIN workoutSet s ON s.workoutExerciseId = we.id
       WHERE w.isInProgress = 0 AND s.isCompleted = 1 AND s.kind != 'warmup'
@@ -70,6 +83,19 @@ export function intensityMix(db: Database, from: Date, to: Date, muscle?: Muscle
       [start.toISOString(), end.toISOString(), muscle ?? null, muscle ?? null],
     );
     const trends = new Map<number, ReturnType<typeof ExerciseStrength.series>['trend']>();
+    const exercises = new Map<number, ExerciseRow>();
+    const bests = new Map<string, number>();
+    for (const row of rows) {
+      let exercise = exercises.get(row.exerciseId);
+      if (exercise === undefined) {
+        exercise = db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [row.exerciseId]);
+        if (exercise === undefined) continue;
+        exercises.set(row.exerciseId, exercise);
+      }
+      const estimate = estimatedOneRepMax(row, exercise);
+      const key = `${row.exerciseId}:${row.workoutId}`;
+      if (estimate !== null) bests.set(key, Math.max(bests.get(key) ?? 0, estimate.e1rmKilograms));
+    }
     for (const row of rows) {
       if (row.rpe === null) notLogged += 1;
       else {
@@ -89,20 +115,33 @@ export function intensityMix(db: Database, from: Date, to: Date, muscle?: Muscle
       }
       const date = localDateKey(row.startedAt);
       const estimate = trend.filter((point) => point.date <= date).at(-1);
-      if (estimate === undefined || estimate.e1rmKilograms <= 0) continue;
+      const percentage = PercentOfMax(
+        row.weightKilograms,
+        estimate?.e1rmKilograms ?? null,
+        bests.get(`${row.exerciseId}:${row.workoutId}`) ?? null,
+      );
+      if (percentage !== null) {
+        const index = policy.intensityEnds.findIndex((limit) => percentage < limit);
+        percentCounts[index] = (percentCounts[index] ?? 0) + 1;
+      }
+      if (percentage === null) continue;
       const week = new Date(row.startedAt);
       week.setDate(week.getDate() - ((week.getDay() + 6) % 7));
       const key = localDateKey(week);
       const current = points.get(key) ?? { sets: 0, intensity: 0 };
       current.sets += 1;
-      current.intensity += (row.weightKilograms / estimate.e1rmKilograms) * policy.percent;
+      current.intensity += percentage;
       points.set(key, current);
     }
   }
   return {
     reps: buckets(['1–5', '6–10', '11–15', '16–30', '31+'], repCounts),
-    effort: buckets(['0', '1', '2', '3', '4', '5+'], effortCounts),
+    effort: buckets(['0', '1', '2', '3', '4', '5+'], effortCounts).map((bucket, index) => ({
+      ...bucket,
+      rpeLabel: index === 5 ? '≤5' : String(policy.maximumRpe - index),
+    })),
     notLogged,
+    percentOfMax: buckets(['<60%', '60–70%', '70–80%', '80–90%', '≥90%'], percentCounts),
     weeks: [...points].map(([weekStart, point]) => ({
       weekStart,
       sets: point.sets,

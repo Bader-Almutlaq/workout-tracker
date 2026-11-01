@@ -52,3 +52,25 @@ describe('intensity mix', () => {
     expect(intensityMix(db, new Date(2024, 0, 1), new Date(2024, 0, 7), 'biceps').weeks).toEqual([]);
   });
 });
+
+test('a session best prevents a lagging trend from producing over 100 percent', () => {
+  db.run(
+    "INSERT INTO exercise (id, name, source, createdAt, mechanic, tracking) VALUES (1, 'Test', 'custom', '2024-01-01', 'isolation', 'weight-reps')",
+  );
+  for (const [id, date, weight] of [
+    [1, '2024-01-02T12:00:00.000Z', 50],
+    [2, '2024-01-09T12:00:00.000Z', 100],
+  ] as const) {
+    db.run("INSERT INTO workout (id, name, source, startedAt, isInProgress) VALUES (?, 'Test', 'app', ?, 0)", [
+      id,
+      date,
+    ]);
+    db.run('INSERT INTO workoutExercise (id, workoutId, exerciseId, position) VALUES (?, ?, 1, 0)', [id, id]);
+    db.run(
+      "INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, rpe, isCompleted) VALUES (?, 0, 'working', ?, 'kg', 1, 10, 1)",
+      [id, weight],
+    );
+  }
+  const mix = intensityMix(db, new Date(2024, 0, 9), new Date(2024, 0, 9));
+  expect(mix.percentOfMax.map((bucket) => bucket.count)).toEqual([0, 0, 0, 0, 1]);
+});

@@ -345,6 +345,16 @@ export const MIGRATIONS: readonly Migration[] = [
         AND source = 'library' AND tracking = 'bodyweight-reps';
     `,
   },
+  {
+    id: 'v14-pinned-exercises',
+    sql: `
+      CREATE TABLE pinnedExercise (
+        exerciseId INTEGER PRIMARY KEY REFERENCES exercise(id) ON DELETE CASCADE,
+        position INTEGER NOT NULL,
+        pinnedAt TEXT NOT NULL
+      );
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

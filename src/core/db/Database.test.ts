@@ -27,6 +27,7 @@ describe('migrations', () => {
       'measurementSite',
       'migration',
       'muscle',
+      'pinnedExercise',
       'template',
       'templateExercise',
       'templateFolder',

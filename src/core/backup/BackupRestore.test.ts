@@ -227,3 +227,17 @@ test('an actual v1 backup migrates to v3 while retaining all its history and the
   snapshot.close();
   connectionOf(storage).close();
 });
+
+test('restoring a backup retains exercise pins', async () => {
+  const { storage, live } = await setUp();
+  const source = await databaseWith('Pinned backup');
+  source.run("INSERT INTO exercise (id, name, source, createdAt) VALUES (1, 'Pinned', 'custom', '2024-01-01')");
+  source.run("INSERT INTO pinnedExercise (exerciseId, position, pinnedAt) VALUES (1, 0, '2024-01-01')");
+  const bytes = source.exportBytes();
+  source.close();
+  await restoreBackup(storage, live, bytes, NOW);
+  expect(connectionOf(storage).all('SELECT exerciseId, position, pinnedAt FROM pinnedExercise')).toEqual([
+    { exerciseId: 1, position: 0, pinnedAt: '2024-01-01' },
+  ]);
+  connectionOf(storage).close();
+});
