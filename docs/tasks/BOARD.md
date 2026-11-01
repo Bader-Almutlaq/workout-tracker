@@ -104,6 +104,8 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-074](T-074-strong-style-live-workout.md) | Strong-style live workout: continuous list, spaced rows, RPE on the pad (R6) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-075](T-075-deload-settings.md) | Deload settings: amount, by weight, sets or both (R13) | done | Codex Terra (high, two rounds), reviewed and fixed by lead | merged |
 | [T-076](T-076-calf-raise-and-muscle-contributions.md) | Donkey Calf Raise records plain kg; tap a muscle to see its exercises | done | Codex Terra (high), reviewed by lead | merged |
+| [T-077](T-077-strength-curves-and-exercise-progress.md) | Personal strength curve, RPE chart, exercise progress (analytics level 1) | in progress | Codex Sol (high) | task/T-077-exercise-progress |
+| [T-078](T-078-analytics-tab-rebuild.md) | Analytics tab rebuild: pins, overview, strength, muscles, effort | in progress | Codex Terra (high) | task/T-078-analytics-tab |
 
 ## Next milestones (tasks are written when the milestone starts)
 
