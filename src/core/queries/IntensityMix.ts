@@ -16,19 +16,12 @@ export interface IntensityBucket {
   /** Corresponding RPE label for effort buckets, when applicable. */
   readonly rpeLabel?: string;
 }
-/** One Monday week's hard sets with a known strength trend and their mean relative intensity. */
-export interface IntensityPoint {
-  readonly weekStart: string;
-  readonly sets: number;
-  readonly intensityPercent: number;
-}
-/** Working-set rep and effort distributions plus weekly relative intensity. */
+/** Working-set rep and effort distributions and percentage of maximum. */
 export interface IntensityMixResult {
   readonly reps: readonly IntensityBucket[];
   readonly effort: readonly IntensityBucket[];
   readonly notLogged: number;
   readonly percentOfMax: readonly IntensityBucket[];
-  readonly weeks: readonly IntensityPoint[];
 }
 interface Row {
   readonly exerciseId: number;
@@ -57,15 +50,13 @@ function buckets(labels: readonly string[], counts: readonly number[]): Intensit
 }
 /**
  * Finished completed non-warm-up sets over inclusive local dates. Report §12: hard-set rep buckets,
- * RIR = 10 − RPE, and intensity = load / exercise e1RM trend × 100. Weekly points include only
- * hard weight-reps sets with a positive load and an available trend on that day; no future trend is used.
+ * RIR = 10 − RPE, and intensity = load / exercise e1RM trend × 100. Percentage of maximum uses no future trend.
  */
 export function intensityMix(db: Database, from: Date, to: Date, muscle?: Muscle): IntensityMixResult {
   const repCounts = [0, 0, 0, 0, 0];
   const effortCounts = [0, 0, 0, 0, 0, 0];
   let notLogged = 0;
   const percentCounts = [0, 0, 0, 0, 0];
-  const points = new Map<string, { sets: number; intensity: number }>();
   if (Number.isFinite(from.getTime()) && Number.isFinite(to.getTime()) && from <= to) {
     const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
     const end = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
@@ -124,14 +115,6 @@ export function intensityMix(db: Database, from: Date, to: Date, muscle?: Muscle
         const index = policy.intensityEnds.findIndex((limit) => percentage < limit);
         percentCounts[index] = (percentCounts[index] ?? 0) + 1;
       }
-      if (percentage === null) continue;
-      const week = new Date(row.startedAt);
-      week.setDate(week.getDate() - ((week.getDay() + 6) % 7));
-      const key = localDateKey(week);
-      const current = points.get(key) ?? { sets: 0, intensity: 0 };
-      current.sets += 1;
-      current.intensity += percentage;
-      points.set(key, current);
     }
   }
   return {
@@ -142,10 +125,5 @@ export function intensityMix(db: Database, from: Date, to: Date, muscle?: Muscle
     })),
     notLogged,
     percentOfMax: buckets(['<60%', '60–70%', '70–80%', '80–90%', '≥90%'], percentCounts),
-    weeks: [...points].map(([weekStart, point]) => ({
-      weekStart,
-      sets: point.sets,
-      intensityPercent: point.intensity / point.sets,
-    })),
   };
 }

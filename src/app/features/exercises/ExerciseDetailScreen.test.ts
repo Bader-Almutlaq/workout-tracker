@@ -63,7 +63,7 @@ test.each([
 ])('the %s URL selects that section and queries only its data', (tab, key) => {
   const markup = render(`/exercises/1?tab=${tab}`);
   expect(markup).toContain('Exercise sections');
-  expect(queryKeys).toEqual(new Set(['exercise-1', key]));
+  expect(queryKeys).toEqual(new Set(tab === 'summary' ? ['exercise-1', key, 'pinned-exercises'] : ['exercise-1', key]));
   expect(markup).toContain('aria-checked="true"');
 });
 
@@ -75,5 +75,5 @@ test('How-to URL loads no history, chart or record query and renders its empty s
 
 test('invalid URL tab opens Summary', () => {
   render('/exercises/1?tab=invalid');
-  expect(queryKeys).toEqual(new Set(['exercise-1', 'exercise-strength-1']));
+  expect(queryKeys).toEqual(new Set(['exercise-1', 'exercise-strength-1', 'pinned-exercises']));
 });

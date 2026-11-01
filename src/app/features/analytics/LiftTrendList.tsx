@@ -1,12 +1,12 @@
 import { line } from 'd3-shape';
 import { Link } from 'react-router';
-import type { LiftTrend } from '../../../core/queries/LiftTrends';
+import { LiftTrendPolicy, type LiftTrend } from '../../../core/queries/LiftTrends';
 import { KILOGRAMS_PER_POUND } from '../../../core/units/WeightUnit';
 import styles from './Analytics.module.css';
 
 /** Ranked lift trends, in each exercise's display unit, linking to its Charts tab. */
 export function LiftTrendList({ lifts }: { readonly lifts: readonly LiftTrend[] }) {
-  if (lifts.length === 0) return <p>Log at least 3 sessions of a lift in this period to see its trend.</p>;
+  if (lifts.length === 0) return <p>Log at least 2 sessions of a lift in this period to see its trend.</p>;
   return (
     <div>
       {lifts.map((lift) => {
@@ -22,6 +22,9 @@ export function LiftTrendList({ lifts }: { readonly lifts: readonly LiftTrend[] 
             <span>
               {lift.name}
               {lift.mixedMachines && <small>mixed machines</small>}
+              {lift.weeksSinceBest !== undefined && lift.weeksSinceBest >= LiftTrendPolicy.staleWeeks && (
+                <small>no new best in 6 wk</small>
+              )}
             </span>
             <svg viewBox="0 0 100 30" aria-hidden="true">
               <path d={path} fill="none" stroke="currentColor" />

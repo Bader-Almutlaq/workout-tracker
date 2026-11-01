@@ -14,7 +14,7 @@ test('reads view and period from the URL', () => {
       createElement(AnalyticsScreen),
     ),
   );
-  expect(html).toMatch(/aria-checked="true"[^>]*>Muscles/);
+  expect(html).not.toContain('Analytics views');
   expect(html).toMatch(/aria-pressed="true"[^>]*>4W/);
 });
 test('shows comparison and links lift to Charts', () => {
@@ -39,6 +39,7 @@ test('shows comparison and links lift to Charts', () => {
       changePercent: 4.1,
       mixedMachines: false,
       points: [96, 98, 100],
+      weeksSinceBest: 6,
     },
   ];
   const html = renderToStaticMarkup(createElement(MemoryRouter, null, createElement(LiftTrendList, { lifts })));

@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import { TabBar } from './design/components/TabBar';
 import { UpdateBanner } from './design/components/UpdateBanner';
 import { MeasureScreen } from './features/body/MeasureScreen';
+import { MuscleDetailScreen } from './features/analytics/MuscleDetailScreen';
 import { AnalyticsScreen } from './features/analytics/AnalyticsScreen';
 import { ExerciseDetailScreen } from './features/exercises/ExerciseDetailScreen';
 import { ExerciseFormScreen } from './features/exercises/ExerciseFormScreen';
@@ -42,6 +43,7 @@ export function App() {
         <Route path="/measure" element={<MeasureScreen />} />
         <Route path="/measure/:bodyPart" element={<MeasureScreen />} />
         <Route path="/analytics" element={<AnalyticsScreen />} />
+        <Route path="/analytics/muscles/:muscle" element={<MuscleDetailScreen />} />
         <Route path="/settings/import" element={<ImportSourceScreen />} />
         <Route path="/settings/import/:source" element={<StrongImportScreen />} />
         <Route path="/settings/matching" element={<StrongMatchingScreen />} />

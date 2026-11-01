@@ -10,7 +10,7 @@
 }
 .row {
   display: grid;
-  grid-template-columns: 4rem 1fr auto;
+  grid-template-columns: minmax(6rem, auto) 1fr auto;
   gap: var(--space-s);
   align-items: center;
   margin-block: var(--space-s);

@@ -229,3 +229,11 @@ Five separate plots show best-set e1RM, top-set load, reps on that top set, work
 Compare days appears only inside a saved workout when other saved workouts contain the exercise. Up to two chips add lines to the e1RM plot. A single line uses accent; two or three lines use categorical blue, orange and aqua, with an ink-text legend and matching swatches. The local palette module owns these fixed DESIGN values without changing shared tokens.
 
 Records places RPE chart below the rep-max table. The % / entry-unit control defaults to weights when a qualifying e1RM exists, otherwise %. Percent mode explicitly says “Guide: RTS chart, the same for every lift”; weight mode names the source e1RM and either the learned-set count or lift-type default. RPE rows descend 10–5 in half steps; reps 1–15 scroll horizontally within the screen. Row headers stay sticky on an opaque surface. Effective reps above 12 use muted text and a subtle raised-surface background, with a lower-reliability caption. Weights respect the lift's load ladder and appear in its entry unit; no estimate gives a readable empty state.
+
+
+### Analytics dashboard (T-078)
+
+The Analytics tab is one scrolling page: pinned lifts, active plan, period chips, overview tiles,
+strength ranking, muscle table, then effort and rep distributions and separate weekly sets and
+RIR charts. The muscle table opens a period-preserving detail page. Deload weeks are yellow;
+charts provide dated readouts and table alternatives.

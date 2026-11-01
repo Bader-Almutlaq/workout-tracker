@@ -302,3 +302,12 @@ The report leaves the loss function and two-week boundary unspecified. Heuristic
 Progress preserves every finished session, including separate same-day sessions. Top set means the heaviest completed non-warm-up set, ties resolved by more reps then logged order. Any selected deload occurrence marks the session. Deloads remain in raw plots and lifetime bests, but are excluded from the headline trend, four-session changes and latest-session takeaways. The top-set tile still describes the actual last session, labelled Deload when applicable. “Four sessions ago” compares five non-deload observations; absent e1RM at an endpoint means no e1RM change.
 
 The strength/bodyweight Progress plots use the shared chart axes, touch rule and size measurement with raw session points. Selection persists after release so the session link can be opened. Tables preserve each session and link to its recorded sets. Compare days adds up to two saved-workout lines with the first three categorical colors. Timed exercises retain their existing applicable charts. RPE load grids round in the exercise's entry-unit equipment ladder via LoadableWeight, including its minimum-load clamp; percentages are not equipment-rounded.
+
+
+## 2026-11-01: Analytics dashboard (T-078)
+
+The Analytics tab combines the agreed sections into one page. The signature, frequency and balance
+panels, intensity-volume map and session-volume overview are removed. Typical session length is the
+median within the existing duration limit. Percentage of maximum uses the greater of the dated trend
+and the session's best estimate, with the set load as a lower bound to keep the percentage at most 100.
+Pins are ordered locally and included in backups; the selected period controls their change figures.

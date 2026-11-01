@@ -7,7 +7,8 @@ export function RepRangeBars({ buckets }: { readonly buckets: readonly Intensity
   const hasSets = buckets.some((bucket) => bucket.count > 0);
   return (
     <section className={styles.section}>
-      <h2>Rep ranges</h2>
+      <h2>Rep ranges: each bar is a share of hard sets</h2>
+      <p>Hard sets in this period.</p>
       {!hasSets ? (
         <p>No hard sets in this period.</p>
       ) : (

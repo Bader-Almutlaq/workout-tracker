@@ -8,3 +8,10 @@
   font: var(--font-callout);
   color: var(--color-status-critical);
 }
+
+.menu {
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font: var(--font-callout);
+  padding: var(--space-m) 0;
+}

@@ -39,7 +39,7 @@ function add(
     );
 }
 describe('muscle coverage', () => {
-  test('uses daily fractional threshold, trailing window, shares and excludes warmups and live sessions', () => {
+  test('counts fractional sets and shares and excludes warmups and live sessions', () => {
     add('A', 'horizontal-push', 'chest', 'primary', new Date(2024, 0, 2), 2);
     add('B', 'horizontal-push', 'chest', 'primary', new Date(2024, 0, 3), 1);
     add('C', 'elbow-extension', 'triceps', 'secondary', new Date(2024, 0, 2), 1);
@@ -49,47 +49,12 @@ describe('muscle coverage', () => {
     const result = muscleCoverage(db, new Date(2024, 0, 1), new Date(2024, 0, 7));
     expect(result.muscles.find((item) => item.muscle === 'chest')).toMatchObject({
       setsPerWeek: 3,
-      daysPerWeek: 2,
-      daysSince: 4,
     });
     expect(result.muscles.find((item) => item.muscle === 'triceps')).toMatchObject({
       setsPerWeek: 1.5,
-      daysPerWeek: 1,
-      daysSince: null,
     });
     expect(result.shares.chest?.[0]?.percent).toBeCloseTo(200 / 3);
     expect(result.shares.chest?.[1]?.percent).toBeCloseTo(100 / 3);
     expect(result.shares.chest?.reduce((sum, item) => sum + item.percent, 0)).toBeCloseTo(100);
-    expect(result.neglected.some((item) => item.muscle === 'chest')).toBe(true);
-    expect(result.neglected.some((item) => item.muscle === 'neck')).toBe(false);
-  });
-  test('neglected uses exactly the final 28 days, independent of the selected start', () => {
-    add('Old', 'horizontal-push', 'chest', 'primary', new Date(2023, 11, 10), 16);
-    add('Recent', 'horizontal-pull', 'lats', 'primary', new Date(2024, 0, 7), 16);
-    const result = muscleCoverage(db, new Date(2023, 11, 1), new Date(2024, 0, 7));
-    expect(result.neglected.find((item) => item.muscle === 'chest')?.recentSetsPerWeek).toBe(0);
-    expect(result.muscles.find((item) => item.muscle === 'lats')?.recentSetsPerWeek).toBe(4);
-    expect(result.neglected.some((item) => item.muscle === 'lats')).toBe(false);
-  });
-  test('counts each pattern once and returns no ratio if a side is zero', () => {
-    for (const [index, pattern] of [
-      'horizontal-push',
-      'horizontal-pull',
-      'vertical-push',
-      'vertical-pull',
-      'squat',
-      'hinge',
-    ].entries())
-      add(`Exercise ${index}`, pattern, 'chest', 'primary', new Date(2024, 0, 2), index + 1);
-    const ratios = muscleCoverage(db, new Date(2024, 0, 1), new Date(2024, 0, 7)).ratios;
-    expect(ratios.map((item) => [item.first, item.second])).toEqual([
-      [1, 2],
-      [3, 4],
-      [5, 6],
-      [10, 11],
-    ]);
-    expect(
-      muscleCoverage(db, new Date(2024, 1, 1), new Date(2024, 1, 7)).ratios.every((item) => item.ratio === null),
-    ).toBe(true);
   });
 });

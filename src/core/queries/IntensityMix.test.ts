@@ -47,9 +47,6 @@ describe('intensity mix', () => {
     expect(result.reps.map((bucket) => bucket.count)).toEqual([1, 2, 1, 1, 1]);
     expect(result.effort.map((bucket) => bucket.count)).toEqual([1, 1, 1, 1, 1, 1]);
     expect(result.notLogged).toBe(1);
-    expect(result.weeks[0]?.sets).toBe(6);
-    expect(result.weeks[0]?.intensityPercent).toBeCloseTo(100 / (1 + 9 / 29));
-    expect(intensityMix(db, new Date(2024, 0, 1), new Date(2024, 0, 7), 'biceps').weeks).toEqual([]);
   });
 });
 
