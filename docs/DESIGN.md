@@ -139,6 +139,11 @@ The menu lists only existing capabilities: session note, warm-ups, rest target, 
 move and remove. Sticky notes, replacement and superset editing have no live operation yet.
 
 The live grid keeps weight and reps columns equal and aligns headings with the rows at 430 px.
+Value boxes have 30 px visible height, 8 px corners and a 44 px touch area. Confirmation dialogs
+space the title, optional message and stacked actions consistently. Plan cards show workout chips;
+summary usage uses labelled tiles. Planned muscle tables separate direct and indirect columns and
+place smaller muscles in a quieter expandable group. Progress rows label their estimate and comparison
+columns, and pinned suggestions reserve card-sized positions while the owner pins them.
 `--font-input: 400 16px/1.4 var(--font-family)` avoids Safari focus zoom in note inputs.
 
 

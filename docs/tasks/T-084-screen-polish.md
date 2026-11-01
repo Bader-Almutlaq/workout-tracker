@@ -54,4 +54,6 @@ The owner reviewed the app on their iPhone with real data (2026-11-02). Besides 
 
 ## Handoff
 
-_Fill in at the end of the session._
+Implemented plan workout chips, exercise usage tiles, trained-muscle rows and smaller group, progress headers and set labels, workout tile wording, pinned suggestion slots, estimate explanations, compact rounded value boxes, and confirmation spacing. `ExerciseProgress` now returns the best and latest accepted estimate source sets and the fitted curve; the current headline is a smoothed trend rather than one set, which the sheet explains.
+
+Remaining review: the required two-consecutive-pin interaction regression and interactive sheet/expanded-muscle tests were not added. The pin-slot ordering is stable while pinning, but suggested lifts can revert to suggestion order after a remount even if previously reordered; resolve this before marking the task complete. No iPhone-sized dark/light visual check was performed. Confirm that the progress comparison header and the touch areas fit on device. Changes are uncommitted; do not mark the task done until those gaps are resolved and verification is rerun.

@@ -1,3 +1,5 @@
+/// <reference types="node" />
+import { readFileSync } from 'node:fs';
 import { createElement, isValidElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, test, vi } from 'vitest';
@@ -227,4 +229,13 @@ test('bodyweight heading describes added load and warm-ups are added through the
   menu.find((item) => item.label === 'Add warm-up set')?.onSelect();
   expect(addSet).toHaveBeenCalledWith(1, 'warmup');
   expect(menu.map((item) => item.label)).not.toContain('Show RPE');
+});
+
+test('visible value boxes keep rounded corners and a 44px hit area', () => {
+  const css = readFileSync(new URL('./ValueCell.module.css', import.meta.url), 'utf8');
+  expect(css).toContain('height: 30px');
+  expect(css).toContain('border-radius: var(--radius-small)');
+  expect(css).toContain('inset: -7px 0');
+  expect(css).not.toContain('solid transparent');
+  expect(css).not.toContain('background-clip: padding-box');
 });

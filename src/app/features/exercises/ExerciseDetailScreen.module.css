@@ -33,3 +33,29 @@
   flex-direction: column;
   gap: var(--space-xl);
 }
+
+.usageTiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-s);
+}
+.usageTiles div {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-s);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+}
+.usageTiles strong {
+  font: var(--font-title);
+}
+.usageTiles span {
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+}
+
+.usageTraits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}

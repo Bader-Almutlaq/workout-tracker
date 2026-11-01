@@ -114,3 +114,8 @@
 .legend li[data-series='0'] {
   --series-color: var(--progress-blue);
 }
+
+button.tile {
+  color: var(--color-text-primary);
+  text-align: left;
+}

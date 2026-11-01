@@ -192,7 +192,7 @@
 }
 .lift {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 4rem auto;
+  grid-template-columns: minmax(0, 1fr) 4rem 5rem;
   gap: var(--space-s);
   align-items: center;
   color: var(--color-text-primary);
@@ -324,4 +324,29 @@
   display: block;
   max-width: 100%;
   min-height: 44px;
+}
+
+.liftHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4rem 5rem;
+  gap: var(--space-s);
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+}
+.liftHeader span:last-child {
+  text-align: right;
+}
+
+.pins .suggestionSlot {
+  min-height: 11rem;
+  align-self: stretch;
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: var(--space-s) var(--space-m);
+  font: var(--font-callout);
+}
+.pin {
+  min-height: 11rem;
 }
