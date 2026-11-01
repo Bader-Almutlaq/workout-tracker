@@ -5,6 +5,16 @@ import { dayWithYearText } from '../../format/dateText';
 import { progressChangeText, progressTopSetText } from './progressText';
 import styles from './ExerciseProgress.module.css';
 
+/** RPE and session label under the top set, e.g. "RPE 8 · last session". */
+function topSetDetail(rpe: number | null, isDeload: boolean): string {
+  return [
+    rpe === null ? null : `RPE ${rpe}`,
+    rpe === null ? (isDeload ? 'Deload' : 'Last session') : isDeload ? 'deload' : 'last session',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+
 /** Three compact, wrapping summaries; trend/change exclude deloads, the last-session top set preserves the recorded load. */
 export function ExerciseProgressTiles({
   report,
@@ -33,14 +43,8 @@ export function ExerciseProgressTiles({
       </div>
       <div className={styles.tile}>
         <h2>Top set</h2>
-        <p className={styles.topSet}>{progressTopSetText(last?.topSet ?? null, unit, bodyweight)}</p>
-        <p>{last === undefined ? 'No sessions yet' : `Last session${last.isDeload ? ' · Deload' : ''}`}</p>
-        {changes !== null && (
-          <p>
-            {progressTopSetText(changes.topSet.before, unit, bodyweight)} →{' '}
-            {progressTopSetText(changes.topSet.after, unit, bodyweight)}
-          </p>
-        )}
+        <p className={styles.value}>{progressTopSetText(last?.topSet ?? null, unit, bodyweight, false)}</p>
+        <p>{last === undefined ? 'No sessions yet' : topSetDetail(last.topSet?.rpe ?? null, last.isDeload)}</p>
       </div>
     </div>
   );
