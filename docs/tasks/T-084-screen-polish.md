@@ -54,4 +54,9 @@ The owner reviewed the app on their iPhone with real data (2026-11-02). Besides 
 
 ## Handoff
 
-_Fill in at the end of the session._
+Round 1 implemented the screen polish and extended `ExerciseProgress` with estimate source sets and the fitted curve. The current headline is a smoothed trend rather than one set, which the sheet explains.
+
+Round 2 removed local pin ordering. Cards follow database order and remaining suggestions share a horizontally scrollable row with a card-height minimum. Added Node interaction regressions for two consecutive pins, both estimate sheets, and showing and hiding the separate smaller-muscle group. These tests simulate event handlers with mocked state and data; they do not exercise a browser or actual worker subscriptions.
+
+`make format` and `make verify` passed: 198 test files and 1,334 tests. No iPhone-sized dark/light visual check was performed; confirm the progress comparison header, pin row, and touch areas fit on device. Changes are uncommitted.
+- **Lead review:** the app's test config only ran `*.test.ts`, so every `*.test.tsx` (the new interaction tests and some older ones) had never run; added `src/app/**/*.test.tsx` to `vitest.config.ts` (16 more tests) and fixed the stale assertion. Reworked the pin row after a browser check: suggestion chips stay in place for the visit and turn into "✓ name" when pinned, cards appear below (no reserved empty height). Pin cards: the sparkline scale no longer starts at 0 kg, and ⋯ sits in the card's corner (the global `sr-only` class it used never existed).

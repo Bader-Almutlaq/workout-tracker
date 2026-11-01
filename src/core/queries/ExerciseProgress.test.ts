@@ -91,6 +91,9 @@ describe('ExerciseProgress', () => {
     expect(report.changes?.topSet).toMatchObject({ before: { weightKilograms: 100 }, after: { weightKilograms: 104 } });
     expect(report.changes?.workingSetCount).toEqual({ before: 1, after: 1 });
     expect(report.bestEstimate?.value).toBeCloseTo(200 * (1 + 6 / 29));
+    expect(report.bestEstimateSource?.set).toMatchObject({ weightKilograms: 200, reps: 5, rpe: 8 });
+    expect(report.latestEstimateSource?.set.weightKilograms).toBe(104);
+    expect(report.curve).toMatchObject({ k: 29, isPersonal: false });
     expect(report.trendNow).toBeLessThan(104 * (1 + 6 / 29));
   });
   it('scopes sessions and comparisons by template and machine; other workouts exclude the current one', () => {

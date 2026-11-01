@@ -23,7 +23,7 @@ test('pin suggestions are individual chip buttons', () => {
       <PinnedLifts from="a" to="b" />
     </MemoryRouter>,
   );
-  expect(html).toContain(styles.suggestions);
+  expect(html).toContain(styles.pins);
   expect(html).toMatch(/<button[^>]*>\+ Bench Press \(Barbell\)<\/button>/);
 });
 

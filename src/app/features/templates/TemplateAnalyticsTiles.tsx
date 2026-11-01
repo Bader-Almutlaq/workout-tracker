@@ -37,9 +37,9 @@ export function TemplateAnalyticsTiles({ report, plan }: { readonly report: Repo
           detail: '',
         },
         {
-          label: 'Last sets',
-          value: String(report.lastSession?.workingSets ?? 0),
-          detail: `of ${report.lastSession?.plannedWorkingSets ?? 0} planned`,
+          label: 'Sets last time',
+          value: `${report.lastSession?.workingSets ?? 0} / ${report.lastSession?.plannedWorkingSets ?? 0}`,
+          detail: 'planned',
         },
       ];
   return (

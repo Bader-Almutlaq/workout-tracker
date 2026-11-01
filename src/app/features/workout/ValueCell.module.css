@@ -4,10 +4,10 @@
   justify-content: center;
   gap: var(--space-xs);
   min-width: 0;
-  height: var(--workout-tap-size);
-  border: 6px solid transparent;
+  position: relative;
+  height: 30px;
+  border: 0;
   background: var(--set-cell-background, var(--color-surface-raised));
-  background-clip: padding-box;
   border-radius: var(--radius-small);
 
   font: var(--font-body);
@@ -55,4 +55,10 @@
 
 .suggestion[data-progression='true'] {
   color: var(--color-failure);
+}
+
+.cell::before {
+  content: '';
+  position: absolute;
+  inset: -7px 0;
 }

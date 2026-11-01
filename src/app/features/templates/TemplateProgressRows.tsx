@@ -1,4 +1,5 @@
 import type { TemplateAnalytics } from '../../../core/queries/TemplateAnalytics';
+import styles from '../analytics/Analytics.module.css';
 import { LiftRow } from '../analytics/LiftRow';
 import { workoutExercisePath } from './templatePaths';
 
@@ -7,6 +8,11 @@ type Group = ReturnType<typeof TemplateAnalytics>['exercises'][number];
 export function TemplateProgressRows({ exercises }: { readonly exercises: Group['exercises'] }) {
   return (
     <div>
+      <div className={styles.liftHeader}>
+        <span>Exercise</span>
+        <span>Est. 1RM (last 8)</span>
+        <span>vs 4 sessions ago</span>
+      </div>
       {exercises.map((exercise) => {
         const latest = exercise.sessions.at(-1)?.bestEstimatedOneRepMax ?? null;
         const counts = exercise.changes?.workingSetCount;
@@ -39,7 +45,7 @@ export function TemplateProgressRows({ exercises }: { readonly exercises: Group[
                 </small>
                 {counts && counts.before !== counts.after && (
                   <small>
-                    {counts.before} → {counts.after} sets
+                    Sets {counts.before} → {counts.after}
                   </small>
                 )}
               </>

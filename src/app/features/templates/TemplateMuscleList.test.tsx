@@ -21,11 +21,11 @@ it('shows fractional and unweighted counts, frequency, untrained muscles, and th
       }}
     />,
   );
-  expect(html).toContain('2 direct + 2 indirect');
+  expect(html).toContain('>Direct<');
+  expect(html).toContain('>Indirect<');
   expect(html).toContain('1× a week');
-  expect(html).toContain('Not trained');
-  expect(html).toMatch(/<button[^>]*><div[^>]*><strong>Chest/);
-  expect(html).toMatch(/<div[^>]*><div[^>]*><strong>Biceps<\/strong><span>Not trained/);
+  expect(html).not.toContain('Biceps');
+  expect(html).toContain('Chest');
   expect(html).toContain('Show smaller muscles');
   expect(html).not.toContain('>Neck<');
 });
@@ -43,7 +43,7 @@ it('renders contributions in the muscle sheet', () => {
     ],
   };
   const html = renderToStaticMarkup(<TemplateMuscleSheet row={row} showWorkouts onClose={() => {}} />);
-  expect(html).toContain('6 sets · 4 direct + 4 indirect');
+  expect(html).toContain('6 sets — 4 direct + 4 indirect');
   expect(html).toContain('Press');
   expect(html).toContain('Push A, Push B');
   expect(html).toContain('4 indirect');

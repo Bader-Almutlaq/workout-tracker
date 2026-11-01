@@ -22,7 +22,7 @@ test('empty pins offer suggestions and no active plan renders no row', () => {
       <PinnedLifts from="a" to="b" />
     </MemoryRouter>,
   );
-  expect(pins).toContain('Pin lifts from an exercise');
+  expect(pins).not.toContain('Pin lifts from an exercise');
   expect(pins).toContain('Pin Squat (Barbell)');
   expect(
     renderToStaticMarkup(
