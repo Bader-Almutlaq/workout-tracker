@@ -69,13 +69,109 @@ describe('personalCurve', () => {
   ])('bounds an unconstrained k=%s fit at %s', (input, expected) => {
     expect(personalCurve({ ...exercise, equipment: null }, synthetic(input)).k).toBe(expected);
   });
-  it('gives unlogged effort less influence than logged effort with the same effective reps', () => {
+  it('excludes unknown effort from the count, rep checks, window anchors and fitted curve', () => {
     const unknown = synthetic(40).map((set) => ({ ...set, reps: set.reps - 2, rpe: null }));
-    const known = unknown.map((set) => ({ ...set, rpe: 8 }));
-    const weighted = personalCurve(exercise, [...synthetic(20), ...unknown]);
-    const unweighted = personalCurve(exercise, [...synthetic(20), ...known]);
-    expect(weighted.k).not.toBeNull();
-    expect(weighted.k ?? Infinity).toBeLessThan(unweighted.k ?? 0);
+    expect(personalCurve(exercise, [...synthetic(20), ...unknown])).toEqual(personalCurve(exercise, synthetic(20)));
+    expect(personalCurve(exercise, [...synthetic(20, 9), ...unknown]).isPersonal).toBe(false);
+    const oneCount = synthetic(20).map((set) => ({ ...set, reps: 3 }));
+    expect(personalCurve(exercise, [...oneCount, ...unknown]).isPersonal).toBe(false);
+    const atBoundary = synthetic(20).map((set, index) => ({
+      ...set,
+      date: index % 2 === 0 ? '2026-01-14' : '2026-01-15',
+    }));
+    expect(personalCurve(exercise, [...unknown, ...atBoundary])).toEqual(personalCurve(exercise, atBoundary));
+  });
+  it('keeps Strong-like unknown-effort squat history on k=38 and estimates a triple at 154.74 kg', () => {
+    const squat: StrengthExercise = { ...exercise, movementPattern: 'squat' };
+    const sets = Array.from({ length: 20 }, (_, week) => {
+      const date = new Date(Date.UTC(2025, 0, 1 + week * 7)).toISOString();
+      return [
+        { date, kind: 'working', reps: 3, rpe: null, weightKilograms: 140 },
+        ...Array.from({ length: 3 }, (): PersonalCurveSet => ({
+          date,
+          kind: 'working',
+          reps: 10,
+          rpe: null,
+          weightKilograms: 100,
+        })),
+      ] satisfies PersonalCurveSet[];
+    }).flat();
+    const curve = personalCurve(squat, sets);
+    expect(curve).toEqual({ k: 38, kStart: 38, personalSets: 0, isPersonal: false });
+    expect(
+      estimatedOneRepMax(
+        { kind: 'working', reps: 3, rpe: null, weightKilograms: 140 },
+        { ...squat, strengthCurve: curve },
+      )?.e1rmKilograms,
+    ).toBeCloseTo(154.7368421053);
+  });
+  it('fits k=30 at E=3, 6 and 9 before blending all twelve known-effort sets', () => {
+    // e1RM 150 = 140.625*(1+2/30) = (900/7)*(1+5/30) = (2250/19)*(1+8/30).
+    const sets = Array.from(
+      { length: 4 },
+      () =>
+        [
+          { date: '2026-01-01', kind: 'working', reps: 2, rpe: 9, weightKilograms: 140.625 },
+          { date: '2026-01-02', kind: 'working', reps: 4, rpe: 8, weightKilograms: 900 / 7 },
+          { date: '2026-01-03', kind: 'working', reps: 7, rpe: 8, weightKilograms: 2250 / 19 },
+        ] satisfies PersonalCurveSet[],
+    ).flat();
+    expect(personalCurve({ ...exercise, equipment: null }, sets).k).toBe(30);
+    expect(personalCurve(exercise, sets)).toEqual({
+      k: (12 * 30 + 15 * 29) / 27,
+      kStart: 29,
+      personalSets: 12,
+      isPersonal: true,
+    });
+  });
+  it('ignores sets rated further than 2 reps from failure when fitting', () => {
+    // RPE 7 back-offs at 10 reps would need a low k to agree with the triples; they must not fit the curve.
+    const squat: StrengthExercise = { ...exercise, movementPattern: 'squat' };
+    const sets = Array.from(
+      { length: 12 },
+      (_, week) =>
+        [
+          {
+            date: `2026-01-${String(week + 1).padStart(2, '0')}`,
+            kind: 'working',
+            reps: 3,
+            rpe: 9,
+            weightKilograms: 140,
+          },
+          {
+            date: `2026-01-${String(week + 1).padStart(2, '0')}`,
+            kind: 'working',
+            reps: 10,
+            rpe: 7,
+            weightKilograms: 100,
+          },
+        ] satisfies PersonalCurveSet[],
+    ).flat();
+    expect(personalCurve(squat, sets)).toEqual({ k: 38, kStart: 38, personalSets: 12, isPersonal: false });
+  });
+  it('uses only the best trial estimate per effective-rep count within a window', () => {
+    // Each window has E=3 at 140.625 kg and E=6 at 900/7 kg, agreeing at k=30.
+    // The E=6 back-offs at 100 and 90 kg must not pull the fitted k down.
+    const sets = Array.from({ length: 3 }, (_, window) => {
+      const date = new Date(Date.UTC(2026, 0, 1 + window * 14)).toISOString();
+      return [
+        { date, kind: 'working', reps: 3, rpe: 10, weightKilograms: 140.625 },
+        ...[900 / 7, 100, 90].map((weightKilograms): PersonalCurveSet => ({
+          date,
+          kind: 'working',
+          reps: 6,
+          rpe: 10,
+          weightKilograms,
+        })),
+      ] satisfies PersonalCurveSet[];
+    }).flat();
+    expect(personalCurve({ ...exercise, equipment: null }, sets).k).toBe(30);
+    expect(personalCurve(exercise, sets).k).toBe((12 * 30 + 15 * 29) / 27);
+    expect(personalCurve(exercise, [...sets].reverse())).toEqual(personalCurve(exercise, sets));
+  });
+  it('fits failure sets with no RPE because their effort is known', () => {
+    const sets = synthetic(20).map((set): PersonalCurveSet => ({ ...set, kind: 'failure', rpe: null }));
+    expect(personalCurve(exercise, sets)).toEqual(personalCurve(exercise, synthetic(20)));
   });
   it('excludes warmups, invalid dates, invalid loads, excessive RIR and E above twelve', () => {
     const invalid: PersonalCurveSet[] = [

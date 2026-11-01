@@ -284,3 +284,12 @@ Migration `v13-donkey-calf-raise-weighted` changes the original, unrenamed libra
 ### Pinned exercises (v14)
 
 `pinnedExercise` stores exercise IDs, display positions and pin timestamps. It is included in the SQLite backup and restore validation. Deleting an exercise cascades its pin; merging transfers a source pin to the target, retaining the target pin when both are pinned. The usual snapshot precedes migration and exercise merge.
+
+
+### Lower-trap library coverage (v15)
+
+Migration `v15-lower-traps` adds secondary `lower-traps` associations with frozen keys for the ten existing Face Pull, Y-Raise and Reverse Fly variants. `INSERT OR IGNORE` preserves existing muscle roles and only `source = 'library'` rows qualify; custom, edited/custom-source and unmatched Strong exercises keep their exact muscle rows. Library metadata is read-only today, so there is no separate muscle-edit marker. Rows and pulldowns retain their existing `upper-back` classification. The worker takes its usual pre-migration snapshot. No sets or loads change.
+
+The bundled library and its source mapping carry the same tags for fresh installs. Library version remains 2: existing installations receive this targeted migration without a full re-seed that could refresh unrelated library metadata.
+
+For a terminal-only strength check, run `npx tsx tools/import-report.ts [export folder] --strength "Squat (Barbell)"`. After the normal report, the optional check seeds the bundled library and uses the existing importer in a disposable in-memory database, then prints qualifying known/unknown-effort counts, the starting/personal k, current trend and best session estimate with source sets. The trend is smoothed history, so its source label identifies the latest accepted input rather than attributing the entire trend to one set. Only `tools/import-report.ts` reads export files; nothing is saved.

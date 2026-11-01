@@ -10,7 +10,8 @@ type Report = ReturnType<typeof TemplateAnalytics>;
 const report: Report = {
   sessionCount: 1,
   typicalSessionSeconds: 3600,
-  weeksOnPlan: 2,
+  windowEnd: '2026-01-11',
+  windowIsHistorical: false,
   weeksAvailable: 1,
   sessionsPerWeek: 1,
   plannedWorkouts: 2,
@@ -64,7 +65,7 @@ it('orders workout sections, links the scoped exercise and marks deloads', () =>
 });
 it('orders plan sections and shows done and planned muscle sets', () => {
   const html = render(true);
-  expect(html.indexOf('On this plan')).toBeLessThan(html.indexOf('Sets per muscle, per week'));
+  expect(html.indexOf('Workouts')).toBeLessThan(html.indexOf('Sets per muscle, per week'));
   expect(html.indexOf('Sets per muscle, per week')).toBeLessThan(html.indexOf('Weekly hard sets'));
   expect(html.indexOf('Weekly effort')).toBeLessThan(html.indexOf('Progress by workout'));
   expect(html).toContain('2 / 3');
@@ -140,4 +141,15 @@ it('uses top-set load and the four-session comparison when an estimate is absent
   expect(html).toContain('80 kg');
   expect(html).toContain('top set');
   expect(html).toContain('70 → 80 kg');
+});
+
+it('shows total workouts and short recent-window details in plan tiles', () => {
+  const current = render(true);
+  expect(current).toContain('Workouts');
+  expect(current).toContain('Per week');
+  expect(current).toContain('of 2 planned');
+  expect(current).not.toContain('On this plan');
+  const historical = render(true, { ...report, weeksAvailable: 4, windowEnd: '2026-10-12', windowIsHistorical: true });
+  expect(historical).toContain('4 wk to 12 Oct');
+  expect(historical).not.toContain('of 2 planned');
 });

@@ -1,4 +1,5 @@
 import { estimatedOneRepMax, startingStrengthK, type StrengthExercise } from './EstimatedOneRepMax';
+import { EffectiveRepsDefaults } from './EffectiveReps';
 import type { WorkoutSet } from '../models/WorkoutSet';
 
 /** Report, recommended algorithms item 3. Heuristic: half-step search and relative weighted variance in anchored 14-day windows. */
@@ -10,9 +11,15 @@ export const PersonalCurvePolicy = Object.freeze({
   maximumK: 50,
   step: 0.5,
   windowMilliseconds: 14 * 86_400_000,
+  /**
+   * Only sets rated within 2 reps of failure (RPE ≥ 8) fit the curve. Report § "How accurate is self-reported RIR?":
+   * lifters underestimate remaining reps by about 1, and the error shrinks closer to failure (Halperin 2022).
+   * Heuristic: on the owner's history, RPE 7 sets pulled the squat's k to 16 and its e1RM ~25 kg above their top sets.
+   */
+  maximumFittingRepsInReserve: 2,
 });
 
-/** Dimensionless fitted k; null without a classified prior or identifiable personal fit. n counts qualifying sets. */
+/** Dimensionless fitted k; null without a classified prior or identifiable personal fit. n counts qualifying known-effort sets. */
 export interface PersonalCurve {
   readonly k: number | null;
   readonly kStart: number | null;
@@ -28,8 +35,10 @@ export type PersonalCurveSet = Pick<WorkoutSet, 'kind' | 'weightKilograms' | 're
 /**
  * Fits k by minimising Σ weighted relative variance of e1RMs within 14-day windows.
  * Report, recommended algorithms 1–3: E = reps + RIR; e1RM = w(1+(E−1)/k);
- * k = (n*k_yours + 15*k_start)/(n+15), bounded 8–50. Unknown effort has half weight.
- * Heuristic: windows anchor to the earliest valid set; windows need distinct E to identify a curve.
+ * k = (n*k_yours + 15*k_start)/(n+15), bounded 8–50. Only failure or logged RPE ≥ 8 (RIR ≤ 2) qualifies for fitting.
+ * Heuristic: windows anchor to the earliest qualifying known-effort set and need distinct E.
+ * Only the best trial e1RM per E enters each window's variance: top sets approximate a max,
+ * while repeated back-off sets must not outvote them (report item 3's two-week agreement).
  * With no classified prior an identifiable fit is used directly, without inventing a prior.
  */
 export function personalCurve(exercise: StrengthExercise, sets: readonly PersonalCurveSet[]): PersonalCurve {
@@ -37,6 +46,10 @@ export function personalCurve(exercise: StrengthExercise, sets: readonly Persona
   const kStart = startingStrengthK(exercise);
   const valid = sets
     .flatMap((set) => {
+      const isNearFailure =
+        set.kind === 'failure' ||
+        (set.rpe !== null && EffectiveRepsDefaults.maximumRpe - set.rpe <= policy.maximumFittingRepsInReserve);
+      if (!isNearFailure) return [];
       const estimate = estimatedOneRepMax(set, {
         ...exercise,
         strengthCurve: { k: policy.minimumK, kStart, personalSets: 0, isPersonal: false },
@@ -77,10 +90,15 @@ export function personalCurve(exercise: StrengthExercise, sets: readonly Persona
   for (let k = policy.minimumK; k <= policy.maximumK; k += policy.step) {
     let loss = 0;
     for (const group of groups) {
-      const values = group.map((set) => ({
-        value: set.weight * (1 + (set.effort.effectiveReps - 1) / k),
-        weight: set.effort.trendWeight,
-      }));
+      const bestByReps = new Map<number, { value: number; weight: number }>();
+      for (const set of group) {
+        const value = set.weight * (1 + (set.effort.effectiveReps - 1) / k);
+        const previous = bestByReps.get(set.effort.effectiveReps);
+        if (previous === undefined || value > previous.value) {
+          bestByReps.set(set.effort.effectiveReps, { value, weight: set.effort.trendWeight });
+        }
+      }
+      const values = [...bestByReps.values()];
       const totalWeight = values.reduce((sum, set) => sum + set.weight, 0);
       const mean = values.reduce((sum, set) => sum + set.value * set.weight, 0) / totalWeight;
       loss += values.reduce((sum, set) => sum + set.weight * (set.value / mean - 1) ** 2, 0);

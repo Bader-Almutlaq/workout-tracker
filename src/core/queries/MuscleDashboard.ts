@@ -66,12 +66,16 @@ export function MuscleDetail(db: Database, from: Date, to: Date, muscle: Muscle)
   );
   const end = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
   const strength: readonly LiftTrend[] = LiftTrends(db, from, end).filter((lift) => ids.has(lift.id));
+  // Occupancy is about finished sessions, even when none trained this muscle or contained a hard set.
+  const loggedWeeks = new Set(WeeklyEffort(db, from, to).map((week) => week.weekStart));
   return {
     summary: summary ?? null,
-    weekly: weeklyMuscleVolume(db, from, to, undefined, true).map((week) => ({
-      weekStart: week.weekStart,
-      muscle: week.muscles.find((item) => item.muscle === muscle) ?? null,
-    })),
+    weekly: weeklyMuscleVolume(db, from, to, undefined, true)
+      .filter((week) => loggedWeeks.has(week.weekStart))
+      .map((week) => ({
+        weekStart: week.weekStart,
+        muscle: week.muscles.find((item) => item.muscle === muscle) ?? null,
+      })),
     strength,
     mix: intensityMix(db, from, to, muscle),
     effort: WeeklyEffort(db, from, to, muscle),

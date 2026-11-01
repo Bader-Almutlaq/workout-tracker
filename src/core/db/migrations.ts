@@ -355,6 +355,27 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    id: 'v15-lower-traps',
+    sql: `
+      -- Frozen direct lower-trap families; custom/edited exercise definitions keep their rows.
+      INSERT OR IGNORE INTO exerciseMuscle (exerciseId, muscleId, role)
+      SELECT id, 'lower-traps', 'secondary'
+      FROM exercise
+      WHERE source = 'library' AND libraryKey IN (
+        'cross-body-y-raise-cable',
+        'reverse-fly-dumbbell',
+        'reverse-fly-cable',
+        'reverse-fly-machine',
+        'reverse-fly-band',
+        'chest-supported-reverse-fly-dumbbell',
+        'face-pull-cable',
+        'face-pull-band',
+        'reverse-fly-with-external-rotation-dumbbell',
+        'sled-reverse-fly-weighted'
+      );
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

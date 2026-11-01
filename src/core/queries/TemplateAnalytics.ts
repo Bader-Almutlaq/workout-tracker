@@ -1,3 +1,4 @@
+import { localDateKey } from '../support/localDate';
 import { muscleVolume } from '../analytics/MuscleVolume';
 import type { Database } from '../db/Database';
 import type { Muscle } from '../library/Muscle';
@@ -9,7 +10,7 @@ import { TemplateSessions, type TemplateSessionScope } from './TemplateSessions'
 import { typicalDuration } from './TrainingSummary';
 import { summarizeEffort, WeeklyEffort } from './WeeklyEffort';
 
-/** Heuristic: calendar weeks start Monday; comparisons use at most four completed weeks and eight plotted sessions. */
+/** Heuristic: calendar weeks start Monday; comparisons use at most four weeks ending with the latest finished session’s week and eight plotted sessions. */
 const Window = Object.freeze({
   daysPerWeek: 7,
   comparisonWeeks: 4,
@@ -67,34 +68,36 @@ export function TemplateAnalytics(db: Database, scope: TemplateSessionScope, now
         })
       : [];
   const first = history.sessions.at(-1);
-  const currentMonday = monday(now);
+  const latest = history.sessions[0];
+  const latestMonday = latest === undefined ? null : monday(new Date(latest.startedAt));
   const firstMonday = first === undefined ? null : monday(new Date(first.startedAt));
   const weeksAvailable =
-    firstMonday === null
+    firstMonday === null || latestMonday === null
       ? 0
-      : Math.max(
-          0,
-          Math.min(
-            Window.comparisonWeeks,
-            Math.round(
-              (Date.UTC(currentMonday.getFullYear(), currentMonday.getMonth(), currentMonday.getDate()) -
-                Date.UTC(firstMonday.getFullYear(), firstMonday.getMonth(), firstMonday.getDate())) /
-                Window.millisecondsPerDay /
-                Window.daysPerWeek,
-            ),
-          ),
+      : Math.min(
+          Window.comparisonWeeks,
+          Math.round(
+            (Date.UTC(latestMonday.getFullYear(), latestMonday.getMonth(), latestMonday.getDate()) -
+              Date.UTC(firstMonday.getFullYear(), firstMonday.getMonth(), firstMonday.getDate())) /
+              Window.millisecondsPerDay /
+              Window.daysPerWeek,
+          ) + 1,
         );
-  const start = new Date(currentMonday);
+  const end = latestMonday === null ? monday(now) : new Date(latestMonday);
+  end.setDate(end.getDate() + Window.daysPerWeek);
+  const start = new Date(end);
   start.setDate(start.getDate() - weeksAvailable * Window.daysPerWeek);
+  const lastDay = new Date(end);
+  lastDay.setDate(lastDay.getDate() - 1);
   const weekly =
     'folderId' in scope && firstMonday !== null && firstMonday <= now
       ? WeeklyEffort(db, firstMonday, now, undefined, scope)
       : [];
   const selected = history.sessions.filter(
-    (session) => new Date(session.startedAt) >= start && new Date(session.startedAt) < currentMonday,
+    (session) => new Date(session.startedAt) >= start && new Date(session.startedAt) < end,
   );
   const rows =
-    'folderId' in scope && weeksAvailable > 0
+    weeksAvailable > 0
       ? db.all<{
           workoutId: number;
           muscle: Muscle;
@@ -109,9 +112,9 @@ export function TemplateAnalytics(db: Database, scope: TemplateSessionScope, now
      FROM workout w JOIN workoutExercise we ON we.workoutId = w.id
      JOIN workoutSet s ON s.workoutExerciseId = we.id JOIN exercise e ON e.id = we.exerciseId
      JOIN exerciseMuscle em ON em.exerciseId = e.id
-     WHERE w.isInProgress = 0 AND w.templateId IN (SELECT id FROM template WHERE folderId = ?)
+     WHERE w.isInProgress = 0 AND ${'templateId' in scope ? 'w.templateId = ?' : 'w.templateId IN (SELECT id FROM template WHERE folderId = ?)'}
        AND w.startedAt >= ? AND w.startedAt < ?`,
-          [scope.folderId, start.toISOString(), currentMonday.toISOString()],
+          ['templateId' in scope ? scope.templateId : scope.folderId, start.toISOString(), end.toISOString()],
         )
       : [];
   const sets = rows.map((row) => ({ ...row, isCompleted: row.isCompleted === 1 }));
@@ -141,18 +144,12 @@ export function TemplateAnalytics(db: Database, scope: TemplateSessionScope, now
   return {
     sessionCount: history.sessions.length,
     typicalSessionSeconds: typicalDuration(history.sessions),
-    weeksOnPlan:
-      'folderId' in scope && firstMonday !== null
-        ? Math.max(
-            1,
-            Math.floor(
-              (Date.UTC(currentMonday.getFullYear(), currentMonday.getMonth(), currentMonday.getDate()) -
-                Date.UTC(firstMonday.getFullYear(), firstMonday.getMonth(), firstMonday.getDate())) /
-                Window.millisecondsPerDay /
-                Window.daysPerWeek,
-            ) + 1,
-          )
-        : null,
+    /** Inclusive local ISO date of the Sunday ending the latest finished session's week; null without history. */
+    windowEnd: latest === undefined ? null : localDateKey(lastDay),
+    /** Heuristic: after seven elapsed days, label the historical window instead of planned frequency. */
+    windowIsHistorical:
+      latest !== undefined &&
+      now.getTime() - Date.parse(latest.startedAt) > Window.daysPerWeek * Window.millisecondsPerDay,
     weeksAvailable,
     sessionsPerWeek: weeksAvailable === 0 ? null : selected.length / weeksAvailable,
     plannedWorkouts: planned.workouts,

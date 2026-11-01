@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
 import { Database } from './Database';
+import { ExerciseLibrary } from '../library/ExerciseLibrary';
 import { DataSafetyFixture } from './fixtures/DataSafetyFixture';
 import { validateBackup } from '../backup/BackupValidation';
 import { MIGRATIONS, migrate } from './migrations';
@@ -210,7 +211,7 @@ test('v12 to v13 changes only the original library exercise and preserves its se
       UPDATE workoutSet SET weightKilograms = 145 WHERE workoutExerciseId = 1;
     `);
     const sets = db.all('SELECT * FROM workoutSet');
-    expect(migrate(db)).toEqual(['v13-donkey-calf-raise-weighted', 'v14-pinned-exercises']);
+    expect(migrate(db)).toEqual(['v13-donkey-calf-raise-weighted', 'v14-pinned-exercises', 'v15-lower-traps']);
     expect(db.all('SELECT tracking, loadStepKilograms FROM exercise ORDER BY id')).toEqual([
       { tracking: 'weight-reps', loadStepKilograms: 2.5 },
       { tracking: 'bodyweight-reps', loadStepKilograms: null },
@@ -236,5 +237,57 @@ test('v12 to v13 changes only the original library exercise and preserves its se
     expect(migrate(fresh)).toContain('v13-donkey-calf-raise-weighted');
   } finally {
     fresh.close();
+  }
+});
+
+test('v14 to v15 tags only the frozen library families, preserves custom/edited muscles, and is idempotent', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db, new Date(), MIGRATIONS.slice(0, 14));
+    DataSafetyFixture.seed(db);
+    const targets = ExerciseLibrary.bundled().exercises.filter((exercise) =>
+      exercise.secondaryMuscles.includes('lower-traps'),
+    );
+    expect(targets).toHaveLength(10);
+    const ids = targets.map((exercise, index) => {
+      const source = index === 0 ? 'custom' : index === 1 ? 'strong' : 'library';
+      const id = db.run(
+        `
+        INSERT INTO exercise (name, libraryKey, source, createdAt) VALUES (?, ?, ?, '2026-01-01')
+      `,
+        [exercise.name, exercise.key, source],
+      ).lastInsertRowId;
+      db.run(`INSERT INTO exerciseMuscle (exerciseId, muscleId, role) VALUES (?, 'rear-delt', 'primary')`, [id]);
+      return { id, source };
+    });
+    // INSERT OR IGNORE must preserve an existing owner-selected role too.
+    const existing = ids[2];
+    if (existing === undefined) throw new Error('Missing target fixture');
+    db.run(`INSERT INTO exerciseMuscle (exerciseId, muscleId, role) VALUES (?, 'lower-traps', 'primary')`, [
+      existing.id,
+    ]);
+    const before = DataSafetyFixture.read(db);
+    expect(migrate(db)).toEqual(['v15-lower-traps']);
+    const after = DataSafetyFixture.read(db);
+    for (const [table, rows] of Object.entries(before)) {
+      if (table !== 'migration' && table !== 'exerciseMuscle') expect(after[table]).toEqual(rows);
+    }
+    for (const { id, source } of ids) {
+      expect(db.all(`SELECT muscleId, role FROM exerciseMuscle WHERE exerciseId = ? ORDER BY muscleId`, [id])).toEqual(
+        source !== 'library'
+          ? [{ muscleId: 'rear-delt', role: 'primary' }]
+          : [
+              { muscleId: 'lower-traps', role: id === existing.id ? 'primary' : 'secondary' },
+              { muscleId: 'rear-delt', role: 'primary' },
+            ],
+      );
+    }
+    expect(db.all('PRAGMA foreign_key_check')).toEqual([]);
+    await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+    const bytes = db.exportBytes();
+    expect(migrate(db)).toEqual([]);
+    expect(db.exportBytes()).toEqual(bytes);
+  } finally {
+    db.close();
   }
 });
