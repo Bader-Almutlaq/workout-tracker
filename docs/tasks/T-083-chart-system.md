@@ -108,3 +108,11 @@ Implementation is ready for review, with the core-data and device-validation lim
 - **T-082 dependency:** current weekly core reports still zero-fill no-session weeks. The chart preserves nulls/omissions and does not infer that a real zero means missing. Merge T-082's missing-week fix before accepting weekly gaps end to end.
 - **Device/visual validation remains:** references were inspected as images, but live 430 × 932 light/dark and portrait/landscape checks could not run. `make dev` failed with sandbox `listen EPERM` (loopback binding is also denied). Computer Use denied access to Zen without a further reason. A synthetic static rendering was generated under `/tmp`, but could not be viewed in the browser. Real iPhone Safari should verify safe-area rotation, hold-versus-scroll arbitration, pinch/pan, transient callouts, Table and Open navigation before sign-off.
 - Build succeeds with the existing large-chunk warning and an ineffective-dynamic-import warning: the deferred database import delays the full-history query, but does not create a separate chunk because other screens already import the database statically.
+
+### Lead review (browser, 430 × 932, dark and light, synthetic 16-week history)
+
+- Inline charts, legend with trend, expand icon, callout above the plot on press-and-drag and clearing on release, and the rotated landscape view all checked.
+- Changed bucket choice: sessions are shown individually whenever they fit the mark budget, however long the span (the expanded view opened weekly even with 49 sessions).
+- Changed gap splitting for day/session marks: a break needs a spacing over three times the series' median spacing, so a lift trained weekly (or a weekly series) is a line, not loose dots. Calendar buckets keep the "two empty buckets" rule.
+- Readout weights round to one decimal. Added the TimeChart and LinearTrend rows to ARCHITECTURE.md.
+- Not checked: real iPhone Safari (hold-versus-scroll, pinch, safe areas when rotated).

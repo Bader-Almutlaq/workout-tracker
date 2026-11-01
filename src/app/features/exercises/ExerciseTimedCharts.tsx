@@ -64,7 +64,7 @@ export function ExerciseTimedCharts({
           unit={unit}
           marks={marks}
           points={series.heaviestWeight.map((point) => ({ ...point, value: displayValue(point.value, unit) }))}
-          formatValue={(value) => `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${unit}`}
+          formatValue={(value) => `${value.toLocaleString('en-US', { maximumFractionDigits: 1 })} ${unit}`}
         />
       )}
       {(tracking === 'duration' || tracking === 'weight-duration') && (

@@ -54,7 +54,7 @@ export function StrengthCard({ exerciseId, unit }: { readonly exerciseId: number
             })),
           },
         ]}
-        formatValue={(value) => `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${unit}`}
+        formatValue={(value) => `${value.toLocaleString('en-US', { maximumFractionDigits: 1 })} ${unit}`}
         onOpenPoint={(point) => {
           if (point.sessionId !== undefined) void navigate(`/history/${point.sessionId}`);
         }}

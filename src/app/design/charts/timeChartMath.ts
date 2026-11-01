@@ -48,9 +48,9 @@ export function chooseChartBucket(
   expanded = false,
 ): ChartBucket {
   const days = (domain.to - domain.from) / TimeChartPolicy.day;
-  if (expanded && (days <= TimeChartPolicy.minimumDays || (days <= TimeChartPolicy.minimumDays * 2 && count <= budget)))
-    return 'session';
-  if (days + 1 <= budget && count <= budget) return 'day';
+  // Heuristic: aggregate only when the sessions would not fit; the owner wants detail whenever it is legible.
+  if (count <= budget) return expanded ? 'session' : 'day';
+  if (expanded && days <= TimeChartPolicy.minimumDays) return 'session';
   if (days / TimeChartPolicy.daysPerWeek + 1 <= budget) return 'week';
   const start = new Date(domain.from);
   const end = new Date(domain.to);
@@ -237,21 +237,35 @@ function bucketDistance(first: string, last: string, size: ChartBucket): number 
   );
 }
 
-/** Explicit nulls always break a path; never bridges more than two empty calendar buckets, including DST boundaries. */
+/**
+ * Explicit nulls always break a path. Calendar buckets never bridge more than two empty buckets (DST-safe).
+ * Heuristic: day and session marks follow irregular training days, so they break only when a spacing exceeds
+ * three times the series' median spacing (a weekly series then bridges one missed week, as week buckets do).
+ */
 export function splitChartGaps(
   points: readonly TimeChartBucket[],
   size: ChartBucket,
 ): readonly (readonly TimeChartBucket[])[] {
+  const irregular = size === 'session' || size === 'day';
+  const present = points.filter((point) => point.value !== null);
+  const spacings = present
+    .slice(1)
+    .map((point, index) => bucketDistance(present[index]?.date ?? point.date, point.date, 'day'))
+    .toSorted((a, b) => a - b);
+  const typical = Math.max(1, spacings[Math.floor(spacings.length / 2)] ?? 1);
+  const tolerance = 1 / TimeChartPolicy.hoursPerDay;
   const segments: TimeChartBucket[][] = [];
   let segment: TimeChartBucket[] = [];
   for (const point of points) {
     const previous = segment.at(-1);
-    if (
-      point.value === null ||
-      (previous !== undefined &&
-        bucketDistance(previous.date, point.date, size === 'session' ? 'day' : size) >
-          (TimeChartPolicy.maximumGapBuckets + 1 + 1 / TimeChartPolicy.hoursPerDay) * previous.span)
-    ) {
+    const isGap =
+      previous !== undefined &&
+      (irregular
+        ? bucketDistance(previous.date, point.date, 'day') >
+          (TimeChartPolicy.maximumGapBuckets + 1) * typical + tolerance
+        : bucketDistance(previous.date, point.date, size) >
+          (TimeChartPolicy.maximumGapBuckets + 1 + tolerance) * previous.span);
+    if (point.value === null || isGap) {
       if (segment.length > 0) segments.push(segment);
       segment = [];
     }

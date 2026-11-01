@@ -98,7 +98,7 @@ test('bodyweight additions retain plus, and lb conversion happens in display tex
   expect(progressTopSetText({ weightKilograms: -20, reps: 8, rpe: null }, 'kg', true)).toBe('-20 kg × 8');
   expect(progressTopSetText({ weightKilograms: 0, reps: 8, rpe: null }, 'kg', true)).toBe('Bodyweight × 8');
   expect(render(createElement(ExerciseChartsTab, { exerciseId: 1, tracking: 'weight-reps', unit: 'lb' }))).toContain(
-    '220.46 lb',
+    '220.5 lb',
   );
 });
 test('empty, loading and error states are readable', () => {

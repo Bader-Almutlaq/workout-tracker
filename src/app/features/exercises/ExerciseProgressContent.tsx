@@ -66,7 +66,7 @@ export function ExerciseProgressContent({
       aggregation: 'max',
       value: (session: ExerciseProgressSession) =>
         session.topSet === null ? null : displayValue(session.topSet.weightKilograms, unit),
-      format: (value: number) => `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${unit}`,
+      format: (value: number) => `${value.toLocaleString('en-US', { maximumFractionDigits: 1 })} ${unit}`,
       unit,
       kind: 'line',
       trend: true,
@@ -115,7 +115,7 @@ export function ExerciseProgressContent({
         trend
         series={strengthSeries}
         unit={unit}
-        formatValue={(value) => `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${unit}`}
+        formatValue={(value) => `${value.toLocaleString('en-US', { maximumFractionDigits: 1 })} ${unit}`}
       />
       {templateId !== undefined && report.otherWorkouts.length > 0 && (
         <div className={styles.filters} aria-label="Compare days">

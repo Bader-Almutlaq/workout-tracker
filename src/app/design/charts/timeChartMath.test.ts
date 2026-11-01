@@ -29,15 +29,17 @@ const series: TimeChartSeries = {
   ],
 };
 
-test('chooses day, week, month and quarter to fit compact spans, and sessions at close landscape zoom', () => {
+test('chooses week, month and quarter when sessions do not fit, and single sessions when they do, and sessions at close landscape zoom', () => {
   for (const [days, expected] of [
-    [10, 'day'],
     [100, 'week'],
     [600, 'month'],
     [1000, 'quarter'],
   ] as const) {
-    expect(chooseChartBucket({ from: base, to: base + days * day }, 26, 20)).toBe(expected);
+    expect(chooseChartBucket({ from: base, to: base + days * day }, 26, 200)).toBe(expected);
   }
+  // Sessions that fit the budget are never aggregated, however long the span.
+  expect(chooseChartBucket({ from: base, to: base + 1000 * day }, 26, 20)).toBe('day');
+  expect(chooseChartBucket({ from: base, to: base + 112 * day }, 60, 49, true)).toBe('session');
   expect(chooseChartBucket({ from: base, to: base + 14 * day }, 60, 30, true)).toBe('session');
   expect(chooseChartBucket({ from: base, to: base + 100 * day }, 60, 100, true)).toBe('week');
 });
@@ -97,7 +99,7 @@ test('quarter buckets preserve weighted means and chronological last instead of 
   expect(bucketChartSeries({ name: 'x', points }, history, 'quarter', 'last')[0]?.value).toBe(12);
 });
 
-test('nulls break paths and long calendar gaps break paths; no synthetic zeros', () => {
+test('nulls break paths; gaps are long relative to the usual spacing; no synthetic zeros', () => {
   const points = bucketChartSeries(series, domain, 'day', 'max');
   expect(splitChartGaps(points, 'day').map((segment) => segment.length)).toEqual([2, 1]);
   const nearby = bucketChartSeries(
@@ -120,7 +122,9 @@ test('nulls break paths and long calendar gaps break paths; no synthetic zeros',
           name: 'x',
           points: [
             { date: date(0), value: 1 },
-            { date: date(4), value: 2 },
+            { date: date(2), value: 2 },
+            { date: date(4), value: 3 },
+            { date: date(11), value: 4 },
           ],
         },
         domain,
@@ -128,8 +132,19 @@ test('nulls break paths and long calendar gaps break paths; no synthetic zeros',
         'max',
       ),
       'day',
-    ),
-  ).toHaveLength(2);
+    ).map((segment) => segment.length),
+  ).toEqual([3, 1]);
+  // A weekly series drawn with day marks bridges its normal 7-day spacing and one missed week.
+  const weekly = bucketChartSeries(
+    {
+      name: 'x',
+      points: [0, 7, 14, 28, 35, 63].map((day, index) => ({ date: date(day), value: index })),
+    },
+    domain,
+    'day',
+    'max',
+  );
+  expect(splitChartGaps(weekly, 'day').map((segment) => segment.length)).toEqual([5, 1]);
 });
 
 test('null-only bucket remains present while non-finite values never become marks', () => {
