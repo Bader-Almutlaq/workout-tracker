@@ -237,3 +237,8 @@ The Analytics tab is one scrolling page: pinned lifts, active plan, period chips
 strength ranking, muscle table, then effort and rep distributions and separate weekly sets and
 RIR charts. The muscle table opens a period-preserving detail page. Deload weeks are yellow;
 charts provide dated readouts and table alternatives.
+
+
+### Analytics polish (T-080)
+
+Weekly sets and effort use the shared dated chart with unit-labelled axes, selection, deload marks and tables. Pinned suggestions wrap as touch-sized chips, and the active plan is a surface row. Signed strength changes use status colours, while zero is muted. Muscle rows link across the full row, with untrained muscles grouped below a divider.

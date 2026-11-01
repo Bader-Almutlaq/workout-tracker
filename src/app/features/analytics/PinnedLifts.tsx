@@ -51,11 +51,13 @@ export function PinnedLifts({ from, to }: { readonly from: string; readonly to: 
         (query.value.cards.length === 0 ? (
           <>
             <p>Pin lifts from an exercise's ⋯ menu.</p>
-            {query.value.suggestions.map((entry) => (
-              <button key={entry.id} type="button" onClick={() => void act(() => database.pinExercise(entry.id))}>
-                Pin {entry.name}
-              </button>
-            ))}
+            <div className={styles.suggestions}>
+              {query.value.suggestions.map((entry) => (
+                <button key={entry.id} type="button" onClick={() => void act(() => database.pinExercise(entry.id))}>
+                  + {entry.name}
+                </button>
+              ))}
+            </div>
           </>
         ) : (
           <div className={styles.pins}>
@@ -81,12 +83,27 @@ export function PinnedLifts({ from, to }: { readonly from: string; readonly to: 
                   <Link to={`/exercises/${pin.exerciseId}?tab=charts`}>{detail.exercise.name}</Link>
                   <p>
                     {value === null ? '—' : `${value.toFixed(1)} ${unit}`}{' '}
-                    {lift === undefined
-                      ? ''
-                      : `· ${lift.changePercent >= 0 ? '+' : ''}${lift.changePercent.toFixed(1)}%`}
+                    {lift !== undefined && (
+                      <span
+                        className={
+                          lift.changePercent > 0 ? styles.good : lift.changePercent < 0 ? styles.bad : styles.neutral
+                        }
+                      >
+                        · {lift.changePercent >= 0 ? '+' : ''}
+                        {lift.changePercent.toFixed(1)}%
+                      </span>
+                    )}
                   </p>
                   <svg viewBox="0 0 100 30" aria-hidden="true">
                     <path d={path} fill="none" stroke="currentColor" />
+                    {values.length > 0 && (
+                      <circle
+                        cx={values.length === 1 ? 0 : 100}
+                        cy={28 - (((values.at(-1) ?? minimum) - minimum) / span) * 26}
+                        r="2.5"
+                        fill="currentColor"
+                      />
+                    )}
                   </svg>
                   <details>
                     <summary>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Link } from 'react-router';
 import { MUSCLE_DISPLAY_NAMES } from '../../../core/library/Muscle';
 import { isMainMuscle } from '../../../core/library/MuscleProminence';
@@ -17,6 +17,7 @@ export function MuscleDashboardTable({
 }) {
   const [smaller, setSmaller] = useState(false);
   const rows = [...muscles].sort((a, b) => b.setsPerWeek - a.setsPerWeek);
+  const visible = rows.filter((item) => smaller || isMainMuscle(item.muscle));
   const maximum = Math.max(1, ...rows.map((item) => item.setsPerWeek));
   return (
     <section>
@@ -31,12 +32,19 @@ export function MuscleDashboardTable({
           </tr>
         </thead>
         <tbody>
-          {rows
-            .filter((item) => smaller || isMainMuscle(item.muscle))
-            .map((item) => (
-              <tr key={item.muscle} className={item.setsPerWeek < MuscleVolumeLimits.first ? styles.muted : undefined}>
+          {visible.map((item, index) => (
+            <Fragment key={item.muscle}>
+              {item.setsPerWeek.toFixed(1) === '0.0' &&
+                (index === 0 || (visible[index - 1]?.setsPerWeek ?? 0).toFixed(1) !== '0.0') && (
+                  <tr>
+                    <td colSpan={4} className={styles.divider}>
+                      Not trained in this period
+                    </td>
+                  </tr>
+                )}
+              <tr className={item.setsPerWeek < MuscleVolumeLimits.first ? styles.muted : undefined}>
                 <th>
-                  <Link to={`/analytics/muscles/${item.muscle}?period=${period}`}>
+                  <Link className={styles.rowLink} to={`/analytics/muscles/${item.muscle}?period=${period}`}>
                     {MUSCLE_DISPLAY_NAMES[item.muscle]}
                   </Link>
                 </th>
@@ -46,14 +54,26 @@ export function MuscleDashboardTable({
                     <span style={{ width: `${(item.setsPerWeek / maximum) * 100}%` }} />
                   </span>
                 </td>
-                <td>
+                <td
+                  className={
+                    item.strengthChangePercent === null || item.strengthChangePercent === 0
+                      ? styles.neutral
+                      : item.strengthChangePercent > 0
+                        ? styles.good
+                        : styles.bad
+                  }
+                >
                   {item.strengthChangePercent === null
                     ? '—'
                     : `${item.strengthChangePercent >= 0 ? '+' : ''}${item.strengthChangePercent.toFixed(1)}%`}
                 </td>
-                <td>{item.averageRir === null ? '—' : `${item.averageRir.toFixed(1)} RIR`}</td>
+                <td>
+                  {item.averageRir === null ? '—' : `${item.averageRir.toFixed(1)} RIR`}{' '}
+                  <span aria-hidden="true">›</span>
+                </td>
               </tr>
-            ))}
+            </Fragment>
+          ))}
         </tbody>
       </table>
       <button type="button" onClick={() => setSmaller(!smaller)}>

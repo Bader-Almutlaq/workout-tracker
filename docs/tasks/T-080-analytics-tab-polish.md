@@ -27,4 +27,6 @@ The lead checked the rebuilt Analytics tab at 430 × 932 with a synthetic 16-wee
 
 ## Handoff
 
-_Fill in at the end of the session._
+Implemented the dashboard and muscle-detail polish. WeeklySetsChart and WeeklyEffortChart accept dated nullable values and deload flags, with an optional title; both use LongRangeChart. The overview opens the shared full-screen chart for touch selection. Strength changes use signed status colours; zero-set muscles are grouped by their displayed one-decimal value. The strength list retains its existing Show all/Show less state control.
+
+Changes are uncommitted. `make format` and `make verify` passed (195 test files, 1,309 tests). The sandbox denied the dev server bind (EPERM on port 5173), so populated 430 × 932 dark/light visual checks, menu positioning and horizontal overflow still need a browser or simulator review. The Show all control was retained and its initial limit is tested; its two-way interaction still needs an interactive check.

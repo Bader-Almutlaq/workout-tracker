@@ -5,7 +5,7 @@ import { BackLink } from '../../design/components/BackLink';
 import { EmptyState } from '../../design/components/EmptyState';
 import { Screen } from '../../design/components/Screen';
 import { analyticsPeriod, type AnalyticsPeriod } from './analyticsPeriod';
-import { WeeklyChart } from './WeeklyChart';
+import { WeeklySetsChart } from './WeeklySetsChart';
 import { LiftTrendList } from './LiftTrendList';
 import { RepRangeBars } from './RepRangeBars';
 import { EffortHistogram } from './EffortHistogram';
@@ -37,9 +37,8 @@ export function MuscleDetailScreen() {
         <EmptyState message="Loading…" />
       ) : (
         <>
-          <WeeklyChart
+          <WeeklySetsChart
             title="Weekly fractional sets"
-            bars
             points={query.value.weekly.map((week) => ({
               date: week.weekStart,
               value: week.muscle?.totalSets ?? 0,

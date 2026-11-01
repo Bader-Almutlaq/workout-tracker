@@ -28,10 +28,20 @@ export function LiftTrendList({ lifts }: { readonly lifts: readonly LiftTrend[] 
             </span>
             <svg viewBox="0 0 100 30" aria-hidden="true">
               <path d={path} fill="none" stroke="currentColor" />
+              {lift.points.length > 0 && (
+                <circle
+                  cx={lift.points.length === 1 ? 0 : 100}
+                  cy={28 - (((lift.points.at(-1) ?? min) - min) / span) * 26}
+                  r="2.5"
+                  fill="currentColor"
+                />
+              )}
             </svg>
             <span>
               {value.toFixed(1)} {lift.unit}
-              <small>
+              <small
+                className={lift.changePercent > 0 ? styles.good : lift.changePercent < 0 ? styles.bad : styles.neutral}
+              >
                 {lift.changePercent >= 0 ? '+' : ''}
                 {lift.changePercent.toFixed(1)}%
               </small>
