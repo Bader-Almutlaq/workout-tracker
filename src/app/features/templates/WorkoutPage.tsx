@@ -15,7 +15,7 @@ import { dayWithYearText } from '../../format/dateText';
 import { LoggingErrorBanner } from '../workout/LoggingErrorBanner';
 import { TemplateDialogs } from './TemplateDialogs';
 import { WorkoutExerciseRow } from './WorkoutExerciseRow';
-import { TemplateSessionCharts } from './TemplateSessionCharts';
+import { ScopedTemplateAnalytics } from './ScopedTemplateAnalytics';
 import { TemplateSessionHistory } from './TemplateSessionHistory';
 import { duplicateTemplate, startTemplateWorkout } from './templateActions';
 import type { TemplateDialogState } from './templateDialogState';
@@ -150,7 +150,7 @@ export function WorkoutPage() {
         )}
         {tab === 'exercises' && muscleSummary.status === 'failed' && <EmptyState message={muscleSummary.message} />}
         {tab === 'history' && <TemplateSessionHistory sessions={report.value.sessions} />}
-        {tab === 'analytics' && <TemplateSessionCharts report={report.value} />}
+        {tab === 'analytics' && <ScopedTemplateAnalytics id={id} plan={false} />}
       </div>
       <div className={styles.footer}>
         <Button
