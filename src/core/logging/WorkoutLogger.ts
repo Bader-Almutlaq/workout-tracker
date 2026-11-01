@@ -1,6 +1,6 @@
 import { normalizeMachineBrand } from '../library/MachineBrands';
 import { latestMachineBrand, machinePreviousPerformance } from '../queries/PreviousPerformance';
-import { DeloadPlan, type DeloadStage } from './DeloadPlan';
+import { DeloadPlan, type DeloadSettings, type DeloadStage } from './DeloadPlan';
 import { fromExerciseRow, type ExerciseRow } from '../models/Exercise';
 import { loadProfileFor } from '../units/LoadableWeight';
 import { suggestedWarmupCount, refreshWarmups, warmupSets } from './WarmupPlan';
@@ -8,7 +8,12 @@ import type { Database } from '../db/Database';
 import type { SetKind } from '../models/SetKind';
 import type { WorkoutSetRow } from '../models/WorkoutSet';
 import type { WeightUnit } from '../units/WeightUnit';
-import { matchPreviousSets, previousPerformance, previousExerciseEntry } from '../queries/PreviousPerformance';
+import {
+  matchPreviousSets,
+  previousPerformance,
+  previousExerciseEntry,
+  deloadBaseline,
+} from '../queries/PreviousPerformance';
 import { WorkoutLoggerError } from './WorkoutLoggerError';
 import type { ExerciseTracking } from '../library/ExerciseTracking';
 
@@ -335,11 +340,41 @@ export class WorkoutLogger {
     });
   }
 
-  /** Sets/clears the entry's stored stage without changing sets, including during a snapshotted History edit. */
-  setDeloadStage(entryId: number, stage: DeloadStage | null): void {
+  /** Saves deload settings and, for live entries, removes only uncompleted working sets when possible. */
+  setDeloadStage(entryId: number, stage: DeloadStage | null, settings?: DeloadSettings, targetSets?: number): void {
     this.db.transaction(() => {
-      this.requireEntry(entryId);
-      this.db.run('UPDATE workoutExercise SET deloadStage = ? WHERE id = ?', [stage, entryId]);
+      const entry = this.requireEntry(entryId);
+      const mode = stage === null ? null : (settings?.mode ?? null);
+      const loadPercent = stage === null ? null : (settings?.loadPercent ?? null);
+      const setPercent = stage === null ? null : (settings?.setPercent ?? null);
+      const saved = this.db.get<{ deloadSetPercent: number | null; deloadMode: string | null }>(
+        'SELECT deloadSetPercent, deloadMode FROM workoutExercise WHERE id = ?',
+        [entryId],
+      );
+      this.db.run(
+        `UPDATE workoutExercise SET deloadStage = ?, deloadMode = ?, deloadLoadPercent = ?, deloadSetPercent = ?
+         WHERE id = ?`,
+        [stage, mode, loadPercent, setPercent, entryId],
+      );
+      const live = this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) === 1;
+      if (!live || stage !== 1 || (mode !== 'sets' && mode !== 'both')) return;
+      const sets = this.db.all<{ id: number; isCompleted: number }>(
+        `SELECT id, isCompleted FROM workoutSet
+         WHERE workoutExerciseId = ? AND kind <> 'warmup' ORDER BY position DESC`,
+        [entryId],
+      );
+      const previousPercent = saved?.deloadSetPercent ?? null;
+      const previousMode = saved?.deloadMode ?? null;
+      const baseline =
+        previousPercent !== null && (previousMode === 'sets' || previousMode === 'both')
+          ? Math.round(sets.length / (1 - previousPercent / 100))
+          : sets.length;
+      const keep = targetSets ?? DeloadPlan.keptSets(baseline, setPercent ?? undefined);
+      const removeCount = Math.max(0, sets.length - keep);
+      if (sets.filter((set) => set.isCompleted === 1).length > keep) return;
+      const removable = sets.filter((set) => set.isCompleted === 0).slice(0, removeCount);
+      for (const set of removable) this.db.run('DELETE FROM workoutSet WHERE id = ?', [set.id]);
+      this.renumberSets(entryId);
     });
   }
 
@@ -352,18 +387,51 @@ export class WorkoutLogger {
     ]);
   }
 
-  /** Starts stage 1 on every exercise currently in the workout, atomically; never edits set values. */
-  deloadWorkout(workoutId: number): void {
+  /** Starts stage 1 for all current exercises atomically. */
+  deloadWorkout(workoutId: number, settings?: DeloadSettings): void {
     this.db.transaction(() => {
       this.requireWorkout(workoutId);
-      this.db.run('UPDATE workoutExercise SET deloadStage = 1 WHERE workoutId = ?', [workoutId]);
+      const entries = this.db.all<{ id: number }>('SELECT id FROM workoutExercise WHERE workoutId = ?', [workoutId]);
+      for (const entry of entries) this.setDeloadStage(entry.id, 1, settings);
     });
   }
 
-  private initializeDeload(entryId: number): void {
+  private initializeDeload(entryId: number, hasTemplateSets = false): void {
     const entry = this.requireEntry(entryId);
     if (this.db.value<number>('SELECT isInProgress FROM workout WHERE id = ?', [entry.workoutId]) !== 1) return;
-    this.setDeloadStage(entryId, DeloadPlan.nextStage(previousExerciseEntry(this.db, entryId)?.deloadStage ?? null));
+    const previous = previousExerciseEntry(this.db, entryId);
+    const stage = DeloadPlan.nextStage(previous?.deloadStage ?? null, previous?.deloadMode ?? null);
+    const settings =
+      previous === undefined
+        ? undefined
+        : {
+            mode: stage === 2 && previous.deloadMode === 'both' ? 'load' : (previous.deloadMode ?? null),
+            loadPercent: previous.deloadLoadPercent ?? null,
+            setPercent: previous.deloadSetPercent ?? null,
+          };
+    this.setDeloadStage(entryId, stage, settings);
+    // After a set reduction, the next session (build-back or normal) starts again with the pre-cycle set count.
+    if (
+      !hasTemplateSets &&
+      previous?.deloadStage === 1 &&
+      (previous.deloadMode === 'sets' || previous.deloadMode === 'both')
+    ) {
+      const baselineCount = deloadBaseline(this.db, entryId, previous.machineBrand ?? null).filter(
+        (set) => set.kind !== 'warmup',
+      ).length;
+      const count =
+        this.db.value<number>("SELECT COUNT(*) FROM workoutSet WHERE workoutExerciseId = ? AND kind <> 'warmup'", [
+          entryId,
+        ]) ?? 0;
+      for (let index = count; index < baselineCount; index += 1) {
+        this.db.run(
+          `INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, rpe, durationSeconds, side, isCompleted)
+          SELECT workoutExerciseId, (SELECT COUNT(*) FROM workoutSet WHERE workoutExerciseId = ?), kind, weightKilograms, entryUnit, reps, NULL, durationSeconds, side, 0
+          FROM workoutSet WHERE workoutExerciseId = ? AND kind <> 'warmup' ORDER BY position DESC LIMIT 1`,
+          [entryId, entryId],
+        );
+      }
+    }
   }
 
   /** Saves exercise notes; an empty string clears them without changing the exercise definition. */
@@ -474,7 +542,7 @@ export class WorkoutLogger {
             ],
           );
         });
-        this.initializeDeload(entry);
+        this.initializeDeload(entry, true);
         this.initializeWarmups(entry, true);
       }
       return workoutId;

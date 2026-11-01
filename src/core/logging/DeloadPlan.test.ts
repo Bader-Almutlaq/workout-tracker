@@ -109,3 +109,13 @@ test('stages advance 1 → 2 → normal without automatic restarts', () => {
   expect(DeloadPlan.nextStage(2)).toBeNull();
   expect(DeloadPlan.nextStage(null)).toBeNull();
 });
+
+test('custom reductions and set counts are calculated independently', () => {
+  const settings = { mode: 'both' as const, loadPercent: 15, setPercent: 33 };
+  expect(DeloadPlan.reductionPercent(squat, 1, settings)).toBe(15);
+  expect(DeloadPlan.reductionPercent(squat, 2, settings)).toBe(7.5);
+  expect(DeloadPlan.nextStage(1, 'both')).toBe(2);
+  expect(DeloadPlan.nextStage(1, 'sets')).toBeNull();
+  expect([4, 3, 1].map((count) => DeloadPlan.keptSets(count, 50))).toEqual([2, 2, 1]);
+  expect([4, 3, 1].map((count) => DeloadPlan.keptSets(count, 33))).toEqual([3, 3, 1]);
+});

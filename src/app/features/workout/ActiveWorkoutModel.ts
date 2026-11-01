@@ -1,3 +1,4 @@
+import type { DeloadSettings } from '../../../core/logging/DeloadPlan';
 import type { LiveWorkoutSnapshot } from '../../../core/queries/LiveWorkout';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import type { CellEditor } from './CellEditor';
@@ -23,7 +24,7 @@ export interface ActiveWorkoutModel {
   rename(name: string): void;
   cancelRenaming(): void;
   /** Starts stage 1 on every exercise currently shown. */
-  deloadWorkout(): void;
+  deloadWorkout(settings?: DeloadSettings): void;
   requestDiscard(): void;
   requestFinish(): void;
   confirm(): void;

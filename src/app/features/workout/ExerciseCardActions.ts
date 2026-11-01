@@ -1,3 +1,4 @@
+import type { DeloadSettings, DeloadStage } from '../../../core/logging/DeloadPlan';
 import type { SetKind } from '../../../core/models/SetKind';
 import type { WorkoutSet } from '../../../core/models/WorkoutSet';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
@@ -29,7 +30,7 @@ export interface ExerciseCardActions {
   /** Saves or clears the machine manufacturer. */
   setMachineBrand?(entryId: number, brand: string | null): void;
   /** Starts stage 1 or ends deload without changing entered sets. */
-  setDeload?(entryId: number, enabled: boolean): void;
+  setDeload?(entryId: number, stage: DeloadStage | null, settings?: DeloadSettings, targetSets?: number): void;
   /** Moves the exercise up (`-1`) or down (`1`) one place. */
   move(entryId: number, offset: -1 | 1): void;
   /** Removes the exercise, asking first when it has completed sets. */

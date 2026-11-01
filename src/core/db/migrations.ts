@@ -328,6 +328,14 @@ export const MIGRATIONS: readonly Migration[] = [
     id: 'v11-template-weekday',
     sql: `ALTER TABLE template ADD COLUMN weekday INTEGER CHECK (weekday BETWEEN 1 AND 7);`,
   },
+  {
+    id: 'v12-deload-settings',
+    sql: `
+      ALTER TABLE workoutExercise ADD COLUMN deloadMode TEXT CHECK (deloadMode IN ('load', 'sets', 'both'));
+      ALTER TABLE workoutExercise ADD COLUMN deloadLoadPercent REAL CHECK (deloadLoadPercent > 0 AND deloadLoadPercent < 100);
+      ALTER TABLE workoutExercise ADD COLUMN deloadSetPercent REAL CHECK (deloadSetPercent >= 0 AND deloadSetPercent < 100);
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `

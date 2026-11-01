@@ -212,3 +212,9 @@ The plan Summary lists planned fractional sets and weekly workout frequency, wit
 
 
 Live exercise metadata places the first planned working set's rep target and saved rest time in deload yellow under the name, with the deload chip aligned right; notes appear separately as an editable italic line. Template exercises show their saved rest and editable note in the same position. Live exercises form a continuous list with 24 px between exercises. Rows have 32 px visible boxes spaced 8 px apart, with a single filled Add set bar. Set-type tints remain on individual rows. Deload and progression suggestions sit beside their boxes in yellow and red respectively. The pad places hide, RPE, split minus/plus and Next in its right column, with RPE quick picks above the digits.
+
+Live exercise metadata places the first planned working set's rep target and saved rest time in accent under the name; notes appear separately as an editable italic line. Template exercises show their saved rest and editable note in the same position. Compact set rows use 32 px visible value and completion boxes inside 44 px touch areas, with 4 px between visible boxes and a compact 36 px add-action row, preserving the set-type colours in both editors.
+
+### Deload settings
+
+Deload opens a bottom sheet from the exercise menu or yellow stage label, and the workout menu opens the whole-workout version. Weight, Sets and Both are segmented choices; steppers show the selected reduction and kept sets. The sheet uses the shared safe-area-aware bottom sheet and design tokens.

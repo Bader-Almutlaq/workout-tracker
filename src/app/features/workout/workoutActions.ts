@@ -1,3 +1,4 @@
+import type { DeloadSettings, DeloadStage } from '../../../core/logging/DeloadPlan';
 import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
 import type { SetKind } from '../../../core/models/SetKind';
 import type { WorkoutSet } from '../../../core/models/WorkoutSet';
@@ -226,13 +227,18 @@ export function saveExerciseNotes(entryId: number, notes: string): void {
 }
 
 /** Enables/ends an exercise deload in tap order; committing the pad first preserves typed values. */
-export function setDeload(entryId: number, enabled: boolean): void {
-  void loggingQueue.enqueue(() => database.setDeloadStage(entryId, enabled ? 1 : null));
+export function setDeload(
+  entryId: number,
+  stage: DeloadStage | null,
+  settings?: DeloadSettings,
+  targetSets?: number,
+): void {
+  void loggingQueue.enqueue(() => database.setDeloadStage(entryId, stage, settings, targetSets));
 }
 
 /** Starts a deload on every exercise already in the live workout without editing its sets. */
-export function deloadWorkout(workoutId: number): void {
-  void loggingQueue.enqueue(() => database.deloadWorkout(workoutId));
+export function deloadWorkout(workoutId: number, settings?: DeloadSettings): void {
+  void loggingQueue.enqueue(() => database.deloadWorkout(workoutId, settings));
 }
 
 /** Saves the selected manufacturer in tap order. */

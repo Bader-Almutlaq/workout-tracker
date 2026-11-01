@@ -1,23 +1,40 @@
-import { ActionMenu } from '../../design/components/ActionMenu';
+import { DeloadPlan } from '../../../core/logging/DeloadPlan';
+import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import styles from './DeloadChip.module.css';
 
-/** Yellow stored-stage label; live entries offer End deload, History keeps a noninteractive tag. */
+/** Stored-stage label; live entries open settings and History remains noninteractive. */
 export function DeloadChip({
-  reductionPercent,
-  onEnd,
+  entry,
+  onOpen,
 }: {
-  readonly reductionPercent?: number;
-  readonly onEnd?: (() => void) | undefined;
+  readonly entry?: LiveWorkoutEntry;
+  readonly onOpen?: (() => void) | undefined;
 }) {
-  const label = reductionPercent === undefined || reductionPercent === 0 ? 'Deload' : `Deload · −${reductionPercent}%`;
+  const mode = entry?.entry.deloadMode ?? 'load';
+  const stage = entry?.entry.deloadStage;
+  const count = entry?.sets.filter((set) => set.kind !== 'warmup').length ?? 0;
+  const percent = entry?.entry.deloadSetPercent ?? null;
+  const total = percent === null ? count : Math.round(count / (1 - percent / 100));
+  const parts = [`Deload${stage === 2 ? ' build-back' : ''}`];
+  const reduction =
+    entry === undefined || stage === null || stage === undefined
+      ? 0
+      : DeloadPlan.reductionPercent(entry.exercise, stage, {
+          mode,
+          loadPercent: entry.entry.deloadLoadPercent ?? null,
+          setPercent: percent,
+        });
+  if (mode !== 'sets' && reduction > 0) parts.push(`−${reduction}%`);
+  if (stage !== 2 && mode !== 'load') parts.push(`${count} of ${total} sets`);
+  const label = parts.join(' · ');
   return (
     <span className={styles.chip}>
-      {onEnd === undefined ? (
+      {onOpen === undefined ? (
         label
       ) : (
-        <ActionMenu label={label} items={[{ label: 'End deload', isDeload: true, onSelect: onEnd }]}>
-          <span className={styles.label}>{label}</span>
-        </ActionMenu>
+        <button type="button" className={styles.label} onClick={onOpen}>
+          {label}
+        </button>
       )}
     </span>
   );

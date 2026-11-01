@@ -272,3 +272,7 @@ The picker and machine-aware workout behavior are not yet implemented.
 ### Plan scheduling (schema v11)
 
 `template.weekday` is nullable and uses ISO weekdays (Monday 1 through Sunday 7). `appSetting.activePlanId` stores the selected plan folder id; deleting that folder clears it. Both are included in database backups.
+
+### Deload settings (v12)
+
+Workout exercise rows retain nullable deload mode, load percent and set percent alongside the stage. Null preserves the original load-only defaults. They travel with database backups and survive History edits; the worker snapshots the database before applying the migration.

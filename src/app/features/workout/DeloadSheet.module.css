@@ -1,0 +1,21 @@
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m);
+  padding: var(--space-m) 0;
+}
+.stepper button {
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+  padding: var(--space-s) var(--space-m);
+}
+.end {
+  color: var(--color-deload);
+  background: none;
+  border: 0;
+  padding: var(--space-m);
+  width: 100%;
+}

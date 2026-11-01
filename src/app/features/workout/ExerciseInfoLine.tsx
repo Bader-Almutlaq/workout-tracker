@@ -7,14 +7,14 @@ import styles from './ExerciseCard.module.css';
 /** Only existing metadata appears; unset rest and notes leave no blank line. */
 export function ExerciseInfoLine({
   entry,
-  onEndDeload,
+  onDeload,
   onMachine,
   onNote,
 }: {
   readonly entry: LiveWorkoutEntry;
   readonly onMachine?: () => void;
   readonly onNote?: () => void;
-  readonly onEndDeload?: (() => void) | undefined;
+  readonly onDeload?: (() => void) | undefined;
 }) {
   const rest = entry.exercise.restTargetSeconds;
   const note = entry.entry.notes;
@@ -60,10 +60,7 @@ export function ExerciseInfoLine({
           {entry.previousOtherMachine && <span>Previous: other machine</span>}
           {(entry.entry.deloadStage ?? null) !== null && (
             <span className={styles.deload}>
-              <DeloadChip
-                {...(entry.deload === undefined ? {} : { reductionPercent: entry.deload.reductionPercent })}
-                onEnd={onEndDeload}
-              />
+              <DeloadChip entry={entry} onOpen={onDeload} />
             </span>
           )}
         </div>
