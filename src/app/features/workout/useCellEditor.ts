@@ -70,6 +70,7 @@ export function useCellEditor(snapshot: LiveWorkoutSnapshot, onSuspicious?: (pro
       setState({ cell, typed: undefined });
     },
     press: (key) => edit((current) => typeKey(current, key)),
+    pick: (value) => edit((current) => ({ ...current, text: String(value), replacesOnNextKey: false })),
     step: (direction) =>
       edit((current, edited) => {
         const range = padRange(edited.cell.field, edited.set.entryUnit);

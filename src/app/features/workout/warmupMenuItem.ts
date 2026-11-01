@@ -10,8 +10,8 @@ export function warmupMenuItem(sets: readonly WorkoutSet[], toggle: (remove: boo
     label: hasWarmups
       ? 'Remove suggested warm-ups'
       : hasWorkingWeight
-        ? 'Add warm-up sets'
-        : 'Add warm-up sets (enter a working weight first)',
+        ? 'Add suggested warm-ups'
+        : 'Add suggested warm-ups (enter a working weight first)',
     icon: Flame,
     isDisabled: !hasWarmups && !hasWorkingWeight,
     onSelect: () => toggle(hasWarmups),

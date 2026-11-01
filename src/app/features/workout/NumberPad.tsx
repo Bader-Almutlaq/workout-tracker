@@ -1,4 +1,4 @@
-import { Delete, Minus, Plus } from 'lucide-react';
+import { Delete, Keyboard, Minus, Plus } from 'lucide-react';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { ErrorBanner } from '../../design/components/ErrorBanner';
 import styles from './NumberPad.module.css';
@@ -30,8 +30,14 @@ export function NumberPad({
   onNext,
   onDone,
   onUnitChange,
+  onRpe,
+  onQuickRpe,
+  isRpe = false,
 }: {
   readonly title: string;
+  readonly onRpe?: () => void;
+  readonly onQuickRpe?: (value: number) => void;
+  readonly isRpe?: boolean;
   /** Reps and seconds are whole numbers. */
   readonly allowsDecimal: boolean;
   readonly unit: WeightUnit | undefined;
@@ -50,7 +56,7 @@ export function NumberPad({
   );
 
   return (
-    <div className={styles.dock}>
+    <div className={styles.dock} data-rpe={isRpe}>
       <div className={styles.spacer} />
       <div className={styles.pad} role="group" aria-label="Number pad">
         {errorMessage !== undefined && (
@@ -62,34 +68,53 @@ export function NumberPad({
           <h2 className={styles.title}>{title}</h2>
           {unit !== undefined && <PadUnitToggle unit={unit} onChange={onUnitChange} />}
         </div>
+        {isRpe && onQuickRpe !== undefined && (
+          <div className={styles.quickPicks}>
+            {[6, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((value) => (
+              <button key={value} type="button" onClick={() => onQuickRpe(value)}>
+                {value}
+              </button>
+            ))}
+          </div>
+        )}
         <div className={styles.keys}>
           {digit(1)}
           {digit(2)}
           {digit(3)}
-          <PadButton label="Decrease" onPress={() => onStep(-1)}>
-            <Minus size={22} strokeWidth={2} aria-hidden />
+          <PadButton label="Hide pad" onPress={onDone}>
+            <Keyboard size={22} aria-hidden />
           </PadButton>
           {digit(4)}
           {digit(5)}
           {digit(6)}
-          <PadButton label="Increase" onPress={() => onStep(1)}>
-            <Plus size={22} strokeWidth={2} aria-hidden />
+          <PadButton
+            label="RPE"
+            tone={isRpe ? 'primary' : 'accent'}
+            isDisabled={onRpe === undefined}
+            onPress={() => onRpe?.()}
+          >
+            RPE
           </PadButton>
           {digit(7)}
           {digit(8)}
           {digit(9)}
-          <PadButton label="Next field" tone="accent" onPress={onNext}>
-            Next
-          </PadButton>
+          <div className={styles.steps}>
+            <PadButton label="Decrease" onPress={() => onStep(-1)}>
+              <Minus size={22} aria-hidden />
+            </PadButton>
+            <PadButton label="Increase" onPress={() => onStep(1)}>
+              <Plus size={22} aria-hidden />
+            </PadButton>
+          </div>
           <PadButton label="Decimal point" isDisabled={!allowsDecimal} onPress={() => onKey({ kind: 'decimalPoint' })}>
             .
           </PadButton>
           {digit(0)}
           <PadButton label="Delete" onPress={() => onKey({ kind: 'backspace' })}>
-            <Delete size={22} strokeWidth={2} aria-hidden />
+            <Delete size={22} aria-hidden />
           </PadButton>
-          <PadButton label="Done" tone="primary" onPress={onDone}>
-            Done
+          <PadButton label="Next field" tone="primary" onPress={onNext}>
+            Next
           </PadButton>
         </div>
       </div>

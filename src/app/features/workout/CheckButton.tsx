@@ -15,7 +15,6 @@ export function CheckButton({
   onPress,
   isDisabled = false,
   rpe = null,
-  showsEmptyRpe = false,
   onEditRpe,
 }: {
   readonly isCompleted: boolean;
@@ -23,7 +22,6 @@ export function CheckButton({
   /** Finished workouts retain completion; their separate RPE cell remains editable. */
   readonly isDisabled?: boolean;
   readonly rpe?: number | null;
-  readonly showsEmptyRpe?: boolean;
   readonly onEditRpe?: () => void;
 }) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -71,14 +69,14 @@ export function CheckButton({
       >
         <Check size={18} strokeWidth={2.5} aria-hidden />
       </button>
-      {onEditRpe !== undefined && (rpe !== null || showsEmptyRpe) && (
+      {onEditRpe !== undefined && rpe !== null && (
         <button
           type="button"
           className={styles.badge}
-          aria-label={rpe === null ? 'Set RPE' : `Edit RPE ${rpeNumberText(rpe)}`}
+          aria-label={`Edit RPE ${rpeNumberText(rpe)}`}
           onClick={onEditRpe}
         >
-          {rpe === null ? 'RPE' : rpeNumberText(rpe)}
+          {rpeNumberText(rpe)}
         </button>
       )}
     </div>

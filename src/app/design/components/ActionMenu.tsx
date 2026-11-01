@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './ActionMenu.module.css';
+import { actionMenuPlacement } from './actionMenuPlacement';
 import { ActionMenuRow, type ActionMenuItem } from './ActionMenuRow';
 
 /**
@@ -20,14 +22,33 @@ export function ActionMenu({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menu = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const [placement, setPlacement] = useState<{ left: number; top: number } | undefined>(undefined);
   const close = () => setIsOpen(false);
+
+  useLayoutEffect(() => {
+    if (!isOpen || menu.current === null || panel.current === null) return;
+    const trigger = menu.current.getBoundingClientRect();
+    const bounds = panel.current.getBoundingClientRect();
+    const pad = document.querySelector('[aria-label="Number pad"]')?.getBoundingClientRect();
+    const bottom =
+      pad?.top ??
+      window.innerHeight -
+        (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tab-bar-height')) || 0);
+    const position = actionMenuPlacement(trigger, bounds, { width: window.innerWidth, bottom }, align);
+    setPlacement(position);
+  }, [isOpen, align]);
 
   // A press anywhere outside the menu closes it. (A full-screen backdrop can't be used: inside the
   // blurred top bar a fixed element is sized to the bar, not the screen.)
   useEffect(() => {
     if (!isOpen) return;
     const closeOnOutsidePress = (event: PointerEvent) => {
-      if (event.target instanceof Node && menu.current?.contains(event.target) === true) return;
+      if (
+        event.target instanceof Node &&
+        (menu.current?.contains(event.target) === true || panel.current?.contains(event.target) === true)
+      )
+        return;
       setIsOpen(false);
     };
     document.addEventListener('pointerdown', closeOnOutsidePress);
@@ -42,17 +63,27 @@ export function ActionMenu({
         aria-label={label}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setPlacement(undefined);
+          setIsOpen(!isOpen);
+        }}
       >
         {children}
       </button>
-      {isOpen && (
-        <div className={styles.panel} role="menu" data-align={align}>
-          {items.map((item) => (
-            <ActionMenuRow key={item.label} item={item} onChosen={close} />
-          ))}
-        </div>
-      )}
+      {isOpen &&
+        createPortal(
+          <div
+            ref={panel}
+            className={styles.panel}
+            role="menu"
+            style={placement === undefined ? { visibility: 'hidden' } : { left: placement.left, top: placement.top }}
+          >
+            {items.map((item) => (
+              <ActionMenuRow key={item.label} item={item} onChosen={close} />
+            ))}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

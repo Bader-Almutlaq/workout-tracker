@@ -1,6 +1,6 @@
 import { normalizeMachineBrand } from '../library/MachineBrands';
 import type { Database } from '../db/Database';
-import type { TemplateDraft, TemplateExerciseDraft } from './TemplateDraft';
+import type { TemplateDraft, TemplateExerciseDraft, TemplateSetDraft } from './TemplateDraft';
 import type { SetKind } from '../models/SetKind';
 import { TemplateCatalog } from '../queries/TemplateCatalog';
 import { WorkoutLoggerLimits } from '../logging/WorkoutLogger';
@@ -162,6 +162,47 @@ export const TemplateStore = {
       return id;
     });
   },
+  /** Updates non-warm-up targets for one occurrence without replacing any other template data. */
+  setRepRange(
+    db: Database,
+    templateId: number,
+    exerciseId: number,
+    occurrence: number,
+    range: Pick<TemplateSetDraft, 'targetRepsLow' | 'targetRepsHigh' | 'targetRpe'>,
+    now: Date,
+  ): void {
+    const { targetRepsLow: low, targetRepsHigh: high, targetRpe: rpe } = range;
+    if (
+      low === null ||
+      high === null ||
+      !Number.isInteger(low) ||
+      !Number.isInteger(high) ||
+      low < 1 ||
+      high < low ||
+      high > WorkoutLoggerLimits.maximumReps
+    )
+      throw new TemplateStoreError('invalidReps');
+    if (
+      rpe !== null &&
+      (rpe < WorkoutLoggerLimits.rpeRange.minimum ||
+        rpe > WorkoutLoggerLimits.rpeRange.maximum ||
+        !Number.isFinite(rpe))
+    )
+      throw new TemplateStoreError('invalidRpe');
+    db.transaction(() => {
+      const entry = db.get<{ id: number }>(
+        `SELECT id FROM templateExercise WHERE templateId = ? AND exerciseId = ? ORDER BY position, id LIMIT 1 OFFSET ?`,
+        [templateId, exerciseId, occurrence],
+      );
+      if (entry === undefined) throw new TemplateStoreError('notFound');
+      db.run(
+        `UPDATE templateSet SET targetRepsLow = ?, targetRepsHigh = ?, targetRpe = ? WHERE templateExerciseId = ? AND kind != 'warmup'`,
+        [low, high, rpe, entry.id],
+      );
+      db.run('UPDATE template SET updatedAt = ? WHERE id = ?', [now.toISOString(), templateId]);
+    });
+  },
+
   /** Renames a template and updates its modification time. */
   rename(db: Database, id: number, name: string, now: Date): void {
     db.transaction(() => {

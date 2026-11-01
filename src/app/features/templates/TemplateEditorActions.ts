@@ -1,7 +1,10 @@
+import type { RepRange } from './RepRangeDialog';
 import type { TargetCell } from './TargetCell';
 
 /** What a tap in the template editor's exercise cards can do. Every index is a position in the draft. */
 export interface TemplateEditorActions {
+  /** Sets shared targets on all non-warm-up sets. */
+  setRepRange(exerciseIndex: number, range: RepRange): void;
   /** Sets or clears the exercise note in the draft. */
   setExerciseNotes(exerciseIndex: number, notes: string): void;
   /** Sets the manufacturer in the draft. */

@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns:
     var(--workout-tap-size) minmax(0, 1fr)
-    var(--workout-weight-width) var(--workout-reps-width) var(--workout-tap-size);
+    minmax(0, 80px) minmax(0, 80px) var(--workout-tap-size);
   column-gap: var(--space-xs);
   align-items: center;
 }

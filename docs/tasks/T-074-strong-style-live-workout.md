@@ -83,3 +83,11 @@ The owner tried the compact rows on their iPhone (2026-11-01) and compared them 
 ## Handoff
 
 _Fill in at the end of the session._
+
+Implemented the continuous live layout, individual progression values, number-pad RPE controls,
+viewport-clamped action menus, bodyweight heading, and rep-range editing in templates and linked
+live sessions. Linked sessions match repeated exercises by occurrence. History keeps its separate
+RPE column. Changes are uncommitted; `docs/tasks/BOARD.md` was intentionally left untouched.
+
+Verification: `make format` and `make verify` run locally. Review on an iPhone or simulator in
+both themes remains necessary to confirm the touch spacing, long values and menu/pad positioning.

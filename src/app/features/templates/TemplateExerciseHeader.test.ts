@@ -5,6 +5,7 @@ import { TemplateExerciseHeader } from './TemplateExerciseHeader';
 import type { TemplateEditorActions } from './TemplateEditorActions';
 
 const actions: TemplateEditorActions = {
+  setRepRange: vi.fn(),
   setExerciseNotes: vi.fn(),
   setMachineBrand: vi.fn(),
   setProgression: vi.fn(),
@@ -27,13 +28,15 @@ test('exercise menu offers Add note and opens its editor', () => {
     isSupersetWithNext: false,
     actions,
     onNote,
+    onRepRange: vi.fn(),
     hasNote: false,
   });
   const menu: unknown = header.props.children[3];
   if (!isValidElement<{ items: readonly { label: string; onSelect: () => void }[] }>(menu))
     throw new Error('Missing menu');
-  expect(menu.props.items[0]?.label).toBe('Add note');
-  menu.props.items[0]?.onSelect();
+  expect(menu.props.items[0]?.label).toBe('Rep range…');
+  expect(menu.props.items[1]?.label).toBe('Add note');
+  menu.props.items[1]?.onSelect();
   expect(onNote).toHaveBeenCalledOnce();
   expect(
     renderToStaticMarkup(
@@ -45,6 +48,7 @@ test('exercise menu offers Add note and opens its editor', () => {
         isSupersetWithNext: false,
         actions,
         onNote,
+        onRepRange: vi.fn(),
         hasNote: true,
       }),
     ),

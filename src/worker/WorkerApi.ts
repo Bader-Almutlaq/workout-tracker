@@ -71,7 +71,7 @@ import type { SetKind } from '../core/models/SetKind';
 import { liveWorkoutSnapshot, type LiveWorkoutSnapshot } from '../core/queries/LiveWorkout';
 import { TemplateSessions, type TemplateSessionScope } from '../core/queries/TemplateSessions';
 import { TemplateCatalog, type TemplateList } from '../core/queries/TemplateCatalog';
-import type { TemplateDraft } from '../core/templates/TemplateDraft';
+import type { TemplateDraft, TemplateSetDraft } from '../core/templates/TemplateDraft';
 import { TemplateStore } from '../core/templates/TemplateStore';
 import type { WeightUnit } from '../core/units/WeightUnit';
 import { liveSetFinding as checkLiveSet } from '../core/validation/LiveSetCheck';
@@ -983,6 +983,19 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       notifyListeners();
       return id;
     }),
+
+    /** Updates targets for a matching exercise occurrence in a saved workout. */
+    setTemplateRepRange: serially(
+      async (
+        templateId: number,
+        exerciseId: number,
+        occurrence: number,
+        range: Pick<TemplateSetDraft, 'targetRepsLow' | 'targetRepsHigh' | 'targetRpe'>,
+      ): Promise<void> => {
+        TemplateStore.setRepRange((await liveStore()).database, templateId, exerciseId, occurrence, range, new Date());
+        notifyListeners();
+      },
+    ),
 
     /** Renames a template. */
     renameTemplate: serially(async (templateId: number, name: string): Promise<void> => {

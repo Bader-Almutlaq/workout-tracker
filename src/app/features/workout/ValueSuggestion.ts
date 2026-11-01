@@ -5,6 +5,8 @@
 export interface ValueSuggestion {
   /** Progression keeps even equal previous and suggested numbers separate and tappable. */
   readonly keepsPrevious?: boolean;
+  /** Progression uses the exercise progression colour. */
+  readonly isProgression?: boolean;
   readonly value: number;
   readonly text: string;
   readonly onAccept: (value: number) => void;

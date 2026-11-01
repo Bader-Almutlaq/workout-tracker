@@ -44,6 +44,8 @@ export function ActiveWorkout({ snapshot }: { readonly snapshot: LiveWorkoutSnap
           <ExerciseCard
             key={entry.entry.id}
             entry={entry}
+            templateId={workout.templateId}
+            occurrence={entries.slice(0, index).filter((item) => item.exercise.id === entry.exercise.id).length}
             index={index}
             count={entries.length}
             editing={editing?.entry.entry.id === entry.entry.id ? editing : undefined}
@@ -57,7 +59,10 @@ export function ActiveWorkout({ snapshot }: { readonly snapshot: LiveWorkoutSnap
       </Button>
       {editing !== undefined && (
         <NumberPad
-          title={padTitle(editing.cell.field, editing.entry.exercise.tracking, editing.set.entryUnit)}
+          title={padTitle(editing.cell.field, editing.entry.exercise.tracking, editing.set.entryUnit, editing.text)}
+          isRpe={editing.cell.field === 'rpe'}
+          onRpe={() => model.editor.begin(editing.set.id, editing.cell.field === 'rpe' ? 'reps' : 'rpe')}
+          onQuickRpe={model.editor.pick}
           allowsDecimal={editing.cell.field !== 'reps'}
           unit={
             editing.cell.field === 'weight' && recordsWeight(editing.entry.exercise.tracking)

@@ -17,3 +17,7 @@ describe('pad title', () => {
     expect(padTitle('rpe', 'weight-reps', 'kg')).toBe('RPE');
   });
 });
+
+test('RPE title shows remaining reps for a typed effort', () => {
+  expect(padTitle('rpe', 'weight-reps', 'kg', '8.5')).toBe('RPE 8.5 · 1.5 reps left');
+});

@@ -12,7 +12,7 @@
 }
 
 .panel {
-  position: absolute;
+  position: fixed;
   top: 100%;
   z-index: 31;
   min-width: 200px;

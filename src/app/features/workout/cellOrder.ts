@@ -2,8 +2,8 @@ import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import { isSameCell, type Cell, type Field } from './Cell';
 import { recordsWeight } from './trackingKinds';
 
-const WEIGHT_REPS_RPE: readonly Field[] = ['weight', 'reps', 'rpe'];
-const REPS_RPE: readonly Field[] = ['reps', 'rpe'];
+const WEIGHT_REPS_RPE: readonly Field[] = ['weight', 'reps'];
+const REPS_RPE: readonly Field[] = ['reps'];
 
 /**
  * Every editable cell of the workout in reading order: for each set, weight, reps, RPE, then the
@@ -22,6 +22,7 @@ export function nextCell(
   cell: Cell,
 ): Cell | undefined {
   const order = cellsInOrder(entries);
-  const index = order.findIndex((candidate) => isSameCell(candidate, cell));
+  const current = cell.field === 'rpe' ? { ...cell, field: 'reps' as const } : cell;
+  const index = order.findIndex((candidate) => isSameCell(candidate, current));
   return index === -1 ? undefined : order[index + 1];
 }

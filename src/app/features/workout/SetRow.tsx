@@ -36,7 +36,6 @@ export function SetRow({
   onNotesChange,
   isPastWorkout = false,
   displayUnit,
-  showsEmptyRpe = false,
 }: {
   readonly entry: LiveWorkoutEntry;
   readonly set: WorkoutSet;
@@ -53,8 +52,6 @@ export function SetRow({
   readonly isPastWorkout?: boolean;
   /** The card header unit, so mixed imported units are always identified correctly. */
   readonly displayUnit?: WeightUnit;
-  /** Live exercise-level opt-in to empty RPE badges. */
-  readonly showsEmptyRpe?: boolean;
   readonly onNotesChange?: (notes: string) => void;
 }) {
   const [addingNote, setAddingNote] = useState(false);
@@ -78,11 +75,14 @@ export function SetRow({
     const apply = actions.applySuggestion;
     if (!isPrefilled(field) || apply === undefined || isPastWorkout) return undefined;
     if (entry.deload !== undefined && field === 'reps' && recordsDuration(tracking)) return undefined;
-    const progression = entry.deload?.suggestions.find((item) => item.setId === set.id);
+    const progression = (entry.deload ?? entry.progression)?.suggestions.find((item) => item.setId === set.id);
     // A deload can be enabled after template prefill chose a different session. Showing it never changes that saved value.
     const reference = entry.deload === undefined ? previous : set;
     if (progression !== undefined && reference !== undefined) {
-      return progressionValueSuggestion(progression, set, reference, field, (value) => apply(set.id, field, value));
+      const result = progressionValueSuggestion(progression, set, reference, field, (value) =>
+        apply(set.id, field, value),
+      );
+      return result === undefined ? undefined : { ...result, isProgression: entry.deload === undefined };
     }
     if (!isSuggested) return undefined;
     return {
@@ -98,7 +98,7 @@ export function SetRow({
   };
 
   return (
-    <SwipeToDelete label="Delete set" onDelete={() => actions.deleteSet(set.id)}>
+    <SwipeToDelete isTransparent label="Delete set" onDelete={() => actions.deleteSet(set.id)}>
       <div
         ref={row}
         className={`${grid.grid} ${styles.row}`}
@@ -143,7 +143,7 @@ export function SetRow({
         <CheckButton
           isCompleted={set.isCompleted}
           isDisabled={isPastWorkout}
-          {...(isPastWorkout ? {} : { rpe: set.rpe, showsEmptyRpe, onEditRpe: edit('rpe') })}
+          {...(isPastWorkout ? {} : { rpe: set.rpe, onEditRpe: edit('rpe') })}
           onPress={() => actions.toggleCompleted(entry, set)}
         />
       </div>

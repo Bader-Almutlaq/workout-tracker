@@ -7,7 +7,6 @@ import { toKilograms } from '../../../core/units/Weight';
 import type { ExerciseCardActions } from './ExerciseCardActions';
 import { makeExercise, makeSet } from './workoutTestData';
 import { SetRow } from './SetRow';
-import { ProgressButton } from './ProgressButton';
 import { ExerciseInfoLine } from './ExerciseInfoLine';
 import { progressionValueSuggestion } from './progressionValueSuggestion';
 import { ValueCell } from './ValueCell';
@@ -60,8 +59,8 @@ function info(source: LiveWorkoutEntry) {
 }
 
 test('enabled progression shows separate amber and grey values; off, warm-ups, completed and History do not', () => {
-  expect(row()).not.toContain('Use suggested weight 102.5');
-  expect(row()).not.toContain('Use suggested reps 8');
+  expect(row()).toContain('Use suggested weight 102.5');
+  expect(row()).toContain('Use suggested reps 8');
   expect(row()).toMatch(/data-placeholder="true"[^>]*aria-label="Weight"/);
   const { progression: ignored, ...off } = entry;
   void ignored;
@@ -118,7 +117,7 @@ test('accepted/typed cells hide suggestions independently, including after reloa
   expect(row({ actions: { ...actions, isValueEntered: (_id, field) => field === 'weight' } })).not.toContain(
     'Use suggested weight',
   );
-  expect(row({ actions: { ...actions, isValueEntered: (_id, field) => field === 'weight' } })).not.toContain(
+  expect(row({ actions: { ...actions, isValueEntered: (_id, field) => field === 'weight' } })).toContain(
     'Use suggested reps',
   );
   expect(row({ set: { ...baseline, weightKilograms: 102.5 } })).not.toContain('Use suggested weight');
@@ -154,7 +153,7 @@ test('lb cells and load reasons use the set entry unit; bodyweight supplies no w
       suggestions: [{ ...poundSuggestion, setId: 1 }],
     },
   };
-  expect(row({ entry: lbEntry, set: pounds, previous: pounds })).not.toContain('Use suggested weight 105');
+  expect(row({ entry: lbEntry, set: pounds, previous: pounds })).toContain('Use suggested weight 105');
   expect(info(lbEntry)).toContain('+5 lb next');
   const bodyweight = {
     ...entry,
@@ -165,7 +164,7 @@ test('lb cells and load reasons use the set entry unit; bodyweight supplies no w
     },
   };
   expect(row({ entry: bodyweight })).not.toContain('Use suggested weight');
-  expect(row({ entry: bodyweight })).not.toContain('Use suggested reps');
+  expect(row({ entry: bodyweight })).toContain('Use suggested reps');
 });
 
 test('acceptance keeps exact kg even when a kg override displays as fractional pounds', () => {
@@ -181,29 +180,4 @@ test('acceptance keeps exact kg even when a kg override displays as fractional p
   if (option === undefined) throw new Error('Missing suggestion');
   expect(toKilograms(option.value, 'lb')).toBeCloseTo(exact, 12);
   expect(option.text).not.toBe(String(option.value));
-});
-
-test('Progress applies suggestions only to unfinished sets without completing them', () => {
-  const apply = vi.fn();
-  const done = makeSet({ id: 2, isCompleted: true });
-  const current = {
-    ...entry,
-    sets: [baseline, done],
-    progression: {
-      targets: entry.progression?.targets ?? [],
-      suggestions: [
-        { ...suggestion, setId: baseline.id },
-        { ...suggestion, setId: done.id },
-      ],
-    },
-  };
-  const button = ProgressButton({ entry: current, actions: { ...actions, applySuggestion: apply } });
-  if (button === null) throw new Error('Missing Progress button');
-  expect(renderToStaticMarkup(button)).toContain('Progress · 102.5 kg × 8');
-  button.props.onClick();
-  expect(apply).toHaveBeenCalledTimes(2);
-  expect(apply).toHaveBeenCalledWith(baseline.id, 'weight', 102.5);
-  expect(apply).toHaveBeenCalledWith(baseline.id, 'reps', 8);
-  expect(actions.toggleCompleted).not.toHaveBeenCalled();
-  expect(ProgressButton({ entry: { ...current, progression: { targets: [], suggestions: [] } }, actions })).toBeNull();
 });

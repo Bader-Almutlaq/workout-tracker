@@ -51,12 +51,6 @@ export function ExerciseInfoLine({
               {[range, rest === null ? undefined : `Rest ${clockText(rest)}`].filter(Boolean).join(' · ')}
             </span>
           )}
-          {(entry.entry.deloadStage ?? null) !== null && (
-            <DeloadChip
-              {...(entry.deload === undefined ? {} : { reductionPercent: entry.deload.reductionPercent })}
-              onEnd={onEndDeload}
-            />
-          )}
           {(entry.entry.deloadStage ?? null) === null && progression !== undefined && <span>{progression}</span>}
           {entry.entry.machineBrand && (
             <button type="button" onClick={onMachine}>
@@ -64,6 +58,14 @@ export function ExerciseInfoLine({
             </button>
           )}
           {entry.previousOtherMachine && <span>Previous: other machine</span>}
+          {(entry.entry.deloadStage ?? null) !== null && (
+            <span className={styles.deload}>
+              <DeloadChip
+                {...(entry.deload === undefined ? {} : { reductionPercent: entry.deload.reductionPercent })}
+                onEnd={onEndDeload}
+              />
+            </span>
+          )}
         </div>
       )}
       {note && (
