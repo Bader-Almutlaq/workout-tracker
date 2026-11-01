@@ -1,8 +1,8 @@
+import { estimateText } from '../../format/estimateText';
 import { useState } from 'react';
 import type { WorkerApi } from '../../../worker/WorkerApi';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { SegmentedControl } from '../../design/components/SegmentedControl';
-import { weightText } from '../../format/weightText';
 import { ExerciseRpeTable } from './ExerciseRpeTable';
 import styles from './ExerciseProgress.module.css';
 
@@ -37,7 +37,7 @@ export function ExerciseRpeChartContent({
           ? 'Guide: RTS chart, the same for every lift'
           : chart.estimate === null
             ? 'Log qualifying sets to see weights for this lift.'
-            : `From e1RM ${weightText(chart.estimate, unit)} · ${personal}`}
+            : `From e1RM ${estimateText(chart.estimate, unit)} · ${personal}`}
       </p>
       {mode === 'weight' && !available ? (
         <p>No qualifying strength estimate yet.</p>
