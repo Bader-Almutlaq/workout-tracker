@@ -48,4 +48,6 @@ Every chart follows the chart rules in `docs/ANALYTICS.md` (title says what a ma
 
 ## Handoff
 
-_Fill in at the end of the session._
+Core item 1 was committed before this round. This round adds v14 exercise pins, pin ordering and merge transfer, backup coverage, percentage-of-max buckets, weekly effort, expanded lift ranking, muscle dashboard/detail queries and worker methods. The existing screens still consume the old intensity and muscle-coverage interfaces, so those older queries are retained until the UI round. No screen changes were made. The percentage calculation uses the set load as a lower bound when neither qualifying estimate reaches that load, to preserve the requested 100% ceiling. Weekly muscle detail clips partial weeks to the selected dates. Pins preserve the target's existing pin when both exercises are pinned during a merge.
+
+Remaining review: verify the new ranking and detail against the design, and remove obsolete screen-only analytics when the UI is replaced. Changes remain uncommitted.

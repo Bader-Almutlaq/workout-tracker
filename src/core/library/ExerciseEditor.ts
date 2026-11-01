@@ -149,6 +149,11 @@ export const ExerciseEditor = {
         db.run('UPDATE exerciseAlias SET exerciseId = ? WHERE exerciseId = ?', [targetId, sourceId]);
         // The old name keeps working for imports and search.
         db.run('INSERT OR REPLACE INTO exerciseAlias (alias, exerciseId) VALUES (?, ?)', [source.name, targetId]);
+        db.run(
+          `INSERT OR IGNORE INTO pinnedExercise (exerciseId, position, pinnedAt)
+           SELECT ?, position, pinnedAt FROM pinnedExercise WHERE exerciseId = ?`,
+          [targetId, sourceId],
+        );
         db.run('DELETE FROM exercise WHERE id = ?', [sourceId]);
       }
       return moved;

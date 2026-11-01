@@ -280,3 +280,7 @@ Workout exercise rows retain nullable deload mode, load percent and set percent 
 ### Donkey Calf Raise tracking (v13)
 
 Migration `v13-donkey-calf-raise-weighted` changes the original, unrenamed library row from bodyweight tracking to weight tracking. Set rows and weights are unchanged. The worker takes its usual snapshot before migration.
+
+### Pinned exercises (v14)
+
+`pinnedExercise` stores exercise IDs, display positions and pin timestamps. It is included in the SQLite backup and restore validation. Deleting an exercise cascades its pin; merging transfers a source pin to the target, retaining the target pin when both are pinned. The usual snapshot precedes migration and exercise merge.

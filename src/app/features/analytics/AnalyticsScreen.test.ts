@@ -18,7 +18,14 @@ test('reads view and period from the URL', () => {
   expect(html).toMatch(/aria-pressed="true"[^>]*>4W/);
 });
 test('shows comparison and links lift to Charts', () => {
-  const current = { workoutsPerWeek: 2, hardSetsPerWeek: 4, secondsPerWeek: 3600, volumePerWeek: 100, workouts: [] };
+  const current = {
+    workoutsPerWeek: 2,
+    hardSetsPerWeek: 4,
+    typicalSessionSeconds: 3600,
+    averageRir: 2,
+    rirNotLogged: 0,
+    workouts: [],
+  };
   const previous = { ...current, workoutsPerWeek: 1 };
   const tiles = renderToStaticMarkup(createElement(SummaryTiles, { current, previous, weeks: 12 }));
   expect(tiles).toContain('+100% vs previous 12 weeks');

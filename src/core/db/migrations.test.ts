@@ -210,7 +210,7 @@ test('v12 to v13 changes only the original library exercise and preserves its se
       UPDATE workoutSet SET weightKilograms = 145 WHERE workoutExerciseId = 1;
     `);
     const sets = db.all('SELECT * FROM workoutSet');
-    expect(migrate(db)).toEqual(['v13-donkey-calf-raise-weighted']);
+    expect(migrate(db)).toEqual(['v13-donkey-calf-raise-weighted', 'v14-pinned-exercises']);
     expect(db.all('SELECT tracking, loadStepKilograms FROM exercise ORDER BY id')).toEqual([
       { tracking: 'weight-reps', loadStepKilograms: 2.5 },
       { tracking: 'bodyweight-reps', loadStepKilograms: null },

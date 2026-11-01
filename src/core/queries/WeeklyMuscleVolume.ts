@@ -36,6 +36,7 @@ function mondayOf(date: Date): Date {
  * Finished workouts grouped by their start's local Monday week, from the week containing `from`
  * through the week containing `to`, inclusive. Returns zero-filled weeks and muscles; a reversed
  * range returns []. Calendar increments preserve local weeks across daylight-saving changes.
+ * When clipToDates is true, partial weeks include only the inclusive selected dates.
  * Imported workouts without an end/completion timestamp still count; planned sets never count.
  * Fractional counting and zones are delegated to muscleVolume (research report, item 10).
  */
@@ -44,6 +45,7 @@ export function weeklyMuscleVolume(
   from: Date,
   to: Date,
   secondaryWeight: number = HardSetPolicy.secondaryWeight,
+  clipToDates: boolean = false,
 ): WeeklyMuscleVolume[] {
   if (!Number.isFinite(from.getTime()) || !Number.isFinite(to.getTime())) throw new WeeklyMuscleVolumeError();
   if (from > to) return [];
@@ -51,6 +53,8 @@ export function weeklyMuscleVolume(
   const lastMonday = mondayOf(to);
   const end = new Date(lastMonday);
   end.setDate(end.getDate() + CalendarWeek.days);
+  const queryStart = clipToDates ? new Date(from.getFullYear(), from.getMonth(), from.getDate()) : firstMonday;
+  const queryEnd = clipToDates ? new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1) : end;
   const rows = db.all<Omit<MuscleVolumeSet, 'isCompleted'> & { startedAt: string; isCompleted: number }>(
     `
       SELECT w.id AS workoutId, w.startedAt, em.muscleId AS muscle, em.role,
@@ -62,7 +66,7 @@ export function weeklyMuscleVolume(
       WHERE w.isInProgress = 0 AND w.startedAt >= ? AND w.startedAt < ?
       ORDER BY w.startedAt, w.id, we.position, s.position
     `,
-    [firstMonday.toISOString(), end.toISOString()],
+    [queryStart.toISOString(), queryEnd.toISOString()],
   );
   const weeks = new Map<string, MuscleVolumeSet[]>();
   for (const row of rows) {

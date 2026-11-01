@@ -1,6 +1,10 @@
 import { ExerciseProgress } from '../core/queries/ExerciseProgress';
 import { liftRpeChart, rtsRpeChart } from '../core/analytics/RpeChart';
 import { loadProfileFor } from '../core/units/LoadableWeight';
+import { PinnedExercises } from '../core/analytics/PinnedExercises';
+import { WeeklyEffort } from '../core/queries/WeeklyEffort';
+import { MuscleDashboard, MuscleDetail } from '../core/queries/MuscleDashboard';
+import { medianLiftChange } from '../core/queries/LiftTrends';
 import { templateMuscleSummary } from '../core/queries/TemplateMuscleSummary';
 import { TrainingSummary } from '../core/queries/TrainingSummary';
 import { LiftTrends } from '../core/queries/LiftTrends';
@@ -906,6 +910,43 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       intensityMix((await liveStore()).database, new Date(from), new Date(to), muscle),
     ),
     // End of Muscle coverage and intensity (T-065)
+
+    // Analytics tab (T-078)
+    /** Ordered exercise pins. */
+    pinnedExercises: serially(async () => PinnedExercises.list((await liveStore()).database)),
+    /** Pin an exercise. */
+    pinExercise: serially(async (exerciseId: number) => {
+      PinnedExercises.pin((await liveStore()).database, exerciseId);
+      notifyListeners();
+    }),
+    /** Remove an exercise pin. */
+    unpinExercise: serially(async (exerciseId: number) => {
+      PinnedExercises.unpin((await liveStore()).database, exerciseId);
+      notifyListeners();
+    }),
+    /** Move an exercise pin one place. */
+    movePinnedExercise: serially(async (exerciseId: number, direction: 'up' | 'down') => {
+      PinnedExercises.move((await liveStore()).database, exerciseId, direction);
+      notifyListeners();
+    }),
+    /** Weekly hard sets and logged effort over inclusive dates. */
+    weeklyEffort: serially(async (from: string, to: string, muscle?: Muscle) =>
+      WeeklyEffort((await liveStore()).database, new Date(from), new Date(to), muscle),
+    ),
+    /** Ranked lifts and their median percentage change over an end-exclusive period. */
+    strengthRanking: serially(async (from: string, to: string) => {
+      const lifts = LiftTrends((await liveStore()).database, new Date(from), new Date(to));
+      return { lifts, medianChangePercent: medianLiftChange(lifts) };
+    }),
+    /** Muscle dashboard over inclusive dates. */
+    muscleDashboard: serially(async (from: string, to: string) =>
+      MuscleDashboard((await liveStore()).database, new Date(from), new Date(to)),
+    ),
+    /** Detailed muscle analytics over inclusive dates. */
+    muscleDetail: serially(async (from: string, to: string, muscle: Muscle) =>
+      MuscleDetail((await liveStore()).database, new Date(from), new Date(to), muscle),
+    ),
+    // End of Analytics tab (T-078)
 
     // Strength (T-034)
 

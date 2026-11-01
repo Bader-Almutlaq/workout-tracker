@@ -21,33 +21,38 @@ export function SummaryTiles({
       text: number(current.workoutsPerWeek),
     },
     {
+      label: 'Typical length',
+      value: current.typicalSessionSeconds,
+      prior: previous?.typicalSessionSeconds,
+      text: current.typicalSessionSeconds === null ? '—' : weeklyDurationText(current.typicalSessionSeconds),
+    },
+    {
       label: 'Hard sets / week',
       value: current.hardSetsPerWeek,
       prior: previous?.hardSetsPerWeek,
       text: number(current.hardSetsPerWeek),
     },
     {
-      label: 'Time / week',
-      value: current.secondsPerWeek,
-      prior: previous?.secondsPerWeek,
-      text: weeklyDurationText(current.secondsPerWeek),
-    },
-    {
-      label: 'Volume / week',
-      value: current.volumePerWeek,
-      prior: previous?.volumePerWeek,
-      text: `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(current.volumePerWeek)} kg`,
+      label: 'Average effort',
+      value: current.averageRir,
+      prior: previous?.averageRir,
+      text: current.averageRir === null ? '—' : `${number(current.averageRir)} RIR`,
     },
   ];
   return (
     <div className={styles.tiles}>
       {tiles.map((tile) => {
         const change =
-          tile.prior === undefined || tile.prior === 0 ? null : Math.round((tile.value / tile.prior - 1) * 100);
+          tile.value === null || tile.prior === null || tile.prior === undefined || tile.prior === 0
+            ? null
+            : Math.round((tile.value / tile.prior - 1) * 100);
         return (
           <div className={styles.tile} key={tile.label}>
             <span>{tile.label}</span>
             <strong>{tile.text}</strong>
+            {tile.label === 'Average effort' && current.averageRir !== null && (
+              <small>RPE {number(10 - current.averageRir)}</small>
+            )}
             {change !== null && (
               <small>
                 {change > 0 ? '+' : ''}
