@@ -48,4 +48,4 @@ Every chart follows the chart rules in `docs/ANALYTICS.md` (title says what a ma
 
 ## Handoff
 
-_Fill in at the end of the session._
+Partial implementation: `TrainingSummary` now returns median valid session duration and average logged RIR with an unlogged count. The overview tiles display these in place of time and volume per week. A three-day duration regression is covered. The remainder of the task is not implemented: pins and migration/backup/merge handling, strength ranking, muscle dashboard/detail, effort and percentage distributions, weekly charts, navigation, removals, and the requested design and architecture documentation all remain. The existing tab structure and intensity map therefore still contain the problems described above. Changes are uncommitted.

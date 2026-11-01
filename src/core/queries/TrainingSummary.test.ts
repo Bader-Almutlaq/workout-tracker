@@ -32,8 +32,37 @@ test('normalizes finished workouts and completed hard sets over whole weeks', ()
     `INSERT INTO workout (name, source, startedAt, isInProgress) VALUES ('Active', 'app', '2024-01-03T00:00:00.000Z', 1)`,
   );
   const result = TrainingSummary(db, new Date('2024-01-01T00:00:00Z'), new Date('2024-01-15T00:00:00Z'));
-  expect(result).toMatchObject({ workoutsPerWeek: 0.5, hardSetsPerWeek: 0.5, secondsPerWeek: 1800, volumePerWeek: 50 });
+  expect(result).toMatchObject({
+    workoutsPerWeek: 0.5,
+    hardSetsPerWeek: 0.5,
+    typicalSessionSeconds: 3600,
+    averageRir: 3.5,
+    rirNotLogged: 0,
+  });
   expect(result.workouts).toHaveLength(1);
+});
+test('excludes a three-day session from the median and counts unlogged effort', () => {
+  db.run(`INSERT INTO workout (name, source, startedAt, endedAt, isInProgress) VALUES
+    ('Normal', 'app', '2024-01-02T00:00:00.000Z', '2024-01-02T01:00:00.000Z', 0),
+    ('Open', 'app', '2024-01-03T00:00:00.000Z', '2024-01-06T00:00:00.000Z', 0)`);
+  const exercise = db.run(
+    `INSERT INTO exercise (name, source, createdAt) VALUES ('Test', 'custom', '2024-01-01')`,
+  ).lastInsertRowId;
+  const workout = db.get<{ id: number }>(`SELECT id FROM workout WHERE name = 'Normal'`);
+  if (workout === undefined) throw new Error('Missing workout');
+  const entry = db.run(`INSERT INTO workoutExercise (workoutId, exerciseId, position) VALUES (?, ?, 0)`, [
+    workout.id,
+    exercise,
+  ]).lastInsertRowId;
+  db.run(
+    `INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps, isCompleted) VALUES (?, 0, 'working', 10, 'kg', 5, 1)`,
+    [entry],
+  );
+  expect(TrainingSummary(db, new Date('2024-01-01T00:00:00Z'), new Date('2024-01-08T00:00:00Z'))).toMatchObject({
+    typicalSessionSeconds: 3600,
+    averageRir: null,
+    rirNotLogged: 1,
+  });
 });
 test('returns zero for an empty previous period', () => {
   expect(TrainingSummary(db, new Date('2024-01-01T00:00:00Z'), new Date('2024-01-08T00:00:00Z')).workoutsPerWeek).toBe(

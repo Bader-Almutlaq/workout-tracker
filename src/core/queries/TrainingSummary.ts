@@ -1,20 +1,22 @@
 import { isHardSet } from '../analytics/HardSets';
 import type { Database } from '../db/Database';
 import type { SetKind } from '../models/SetKind';
+import { SessionDurationLimits } from './TemplateSessions';
 
-/** Weekly training totals and finished workout dates; time is seconds and volume is kg × reps. */
+/** Weekly training totals, median session seconds, logged effort and finished workout dates. */
 export interface TrainingSummaryResult {
   readonly workoutsPerWeek: number;
   readonly hardSetsPerWeek: number;
-  readonly secondsPerWeek: number;
-  readonly volumePerWeek: number;
+  readonly typicalSessionSeconds: number | null;
+  readonly averageRir: number | null;
+  readonly rirNotLogged: number;
   readonly workouts: readonly { readonly date: string; readonly deload: boolean }[];
 }
 
 /** Heuristic: calendar weeks have seven civil days; duration excludes workouts without an end time. */
 const calendar = Object.freeze({ daysPerWeek: 7, millisecondsPerDay: 86400000, millisecondsPerSecond: 1000 });
 
-/** Finished workouts in [from, to), normalized by whole local weeks. Tonnage is descriptive (report §12). */
+/** Finished workouts in [from, to), normalized by local weeks. Heuristic: median duration excludes implausibly long sessions; RIR = 10 − RPE (report §12). */
 export function TrainingSummary(db: Database, from: Date, to: Date): TrainingSummaryResult {
   const workouts = db.all<{ id: number; startedAt: string; endedAt: string | null; deload: number }>(
     `
@@ -28,11 +30,9 @@ export function TrainingSummary(db: Database, from: Date, to: Date): TrainingSum
     kind: SetKind;
     rpe: number | null;
     isCompleted: number;
-    weightKilograms: number;
-    reps: number;
   }>(
     `
-    SELECT s.kind, s.rpe, s.isCompleted, s.weightKilograms, s.reps
+    SELECT s.kind, s.rpe, s.isCompleted
     FROM workout w JOIN workoutExercise we ON we.workoutId = w.id
     JOIN workoutSet s ON s.workoutExerciseId = we.id
     WHERE w.isInProgress = 0 AND w.startedAt >= ? AND w.startedAt < ?
@@ -44,23 +44,30 @@ export function TrainingSummary(db: Database, from: Date, to: Date): TrainingSum
       Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())) /
     calendar.millisecondsPerDay;
   const weeks = Math.max(1, days / calendar.daysPerWeek);
-  const seconds = workouts.reduce(
-    (sum, workout) =>
-      sum +
-      (workout.endedAt === null
-        ? 0
-        : Math.max(0, (Date.parse(workout.endedAt) - Date.parse(workout.startedAt)) / calendar.millisecondsPerSecond)),
-    0,
-  );
+  const durations = workouts
+    .flatMap((workout) => {
+      if (workout.endedAt === null) return [];
+      const seconds = (Date.parse(workout.endedAt) - Date.parse(workout.startedAt)) / calendar.millisecondsPerSecond;
+      return Number.isFinite(seconds) && seconds >= 0 && seconds <= SessionDurationLimits.maximumSeconds
+        ? [seconds]
+        : [];
+    })
+    .sort((a, b) => a - b);
+  const middle = Math.floor(durations.length / 2);
+  const typicalSessionSeconds =
+    durations.length === 0
+      ? null
+      : durations.length % 2 === 1
+        ? (durations[middle] ?? null)
+        : ((durations[middle - 1] ?? 0) + (durations[middle] ?? 0)) / 2;
+  const working = sets.filter((set) => set.isCompleted === 1 && set.kind !== 'warmup');
+  const logged = working.flatMap((set) => (set.rpe === null ? [] : [10 - set.rpe]));
   return {
     workoutsPerWeek: workouts.length / weeks,
     hardSetsPerWeek: sets.filter((set) => isHardSet({ ...set, isCompleted: set.isCompleted === 1 })).length / weeks,
-    secondsPerWeek:
-      ((seconds / (workouts.filter((workout) => workout.endedAt !== null).length || 1)) * workouts.length) / weeks,
-    volumePerWeek:
-      sets
-        .filter((set) => set.isCompleted === 1 && set.kind !== 'warmup')
-        .reduce((sum, set) => sum + set.weightKilograms * set.reps, 0) / weeks,
+    typicalSessionSeconds,
+    averageRir: logged.length === 0 ? null : logged.reduce((sum, rir) => sum + rir, 0) / logged.length,
+    rirNotLogged: working.length - logged.length,
     workouts: workouts.map((workout) => ({ date: workout.startedAt, deload: workout.deload === 1 })),
   };
 }

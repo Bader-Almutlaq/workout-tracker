@@ -5,5 +5,5 @@ export function weeklyDurationText(seconds: number): string {
   const minutes = Math.round(seconds / minute);
   const hours = Math.floor(minutes / minute);
   const remainder = minutes % minute;
-  return hours === 0 ? `${minutes}m` : remainder === 0 ? `${hours}h` : `${hours}h ${remainder}m`;
+  return hours === 0 ? `${minutes}m` : `${hours}h ${String(remainder).padStart(2, '0')}m`;
 }
