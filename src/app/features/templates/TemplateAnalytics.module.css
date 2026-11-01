@@ -47,3 +47,36 @@
   width: var(--hairline);
   background: var(--color-text-primary);
 }
+
+.tiles {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.tiles > div {
+  min-width: 0;
+  padding: var(--space-s);
+  overflow-wrap: anywhere;
+}
+.tiles > div strong,
+.tiles > div:last-child strong {
+  font: var(--font-headline);
+}
+.tick,
+.legendTick {
+  width: 2px;
+  background: var(--color-text-primary);
+}
+.tick {
+  top: calc(-1 * var(--space-xs));
+  bottom: calc(-1 * var(--space-xs));
+  transform: translateX(-50%);
+}
+.legendTick {
+  display: inline-block;
+  height: var(--space-m);
+  vertical-align: middle;
+  margin-inline: var(--space-xs);
+}
+.tableScroll {
+  max-width: 100%;
+  overflow-x: auto;
+}

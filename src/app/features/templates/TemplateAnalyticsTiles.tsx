@@ -1,6 +1,7 @@
 import type { TemplateAnalytics } from '../../../core/queries/TemplateAnalytics';
 import { weeklyDurationText } from '../analytics/weeklyDurationText';
 import styles from '../analytics/Analytics.module.css';
+import layout from './TemplateAnalytics.module.css';
 
 type Report = ReturnType<typeof TemplateAnalytics>;
 /** Scoped workout or plan headline figures, using the dashboard tile styling. */
@@ -33,7 +34,7 @@ export function TemplateAnalyticsTiles({ report, plan }: { readonly report: Repo
         },
       ];
   return (
-    <div className={styles.tiles}>
+    <div className={`${styles.tiles} ${layout.tiles}`}>
       {tiles.map((tile) => (
         <div className={styles.tile} key={tile.label}>
           <span>{tile.label}</span>

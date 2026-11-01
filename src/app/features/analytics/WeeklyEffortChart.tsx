@@ -15,11 +15,12 @@ export function WeeklyEffortChart({
   const latest = points.at(-1)?.value;
   return (
     <section>
-      <h2>{title} · each point is one week</h2>
+      <h2>{title}</h2>
       <p>
         {latest === null || latest === undefined
           ? 'No logged effort in the latest week.'
           : `Latest week: ${latest.toFixed(1)} RIR · RPE ${(maximumRpe - latest).toFixed(1)}. Lower = harder.`}
+        {' Each point is one week.'}
       </p>
       <LongRangeChart
         title={title}
