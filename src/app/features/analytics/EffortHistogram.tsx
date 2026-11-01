@@ -13,8 +13,7 @@ export function EffortHistogram({
   const hasSets = buckets.some((bucket) => bucket.count > 0);
   return (
     <section className={styles.section}>
-      <h2>Effort: each bar is a share of working sets</h2>
-      <p>Logged effort in this period.</p>
+      <h2>Effort</h2>
       {!hasSets ? (
         <p>No effort logged in this period.</p>
       ) : (
@@ -22,13 +21,13 @@ export function EffortHistogram({
           {buckets.map((bucket) => (
             <div className={styles.row} key={bucket.label}>
               <span>
-                {bucket.label} RIR · RPE {bucket.rpeLabel}
+                {bucket.label} RIR (RPE {bucket.rpeLabel})
               </span>
               <span className={styles.track}>
                 <span className={styles.bar} style={{ width: `${bucket.percent}%` }} />
               </span>
               <span>
-                {bucket.count} · {bucket.percent.toFixed(0)}%
+                {bucket.percent.toFixed(0)}% ({bucket.count})
               </span>
             </div>
           ))}

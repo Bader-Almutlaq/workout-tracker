@@ -26,7 +26,11 @@ export function ScopedTemplateAnalyticsContent({ report, plan }: { readonly repo
       {plan ? (
         <>
           <PlanMuscleAnalytics report={report} />
-          <MuscleDashboardTable muscles={report.muscleDashboard} period="4W" onSelect={setSelected} />
+          <MuscleDashboardTable
+            muscles={report.muscleDashboard.filter((item) => item.setsPerWeek > 0)}
+            period="4W"
+            onSelect={setSelected}
+          />
           {selected && (
             <BottomSheet title={MUSCLE_DISPLAY_NAMES[selected.muscle]} onClose={() => setSelected(null)}>
               {selected.shares.map((share) => (

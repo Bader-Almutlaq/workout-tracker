@@ -12,7 +12,10 @@ export function WorkoutProgressCards({ exercises }: { readonly exercises: readon
     <div className={styles.cards}>
       {exercises.map((exercise, index) => {
         const latest = exercise.sessions.at(-1);
-        const fallback = !exercise.sessions.some((session) => session.bestEstimatedOneRepMax !== null);
+        // Heuristic: high-rep lifts often fall outside the estimate's limits; use top-set weight unless every non-deload session has one.
+        const fallback = exercise.sessions.some(
+          (session) => !session.isDeload && session.bestEstimatedOneRepMax === null,
+        );
         const change = exercise.changes?.estimatedOneRepMaxPercent ?? null;
         const topChange = exercise.changes?.topSet;
         const delta =
