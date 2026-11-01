@@ -1,13 +1,13 @@
 import { weekdayText } from '../templates/weekday';
 import { useState } from 'react';
 import type { ExerciseProgressReport, ExerciseProgressSession } from '../../../core/queries/ExerciseProgress';
+import type { TimeAggregation } from '../../../core/analytics/TimeBuckets';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { database, useDatabaseQuery } from '../../data/database';
 import { ToggleChip } from '../../design/components/ToggleChip';
-import { weightText } from '../../format/weightText';
 import { rpeNumberText } from '../../format/setText';
 import { ExerciseQueryMessage } from './ExerciseQueryMessage';
-import { progressChangeText } from './progressText';
+import { displayValue } from '../../../core/units/Weight';
 import { ExerciseProgressTiles } from './ExerciseProgressTiles';
 import { ExerciseProgressChart, type ProgressChartPoint } from './ExerciseProgressChart';
 import styles from './ExerciseProgress.module.css';
@@ -19,10 +19,7 @@ function points(
   sessions: readonly ExerciseProgressSession[],
   valueOf: (session: ExerciseProgressSession) => number | null,
 ): ProgressChartPoint[] {
-  return sessions.flatMap((session) => {
-    const value = valueOf(session);
-    return value === null ? [] : [{ date: session.date, value, session }];
-  });
+  return sessions.map((session) => ({ date: session.date, value: valueOf(session), session }));
 }
 
 /** Shared Progress summaries and single-measure session charts; compare data is loaded only for selected workouts. */
@@ -50,7 +47,8 @@ export function ExerciseProgressContent({
       ),
   );
   const name = templateId === undefined ? 'All workouts' : 'This workout';
-  const estimate = (session: ExerciseProgressSession) => session.bestEstimatedOneRepMax;
+  const estimate = (session: ExerciseProgressSession) =>
+    session.bestEstimatedOneRepMax === null ? null : displayValue(session.bestEstimatedOneRepMax, unit);
   const strengthSeries = [
     { name, points: points(report.sessions, estimate) },
     ...(comparisons.status === 'ready'
@@ -62,57 +60,62 @@ export function ExerciseProgressContent({
           }))
       : []),
   ];
-  const normal = report.sessions.filter((session) => !session.isDeload);
-  const last = normal.at(-1);
-  const changes = report.changes?.workingSetCount;
   const metrics = [
     {
-      title: 'Top-set weight',
-      value: (session: ExerciseProgressSession) => (session.topSet === null ? null : session.topSet.weightKilograms),
-      format: (value: number) => weightText(value, unit),
-      takeaway:
-        last?.topSet === null || last?.topSet === undefined
-          ? 'No top set yet'
-          : `Latest non-deload: ${weightText(last.topSet.weightKilograms, unit)}`,
+      title: 'Top set weight',
+      aggregation: 'max',
+      value: (session: ExerciseProgressSession) =>
+        session.topSet === null ? null : displayValue(session.topSet.weightKilograms, unit),
+      format: (value: number) => `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${unit}`,
+      unit,
+      kind: 'line',
+      trend: true,
     },
     {
       title: 'Reps on the top set',
+      aggregation: 'max',
       value: (session: ExerciseProgressSession) => session.topSet?.reps ?? null,
       format: (value: number) => `${value} reps`,
-      takeaway:
-        last?.topSet === null || last?.topSet === undefined
-          ? 'No top set yet'
-          : `Latest non-deload: ${last.topSet.reps} reps`,
+      unit: 'reps',
+      kind: 'line',
+      trend: true,
     },
     {
       title: 'Working sets',
+      aggregation: 'sum',
       value: (session: ExerciseProgressSession) => session.workingSetCount,
       format: (value: number) => `${value} sets`,
-      takeaway:
-        changes === undefined
-          ? `Latest non-deload: ${last?.workingSetCount ?? '—'} sets`
-          : `${changes.before} → ${changes.after} sets vs 4 sessions ago`,
+      unit: 'sets',
+      kind: 'bars',
+      trend: false,
     },
     {
       title: 'Average RPE',
+      aggregation: 'mean',
       value: (session: ExerciseProgressSession) => session.averageRpe,
-      format: (value: number) => `RPE ${rpeNumberText(value)}`,
-      takeaway:
-        last?.averageRpe === null || last?.averageRpe === undefined
-          ? 'No logged effort in the latest non-deload session'
-          : `Latest non-deload: RPE ${rpeNumberText(last.averageRpe)}`,
+      format: (value: number) => `${rpeNumberText(value)} RPE`,
+      unit: 'RPE',
+      kind: 'line',
+      trend: false,
     },
-  ];
+  ] satisfies readonly {
+    title: string;
+    aggregation: TimeAggregation;
+    value: (session: ExerciseProgressSession) => number | null;
+    format: (value: number) => string;
+    unit: string;
+    kind: 'line' | 'bars';
+    trend: boolean;
+  }[];
   return (
     <div className={styles.stack}>
       <ExerciseProgressTiles report={report} unit={unit} bodyweight={bodyweight} />
       <ExerciseProgressChart
-        title="Best-set e1RM"
-        takeaway={progressChangeText(report.changes?.estimatedOneRepMaxPercent ?? null)}
+        title="Estimated 1RM"
+        trend
         series={strengthSeries}
         unit={unit}
-        bodyweight={bodyweight}
-        formatValue={(value) => weightText(value, unit)}
+        formatValue={(value) => `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${unit}`}
       />
       {templateId !== undefined && report.otherWorkouts.length > 0 && (
         <div className={styles.filters} aria-label="Compare days">
@@ -143,11 +146,12 @@ export function ExerciseProgressContent({
         <ExerciseProgressChart
           key={metric.title}
           title={metric.title}
-          takeaway={metric.takeaway}
           series={[{ name, points: points(report.sessions, metric.value) }]}
           formatValue={metric.format}
-          unit={unit}
-          bodyweight={bodyweight}
+          unit={metric.unit}
+          kind={metric.kind}
+          trend={metric.trend}
+          aggregation={metric.aggregation}
         />
       ))}
     </div>

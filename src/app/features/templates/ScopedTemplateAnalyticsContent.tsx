@@ -18,7 +18,7 @@ export function ScopedTemplateAnalyticsContent({ report, plan }: { readonly repo
       {plan ? (
         <>
           <PlanMuscleAnalytics report={report} />
-          <WeeklyCharts points={report.weekly} />
+          <WeeklyCharts points={report.weekly} completeHistory />
           <section>
             <h2>Progress by workout</h2>
             {report.exercises.map((group) => (

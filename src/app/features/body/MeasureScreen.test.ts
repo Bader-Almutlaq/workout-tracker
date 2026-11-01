@@ -111,7 +111,7 @@ test('body-part deep links render the shared sections and keep the Measure back 
   expect(markup).toContain('>Chart<');
   expect(markup).toContain('>History<');
   expect(markup).toContain('>Log<');
-  expect(markup).toContain('Open Waist full screen');
+  expect(markup).toContain('Expand Waist');
   expect(markup).not.toContain('aria-label="Settings"');
 });
 

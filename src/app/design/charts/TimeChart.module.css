@@ -1,0 +1,262 @@
+.chart {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  --series-color: var(--color-accent);
+  --chart-orange: light-dark(#eb6834, #d95926);
+  --chart-aqua: light-dark(#1baf7a, #199e70);
+  --chart-magenta: light-dark(#e87ba4, #d55181);
+  --chart-green: light-dark(#008300, #008300);
+  --chart-violet: light-dark(#6250d6, #9085e9);
+  --chart-red: light-dark(#e34948, #e66767);
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  min-height: 44px;
+}
+.title {
+  margin: 0;
+  font: var(--font-headline);
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.icon,
+.tableToggle,
+.open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-s);
+  border: 0;
+  border-radius: var(--radius-small);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+  -webkit-tap-highlight-color: transparent;
+}
+.icon:focus-visible,
+.tableToggle:focus-visible,
+.open:focus-visible,
+.plot:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.plot:focus:not(:focus-visible) {
+  outline: none;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-m);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+}
+.legend li,
+.calloutValue {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+.swatch {
+  display: inline-block;
+  width: var(--space-m);
+  border-top: 2px solid var(--series-color);
+}
+.trendSwatch {
+  border-top: 2px dashed var(--color-text-tertiary);
+}
+.series[data-series='1'] {
+  --series-color: var(--chart-orange);
+}
+.series[data-series='2'] {
+  --series-color: var(--chart-aqua);
+}
+.series[data-series='3'] {
+  --series-color: var(--chart-magenta);
+}
+.series[data-series='4'] {
+  --series-color: var(--chart-green);
+}
+.series[data-series='5'] {
+  --series-color: var(--chart-violet);
+}
+.series[data-series='6'] {
+  --series-color: var(--chart-red);
+}
+.series[data-series='7'] {
+  --series-color: var(--color-text-primary);
+}
+.line {
+  fill: none;
+  stroke: var(--series-color);
+  stroke-width: 2;
+}
+.dot,
+.bar {
+  fill: var(--series-color);
+}
+.deload {
+  fill: var(--color-deload);
+}
+.trend {
+  fill: none;
+  stroke: var(--color-text-tertiary);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+.rule {
+  stroke: var(--color-text-secondary);
+  stroke-width: 1;
+  pointer-events: none;
+}
+.ring {
+  fill: var(--color-surface);
+  stroke: var(--series-color);
+  stroke-width: 2;
+  pointer-events: none;
+}
+.ring.deload {
+  fill: var(--color-surface);
+  stroke: var(--color-deload);
+}
+.plot {
+  position: relative;
+  width: 100%;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.interacting {
+  touch-action: none;
+}
+.expanded .plot {
+  touch-action: none;
+}
+.callout {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  width: 210px;
+  max-width: calc(100% - var(--space-s));
+  padding: var(--space-s) var(--space-m);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font: var(--font-caption);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.callout .open {
+  pointer-events: auto;
+  color: var(--color-accent);
+}
+.calloutValue {
+  flex-wrap: wrap;
+}
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.plot[hidden] {
+  display: none;
+}
+.tableScroll {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: auto;
+  max-height: 100%;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--font-caption);
+  font-variant-numeric: tabular-nums;
+}
+.table th,
+.table td {
+  padding: var(--space-s);
+  border-bottom: var(--hairline) solid var(--color-border);
+  text-align: left;
+}
+.empty {
+  min-height: 160px;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-secondary);
+  font: var(--font-callout);
+}
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100dvw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+}
+.expanded {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: max(var(--space-s), env(safe-area-inset-top)) max(var(--space-l), env(safe-area-inset-right))
+    max(var(--space-s), env(safe-area-inset-bottom)) max(var(--space-l), env(safe-area-inset-left));
+}
+.canvas {
+  flex: 1;
+  min-height: 0;
+}
+.expanded .chart {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.expanded .plot {
+  flex: 1;
+  min-height: 0;
+}
+.expanded .callout {
+  top: var(--space-xs);
+}
+@media (orientation: portrait) {
+  .expanded {
+    inset: auto;
+    left: 50%;
+    top: 50%;
+    width: 100dvh;
+    height: 100dvw;
+    transform: translate(-50%, -50%) rotate(90deg);
+    padding: max(var(--space-s), env(safe-area-inset-right)) max(var(--space-l), env(safe-area-inset-bottom))
+      max(var(--space-s), env(safe-area-inset-left)) max(var(--space-l), env(safe-area-inset-top));
+  }
+}

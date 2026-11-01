@@ -59,12 +59,12 @@ test('Progress renders three tiles, five named session charts, deload markers an
     'e1RM now',
     'Best e1RM',
     'Top set',
-    'Best-set e1RM',
-    'Top-set weight',
+    'Estimated 1RM',
+    'Top set weight',
     'Reps on the top set',
     'Working sets',
     'Average RPE',
-    'Show as table',
+    'Expand Estimated 1RM',
     'Deload',
     'Machine filter',
   ])
@@ -72,7 +72,8 @@ test('Progress renders three tiles, five named session charts, deload markers an
   expect(markup).toContain('100 kg');
   expect(markup).toContain('Compare days');
   expect(markup).toContain('Light day');
-  expect(markup).toContain('Latest non-deload: 80 kg');
+  expect(markup).not.toContain('Latest non-deload:');
+  expect(markup).not.toContain('each point is one session');
 });
 test('compare chips appear only in a saved workout with other workouts', () => {
   const all = render(createElement(ExerciseChartsTab, { exerciseId: 1, tracking: 'weight-reps' }));
@@ -100,7 +101,7 @@ test('bodyweight additions retain plus, and lb conversion happens in display tex
 test('empty, loading and error states are readable', () => {
   state.report = { ...report, sessions: [], trendNow: null, bestEstimate: null, otherWorkouts: [], machineBrands: [] };
   expect(render(createElement(ExerciseChartsTab, { exerciseId: 1, tracking: 'weight-reps' }))).toContain(
-    'No qualifying sessions yet.',
+    'No data in this range.',
   );
   state.status = 'loading';
   expect(render(createElement(ExerciseChartsTab, { exerciseId: 1, tracking: 'weight-reps' }))).toContain('Loading…');

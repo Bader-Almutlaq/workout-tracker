@@ -1,7 +1,7 @@
 import type { BodyMeasurement } from '../../../core/models/BodyMeasurement';
 import type { MeasurementSite, MeasurementUnit } from '../../../core/measurements/MeasurementSite';
 import { measurementValueIn } from '../../../core/measurements/MeasurementUnits';
-import { LongRangeChart } from '../../design/charts/LongRangeChart';
+import { TimeChart } from '../../design/charts/TimeChart';
 import { FORMAT_LOCALE } from '../../format/formatLocale';
 
 /** Heuristic: two decimals keep tape values readable without rounding storage. */
@@ -21,8 +21,9 @@ export function MeasurementChart({
   readonly sites: readonly MeasurementSite[];
 }) {
   return (
-    <LongRangeChart
+    <TimeChart
       title={title}
+      unit={unit}
       aggregation="mean"
       formatValue={(value) => `${numberFormat.format(value)} ${unit}`}
       series={sites.map((site) => ({

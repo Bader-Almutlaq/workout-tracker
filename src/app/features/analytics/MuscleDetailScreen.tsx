@@ -39,9 +39,24 @@ export function MuscleDetailScreen() {
         <>
           <WeeklySetsChart
             title="Weekly fractional sets"
+            loadHistory={async () => {
+              const firstDate = first.status === 'ready' ? first.value : null;
+              if (firstDate === null || muscle === undefined) return [];
+              const history = await database.muscleDetail(firstDate, new Date().toISOString(), muscle);
+              return [
+                {
+                  name: 'Weekly fractional sets',
+                  points: history.weekly.map((week) => ({
+                    date: week.weekStart,
+                    value: week.muscle?.totalSets ?? null,
+                    deload: history.effort.find((point) => point.weekStart === week.weekStart)?.hasDeload ?? false,
+                  })),
+                },
+              ];
+            }}
             points={query.value.weekly.map((week) => ({
               date: week.weekStart,
-              value: week.muscle?.totalSets ?? 0,
+              value: week.muscle?.totalSets ?? null,
               deload: query.value?.effort.find((item) => item.weekStart === week.weekStart)?.hasDeload ?? false,
             }))}
           />

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ChartLayout, chartScales, nearestChartPoint, chartDateLabels } from './chartScales';
+import { ChartLayout, chartScales, chartDateLabels } from './chartScales';
 
 const points = [
   { date: '2026-03-01', value: 100 },
@@ -47,20 +47,6 @@ describe('chartScales', () => {
     expect(narrow.y.domain()).toEqual(wide.y.domain());
     expect(wide.right - narrow.right).toBe(230);
   });
-
-  it('snaps to the nearest point and clamps drags beyond the plot', () => {
-    const scales = chartScales(points, 398);
-    expect(nearestChartPoint(points, scales.x, scales.x(new Date('2026-03-08')) + 1)).toBe(1);
-    expect(nearestChartPoint(points, scales.x, -100)).toBe(0);
-    expect(nearestChartPoint(points, scales.x, 1000)).toBe(2);
-    expect(nearestChartPoint([], scales.x, 100)).toBeNull();
-  });
-
-  it('keeps the earlier point on an exact distance tie', () => {
-    const pair = [points[0], points[2]];
-    const scales = chartScales(pair, 398);
-    expect(nearestChartPoint(pair, scales.x, (scales.left + scales.right) / 2)).toBe(0);
-  });
 });
 
 describe('chart polish', () => {
@@ -102,4 +88,19 @@ describe('chart polish', () => {
     expect(long.some((label) => label.text === 'Jan 2027')).toBe(true);
     expect(long.at(-1)?.text).toBe('Apr');
   });
+});
+
+it('keeps between three and five date labels on sparse short spans and identifies a crossed year', () => {
+  const scales = chartScales(
+    [
+      { date: '2026-12-01', value: 1 },
+      { date: '2027-01-30', value: 2 },
+    ],
+    430,
+  );
+  const labels = chartDateLabels(scales);
+  expect(labels.length).toBeGreaterThanOrEqual(3);
+  expect(labels.length).toBeLessThanOrEqual(5);
+  expect(labels.some((label) => label.text.includes('2026'))).toBe(true);
+  expect(labels.some((label) => label.text.includes('2027'))).toBe(true);
 });

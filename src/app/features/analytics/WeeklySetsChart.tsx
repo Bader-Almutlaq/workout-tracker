@@ -1,36 +1,26 @@
-import { compactTick } from '../../design/charts/compactTick';
-import { LongRangeChart } from '../../design/charts/LongRangeChart';
+import type { TimeChartProps } from '../../design/charts/TimeChart.types';
+import { TimeChart } from '../../design/charts/TimeChart';
 
-/** Weekly sets values; missing values are omitted and deload weeks are marked. */
+/** Weekly totals drawn as zero-based bars; null weeks stay gaps and regression excludes deload observations. */
 export function WeeklySetsChart({
   points,
   title = 'Weekly hard sets',
+  loadHistory,
 }: {
   readonly points: readonly { readonly date: string; readonly value: number | null; readonly deload: boolean }[];
   readonly title?: string;
+  readonly loadHistory?: TimeChartProps['loadHistory'];
 }) {
-  const latest = points.at(-1)?.value;
   return (
-    <section>
-      <h2>{title}</h2>
-      <p>
-        {latest === null || latest === undefined ? 'No weekly sets yet.' : `Latest week: ${latest.toFixed(1)} sets`}
-        {' Each point is one week.'}
-      </p>
-      <LongRangeChart
-        title={title}
-        series={[
-          {
-            name: title,
-            points: points.flatMap((point) => (point.value === null ? [] : [{ date: point.date, value: point.value }])),
-          },
-        ]}
-        aggregation="sum"
-        overviewBucket="week"
-        marks={points.filter((point) => point.deload).map((point) => ({ date: point.date, kind: 'deload' }))}
-        formatTick={(value) => `${compactTick(value)} sets`}
-        formatValue={(value) => `${value.toFixed(1)} sets`}
-      />
-    </section>
+    <TimeChart
+      title={title}
+      {...(loadHistory === undefined ? {} : { loadHistory })}
+      unit="sets"
+      kind="bars"
+      trend
+      aggregation="sum"
+      series={[{ name: title, points }]}
+      formatValue={(value) => `${value.toFixed(1)} sets`}
+    />
   );
 }

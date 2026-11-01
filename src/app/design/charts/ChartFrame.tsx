@@ -1,9 +1,9 @@
-import { useId, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { ChartLayout, chartDateLabels, type ChartScales } from './chartScales';
 import styles from './ChartFrame.module.css';
 import { compactTick } from './compactTick';
 
-/** SVG plot with a subtle background fade, round value gridlines and UTC date labels; horizontal gridlines only (DESIGN.md → Charts). */
+/** SVG plot with round value gridlines, a top-tick unit and dated axis labels; horizontal gridlines only (DESIGN.md → Charts). */
 export function ChartFrame({
   width,
   scales,
@@ -11,7 +11,9 @@ export function ChartFrame({
   height = ChartLayout.height,
   children,
   formatTick = compactTick,
+  unit,
 }: {
+  readonly unit?: string;
   readonly width: number;
   readonly scales: ChartScales;
   readonly label: string;
@@ -19,17 +21,9 @@ export function ChartFrame({
   readonly children: ReactNode;
   readonly formatTick?: (value: number) => string;
 }) {
-  const gradientId = useId();
   const labels = chartDateLabels(scales);
   return (
     <svg className={styles.chart} viewBox={`0 0 ${width} ${height}`} aria-label={label} role="group">
-      <defs>
-        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" className={styles.fadeStart} />
-          <stop offset="100%" className={styles.fadeEnd} />
-        </linearGradient>
-      </defs>
-      <rect width={width} height={height} fill={`url(#${gradientId})`} />
       {scales.gridValues
         .filter((value) => formatTick(value) !== '')
         .map((value) => (
@@ -49,6 +43,7 @@ export function ChartFrame({
               dominantBaseline="middle"
             >
               {formatTick(value)}
+              {value === scales.gridValues.at(-1) && unit ? ` ${unit}` : ''}
             </text>
           </g>
         ))}

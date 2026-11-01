@@ -15,6 +15,7 @@ export const ChartLayout = Object.freeze({
   labelGap: 12,
   gridlineCount: 3,
   monthLabelCount: 3,
+  maximumDateLabels: 5,
   domainPaddingFraction: 0.1,
   minimumValuePadding: 1,
   /** Share of the value used as padding when every point is (nearly) equal, so a flat line gets distinct axis labels. */
@@ -23,6 +24,7 @@ export const ChartLayout = Object.freeze({
   flatSpreadFraction: 0.01,
   singleDatePaddingMilliseconds: 86_400_000,
   minimumWidth: 160,
+  fallbackWidth: 398,
   shortSpanDays: 90,
   millisecondsPerDay: 86_400_000,
 });
@@ -84,20 +86,6 @@ export function chartScales(
   };
 }
 
-/** Nearest point in pixel space; ties keep the earlier input point, and empty data returns null. */
-export function nearestChartPoint(points: readonly ChartPoint[], x: ChartScales['x'], pixel: number): number | null {
-  let nearest: number | null = null;
-  let distance = Infinity;
-  points.forEach((point, index) => {
-    const nextDistance = Math.abs(x(new Date(point.date)) - pixel);
-    if (nextDistance < distance) {
-      nearest = index;
-      distance = nextDistance;
-    }
-  });
-  return nearest;
-}
-
 /** Calendar-axis labels: short spans name days; longer spans name months with an unambiguous year. */
 export function chartDateLabels(scales: ChartScales): readonly { readonly date: Date; readonly text: string }[] {
   const domain = scales.x.domain();
@@ -106,7 +94,13 @@ export function chartDateLabels(scales: ChartScales): readonly { readonly date: 
   if (first === undefined || last === undefined) return [];
   const short = Number(last) - Number(first) < ChartLayout.shortSpanDays * ChartLayout.millisecondsPerDay;
   const seen = new Set<string>();
-  return scales.x.ticks(ChartLayout.monthLabelCount).flatMap((date) => {
+  const acrossYears = first.getUTCFullYear() !== last.getUTCFullYear();
+  const ticks = scales.x.ticks(ChartLayout.monthLabelCount);
+  const candidates =
+    ticks.length < ChartLayout.monthLabelCount
+      ? [first, new Date((Number(first) + Number(last)) / 2), last]
+      : ticks.filter((_, index) => index % Math.ceil(ticks.length / ChartLayout.maximumDateLabels) === 0);
+  return candidates.flatMap((date) => {
     const key = short ? date.toISOString().slice(0, 10) : date.toISOString().slice(0, 7);
     if (seen.has(key)) return [];
     const firstLabel = seen.size === 0;
@@ -114,7 +108,11 @@ export function chartDateLabels(scales: ChartScales): readonly { readonly date: 
     const format = new Intl.DateTimeFormat(FORMAT_LOCALE, {
       timeZone: 'UTC',
       month: 'short',
-      ...(short ? { day: 'numeric' } : firstLabel || date.getUTCMonth() === 0 ? { year: 'numeric' } : {}),
+      ...(short
+        ? { day: 'numeric', ...(acrossYears ? { year: 'numeric' } : {}) }
+        : firstLabel || date.getUTCMonth() === 0
+          ? { year: 'numeric' }
+          : {}),
     });
     return [{ date, text: format.format(date) }];
   });

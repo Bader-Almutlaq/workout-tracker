@@ -1,41 +1,31 @@
 import type { DatedValue, TimeAggregation } from '../../../core/analytics/TimeBuckets';
-import { LongRangeChart, type LongRangeMark } from '../../design/charts/LongRangeChart';
-import styles from './ExercisePage.module.css';
+import { TimeChart } from '../../design/charts/TimeChart';
+import type { TimeChartMark } from '../../design/charts/TimeChart.types';
 
-/** Heuristic: at least two observed sessions are required before showing a trend chart. */
-const policy = Object.freeze({ minimumPoints: 2 });
-
-/** An applicable chart, or its one-line insufficient-data note; shared chart retains expand/range/table support. */
+/** Applicable timed/bodyweight chart using the common compact and expanded renderer, including empty/single values. */
 export function ExerciseChart({
   title,
   points,
   aggregation = 'max',
-  shape = 'line',
   formatValue,
   marks,
+  unit,
 }: {
   readonly title: string;
-  readonly marks?: readonly LongRangeMark[];
+  readonly marks?: readonly TimeChartMark[];
   readonly points: readonly DatedValue[];
   readonly aggregation?: TimeAggregation;
-  readonly shape?: 'line' | 'step';
   readonly formatValue: (value: number) => string;
+  readonly unit: string;
 }) {
   return (
-    <section className={styles.chart}>
-      <h2 className={styles.heading}>{title}</h2>
-      {points.length < policy.minimumPoints ? (
-        <p className={styles.note}>{title}: log at least two qualifying sessions to see this chart.</p>
-      ) : (
-        <LongRangeChart
-          title={title}
-          series={[{ name: title, points }]}
-          aggregation={aggregation}
-          shape={shape}
-          {...(marks === undefined ? {} : { marks })}
-          formatValue={formatValue}
-        />
-      )}
-    </section>
+    <TimeChart
+      title={title}
+      unit={unit}
+      series={[{ name: title, points }]}
+      aggregation={aggregation}
+      {...(marks === undefined ? {} : { marks })}
+      formatValue={formatValue}
+    />
   );
 }

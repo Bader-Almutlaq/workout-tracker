@@ -55,36 +55,19 @@ All numbers in tables, set rows and axes use **monospaced digits** so columns al
 
 ## Charts
 
-Charts follow the data-viz method used for this project. Its rules: pick the form first; color by job; thin marks; one y-axis; legends for two or more series; text in ink colors, never series colors.
+Every dated plot uses `TimeChart` in `src/app/design/charts/`. Callers supply short titles, display-unit values (including nulls), series names, aggregation, and optional deload marks, regression and session navigation. Sparklines and non-time distributions retain their own forms.
 
-- **Single-series trends** (e1RM, bodyweight): the smoothed trend is a 2 pt `accent` line. Raw session values are 6–8 pt dots at 35% opacity, so the noise is visible but quiet. The title names the series, so there's no legend.
-- **Interaction:** touch-and-drag shows a vertical rule with a value readout (pointer events on the SVG). This replaces hover on a phone.
+- **Inline:** a 160 px plot, a title and an icon-only expand button with a 44 px target. No captions, takeaways, touch hints or persistent readout. Three or four round y ticks show the unit on the top tick only; three to five x labels name dates, including the year across years. Bars start at zero; level lines use a padded value domain.
+- **Aggregation:** about 26 marks inline and 60 in landscape, using local days, Monday weeks, months and quarters. Close landscape zoom retains individual sessions, including separate sessions on one day. Numeric combination is delegated to `TimeBuckets` (max, mean, sum or last). No min–max bands. Visible windows clip observations before aggregation.
+- **Gaps:** null-only periods have no mark and break a line. A gap longer than two missing calendar buckets also breaks a line. Missing observations are never replaced by zero.
+- **Trend:** optional dashed straight regression fitted to shown non-deload observations by `LinearTrend` in WorkoutCore. Requires three valid observations and ends at the last fitted observation; it makes no forecast. In mixed buckets, regression uses only their non-deload source values.
+- **Colour:** the first series always uses accent. Comparisons use the fixed categorical palette below, skipping yellow, which is reserved for deload. A point/bar is yellow only when all its source sessions are deloads. A legend appears for multiple series or a drawable trend, with named swatches and a dashed “Trend” key.
+- **Readout:** horizontal drag or a 150 ms press reveals a snapping vertical rule, ring and clamped bubble over the header. The bubble gives the date/period, each value and its unit, and Deload where applicable. Release/cancel clears it immediately. Vertical swipes inline scroll the page. Keyboard arrows inspect marks; blur/Escape clears the readout. Focus is visible only for keyboard use.
+- **Expansion:** icon opens a modal full-screen landscape view. On an upright phone the whole view rotates clockwise 90°; physical touch coordinates map back to the logical plot. Padding remaps all safe-area insets with the rotation. It starts on the last six calendar months, with whole history available; charts on period-filtered pages load their full history on expansion. Pinch zooms between roughly two weeks and all history; one-finger drag pans, hold then drag inspects, double-tap resets to all history. A short session tap offers Open when a session callback exists. Close/Escape restores focus and page scrolling. No range chips.
+- **Table:** inline data remains visually hidden and accessible to screen readers. Only the expanded header has a Table toggle; the visible table contains the current buckets and available session links.
+- **Rendering:** SVG in React, `d3-scale` for axes and straight `d3-shape` paths. Horizontal gridlines only, in border colour; axis text uses tertiary ink and tabular digits. One scale per chart; different measures get separate charts.
+- **Volume per muscle:** horizontal bars retain their direct/indirect stack and evidence zones.
 
-### Signature chart: recent vs baseline
-
-The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10-29). Its pattern is reused for every "how am I doing lately" chart: weekly hard sets per muscle, weekly tonnage, e1RM trend and bodyweight.
-
-- **Two lines, one axis.**
-  - The recent line is a short window, such as the 7-day sum or the latest session. It is a 3 pt smooth line (`catmullRom`) with a dot on every data point.
-  - The baseline line is a long window, such as the 28-day average or the EWMA trend. It is a 1.5 pt line in `textPrimary`, with no dots.
-  - Both lines share the y-axis. They describe the same quantity, so this never becomes a dual-axis chart.
-- **Dots colored by distance from the baseline.** This is a diverging encoding:
-  - **Neutral** (`textSecondary`): within ±10% of the baseline.
-  - **Cool** (slot 1 blue): further below.
-  - **Warm** (slot 5 magenta): further above.
-  - The intensity grows with the distance.
-  - The headline always states the number, so color is never the only cue.
-- **Latest point** gets an 8 pt ring with a soft glow. This is the only decoration on the chart.
-- **Headline above the chart** is descriptive, never a verdict: **"+12%"** followed by "7-day vs 28-day hard sets" in caption style. There are no "Steady", "Overreaching" or "Detraining" labels: the app measures, it doesn't judge.
-- **Grid:** vertical dashed hairlines at week starts, with date labels inside the plot at the bottom. There are no horizontal gridlines or y-axis labels on this card; exact values come from touch. The card background fades to `accentSubtle` at the bottom.
-- **Scope chips** go above the headline, one row that scrolls horizontally. Each chip shows its own % change, e.g. "All · −3%" and "Chest · +72%".
-- **Touch:**
-  - **One finger, press and drag:** a vertical rule snaps to the nearest point and the headline area becomes a readout. It shows the date, the recent and baseline values, and for weights both units.
-  - **Two fingers, or press then drag the second edge:** selects a range (`chartXSelection(range:)`). The readout shows the range statistics: start → end change, mean, min, max, number of sessions and total hard sets.
-  - Releasing returns to the headline.
-- Drawn as SVG by React components, using `d3-scale` and `d3-shape` for scales and smooth curves (`curveCatmullRom`), with no chart framework. Touch uses pointer events on the SVG. Chart math (windows, baselines, % change, range statistics) lives in `src/core/analytics`; the component only draws.
-- **Axes:** gridlines in `border`, horizontal only. Axis labels in `textTertiary`, using monospaced digits. The y-axis does not start at zero for e1RM trends (a trend chart, not a magnitude chart). Bars always start at zero.
-- **Volume per muscle:** horizontal bars sorted by value, with direct and indirect sets stacked and a 2 pt gap between segments. Evidence zones are drawn as faint background bands with text labels.
 - **Categorical palette** (fixed order, never cycled; at most 3 series on scatter-type charts, at most 8 on lines and bars, and anything beyond folds into "Other"):
 
 | Slot | Dark | Light |
@@ -101,7 +84,7 @@ The owner's reference is Apple Fitness's Training Load card (screenshot, 2026-10
   This is the data-viz skill's reference palette, validated for color-vision deficiency on its own surfaces (`#1A1A19` dark, `#FCFCFB` light), which are close to ours. If any value changes, re-run the skill's validator against `#141516` and `#FFFFFF` (it needs Node.js).
 - **Sequential (heatmaps, body map):** one blue ramp, light to dark: `#CDE2FB` … `#0D366B`.
 - **Color follows the entity.** A muscle or lift keeps its color across every chart and filter.
-- Every chart has a "Show as table" option.
+- Non-time distributions retain their existing table control.
 
 ## Layout principles
 
@@ -142,12 +125,6 @@ The live grid keeps weight and reps columns equal and aligns headings with the r
 `--font-input: 400 16px/1.4 var(--font-family)` avoids Safari focus zoom in note inputs.
 
 
-## Long-range charts
-
-`LongRangeChart` is the shared period chart for Measure and future entity pages. Its small view shows all recorded history: daily buckets through 92 elapsed days, ISO weeks through 730 days, and calendar months beyond. A caller chooses mean (measurements and session totals), maximum (strength), last, or sum (session counts). Plan frequency fixes the overview to ISO weeks; its expanded view uses the usual finer automatic periods. Sum charts omit the per-observation spread band, which does not describe a total. Period boundaries use the phone's local calendar; missing periods are not filled. The 2 px line shows the aggregate (PR progression uses a step-after line), with a faint min–max band only where buckets contain multiple observations. A single populated bucket retains a dot and a narrow spread mark. Paired parts use independent named series on one axis; legend text stays in ink colors.
-
-Tap the chart to open a full-screen native dialog with a plot at 60% of viewport height, with safe-area padding, a Close button and Escape support. Range chips are 3M, 6M, 1Y and All, anchored to the latest recorded observation so older history remains readable. Month subtraction clamps at month ends. Full-screen periods are one step finer (month → week, week → day); daily is the floor. Touch/arrow-key selection uses the shared rule and reads out all series at that period, including value, min, max and count. Each view offers a table of the same buckets. Range selection clips observations before aggregation, so boundary buckets contain only observations inside the chosen window.
-
 Measure uses grouped body-part rows with latest values on the right and separate + targets. Never-recorded parts appear only in Add body part; selecting one opens the existing log sheet and a first saved entry reveals it. Creating a custom part opens its page immediately for logging. Bodyweight is excluded from this navigation without changing its data. Body-part pages share the Chart · History segmented control; History includes both states, newest first.
 
 
@@ -169,7 +146,7 @@ Exercises open a Summary · History · Charts · Records · How-to segmented con
 
 Summary keeps primary/secondary muscle chips, equipment and traits, usage dates/counts, the existing smoothed e1RM headline, loading preferences and the existing Edit/actions. History shows finished sessions newest first, including repeated exercise entries and all completed set kinds with their recorded load, reps or seconds and RPE. Each session links to its History entry. Older/newer controls keep at most 200 sessions mounted.
 
-For strength and bodyweight exercises, Charts now shares the Progress content described below. Timed tracking retains `LongRangeChart`: longest duration and, for loaded duration, heaviest load, with its existing expansion and table.
+For strength and bodyweight exercises, Charts now shares the Progress content described below. Timed tracking uses `TimeChart` for longest duration and, for loaded duration, top set weight.
 
 Records show dated lifetime e1RM, heaviest load (with reps and recorded effort) and session volume. The 1–12-rep table uses the heaviest actual set achieving at least the row's reps, even without effort data. Predictions invert the canonical e1RM formula at RIR 0, from the best qualifying estimate, with shared estimate display rounding (0.5 kg / 1 lb); absent performances do not hide predictions. Unclassified exercises retain actual records but have no predictions. Reps and duration charts are the alternatives for unsupported weight records.
 
@@ -187,11 +164,7 @@ values remain grey and ticking still uses them; only tapping amber or typing cha
 Entered and completed cells hide amber. Deload suggestions may reappear on reopening the editor,
 including equal values; they remain opt-in. Timed rows do not suggest a rep value as seconds.
 
-`LongRangeChart.marks` optionally accepts `{ date, kind: 'deload' }`. Marks use the existing core
-calendar buckets and range clipping. A populated bucket containing a deload session gets a hollow
-yellow-edged point and a faint yellow column. Overview and expanded plots include a text explanation,
-the touch readout names Deload, and marked table rows have a Deload note. Exercise performance plots
-pass these dates. The PR step line retains its existing appearance and still counts all sessions.
+`TimeChart` accepts per-point deload flags or `{ date, kind: 'deload' }` marks. Wholly deload buckets use yellow marks in compact and expanded plots; mixed buckets keep the series colour. Callouts and table rows name Deload without a separate caption. Regression excludes deload source values.
 
 ### Analytics tab
 
@@ -224,9 +197,9 @@ Deload opens a bottom sheet from the exercise menu or yellow stage label, and th
 
 Exercise-in-workout pages open Progress · History, Progress first. The exercise's own Charts section uses the same content with By workout chips (All and saved workouts containing the lift). The recorded machine filter remains available. Three equal-width tiles fit at 430 px: smoothed e1RM now with four-session change, best e1RM with date, and the last session's top set with its before/after comparison. Values wrap inside tiles, never widen the page. Bodyweight additions keep “+”. Loads use the exercise's entry unit.
 
-Five separate plots show best-set e1RM, top-set load, reps on that top set, working sets and average logged RPE. Each title says one point is one session; a plain takeaway precedes the plot. Dates remain individual timestamps rather than aggregated weeks. Tap/drag or arrow keys select a session; its date, value, top set and Open session link persist after release. Every plot has a table with the same observations and session links. Empty plots state that qualifying history is absent. Yellow deload points are explained in text, retained in charts and excluded from changes and takeaways.
+Five separate `TimeChart` plots show Estimated 1RM, Top set weight, Reps on the top set, Working sets and Average RPE. Working sets are bars; e1RM, top set and reps include a regression. Shared chart rules above govern aggregation, transient readouts, expansion, gaps and tables. There are no takeaways or deload explanations under the plots.
 
-Compare days appears only inside a saved workout when other saved workouts contain the exercise. Up to two chips add lines to the e1RM plot. A single line uses accent; two or three lines use categorical blue, orange and aqua, with an ink-text legend and matching swatches. The local palette module owns these fixed DESIGN values without changing shared tokens.
+Compare days appears only inside a saved workout when other saved workouts contain the exercise. Up to two chips add independent lines to the e1RM plot. The first remains accent; comparison lines use the fixed orange and aqua palette values. Legend text uses ink with matching swatches.
 
 Records places RPE chart below the rep-max table. The % / entry-unit control defaults to weights when a qualifying e1RM exists, otherwise %. Percent mode explicitly says “Guide: RTS chart, the same for every lift”; weight mode names the source e1RM and either the learned-set count or lift-type default. RPE rows descend 10–5 in half steps; reps 1–15 scroll horizontally within the screen. Row headers stay sticky on an opaque surface. Effective reps above 12 use muted text and a subtle raised-surface background, with a lower-reliability caption. Weights respect the lift's load ladder and appear in its entry unit; no estimate gives a readable empty state.
 

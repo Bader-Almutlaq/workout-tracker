@@ -1,15 +1,9 @@
-.stack,
-.chart {
+.stack {
   display: flex;
   flex-direction: column;
-  gap: var(--space-m);
-}
-
-.stack {
   gap: var(--space-xl);
 }
 
-.chart h2,
 .tile h2 {
   font: var(--font-headline);
 }
@@ -41,76 +35,8 @@
   margin-block: var(--space-s);
 }
 
-.filters,
-.legend {
+.filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-s);
-}
-
-.legend {
-  list-style: none;
-  padding: 0;
-  color: var(--color-text-secondary);
-  font: var(--font-callout);
-}
-
-/* Single series uses accent; comparisons use the fixed categorical palette. */
-.series,
-.legend li {
-  --series-color: var(--color-accent);
-}
-
-.series[data-series='1'],
-.legend li[data-series='1'] {
-  --series-color: var(--progress-orange);
-}
-
-.series[data-series='2'],
-.legend li[data-series='2'] {
-  --series-color: var(--progress-aqua);
-}
-
-.legend li::before {
-  content: '━ ';
-  color: var(--series-color);
-}
-
-.series {
-  stroke: var(--series-color);
-  fill: var(--series-color);
-}
-
-.series .deload {
-  stroke: var(--color-deload);
-  fill: var(--color-deload);
-}
-
-.readout {
-  font: var(--font-callout);
-  min-height: var(--space-xl);
-}
-
-.scroll {
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font: var(--font-callout);
-  font-variant-numeric: tabular-nums;
-}
-
-.table th,
-.table td {
-  padding: var(--space-s);
-  border-bottom: var(--hairline) solid var(--color-border);
-  text-align: left;
-}
-
-.chart:has(.legend) .series[data-series='0'],
-.legend li[data-series='0'] {
-  --series-color: var(--progress-blue);
 }
