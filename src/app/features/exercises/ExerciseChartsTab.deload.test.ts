@@ -9,29 +9,23 @@ vi.mock('../../data/database', () => ({
   useDatabaseQuery: () => ({
     status: 'ready',
     value: {
+      machineBrands: [],
       deloadDates: ['2026-01-02'],
-      estimatedOneRepMax: [
-        { date: '2026-01-01', value: 100 },
-        { date: '2026-01-02', value: 110 },
+      duration: [
+        { date: '2026-01-01', value: 45 },
+        { date: '2026-01-02', value: 40 },
       ],
       heaviestWeight: [],
-      sessionVolume: [],
-      bestReps: [],
-      progression: [],
-      duration: [],
     },
   }),
 }));
 
-test('exercise charts pass deload dates to performance plots while leaving the PR step line unmarked', () => {
+test('timed exercise charts retain deload annotations', () => {
   const render = vi.spyOn(chart, 'ExerciseChart');
-  renderToStaticMarkup(createElement(ExerciseChartsTab, { exerciseId: 1, tracking: 'weight-reps' }));
+  renderToStaticMarkup(createElement(ExerciseChartsTab, { exerciseId: 1, tracking: 'duration' }));
   const inputs = render.mock.calls.map(([props]) => props);
-  expect(inputs.find((props) => props.title === 'Best set, est. 1RM')?.marks).toEqual([
+  expect(inputs.find((props) => props.title === 'Longest duration')?.marks).toEqual([
     { date: '2026-01-02', kind: 'deload' },
   ]);
-  const personalRecords = inputs.find((props) => props.shape === 'step');
-  expect(personalRecords).toBeDefined();
-  expect(personalRecords?.marks).toBeUndefined();
   render.mockRestore();
 });

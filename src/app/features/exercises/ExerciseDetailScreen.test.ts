@@ -58,7 +58,7 @@ function render(url: string): string {
 test.each([
   ['summary', 'exercise-strength-1'],
   ['history', 'exercise-history-1-0'],
-  ['charts', 'exercise-charts-1'],
+  ['charts', 'exercise-progress-1-undefined-null'],
   ['records', 'exercise-records-1'],
 ])('the %s URL selects that section and queries only its data', (tab, key) => {
   const markup = render(`/exercises/1?tab=${tab}`);

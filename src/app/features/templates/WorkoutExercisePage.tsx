@@ -10,8 +10,8 @@ import { workoutPath } from './templatePaths';
 import styles from './WorkoutPage.module.css';
 
 const sections = [
+  { value: 'progress', label: 'Progress' },
   { value: 'history', label: 'History' },
-  { value: 'charts', label: 'Charts' },
 ] as const;
 
 /** Exercise history and charts limited to sessions started from one workout. */
@@ -39,7 +39,7 @@ export function WorkoutExercisePage() {
       </Screen>
     );
   }
-  const tab = params.get('tab') === 'charts' ? 'charts' : 'history';
+  const tab = params.get('tab') === 'history' ? 'history' : 'progress';
   const machine = params.get('machine');
   return (
     <Screen
@@ -64,6 +64,7 @@ export function WorkoutExercisePage() {
           <ExerciseChartsTab
             exerciseId={id}
             tracking={detail.value.exercise.tracking}
+            unit={detail.value.exercise.defaultEntryUnit}
             templateId={workoutId}
             machine={machine}
             onMachine={(value) => {

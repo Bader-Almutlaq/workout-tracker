@@ -159,7 +159,7 @@ The Workout tab keeps Start empty workout first. Plans are separate navigation c
 
 Plan pages use Workouts · History · Analytics. Workouts are ordered cards with an exercise summary, last done and management menu. + Workout opens the existing editor with that plan selected. History links every finished session in the current plan to History. Analytics shows weekly session sums, mean session volume and mean known duration, followed by a per-workout table including never-performed workouts.
 
-Workout pages show a description, last done date, and Exercises · History · Analytics tabs. A Start this workout button stays above the tab bar and is disabled during an active workout. Exercise rows link to workout-specific History and Charts, with a link to all sessions. Plan workouts appear in a two-column card grid, collapsing below 360px.
+Workout pages show a description, last done date, and Exercises · History · Analytics tabs. A Start this workout button stays above the tab bar and is disabled during an active workout. Exercise rows link to workout-specific Progress (default) and History, with a link to all sessions. Plan workouts appear in a two-column card grid, collapsing below 360px.
 
 
 
@@ -169,7 +169,7 @@ Exercises open a Summary · History · Charts · Records · How-to segmented con
 
 Summary keeps primary/secondary muscle chips, equipment and traits, usage dates/counts, the existing smoothed e1RM headline, loading preferences and the existing Edit/actions. History shows finished sessions newest first, including repeated exercise entries and all completed set kinds with their recorded load, reps or seconds and RPE. Each session links to its History entry. Older/newer controls keep at most 200 sessions mounted.
 
-Charts use `LongRangeChart` and its expansion, range picker and table. Best qualifying e1RM, heaviest load and best reps use maximum buckets. Working-set volume uses mean buckets explicitly labelled per session. PR progression retains the running e1RM maximum at each qualifying session. Timed tracking shows longest duration; loaded duration also shows heaviest load. Bodyweight tracking shows reps without inventing total mass. Each applicable series with fewer than two sessions is replaced by one explanatory line.
+For strength and bodyweight exercises, Charts now shares the Progress content described below. Timed tracking retains `LongRangeChart`: longest duration and, for loaded duration, heaviest load, with its existing expansion and table.
 
 Records show dated lifetime e1RM, heaviest load (with reps and recorded effort) and session volume. The 1–12-rep table uses the heaviest actual set achieving at least the row's reps, even without effort data. Predictions invert the canonical e1RM formula at RIR 0, from the best qualifying estimate, with shared estimate display rounding (0.5 kg / 1 lb); absent performances do not hide predictions. Unclassified exercises retain actual records but have no predictions. Reps and duration charts are the alternatives for unsupported weight records.
 
@@ -218,3 +218,14 @@ Live exercise metadata places the first planned working set's rep target and sav
 ### Deload settings
 
 Deload opens a bottom sheet from the exercise menu or yellow stage label, and the workout menu opens the whole-workout version. Weight, Sets and Both are segmented choices; steppers show the selected reduction and kept sets. The sheet uses the shared safe-area-aware bottom sheet and design tokens.
+
+
+## Exercise Progress and RPE grid (T-077)
+
+Exercise-in-workout pages open Progress · History, Progress first. The exercise's own Charts section uses the same content with By workout chips (All and saved workouts containing the lift). The recorded machine filter remains available. Three equal-width tiles fit at 430 px: smoothed e1RM now with four-session change, best e1RM with date, and the last session's top set with its before/after comparison. Values wrap inside tiles, never widen the page. Bodyweight additions keep “+”. Loads use the exercise's entry unit.
+
+Five separate plots show best-set e1RM, top-set load, reps on that top set, working sets and average logged RPE. Each title says one point is one session; a plain takeaway precedes the plot. Dates remain individual timestamps rather than aggregated weeks. Tap/drag or arrow keys select a session; its date, value, top set and Open session link persist after release. Every plot has a table with the same observations and session links. Empty plots state that qualifying history is absent. Yellow deload points are explained in text, retained in charts and excluded from changes and takeaways.
+
+Compare days appears only inside a saved workout when other saved workouts contain the exercise. Up to two chips add lines to the e1RM plot. A single line uses accent; two or three lines use categorical blue, orange and aqua, with an ink-text legend and matching swatches. The local palette module owns these fixed DESIGN values without changing shared tokens.
+
+Records places RPE chart below the rep-max table. The % / entry-unit control defaults to weights when a qualifying e1RM exists, otherwise %. Percent mode explicitly says “Guide: RTS chart, the same for every lift”; weight mode names the source e1RM and either the learned-set count or lift-type default. RPE rows descend 10–5 in half steps; reps 1–15 scroll horizontally within the screen. Row headers stay sticky on an opaque surface. Effective reps above 12 use muted text and a subtle raised-surface background, with a lower-reliability caption. Weights respect the lift's load ladder and appear in its entry unit; no estimate gives a readable empty state.

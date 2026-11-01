@@ -1,3 +1,4 @@
+import { ExerciseCurve } from './ExerciseCurve';
 import { estimatedOneRepMax } from '../analytics/EstimatedOneRepMax';
 import type { Database } from '../db/Database';
 import type { Exercise } from '../models/Exercise';
@@ -61,6 +62,7 @@ export function workoutComparison(db: Database, workoutId: number): WorkoutCompa
   const exercises = current.entries
     .filter(({ exercise }) => previousIds.has(exercise.id))
     .map(({ exercise }) => {
+      const strengthExercise = { ...exercise, strengthCurve: ExerciseCurve(db, exercise.id, exercise) };
       const old = top(
         previous.entries
           .filter((entry) => entry.exercise.id === exercise.id)
@@ -75,8 +77,8 @@ export function workoutComparison(db: Database, workoutId: number): WorkoutCompa
         exercise,
         previous: old,
         current: recent,
-        previousEstimate: old === null ? null : (estimatedOneRepMax(old, exercise)?.e1rmKilograms ?? null),
-        currentEstimate: recent === null ? null : (estimatedOneRepMax(recent, exercise)?.e1rmKilograms ?? null),
+        previousEstimate: old === null ? null : (estimatedOneRepMax(old, strengthExercise)?.e1rmKilograms ?? null),
+        currentEstimate: recent === null ? null : (estimatedOneRepMax(recent, strengthExercise)?.e1rmKilograms ?? null),
       };
     });
   return {
