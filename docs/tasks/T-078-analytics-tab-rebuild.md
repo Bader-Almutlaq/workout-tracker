@@ -51,3 +51,17 @@ Every chart follows the chart rules in `docs/ANALYTICS.md` (title says what a ma
 Core item 1 was committed before this round. This round adds v14 exercise pins, pin ordering and merge transfer, backup coverage, percentage-of-max buckets, weekly effort, expanded lift ranking, muscle dashboard/detail queries and worker methods. The existing screens still consume the old intensity and muscle-coverage interfaces, so those older queries are retained until the UI round. No screen changes were made. The percentage calculation uses the set load as a lower bound when neither qualifying estimate reaches that load, to preserve the requested 100% ceiling. Weekly muscle detail clips partial weeks to the selected dates. Pins preserve the target's existing pin when both exercises are pinned during a merge.
 
 Remaining review: verify the new ranking and detail against the design, and remove obsolete screen-only analytics when the UI is replaced. Changes remain uncommitted.
+
+### UI round handoff
+
+The Analytics route now renders the dashboard sections in one scroll, with ordered pins, period
+selection, an active-plan link, muscle detail navigation, distributions and weekly charts. Exercise
+actions expose pin and unpin. The former tab-specific screens and signature display were removed.
+The muscle-coverage query supplies the dashboard and retains only selected-period sets and shares. Run `make verify` before marking the task complete.
+
+`make format` and `make verify` passed (190 test files, 1,282 tests). Follow-up review is still
+needed before this task meets every acceptance criterion: the new app tests cover the pin labels,
+empty suggestions, inactive plan and muscle sorting, but do not exercise the full section order,
+pin mutations or muscle-detail route. The sparklines and distribution bars do not yet provide
+individual tap readouts; strength changes are not yet colour-coded. The exercise actions menu is
+on the Summary tab. No phone-size dark/light visual check was performed in this round.

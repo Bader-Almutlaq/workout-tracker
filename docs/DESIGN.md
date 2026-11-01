@@ -218,3 +218,10 @@ Live exercise metadata places the first planned working set's rep target and sav
 ### Deload settings
 
 Deload opens a bottom sheet from the exercise menu or yellow stage label, and the workout menu opens the whole-workout version. Weight, Sets and Both are segmented choices; steppers show the selected reduction and kept sets. The sheet uses the shared safe-area-aware bottom sheet and design tokens.
+
+### Analytics dashboard (T-078)
+
+The Analytics tab is one scrolling page: pinned lifts, active plan, period chips, overview tiles,
+strength ranking, muscle table, then effort and rep distributions and separate weekly sets and
+RIR charts. The muscle table opens a period-preserving detail page. Deload weeks are yellow;
+charts provide dated readouts and table alternatives.

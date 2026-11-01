@@ -170,8 +170,6 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 | Muscle coverage, frequency, balance and exercise share | `src/core/queries/MuscleCoverage.ts` |
 | Rep and effort distributions; weekly relative intensity | `src/core/queries/IntensityMix.ts` |
 | Hard sets; fractional sets per muscle; volume zones | `src/core/analytics/HardSets.ts`, `MuscleVolume.ts`; weekly via `src/core/queries/WeeklyMuscleVolume.ts` |
-| Daily hard sets, zero-filled local days, all training or one muscle | `src/core/queries/DailyHardSets.ts` |
-| Recent vs baseline (signature chart math), range statistics | `src/core/analytics/RecentVsBaseline.ts` |
 | Measurement sites, guides, states, exact cm/in conversion and Body unit settings | `src/core/measurements/MeasurementSite.ts`, `MeasurementStore.ts`, `MeasurementUnits.ts` |
 | Measurement site groups and complete per-site history | `src/core/measurements/MeasurementQueries.ts` |
 | Measurement change (4/12 weeks, since-first, least-squares monthly rate) | `src/core/measurements/MeasurementChange.ts` |
@@ -191,3 +189,9 @@ Developer tool: `tools/import-report.ts` (`make import-report`) dry-runs the imp
 | Measure routes and grouped body-part navigation | `src/app/features/body/MeasureScreen.tsx` (`/measure`, `/measure/:bodyPart`) |
 | Main-tab Settings gear and trailing header slot | `src/app/design/components/SettingsButton.tsx`, `Screen.tsx` |
 
+
+### Analytics dashboard ownership (T-078)
+
+`PercentOfMax` owns the bounded set-load percentage; `PinnedExercises` owns pin persistence and
+ordering. `LiftTrends`, `MuscleDashboard`, `WeeklyEffort` and `IntensityMix` supply the Analytics
+tab and muscle detail through the worker. Views format and navigate these results.

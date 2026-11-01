@@ -5,7 +5,6 @@ import { medianLiftChange } from '../core/queries/LiftTrends';
 import { templateMuscleSummary } from '../core/queries/TemplateMuscleSummary';
 import { TrainingSummary } from '../core/queries/TrainingSummary';
 import { LiftTrends } from '../core/queries/LiftTrends';
-import { muscleCoverage } from '../core/queries/MuscleCoverage';
 import { intensityMix } from '../core/queries/IntensityMix';
 import { usedMachineBrands } from '../core/queries/PreviousPerformance';
 import type { DeloadSettings, DeloadStage } from '../core/logging/DeloadPlan';
@@ -25,8 +24,6 @@ import {
 } from '../core/measurements/MeasurementStore';
 import { measurementUnits, type MeasurementUnits } from '../core/measurements/MeasurementUnits';
 import { log } from '../core/support/log';
-import { dailyHardSets } from '../core/queries/DailyHardSets';
-import type { SeriesPoint } from '../core/analytics/RecentVsBaseline';
 import type { Muscle } from '../core/library/Muscle';
 import { weeklyMuscleVolume, type WeeklyMuscleVolume } from '../core/queries/WeeklyMuscleVolume';
 import { workoutDaysInMonth, type WorkoutCalendarDay } from '../core/queries/WorkoutCalendar';
@@ -315,13 +312,6 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       notifyListeners();
     }),
     // End of Measurements (T-043)
-
-    // Signature chart (T-036)
-
-    /** Zero-filled local calendar days (YYYY-MM-DD); optional muscle uses fractional hard sets. */
-    dailyHardSets: serially(async (from: string, to: string, muscleId?: Muscle): Promise<SeriesPoint[]> => {
-      return dailyHardSets((await liveStore()).database, { from, to, ...(muscleId === undefined ? {} : { muscleId }) });
-    }),
 
     // Analytics (T-035)
 
@@ -898,10 +888,6 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     // End of analytics overview (T-064)
 
     // Muscle coverage and intensity (T-065)
-    /** Descriptive muscle coverage over inclusive local calendar dates. */
-    muscleCoverage: serially(async (from: string, to: string) =>
-      muscleCoverage((await liveStore()).database, new Date(from), new Date(to)),
-    ),
     /** Working-set distributions and weekly intensity over inclusive local calendar dates. */
     intensityMix: serially(async (from: string, to: string, muscle?: Muscle) =>
       intensityMix((await liveStore()).database, new Date(from), new Date(to), muscle),

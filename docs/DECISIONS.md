@@ -292,3 +292,11 @@ The set-percent check includes zero because the required exact kept-count formul
 ## 2026-11-01: Donkey Calf Raise uses plain weight (T-076)
 
 The library tracked the bare Donkey Calf Raise as bodyweight, but the owner uses a machine and requested plain kg. Its existing stored weights now mean machine weight; migration leaves the sets unchanged and preserves renamed and custom exercises.
+
+## 2026-11-01: Analytics dashboard (T-078)
+
+The Analytics tab combines the agreed sections into one page. The signature, frequency and balance
+panels, intensity-volume map and session-volume overview are removed. Typical session length is the
+median within the existing duration limit. Percentage of maximum uses the greater of the dated trend
+and the session's best estimate, with the set load as a lower bound to keep the percentage at most 100.
+Pins are ordered locally and included in backups; the selected period controls their change figures.
