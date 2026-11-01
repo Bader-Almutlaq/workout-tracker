@@ -72,12 +72,21 @@ One scrolling page (no Overview / Muscles / Intensity tabs):
 
 ## Chart rules (every chart)
 
-- The title says what one mark is ("Each bar is one week's hard sets").
-- One line of plain takeaway above it ("Last 4 weeks: 14 sets a week").
-- A legend whenever two things are drawn; a single series needs none.
+Revised 2026-11-02 after the owner's iPhone review ("if you need to explain the chart, the chart is not good"). Reference: Strong's charts and Apple Fitness's readout. The system is specified in `docs/tasks/T-083-chart-system.md` and described in `DESIGN.md` → Charts.
+
+- **No explanatory text.** A short title ("Estimated 1RM"), a y-axis with its unit, dates on the x-axis. No captions, takeaways, hints or notes under or over a chart.
+- **Compact and aggregated.** Inline charts are small and show at most about 26 marks (session → week → month → quarter as the span grows). A dashed **trend line** (least squares) shows the direction on progress charts.
+- A legend whenever two things are drawn (series, or a series and its trend), each in its own colour; a single series needs none.
 - One scale per chart; two measures → two charts on the same dates.
-- Deloads look the same everywhere (yellow) and are left out of change figures.
-- Tap a point for its date and value; every chart has a table view.
+- Deloads look the same everywhere (yellow points) and are left out of change figures and trend lines.
+- Weeks with nothing logged are gaps, never zeros.
+- **Press and drag** for values: a callout above the plot follows the finger and disappears on release.
+- **Expand** opens the chart full screen in landscape (rotated when the phone is upright), with pinch to zoom and pan; aggregation follows the zoom. The table view lives there.
+
+## Text on analytics screens
+
+- Don't string facts together with " · " ("230 sessions · 878 sets · 3 warm-up sets"). Use labelled stat tiles, columns with a header, or chips.
+- Say what a number measures once, in a column or tile label ("Est. 1RM", "vs 4 sessions ago"), not in a sentence.
 
 ## Build order
 
