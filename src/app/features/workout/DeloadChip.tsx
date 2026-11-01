@@ -25,7 +25,7 @@ export function DeloadChip({
           setPercent: percent,
         });
   if (mode !== 'sets' && reduction > 0) parts.push(`−${reduction}%`);
-  if (stage !== 2 && mode !== 'load') parts.push(`${count} of ${total} sets`);
+  if (stage !== 2 && mode !== 'load') parts.push(`${count} of ${total} ${total === 1 ? 'set' : 'sets'}`);
   const label = parts.join(' · ');
   return (
     <span className={styles.chip}>

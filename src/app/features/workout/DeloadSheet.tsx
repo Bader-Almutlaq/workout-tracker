@@ -146,7 +146,7 @@ export function DeloadSheet({
               −
             </button>
             <span>
-              Keep {keep} of {total} sets
+              Keep {keep} of {total} {total === 1 ? 'set' : 'sets'}
             </span>
             <button type="button" aria-label="Keep more sets" onClick={() => setKeep(Math.min(current, keep + 1))}>
               +

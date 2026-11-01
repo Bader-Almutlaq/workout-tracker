@@ -101,8 +101,8 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-071](T-071-exercise-info-line-compact-rows.md) | Exercise info line (rep range, rest, notes), Strong-sized rows (R6) | done | Codex Terra (high), reviewed by lead | merged |
 | [T-072](T-072-uat-fixes-workouts-plans.md) | Test-pass fixes: workouts, plans, live workout | done | Codex Terra (high), reviewed and refined by lead | merged |
 | [T-073](T-073-uat-fixes-measure-history-analytics.md) | Test-pass fixes: measurements, history, analytics | done | Codex Terra (high), reviewed by lead | merged |
-| [T-074](T-074-strong-style-live-workout.md) | Strong-style live workout: continuous list, spaced rows, RPE on the pad (R6) | in progress | Codex Terra (high) | `task/T-074-strong-live-workout` |
-| [T-075](T-075-deload-settings.md) | Deload settings: amount, by weight, sets or both (R13) | in progress | Codex Terra (high) | `task/T-075-deload-settings` |
+| [T-074](T-074-strong-style-live-workout.md) | Strong-style live workout: continuous list, spaced rows, RPE on the pad (R6) | done | Codex Terra (high), reviewed by lead | merged |
+| [T-075](T-075-deload-settings.md) | Deload settings: amount, by weight, sets or both (R13) | done | Codex Terra (high, two rounds), reviewed and fixed by lead | merged |
 
 ## Next milestones (tasks are written when the milestone starts)
 
