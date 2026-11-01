@@ -57,3 +57,10 @@
   stroke: var(--color-border);
   stroke-width: 1;
 }
+
+.row {
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+}
+.row > :first-child {
+  white-space: nowrap;
+}
