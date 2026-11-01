@@ -240,3 +240,88 @@
   height: 2rem;
   color: var(--color-accent);
 }
+
+.good,
+.lift small.good {
+  color: var(--color-status-good);
+}
+.bad,
+.lift small.bad {
+  color: var(--color-status-bad);
+}
+.neutral,
+.lift small.neutral {
+  color: var(--color-text-secondary);
+}
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+}
+.suggestions button {
+  min-height: 44px;
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: var(--space-s) var(--space-m);
+  font: var(--font-callout);
+}
+.plan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  min-height: 44px;
+  padding: var(--space-m);
+  margin-block: var(--space-l);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+.plan small {
+  color: var(--color-text-secondary);
+}
+.plan > :last-child {
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+.pin a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.pin details {
+  position: relative;
+}
+.pin summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+.table tr {
+  position: relative;
+}
+.rowLink {
+  color: inherit;
+  text-decoration: none;
+}
+.rowLink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.table .divider {
+  text-align: left;
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+  padding-top: var(--space-l);
+}
+
+.pin details button {
+  display: block;
+  max-width: 100%;
+  min-height: 44px;
+}

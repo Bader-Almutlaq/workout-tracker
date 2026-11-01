@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { database, useDatabaseQuery } from '../../data/database';
+import styles from './Analytics.module.css';
 
 /** Active plan and elapsed week, linked to its analytics. */
 export function ActivePlanRow() {
@@ -19,11 +20,11 @@ export function ActivePlanRow() {
       ? null
       : Math.max(1, Math.floor((query.value.now - new Date(first).getTime()) / (7 * 86400000)) + 1);
   return (
-    <p>
-      <Link to={`/workout/plans/${query.value.folder.id}?tab=analytics`}>
-        {query.value.folder.name}
-        {week === null ? '' : ` · week ${week}`} · Plan analytics ›
-      </Link>
-    </p>
+    <Link className={styles.plan} to={`/workout/plans/${query.value.folder.id}?tab=analytics`}>
+      <span>
+        {query.value.folder.name} {week !== null && <small>· week {week}</small>}
+      </span>
+      <span>Plan analytics ›</span>
+    </Link>
   );
 }
