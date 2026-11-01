@@ -7,6 +7,7 @@ import { ProgressionControl } from './ProgressionControl';
 import { ProgressionRangeDialog } from './ProgressionRangeDialog';
 
 const actions: TemplateEditorActions = {
+  setRepRange: vi.fn(),
   edit: vi.fn(),
   addSet: vi.fn(),
   removeSet: vi.fn(),

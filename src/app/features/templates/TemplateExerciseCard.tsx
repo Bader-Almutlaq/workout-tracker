@@ -1,3 +1,4 @@
+import { RepRangeDialog } from './RepRangeDialog';
 import { useState } from 'react';
 import { database, useDatabaseQuery } from '../../data/database';
 import { clockText } from '../../format/clockText';
@@ -39,11 +40,17 @@ export function TemplateExerciseCard({
   readonly actions: TemplateEditorActions;
 }) {
   const [showMachine, setShowMachine] = useState(false);
+  const [showRange, setShowRange] = useState(false);
   const [showNote, setShowNote] = useState(false);
   const detail = useDatabaseQuery(`template-exercise-info-${exercise.exerciseId}`, () =>
     database.exerciseDetail(exercise.exerciseId),
   );
   const rest = detail.status === 'ready' ? detail.value?.exercise.restTargetSeconds : null;
+  const target = exercise.sets.find((set) => set.kind !== 'warmup');
+  const range =
+    target?.targetRepsLow === null || target?.targetRepsLow === undefined
+      ? ''
+      : `${target.targetRepsLow}${target.targetRepsHigh === null || target.targetRepsHigh === target.targetRepsLow ? '' : `–${target.targetRepsHigh}`} reps`;
   const isInSuperset = exercise.supersetGroup !== null;
   return (
     <section className={styles.card} data-superset={isInSuperset} aria-label={name}>
@@ -51,6 +58,7 @@ export function TemplateExerciseCard({
         name={name}
         hasNote={Boolean(exercise.notes)}
         onNote={() => setShowNote(true)}
+        onRepRange={() => setShowRange(true)}
         index={index}
         count={count}
         isInSuperset={isInSuperset}
@@ -59,7 +67,21 @@ export function TemplateExerciseCard({
         progression={!isTimed ? <ProgressionControl exercise={exercise} index={index} actions={actions} /> : undefined}
       />
       {detail.status === 'failed' && <p role="alert">{detail.message}</p>}
-      {rest !== null && rest !== undefined && <div className={styles.info}>Rest {clockText(rest)}</div>}
+      {(range || (rest !== null && rest !== undefined)) && (
+        <div className={styles.info}>
+          {[range, rest === null || rest === undefined ? '' : `Rest ${clockText(rest)}`].filter(Boolean).join(' · ')}
+        </div>
+      )}
+      {showRange && (
+        <RepRangeDialog
+          target={target}
+          onCancel={() => setShowRange(false)}
+          onSave={(value) => {
+            actions.setRepRange(index, value);
+            setShowRange(false);
+          }}
+        />
+      )}
       {exercise.notes && (
         <button type="button" className={styles.note} onClick={() => setShowNote(true)}>
           {exercise.notes}

@@ -59,18 +59,16 @@ test('live headers have five columns; History keeps a separate RPE column', () =
 });
 
 test('empty RPE badges are hidden until requested, while entered effort is always visible', () => {
-  const render = (rpe: number | null, showsEmptyRpe = false) =>
+  const render = (rpe: number | null) =>
     renderToStaticMarkup(
       createElement(CheckButton, {
         isCompleted: false,
         onPress: vi.fn(),
         onEditRpe: vi.fn(),
         rpe,
-        showsEmptyRpe,
       }),
     );
   expect(render(null)).not.toContain('aria-label="Set RPE"');
-  expect(render(null, true)).toContain('aria-label="Set RPE"');
   expect(render(7.5)).toContain('aria-label="Edit RPE 7.5"');
   expect(row({ set: makeSet({ rpe: 7.5 }) })).not.toContain('aria-label="RPE"');
 });
@@ -139,31 +137,24 @@ test('info line omits absent metadata and preserves existing note lines', () => 
 });
 
 test('menu exposes only supported operations, units and RPE; Show RPE is exercise-local', () => {
-  const live = { editNote: vi.fn(), editRest: vi.fn(), showRpe: vi.fn(), showsRpe: false };
+  const live = { editNote: vi.fn(), editRest: vi.fn() };
   const capable = { ...actions, toggleWarmups: vi.fn(), saveNotes: vi.fn(), setRestTarget: vi.fn() };
   const menu = exerciseMenuItems({ entry, index: 0, count: 1, actions: capable, unit: 'kg', live });
   expect(menu.map((item) => item.label)).toEqual([
     'Add note',
-    'Add warm-up sets',
+    'Add warm-up set',
+    'Add suggested warm-ups',
     'Rest time',
-    'Show RPE',
     'Unit: kg → lb',
     'Move up',
     'Move down',
     'Remove exercise',
   ]);
-  menu.find((item) => item.label === 'Show RPE')?.onSelect();
-  expect(live.showRpe).toHaveBeenCalledOnce();
   menu.find((item) => item.label.startsWith('Unit:'))?.onSelect();
   expect(capable.switchUnit).toHaveBeenCalledWith(1, 'lb');
   expect(menu.find((item) => item.label === 'Move up')?.isDisabled).toBe(true);
   const minimal = exerciseMenuItems({ entry, index: 0, count: 1, actions, unit: 'kg' });
   expect(minimal.map((item) => item.label)).toEqual(['Move up', 'Move down', 'Remove exercise']);
-  expect(
-    exerciseMenuItems({ entry, index: 0, count: 1, actions, unit: 'kg', live: { ...live, showsRpe: true } }).map(
-      (item) => item.label,
-    ),
-  ).not.toContain('Show RPE');
 });
 
 test('shared history card retains notes, separate RPE entry, mixed-unit labelling and disabled completion', () => {
@@ -218,4 +209,22 @@ test('exercise note is a separate button that opens its editor and is absent whe
 
 test('large weights remain present in the compact value cell', () => {
   expect(row({ set: makeSet({ weightKilograms: 1000.5 }) })).toContain('1,000.5');
+});
+
+test('bodyweight heading describes added load and warm-ups are added through the menu', () => {
+  expect(renderToStaticMarkup(createElement(SetColumnHeader, { tracking: 'bodyweight-reps', unit: 'kg' }))).toContain(
+    'Added kg',
+  );
+  const addSet = vi.fn();
+  const menu = exerciseMenuItems({
+    entry,
+    index: 0,
+    count: 1,
+    actions: { ...actions, addSet },
+    unit: 'kg',
+    live: { editNote: vi.fn(), editRest: vi.fn() },
+  });
+  menu.find((item) => item.label === 'Add warm-up set')?.onSelect();
+  expect(addSet).toHaveBeenCalledWith(1, 'warmup');
+  expect(menu.map((item) => item.label)).not.toContain('Show RPE');
 });

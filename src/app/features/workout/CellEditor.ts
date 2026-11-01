@@ -24,6 +24,8 @@ export interface CellEditor {
   begin(setId: number, field: Field): void;
   /** Types a key into the cell. */
   press(key: PadKey): void;
+  /** Replaces the current draft with a quick-pick value. */
+  pick(value: number): void;
   /** Moves the value one step up (`1`) or down (`-1`). */
   step(direction: 1 | -1): void;
   /** Saves the cell and moves to the next: weight, reps, RPE, then the next row's weight. Closes the pad after the last cell. */

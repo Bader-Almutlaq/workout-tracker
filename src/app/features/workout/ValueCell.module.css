@@ -43,7 +43,7 @@
   min-height: var(--workout-tap-size);
   padding: 0 var(--space-xs);
   color: var(--color-suggestion);
-  font: var(--font-callout);
+  font: var(--font-caption);
   font-variant-numeric: tabular-nums;
   border-radius: var(--radius-small);
 }
@@ -51,4 +51,8 @@
 /* An untouched value that is itself the suggestion reads in the suggestion colour, without a second copy beside it. */
 .cell[data-suggested='true'] .value {
   color: var(--color-suggestion);
+}
+
+.suggestion[data-progression='true'] {
+  color: var(--color-failure);
 }

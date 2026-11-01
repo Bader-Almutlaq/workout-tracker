@@ -12,12 +12,9 @@ describe('cell order', () => {
     expect(cellsInOrder(entries).map((cell) => `${cell.setId}:${cell.field}`)).toEqual([
       '10:weight',
       '10:reps',
-      '10:rpe',
       '11:weight',
       '11:reps',
-      '11:rpe',
       '20:reps',
-      '20:rpe',
     ]);
   });
 

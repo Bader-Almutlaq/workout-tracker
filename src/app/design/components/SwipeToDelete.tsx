@@ -26,11 +26,14 @@ export function SwipeToDelete({
   label,
   onDelete,
   children,
+  isTransparent = false,
 }: {
   /** What the Delete button is called for screen readers, e.g. "Delete set". */
   readonly label: string;
   readonly onDelete: () => void;
   readonly children: ReactNode;
+  /** Leaves the page background visible when the row is not swiped. */
+  readonly isTransparent?: boolean;
 }) {
   const [offset, setOffset] = useState(0);
   const drag = useRef<Drag | undefined>(undefined);
@@ -96,6 +99,7 @@ export function SwipeToDelete({
       )}
       <div
         className={styles.content}
+        data-transparent={isTransparent}
         style={offset === 0 ? undefined : { transform: `translateX(${offset}px)` }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

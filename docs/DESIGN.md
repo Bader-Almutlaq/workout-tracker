@@ -125,25 +125,20 @@ session notes appear on a separate editable line and unset fields take no space.
 open a rest timer.
 
 Live rows use Set · Previous · kg/lb · Reps (or Time) · ✓, followed by Add set. RPE sits on an
-independent badge at the check: logged effort is visible, empty badges require Show RPE for that
-exercise. Tapping a badge or holding the check for 500 ms opens the existing RPE pad. A hold
+independent badge at the check only when effort is logged. The number pad has an RPE key and quick picks; tapping a badge or holding the check for 500 ms also opens RPE. A hold
 never completes a set. History editing retains its separate RPE column, notes and disabled check.
 
-Untouched planned weight/reps stay greyed; completion accepts their already-saved values. A
-separate amber suggestion is optional and only copied on tap. `ValueSuggestion` uses the cell's
-entry unit (seconds for timed cells), so future progression can supply the same slot. Generated
+Untouched planned weight/reps stay greyed; completion accepts their already-saved values. Separate yellow deload and red progression suggestions are optional and only copied on tap. `ValueSuggestion` uses the cell's entry unit (seconds for timed cells). Generated
 warm-ups use their existing planned values as suggestions; generation and protected-row rules
 remain in WorkoutCore. Entered/accepted styling is local to the mounted editor; reopening safely
 shows saved planned values as greyed again. Suggested warm-up identity after reload follows the
 existing conservative core provenance rules.
 
-Warm-ups use an amber tint across the whole row with a hairline before the first
-working row. Set labels are W (amber), normal-set numbers, D (purple), F (red).
-The menu lists only existing capabilities: session note, warm-ups, rest target, Show RPE, kg/lb,
+Warm-ups use an amber tint on their individual rows. Set labels are W (amber), normal-set numbers, D (purple), F (red).
+The menu lists only existing capabilities: session note, warm-ups, rest target, rep range, kg/lb,
 move and remove. Sticky notes, replacement and superset editing have no live operation yet.
 
-Heuristic layout tokens: `--workout-tap-size: 44px`, `--workout-weight-width: 88px`,
-`--workout-reps-width: 76px` keep headers aligned with rows at 430 px, including suggestions.
+The live grid keeps weight and reps columns equal and aligns headings with the rows at 430 px.
 `--font-input: 400 16px/1.4 var(--font-family)` avoids Safari focus zoom in note inputs.
 
 
@@ -216,4 +211,4 @@ Set types use warm-up amber, failure red and drop purple with faint row tints; w
 The plan Summary lists planned fractional sets and weekly workout frequency, with untrained muscles muted and smaller muscles behind a toggle. Workout pages use the same rows without frequency. Weekday chips mark scheduled workouts, and the active plan uses the accent badge.
 
 
-Live exercise metadata places the first planned working set's rep target and saved rest time in accent under the name; notes appear separately as an editable italic line. Template exercises show their saved rest and editable note in the same position. Compact set rows use 32 px visible value and completion boxes inside 44 px touch areas, with 4 px between visible boxes and a compact 36 px add-action row, preserving the set-type colours in both editors.
+Live exercise metadata places the first planned working set's rep target and saved rest time in deload yellow under the name, with the deload chip aligned right; notes appear separately as an editable italic line. Template exercises show their saved rest and editable note in the same position. Live exercises form a continuous list with 24 px between exercises. Rows have 32 px visible boxes spaced 8 px apart, with a single filled Add set bar. Set-type tints remain on individual rows. Deload and progression suggestions sit beside their boxes in yellow and red respectively. The pad places hide, RPE, split minus/plus and Next in its right column, with RPE quick picks above the digits.

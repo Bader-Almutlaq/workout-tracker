@@ -20,7 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-s);
-  height: var(--pad-height);
+  min-height: var(--pad-height);
   padding: var(--space-m) var(--space-l);
   background: var(--color-surface);
   border-top: var(--hairline) solid var(--color-border);
@@ -51,4 +51,25 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-s);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.quickPicks {
+  display: flex;
+  gap: var(--space-xs);
+  justify-content: space-between;
+}
+.quickPicks button {
+  flex: 1;
+  min-height: 32px;
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-small);
+  color: var(--color-text-primary);
+}
+
+.dock[data-rpe='true'] .spacer {
+  height: calc(var(--pad-height) + 40px);
 }

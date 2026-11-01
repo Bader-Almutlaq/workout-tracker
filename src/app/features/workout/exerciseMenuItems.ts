@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowLeftRight, ArrowUp, FileText, Gauge, Timer, Trash2, Factory } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, ArrowUp, FileText, ListPlus, Target, Timer, Trash2, Factory } from 'lucide-react';
 import { usesMachineBrand } from '../../../core/library/MachineBrands';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
@@ -27,8 +27,7 @@ export function exerciseMenuItems({
         readonly editNote: () => void;
         readonly editRest: () => void;
         readonly editMachine?: () => void;
-        readonly showRpe: () => void;
-        readonly showsRpe: boolean;
+        readonly editRepRange?: () => void;
       }
     | undefined;
 }): readonly ActionMenuItem[] {
@@ -46,16 +45,19 @@ export function exerciseMenuItems({
     ...(live !== undefined && actions.saveNotes !== undefined
       ? [{ label: entry.entry.notes ? 'Edit note' : 'Add note', icon: FileText, onSelect: live.editNote }]
       : []),
+    ...(live === undefined
+      ? []
+      : [{ label: 'Add warm-up set', icon: ListPlus, onSelect: () => actions.addSet(entryId, 'warmup') }]),
     ...(actions.toggleWarmups === undefined
       ? []
       : [warmupMenuItem(entry.sets, (remove) => actions.toggleWarmups?.(entryId, remove))]),
     ...(live?.editMachine !== undefined && usesMachineBrand(entry.exercise.equipment)
       ? [{ label: 'Machine…', icon: Factory, onSelect: live.editMachine }]
       : []),
+    ...(live?.editRepRange === undefined ? [] : [{ label: 'Rep range…', icon: Target, onSelect: live.editRepRange }]),
     ...(live !== undefined && actions.setRestTarget !== undefined
       ? [{ label: 'Rest time', icon: Timer, onSelect: live.editRest }]
       : []),
-    ...(live !== undefined && !live.showsRpe ? [{ label: 'Show RPE', icon: Gauge, onSelect: live.showRpe }] : []),
     ...(live !== undefined && recordsWeight(entry.exercise.tracking)
       ? [
           {

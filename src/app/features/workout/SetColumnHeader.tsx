@@ -21,7 +21,7 @@ export function SetColumnHeader({
       <span>Set</span>
       <span>Previous</span>
       {recordsWeight(tracking) && (
-        <span className={styles.centered}>{`${isBodyweightLoad(tracking) ? '+' : ''}${unit}`}</span>
+        <span className={styles.centered}>{`${isBodyweightLoad(tracking) ? 'Added ' : ''}${unit}`}</span>
       )}
       <span className={styles.centered}>{recordsDuration(tracking) ? 'Time' : 'Reps'}</span>
       {isPastWorkout && <span className={styles.centered}>RPE</span>}

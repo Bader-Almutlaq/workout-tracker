@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Ellipsis, Link2, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Ellipsis, FileText, Link2, Target, Trash2 } from 'lucide-react';
 import { ActionMenu } from '../../design/components/ActionMenu';
 import { Chip } from '../../design/components/Chip';
 import type { TemplateEditorActions } from './TemplateEditorActions';
@@ -14,10 +14,12 @@ export function TemplateExerciseHeader({
   actions,
   progression,
   onNote,
+  onRepRange,
   hasNote,
 }: {
   readonly progression?: React.ReactNode;
   readonly onNote: () => void;
+  readonly onRepRange: () => void;
   readonly hasNote: boolean;
   readonly name: string;
   /** Position in the template (0-based) and the number of exercises, to disable Move up / Move down / Superset at the ends. */
@@ -35,7 +37,8 @@ export function TemplateExerciseHeader({
       <ActionMenu
         label="Exercise options"
         items={[
-          { label: hasNote ? 'Edit note' : 'Add note', onSelect: onNote },
+          { label: 'Rep range…', icon: Target, onSelect: onRepRange },
+          { label: hasNote ? 'Edit note' : 'Add note', icon: FileText, onSelect: onNote },
           { label: 'Move up', icon: ArrowUp, isDisabled: index === 0, onSelect: () => actions.move(index, -1) },
           {
             label: 'Move down',

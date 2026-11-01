@@ -1,3 +1,5 @@
+import { RepRangeDialog } from '../templates/RepRangeDialog';
+import { loggingQueue } from './loggingQueue';
 import { MachineBrandSheet } from './MachineBrandSheet';
 import { DeloadChip } from './DeloadChip';
 import { useState } from 'react';
@@ -7,7 +9,6 @@ import { RestTargetDialog } from './RestTargetDialog';
 import { WorkoutTextField } from './WorkoutTextField';
 import { database, useDatabaseQuery } from '../../data/database';
 import { Plus } from 'lucide-react';
-import { ProgressButton } from './ProgressButton';
 import { matchPreviousSets } from '../../../core/queries/PreviousPerformance';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
 import { setLabels } from '../../format/setText';
@@ -26,8 +27,12 @@ export function ExerciseCard({
   editing,
   actions,
   notes,
+  templateId,
+  occurrence = 0,
 }: {
   readonly entry: LiveWorkoutEntry;
+  readonly templateId?: number | null;
+  readonly occurrence?: number;
   readonly index: number;
   readonly count: number;
   /** The cell being edited, if it is in this exercise. */
@@ -39,18 +44,19 @@ export function ExerciseCard({
     readonly set: (setId: number, notes: string) => void;
   };
 }) {
-  const [showsRpe, setShowsRpe] = useState(false);
-  const [dialog, setDialog] = useState<'note' | 'rest' | 'machine' | undefined>(undefined);
+  const [dialog, setDialog] = useState<'note' | 'rest' | 'machine' | 'range' | undefined>(undefined);
   const live =
     notes === undefined
       ? {
           editNote: () => setDialog('note'),
           editRest: () => setDialog('rest'),
           editMachine: () => setDialog('machine'),
-          showRpe: () => setShowsRpe(true),
-          showsRpe,
+          ...(templateId === null || templateId === undefined ? {} : { editRepRange: () => setDialog('range') }),
         }
       : undefined;
+  const template = useDatabaseQuery(`live-template-${templateId}`, () =>
+    templateId === null || templateId === undefined ? Promise.resolve(null) : database.templateDetail(templateId),
+  );
   const suggestions = useDatabaseQuery(`warmup-suggestions-${entry.entry.id}`, () =>
     database.suggestedWarmupSetIds(entry.entry.id),
   );
@@ -74,7 +80,6 @@ export function ExerciseCard({
       ) : (entry.entry.deloadStage ?? null) !== null ? (
         <DeloadChip />
       ) : null}
-      {notes === undefined && entry.deload === undefined && <ProgressButton entry={entry} actions={actions} />}
       {suggestions.status === 'failed' && (
         <p className={styles.error} role="alert">
           {suggestions.message}
@@ -91,7 +96,6 @@ export function ExerciseCard({
           set={set}
           label={labels[position] ?? ''}
           isSuggested={suggestedIds.includes(set.id)}
-          showsEmptyRpe={showsRpe}
           displayUnit={unit}
           separatesWarmups={set.kind !== 'warmup' && entry.sets[position - 1]?.kind === 'warmup'}
           previous={previousSets[position]}
@@ -107,11 +111,24 @@ export function ExerciseCard({
           <Plus size={16} strokeWidth={2} aria-hidden />
           <span>Add set</span>
         </button>
-        <button type="button" className={styles.addSet} onClick={() => actions.addSet(entry.entry.id, 'warmup')}>
-          <Plus size={16} strokeWidth={2} aria-hidden />
-          <span>Add warm-up set</span>
-        </button>
       </div>
+      {dialog === 'range' &&
+        templateId !== null &&
+        templateId !== undefined &&
+        template.status === 'ready' &&
+        template.value !== null && (
+          <RepRangeDialog
+            target={entry.plannedTargets?.find((set) => set.kind !== 'warmup')}
+            workoutName={template.value.name}
+            onCancel={() => setDialog(undefined)}
+            onSave={(range) => {
+              void loggingQueue.enqueue(async () => {
+                await database.setTemplateRepRange(templateId, entry.exercise.id, occurrence, range);
+              });
+              setDialog(undefined);
+            }}
+          />
+        )}
       {dialog === 'machine' && (
         <MachineBrandSheet
           value={entry.entry.machineBrand ?? null}

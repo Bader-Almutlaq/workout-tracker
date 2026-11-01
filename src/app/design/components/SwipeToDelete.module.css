@@ -24,3 +24,7 @@
   background: var(--color-status-critical);
   color: var(--color-on-accent);
 }
+
+.content[data-transparent='true'] {
+  background: var(--color-background);
+}

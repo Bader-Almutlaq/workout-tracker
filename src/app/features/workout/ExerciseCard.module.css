@@ -1,7 +1,4 @@
 .card {
-  background: var(--color-surface);
-  border: var(--hairline) solid var(--color-border);
-  border-radius: var(--radius-medium);
 }
 
 .addSet {
@@ -12,9 +9,11 @@
   width: 100%;
   position: relative;
   min-height: calc(var(--space-xxl) + var(--space-xs));
-  border-top: var(--hairline) solid var(--color-border);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-small);
+  margin-top: var(--space-s);
   font: var(--font-callout);
-  color: var(--color-accent);
+  color: var(--color-text-primary);
 }
 
 .error {
@@ -27,7 +26,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-xs) var(--space-m);
-  padding: 0 var(--space-m) var(--space-xs);
+  align-items: center;
+  padding: 0 0 var(--space-xs);
   font: var(--font-callout);
   color: var(--color-text-secondary);
 }
@@ -80,7 +80,7 @@
 }
 
 .targets {
-  color: var(--color-accent);
+  color: var(--color-deload);
   font: var(--font-body);
   font-size: calc(var(--space-m) + var(--space-xs) / 2);
 }
@@ -89,4 +89,8 @@
   content: '';
   position: absolute;
   inset: calc(var(--space-xs) * -1) 0;
+}
+
+.deload {
+  margin-left: auto;
 }

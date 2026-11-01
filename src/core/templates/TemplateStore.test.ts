@@ -72,6 +72,23 @@ describe('template store', () => {
     TemplateStore.delete(db, id);
     expect(TemplateCatalog.list(db).folders[0]?.templates.map((item) => item.id)).toEqual([copy]);
   });
+  it('updates only the selected occurrence and preserves warm-ups and other targets', () => {
+    const exercise = draft.exercises[0];
+    if (exercise === undefined) throw new Error('Missing fixture');
+    const warmup = { kind: 'warmup' as const, targetRepsLow: 3, targetRepsHigh: 3, targetRpe: null };
+    const id = TemplateStore.save(
+      db,
+      { ...draft, exercises: [exercise, { ...exercise, sets: [warmup, ...exercise.sets] }] },
+      now,
+    );
+    TemplateStore.setRepRange(db, id, 1, 1, { targetRepsLow: 8, targetRepsHigh: 12, targetRpe: 9 }, now);
+    const result = TemplateCatalog.detail(db, id);
+    expect(result?.exercises[0]?.sets[0]?.targetRepsLow).toBe(5);
+    expect(result?.exercises[1]?.sets).toMatchObject([warmup, { targetRepsLow: 8, targetRepsHigh: 12, targetRpe: 9 }]);
+    expect(() =>
+      TemplateStore.setRepRange(db, id, 1, 2, { targetRepsLow: 8, targetRepsHigh: 12, targetRpe: null }, now),
+    ).toThrow();
+  });
   it('rejects invalid drafts atomically', () => {
     const set = draft.exercises[0]?.sets[0];
     if (set === undefined) throw new Error('Missing fixture');

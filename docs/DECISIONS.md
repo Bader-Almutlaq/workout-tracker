@@ -271,8 +271,13 @@ History imported from Strong has no templates, so a workout created from a past 
 
 ## 2026-11-01: Set groups and explicit progression
 
-Warm-ups are grouped before work when added or changed. Progression is applied only on the owner’s tap of the exercise’s Progress button; deload keeps its existing controls.
+Warm-ups are grouped before work when added or changed. Progression suggestions are applied only when the owner taps each inline suggested value; deload keeps its existing controls.
 
 ### Plan summaries as a week (2026-11-01)
 
 A plan represents one week for planned set counts. Frequency counts each workout with at least one fractional set for a muscle, matching the muscle coverage threshold; this is a planning count rather than a prediction of completed training.
+
+
+## 2026-11-01: Live workout layout and effort entry
+
+Live exercises form a continuous list with separated rows. Progression suggestions use individual red values beside the existing cells, replacing the Progress button; accepting one does not complete a set. The pad exposes RPE directly with quick picks, and logged effort alone has a badge. Rep ranges edited during a linked session update the matching occurrence in the saved workout.

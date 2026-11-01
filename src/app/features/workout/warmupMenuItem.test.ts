@@ -9,7 +9,7 @@ test('warm-up menu requires a working weight, and switches to removal when warm-
   expect(disabled.label).toContain('enter a working weight first');
   const add = warmupMenuItem([makeSet({ kind: 'working', weightKilograms: 100 })], toggle);
   expect(add.isDisabled).toBe(false);
-  expect(add.label).toBe('Add warm-up sets');
+  expect(add.label).toBe('Add suggested warm-ups');
   add.onSelect();
   const remove = warmupMenuItem([makeSet({ kind: 'warmup' })], toggle);
   expect(remove.label).toBe('Remove suggested warm-ups');

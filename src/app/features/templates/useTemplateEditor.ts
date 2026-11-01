@@ -39,6 +39,18 @@ export function useTemplateEditor(initial: TemplateDraft, returnPlanId: number |
 
   const actions: TemplateEditorActions = {
     edit: pad.begin,
+    setRepRange: (index, range) =>
+      restructure((current) => ({
+        ...current,
+        exercises: current.exercises.map((exercise, position) =>
+          position !== index
+            ? exercise
+            : {
+                ...exercise,
+                sets: exercise.sets.map((set) => (set.kind === 'warmup' ? set : { ...set, ...range })),
+              },
+        ),
+      })),
     setExerciseNotes: (index, notes) =>
       restructure((current) => ({
         ...current,

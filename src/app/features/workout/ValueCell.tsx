@@ -44,6 +44,7 @@ export function ValueCell({
         <button
           type="button"
           className={styles.suggestion}
+          data-progression={suggestion.isProgression === true}
           aria-label={`Use suggested ${name.toLowerCase()} ${suggestion.text}`}
           onClick={() => suggestion.onAccept(suggestion.value)}
         >
