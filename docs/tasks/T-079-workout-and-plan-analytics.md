@@ -53,4 +53,4 @@ Remove `TemplateSessionCharts` and its session volume / duration / top e1RM char
 
 ## Handoff
 
-_Fill in at the end of the session._
+Core round: added `TemplateAnalytics` and the worker `templateAnalytics` method; screens and documentation changes remain for the later round. The report uses current plan membership and saved exercise order. Completed-week averages include the first session's calendar week once it is complete, capped at four weeks; `weeksAvailable` exposes the denominator, and averages are null until a full week is available. `weeksOnPlan` counts the current calendar week as week one. Exercise top sets reflect the latest session, including a deload; changes use the existing non-deload comparison. Weekly points include the current partial week. Planned and done muscle rows include the full taxonomy for the screen to filter. `make format` and `make verify` passed (1,310 tests).
