@@ -1,3 +1,5 @@
+import { ExerciseCurve } from './ExerciseCurve';
+import type { StrengthExercise } from '../analytics/EstimatedOneRepMax';
 import type { Database } from '../db/Database';
 import { estimatedOneRepMax } from '../analytics/EstimatedOneRepMax';
 import { fromExerciseRow, type Exercise, type ExerciseRow } from '../models/Exercise';
@@ -56,7 +58,7 @@ function sessions(db: Database): Session[] {
   return [...groups.values()];
 }
 
-function candidates(session: Session): Records {
+function candidates(session: Session, exercise: StrengthExercise): Records {
   const result: Records = { reps: new Map() };
   let volume = 0;
   let lastEstimateKey = '';
@@ -71,7 +73,7 @@ function candidates(session: Session): Records {
       result.setVolume = { value: setVolume, set };
     const estimateKey = `${set.kind}:${weight}:${set.reps}:${set.rpe}`;
     if (estimateKey !== lastEstimateKey) {
-      lastEstimate = estimatedOneRepMax(set, session.exercise);
+      lastEstimate = estimatedOneRepMax(set, exercise);
       lastEstimateKey = estimateKey;
     }
     const estimate = lastEstimate;
@@ -136,6 +138,11 @@ function allBests(db: Database): Map<number, PersonalBest[]> {
   const history = new Map<number, Records>();
   const result = new Map<number, PersonalBest[]>();
   const all = sessions(db);
+  const curves = new Map<number, StrengthExercise>();
+  for (const { exercise } of all) {
+    if (!curves.has(exercise.id))
+      curves.set(exercise.id, { ...exercise, strengthCurve: ExerciseCurve(db, exercise.id, exercise) });
+  }
   let index = 0;
   while (index < all.length) {
     const time = all[index]?.startedAt;
@@ -144,7 +151,7 @@ function allBests(db: Database): Map<number, PersonalBest[]> {
       const session = all[index];
       index += 1;
       if (session === undefined) continue;
-      const current = candidates(session);
+      const current = candidates(session, curves.get(session.exercise.id) ?? session.exercise);
       const prior = history.get(session.exercise.id);
       if (prior !== undefined) {
         const bests = compare(session, current, prior);

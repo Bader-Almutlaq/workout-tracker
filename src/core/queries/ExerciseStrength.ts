@@ -1,3 +1,4 @@
+import { ExerciseCurve } from './ExerciseCurve';
 import { localDateKey } from '../support/localDate';
 import { estimatedOneRepMax } from '../analytics/EstimatedOneRepMax';
 import { strengthTrend } from '../analytics/StrengthTrend';
@@ -44,6 +45,7 @@ function series(db: Database, exerciseId: number, now: Date): ExerciseStrengthSe
   const exercise = db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [exerciseId]);
   const days = new Map<string, WeightedSession>();
   if (exercise !== undefined) {
+    const strengthExercise = { ...exercise, strengthCurve: ExerciseCurve(db, exerciseId, exercise, now) };
     const rows = db.all<StrengthSetRow>(
       `
       SELECT w.id AS workoutId, w.startedAt, s.kind, s.weightKilograms, s.reps, s.rpe
@@ -57,7 +59,7 @@ function series(db: Database, exerciseId: number, now: Date): ExerciseStrengthSe
       [exerciseId, now.toISOString()],
     );
     for (const row of rows) {
-      const estimate = estimatedOneRepMax(row, exercise);
+      const estimate = estimatedOneRepMax(row, strengthExercise);
       if (estimate === null) continue;
       const date = localDateKey(row.startedAt);
       const previous = days.get(date);

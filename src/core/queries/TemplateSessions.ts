@@ -1,3 +1,4 @@
+import { ExerciseCurve } from './ExerciseCurve';
 import { estimatedOneRepMax } from '../analytics/EstimatedOneRepMax';
 import type { Database } from '../db/Database';
 import type { ExerciseRow } from '../models/Exercise';
@@ -93,6 +94,10 @@ export const TemplateSessions = Object.freeze({
               [scope.templateId],
             )
           : undefined;
+      const strengthExercise =
+        topExercise === undefined
+          ? undefined
+          : { ...topExercise, strengthCurve: ExerciseCurve(db, topExercise.id, topExercise) };
       const rows = db.all<{ id: number; templateId: number }>(
         `
         SELECT id, templateId FROM workout
@@ -112,7 +117,7 @@ export const TemplateSessions = Object.freeze({
                 .filter((entry) => entry.exercise.id === topExercise.id)
                 .flatMap((entry) => entry.sets.filter((set) => set.isCompleted))
                 .flatMap((set) => {
-                  const estimate = estimatedOneRepMax(set, topExercise);
+                  const estimate = strengthExercise === undefined ? null : estimatedOneRepMax(set, strengthExercise);
                   return estimate === null ? [] : [estimate.e1rmKilograms];
                 });
         return [

@@ -1,3 +1,5 @@
+import { ExerciseCurve } from './ExerciseCurve';
+import type { PersonalCurve } from '../analytics/PersonalCurve';
 import { estimatedOneRepMax } from '../analytics/EstimatedOneRepMax';
 import type { DatedValue } from '../analytics/TimeBuckets';
 import type { Database } from '../db/Database';
@@ -28,7 +30,7 @@ export interface ExerciseSeriesPoint extends DatedValue {
 
 /** Shared read-only source for exercise charts and records; missing exercises have null metadata. */
 export interface ExerciseSeriesHistory {
-  readonly exercise: Exercise | null;
+  readonly exercise: (Exercise & { readonly strengthCurve: PersonalCurve }) | null;
   readonly sessions: readonly ExerciseSession[];
 }
 
@@ -134,7 +136,8 @@ export const ExerciseSeries = Object.freeze({
   read(db: Database, exerciseId: number, now = new Date(), templateId?: number): ExerciseSeriesHistory {
     const row = db.get<ExerciseRow>('SELECT * FROM exercise WHERE id = ?', [exerciseId]);
     return {
-      exercise: row === undefined ? null : fromExerciseRow(row),
+      exercise:
+        row === undefined ? null : { ...fromExerciseRow(row), strengthCurve: ExerciseCurve(db, exerciseId, row, now) },
       sessions: row === undefined ? [] : sessions(db, exerciseId, now, -1, 0, templateId).reverse(),
     };
   },

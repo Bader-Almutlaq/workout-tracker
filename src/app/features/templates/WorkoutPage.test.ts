@@ -107,9 +107,10 @@ test('unknown workout redirects', () => {
 });
 
 test('exercise tabs receive the workout filter', () => {
-  page('/workout/workouts/4/exercises/8', true);
+  page('/workout/workouts/4/exercises/8?tab=history', true);
   expect(state.historyProps).toHaveBeenCalledWith(expect.objectContaining({ exerciseId: 8, templateId: 4 }));
-  page('/workout/workouts/4/exercises/8?tab=charts', true);
+  const markup = page('/workout/workouts/4/exercises/8', true);
+  expect(markup).toContain('Progress');
   expect(state.chartsProps).toHaveBeenCalledWith(expect.objectContaining({ exerciseId: 8, templateId: 4 }));
 });
 

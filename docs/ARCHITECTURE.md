@@ -84,6 +84,9 @@ Each concept is implemented once, in one place. When adding a concept, add a row
 
 | Concept | Owner |
 |---|---|
+| Personal strength-curve fitting and canonical history boundary | `src/core/analytics/PersonalCurve.ts`, `src/core/queries/ExerciseCurve.ts`; curve metadata accompanies exercises into `estimatedOneRepMax` |
+| RTS reference and personal RPE load grids | `src/core/analytics/RpeChart.ts` |
+| Scoped per-session exercise progress and four-session changes | `src/core/queries/ExerciseProgress.ts` |
 | Training overview weekly totals and period lift trends | `src/core/queries/TrainingSummary.ts`, `src/core/queries/LiftTrends.ts` |
 | SQLite access (queries, transactions, export/import bytes) | `src/core/db/Database.ts` |
 | Deterministic library conversion and reviewed source decisions | `tools/build-library.ts`, `data/sources/library-mapping.json` (frozen original families plus every source id) |

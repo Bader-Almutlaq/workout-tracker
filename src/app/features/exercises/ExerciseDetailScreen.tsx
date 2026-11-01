@@ -50,6 +50,7 @@ export function ExerciseDetailScreen() {
           <ExerciseChartsTab
             exerciseId={exerciseId}
             tracking={exercise.tracking}
+            unit={exercise.defaultEntryUnit}
             machine={params.get('machine')}
             onMachine={(value) => {
               const next = new URLSearchParams(params);

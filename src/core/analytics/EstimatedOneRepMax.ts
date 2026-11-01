@@ -1,3 +1,4 @@
+import type { PersonalCurve } from './PersonalCurve';
 import type { Equipment } from '../library/Equipment';
 import type { MovementPattern } from '../library/MovementPattern';
 import type { Exercise } from '../models/Exercise';
@@ -39,8 +40,10 @@ export const EstimatedOneRepMaxDefaults = {
   upperBodyPatterns: ['horizontal-push', 'vertical-push', 'horizontal-pull', 'vertical-pull'],
 } as const;
 
-/** Exercise metadata needed to select a starting k without inspecting its name. */
-export type StrengthExercise = Pick<Exercise, 'equipment' | 'movementPattern' | 'mechanic' | 'tracking'>;
+/** Exercise metadata and optional canonical personal curve; pure callers without history use the lift-type prior. */
+export type StrengthExercise = Pick<Exercise, 'equipment' | 'movementPattern' | 'mechanic' | 'tracking'> & {
+  readonly strengthCurve?: PersonalCurve;
+};
 
 /** A qualifying set estimate in kg, with the report's confidence and effort information. */
 export interface EstimatedOneRepMax extends EffectiveReps {
@@ -61,7 +64,8 @@ function compoundEquipment(equipment: Equipment | null): 'barbell' | 'machine' |
   return null;
 }
 
-function exerciseK(exercise: StrengthExercise): number | null {
+/** Report item 2: dimensionless lift-type prior, null for unmapped compounds. */
+export function startingStrengthK(exercise: StrengthExercise): number | null {
   const defaults = EstimatedOneRepMaxDefaults;
   if (exercise.mechanic === 'isolation') return defaults.k.isolation;
   if (exercise.mechanic !== 'compound') return null;
@@ -79,7 +83,7 @@ function exerciseK(exercise: StrengthExercise): number | null {
  * e1RM = weight × (1 + (E − 1) / k), in kg, without display rounding.
  * Report, "The recommended algorithms, in one place", items 1, 2 and 4.
  * A true single returns its load. Warm-ups, E > 12, RIR > 4, invalid/non-positive
- * loads and unclassified exercises return null. Only weight-reps tracking is
+ * loads and unclassified exercises without a fitted personal curve return null. Only weight-reps tracking is
  * supported: added/assisted bodyweight alone is not the total lifted mass.
  */
 export function estimatedOneRepMax(
@@ -95,7 +99,7 @@ export function estimatedOneRepMax(
     return null;
   }
   const effort = effectiveReps(set);
-  const k = exerciseK(exercise);
+  const k = exercise.strengthCurve === undefined ? startingStrengthK(exercise) : exercise.strengthCurve.k;
   if (
     effort === null ||
     k === null ||

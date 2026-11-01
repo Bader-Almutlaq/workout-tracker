@@ -1,3 +1,4 @@
+import { ExerciseRpeChart } from './ExerciseRpeChart';
 import type { ExerciseTracking } from '../../../core/library/ExerciseTracking';
 import type { WeightUnit } from '../../../core/units/WeightUnit';
 import { database, useDatabaseQuery } from '../../data/database';
@@ -54,6 +55,7 @@ export function ExerciseRecordsTab({
         />
       )}
       {records.repMax.length > 0 && <ExerciseRepMaxTable rows={records.repMax} unit={unit} />}
+      {tracking === 'weight-reps' && <ExerciseRpeChart exerciseId={exerciseId} unit={unit} />}
     </>
   );
 }

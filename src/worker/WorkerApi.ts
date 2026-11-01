@@ -1,3 +1,6 @@
+import { ExerciseProgress } from '../core/queries/ExerciseProgress';
+import { liftRpeChart, rtsRpeChart } from '../core/analytics/RpeChart';
+import { loadProfileFor } from '../core/units/LoadableWeight';
 import { templateMuscleSummary } from '../core/queries/TemplateMuscleSummary';
 import { TrainingSummary } from '../core/queries/TrainingSummary';
 import { LiftTrends } from '../core/queries/LiftTrends';
@@ -905,6 +908,29 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
     // End of Muscle coverage and intensity (T-065)
 
     // Strength (T-034)
+
+    // Exercise progress (T-077)
+    /** Per-session progress, optionally restricted to a saved workout and recorded machine. */
+    exerciseProgress: serially(async (exerciseId: number, templateId?: number, machine?: string | null) => {
+      return ExerciseProgress((await liveStore()).database, exerciseId, new Date(), templateId, machine);
+    }),
+
+    /** RTS guide and personal load grid, in exact kg rounded to the exercise's entry-unit ladder. */
+    exerciseRpeChart: serially(async (exerciseId: number) => {
+      const db = (await liveStore()).database;
+      const history = ExerciseSeries.read(db, exerciseId);
+      const exercise = history.exercise;
+      const estimate = ExerciseStrength.series(db, exerciseId, new Date()).latest;
+      return {
+        guide: rtsRpeChart(),
+        curve: exercise?.strengthCurve ?? null,
+        estimate,
+        lift:
+          exercise === null
+            ? []
+            : liftRpeChart(exercise.strengthCurve, estimate, loadProfileFor(exercise, exercise.defaultEntryUnit)),
+      };
+    }),
 
     /** Daily best estimates and smoothed strength in kg; no qualifying history returns empty series. */
     exerciseStrength: serially(async (exerciseId: number): Promise<ExerciseStrengthSeries> => {
