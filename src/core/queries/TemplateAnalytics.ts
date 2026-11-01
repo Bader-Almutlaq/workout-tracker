@@ -4,6 +4,8 @@ import type { Database } from '../db/Database';
 import type { Muscle } from '../library/Muscle';
 import type { MuscleRole } from '../library/MuscleRole';
 import type { SetKind } from '../models/SetKind';
+import { MuscleDashboard } from './MuscleDashboard';
+import { intensityMix } from './IntensityMix';
 import { ExerciseProgress } from './ExerciseProgress';
 import { templateMuscleSummary } from './TemplateMuscleSummary';
 import { TemplateSessions, type TemplateSessionScope } from './TemplateSessions';
@@ -22,6 +24,16 @@ function monday(date: Date): Date {
   const result = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   result.setDate(result.getDate() - ((result.getDay() + 6) % Window.daysPerWeek));
   return result;
+}
+
+/** Sessions from the nth-last non-deload one onward, so deloads in that span stay visible as marks. */
+function sinceNthLastNormal<T extends { readonly isDeload: boolean }>(
+  sessions: readonly T[],
+  count: number,
+): readonly T[] {
+  const normal = sessions.filter((session) => !session.isDeload);
+  const first = normal.at(-count) ?? normal[0];
+  return first === undefined ? sessions : sessions.slice(sessions.indexOf(first));
 }
 
 /** Scoped workout or plan analytics. Durations are seconds, loads kg, and fractional sets per week. */
@@ -45,7 +57,7 @@ export function TemplateAnalytics(db: Database, scope: TemplateSessionScope, now
         return {
           ...exercise,
           templateId: template.id,
-          sessions: progress.sessions.slice(-Window.sparklineSessions),
+          sessions: sinceNthLastNormal(progress.sessions, Window.sparklineSessions),
           changes: progress.changes,
           latestTopSet: progress.sessions.at(-1)?.topSet ?? null,
         };
@@ -161,5 +173,9 @@ export function TemplateAnalytics(db: Database, scope: TemplateSessionScope, now
     perSession,
     weekly,
     musclesDoneVsPlanned,
+    muscleDashboard:
+      'folderId' in scope && weeksAvailable > 0 ? MuscleDashboard(db, start, lastDay, scope.folderId) : [],
+    intensityMix:
+      'folderId' in scope && weeksAvailable > 0 ? intensityMix(db, start, lastDay, undefined, scope.folderId) : null,
   };
 }

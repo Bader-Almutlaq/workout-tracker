@@ -47,3 +47,5 @@ The owner's iPhone review (2026-11-02):
 ## Handoff
 
 _Fill in at the end of the session._
+
+Implemented workout trend cards, plan-scoped muscle and effort summaries, shared sparkline bars, and coverage for scoped calculations and rendering. The workout progress data still uses `ExerciseProgress` once per exercise; the required single workout-wide query remains unfinished. Phone-size visual checks remain outstanding. Changes are uncommitted; do not mark the task done until these points are resolved and verification passes.

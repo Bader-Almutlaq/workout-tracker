@@ -17,10 +17,10 @@ export interface MuscleDashboardItem {
 }
 
 /** Inclusive local-date muscle summaries; fractional sets use the same window as strength and effort. */
-export function MuscleDashboard(db: Database, from: Date, to: Date): MuscleDashboardItem[] {
-  const coverage = muscleCoverage(db, from, to);
+export function MuscleDashboard(db: Database, from: Date, to: Date, folderId?: number): MuscleDashboardItem[] {
+  const coverage = muscleCoverage(db, from, to, folderId);
   const end = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
-  const lifts = LiftTrends(db, from, end);
+  const lifts = LiftTrends(db, from, end, folderId);
   const primary = db.all<{ muscle: Muscle; exerciseId: number }>(
     "SELECT muscleId AS muscle, exerciseId FROM exerciseMuscle WHERE role = 'primary'",
   );
@@ -34,12 +34,15 @@ export function MuscleDashboard(db: Database, from: Date, to: Date): MuscleDashb
       JOIN exerciseMuscle em ON em.exerciseId = we.exerciseId AND em.role = 'primary' AND em.muscleId = ?
       WHERE w.isInProgress = 0 AND s.isCompleted = 1 AND s.kind != 'warmup' AND s.rpe IS NOT NULL
         AND w.startedAt >= ? AND w.startedAt < ?
+        AND (? IS NULL OR w.templateId IN (SELECT id FROM template WHERE folderId = ?))
     `,
         [
           HardSetPolicy.maximumRpe,
           item.muscle,
           new Date(from.getFullYear(), from.getMonth(), from.getDate()).toISOString(),
           end.toISOString(),
+          folderId ?? null,
+          folderId ?? null,
         ],
       );
       return {

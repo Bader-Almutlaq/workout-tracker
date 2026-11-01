@@ -80,3 +80,49 @@
   max-width: 100%;
   overflow-x: auto;
 }
+.cards {
+  display: grid;
+  gap: var(--space-s);
+}
+.card {
+  min-width: 0;
+  padding: var(--space-m);
+  border: var(--hairline) solid var(--color-border);
+  border-radius: var(--radius-small);
+}
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-s);
+}
+.cardHeader a {
+  color: var(--color-text-primary);
+}
+.trends {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-m);
+  margin-top: var(--space-s);
+}
+.trends > div {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-xs);
+  font: var(--font-caption);
+}
+.trends small {
+  color: var(--color-text-secondary);
+}
+.trends svg {
+  width: 100%;
+  color: var(--color-accent);
+}
+.good {
+  color: var(--color-status-good);
+}
+.bad {
+  color: var(--color-status-bad);
+}
+.neutral {
+  color: var(--color-text-secondary);
+}

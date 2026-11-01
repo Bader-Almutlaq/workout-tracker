@@ -11,9 +11,11 @@ import styles from './Analytics.module.css';
 export function MuscleDashboardTable({
   muscles,
   period,
+  onSelect,
 }: {
   readonly muscles: readonly MuscleDashboardItem[];
   readonly period: AnalyticsPeriod;
+  readonly onSelect?: (item: MuscleDashboardItem) => void;
 }) {
   const [smaller, setSmaller] = useState(false);
   const rows = [...muscles].sort((a, b) => b.setsPerWeek - a.setsPerWeek);
@@ -44,9 +46,15 @@ export function MuscleDashboardTable({
                 )}
               <tr className={item.setsPerWeek < MuscleVolumeLimits.first ? styles.muted : undefined}>
                 <th>
-                  <Link className={styles.rowLink} to={`/analytics/muscles/${item.muscle}?period=${period}`}>
-                    {MUSCLE_DISPLAY_NAMES[item.muscle]}
-                  </Link>
+                  {onSelect ? (
+                    <button className={styles.tableButton} type="button" onClick={() => onSelect(item)}>
+                      {MUSCLE_DISPLAY_NAMES[item.muscle]}
+                    </button>
+                  ) : (
+                    <Link className={styles.rowLink} to={`/analytics/muscles/${item.muscle}?period=${period}`}>
+                      {MUSCLE_DISPLAY_NAMES[item.muscle]}
+                    </Link>
+                  )}
                 </th>
                 <td>
                   {item.setsPerWeek.toFixed(1)}

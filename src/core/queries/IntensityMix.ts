@@ -52,7 +52,13 @@ function buckets(labels: readonly string[], counts: readonly number[]): Intensit
  * Finished completed non-warm-up sets over inclusive local dates. Report §12: hard-set rep buckets,
  * RIR = 10 − RPE, and intensity = load / exercise e1RM trend × 100. Percentage of maximum uses no future trend.
  */
-export function intensityMix(db: Database, from: Date, to: Date, muscle?: Muscle): IntensityMixResult {
+export function intensityMix(
+  db: Database,
+  from: Date,
+  to: Date,
+  muscle?: Muscle,
+  folderId?: number,
+): IntensityMixResult {
   const repCounts = [0, 0, 0, 0, 0];
   const effortCounts = [0, 0, 0, 0, 0, 0];
   let notLogged = 0;
@@ -67,11 +73,12 @@ export function intensityMix(db: Database, from: Date, to: Date, muscle?: Muscle
       JOIN exercise e ON e.id = we.exerciseId JOIN workoutSet s ON s.workoutExerciseId = we.id
       WHERE w.isInProgress = 0 AND s.isCompleted = 1 AND s.kind != 'warmup'
         AND w.startedAt >= ? AND w.startedAt < ?
+        AND (? IS NULL OR w.templateId IN (SELECT id FROM template WHERE folderId = ?))
         AND (? IS NULL OR EXISTS (SELECT 1 FROM exerciseMuscle em
           WHERE em.exerciseId = e.id AND em.muscleId = ? AND em.role = 'primary'))
       ORDER BY w.startedAt, w.id, we.position, s.position
     `,
-      [start.toISOString(), end.toISOString(), muscle ?? null, muscle ?? null],
+      [start.toISOString(), end.toISOString(), folderId ?? null, folderId ?? null, muscle ?? null, muscle ?? null],
     );
     const trends = new Map<number, ReturnType<typeof ExerciseStrength.series>['trend']>();
     const exercises = new Map<number, ExerciseRow>();

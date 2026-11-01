@@ -45,6 +45,8 @@ const report: Report = {
   ],
   perSession: [{ date: '2026-01-05T12:00:00Z', workoutId: 1, isDeload: true, hardSets: 2, averageRir: 2 }],
   weekly: [{ weekStart: '2026-01-05', hardSets: 2, averageRir: 2, hasDeload: true }],
+  muscleDashboard: [],
+  intensityMix: null,
   musclesDoneVsPlanned: [
     { muscle: 'chest', done: 2, planned: 3, contributions: [{ exerciseId: 8, name: 'Press', fractional: 2 }] },
   ],
@@ -140,8 +142,8 @@ it('uses top-set load and the four-session comparison when an estimate is absent
   };
   const html = render(false, value);
   expect(html).toContain('80 kg');
-  expect(html).toContain('top set');
-  expect(html).toContain('70 → 80 kg');
+  expect(html).toContain('Top set');
+  expect(html).toContain('+10.0 kg');
 });
 
 it('shows total workouts and short recent-window details in plan tiles', () => {
@@ -153,4 +155,37 @@ it('shows total workouts and short recent-window details in plan tiles', () => {
   const historical = render(true, { ...report, weeksAvailable: 4, windowEnd: '2026-10-12', windowIsHistorical: true });
   expect(historical).toContain('4 wk to 12 Oct');
   expect(historical).not.toContain('of 2 planned');
+});
+
+it('renders three workout trends and an unavailable effort value', () => {
+  const group = report.exercises[0];
+  const exercise = group?.exercises[0];
+  const session = exercise?.sessions[0];
+  if (!group || !exercise || !session) throw new Error('Missing fixture');
+  const html = render(false, {
+    ...report,
+    exercises: [{ ...group, exercises: [{ ...exercise, sessions: [{ ...session, averageRpe: null }] }] }],
+  });
+  expect(html).toContain('Est. 1RM');
+  expect(html).toContain('Sets');
+  expect(html).toContain('RPE');
+  expect(html).toContain('100 kg');
+  expect(html).toContain('—');
+  expect(html).toContain('var(--color-deload)');
+});
+
+it('renders plan muscle and distribution data between the weekly charts and workout progress', () => {
+  const bucket = { label: '6–10', count: 2, percent: 100 };
+  const html = render(true, {
+    ...report,
+    muscleDashboard: [{ muscle: 'chest', setsPerWeek: 2, strengthChangePercent: 5, averageRir: 2, shares: [] }],
+    intensityMix: { reps: [bucket], effort: [bucket], notLogged: 0, percentOfMax: [bucket] },
+  });
+  expect(html.indexOf('Sets per muscle, per week')).toBeLessThan(html.indexOf('<h2>Muscles</h2>'));
+  expect(html.indexOf('<h2>Muscles</h2>')).toBeLessThan(html.indexOf('Weekly hard sets'));
+  expect(html.indexOf('Weekly effort')).toBeLessThan(html.indexOf('Effort and reps'));
+  expect(html.indexOf('Effort and reps')).toBeLessThan(html.indexOf('Progress by workout'));
+  expect(html).toContain('Chest');
+  expect(html).toContain('+5.0%');
+  expect(html).toContain('6–10');
 });

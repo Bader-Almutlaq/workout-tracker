@@ -33,7 +33,7 @@ Measure, don't prescribe: every figure describes ("+2.5% vs 4 sessions ago", "no
 ### 2. Workout (Analytics tab of a saved workout)
 
 - Tiles: sessions done, **typical length** (median), working sets last session vs planned ("18 of 18").
-- **Exercise progress** list: one row per exercise in the workout: sparkline of best-set e1RM over the last 8 sessions, change vs 4 sessions ago, the top set in muted text, set-count change when it changed ("3 → 4 sets"). Tap → level 1.
+- **Exercise progress:** a card per exercise with Est. 1RM (or top set), working sets and average RPE trends. Show the latest values and the change vs 4 non-deload sessions ago. Tap → level 1.
 - **Hard sets per session** (bars, deload sessions yellow).
 - **Effort per session**: average RIR of working sets, with RPE alongside (RIR 2 = RPE 8). Lower = harder.
 - Removed: session volume and the single top-exercise chart.
@@ -42,7 +42,9 @@ Measure, don't prescribe: every figure describes ("+2.5% vs 4 sessions ago", "no
 
 - Tiles: **Workouts** (total finished sessions), **Per week** (recent window, one decimal, “of 3 planned”), **Typical length**. After more than seven days without a finished session, the Per week detail names the window (“4 wk to 12 Oct”).
 - **Sets per muscle, per week:** bar = done (average over up to four Monday weeks ending with the latest finished session’s week), tick = planned (from the plan Summary). Tap a muscle → the exercises behind it.
+- **Muscles:** the dashboard table for the recent plan window, with scoped strength, sets and effort. Tap for contributions.
 - **Weekly hard sets** and **weekly effort** as two charts on the same weeks (never one chart with two scales).
+- **Effort and reps:** rep ranges, effort and percentage of 1RM for the recent plan window.
 - **Progress by workout:** the level-2 exercise rows grouped under each workout of the plan.
 - Removed: session volume. Summary stays the planned view; Analytics is what was done.
 

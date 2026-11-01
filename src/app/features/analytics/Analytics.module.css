@@ -378,3 +378,8 @@
   flex: 0 0 calc((100% - var(--space-s)) / 2);
   min-height: 11rem;
 }
+.tableButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
