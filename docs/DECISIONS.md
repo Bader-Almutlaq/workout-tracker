@@ -288,3 +288,7 @@ Live exercises form a continuous list with separated rows. Progression suggestio
 Refines T-062: the owner chooses weight, sets or both. The default set reduction is 50% (research report §12.9); working, drop and failure sets count, warm-ups do not. The owner chooses an absolute kept count for an exercise, and completed sets are protected. Stage 2 restores the pre-cycle working count for Both and reduces load by half the stage-1 percentage, rounded to half a percentage point; Sets returns directly to normal. Returning to load-only or ending a deload does not recreate removed sets. Nullable settings preserve older rows and original defaults.
 
 The set-percent check includes zero because the required exact kept-count formula yields 0% when all sets are kept; NULL remains the 50% default.
+
+## 2026-11-01: Donkey Calf Raise uses plain weight (T-076)
+
+The library tracked the bare Donkey Calf Raise as bodyweight, but the owner uses a machine and requested plain kg. Its existing stored weights now mean machine weight; migration leaves the sets unchanged and preserves renamed and custom exercises.

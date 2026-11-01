@@ -10,10 +10,10 @@ const summary: TemplateMuscleSummary = {
   exercises: 1,
   secondaryWeight: 0.5,
   muscles: [
-    { muscle: 'chest', direct: 1, indirect: 0, fractional: 1, frequency: 1 },
-    { muscle: 'biceps', direct: 0, indirect: 1, fractional: 0.5, frequency: 0 },
-    { muscle: 'triceps', direct: 2, indirect: 1, fractional: 2.5, frequency: 2 },
-    { muscle: 'quads', direct: 0, indirect: 0, fractional: 0, frequency: 0 },
+    { muscle: 'chest', direct: 1, indirect: 0, fractional: 1, frequency: 1, contributions: [] },
+    { muscle: 'biceps', direct: 0, indirect: 1, fractional: 0.5, frequency: 0, contributions: [] },
+    { muscle: 'triceps', direct: 2, indirect: 1, fractional: 2.5, frequency: 2, contributions: [] },
+    { muscle: 'quads', direct: 0, indirect: 0, fractional: 0, frequency: 0, contributions: [] },
   ],
 };
 

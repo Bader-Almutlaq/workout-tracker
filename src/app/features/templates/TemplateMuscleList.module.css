@@ -67,3 +67,24 @@
   color: var(--color-text-secondary);
   font: var(--font-callout);
 }
+
+.section .rowButton {
+  align-self: stretch;
+  min-height: 44px;
+  padding: var(--space-s);
+  color: var(--color-text-secondary);
+  background: var(--color-surface);
+  border-radius: var(--radius-small);
+  text-align: left;
+}
+.contribution {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-m);
+}
+.contributionCount {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+  white-space: nowrap;
+}

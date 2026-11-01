@@ -276,3 +276,7 @@ The picker and machine-aware workout behavior are not yet implemented.
 ### Deload settings (v12)
 
 Workout exercise rows retain nullable deload mode, load percent and set percent alongside the stage. Null preserves the original load-only defaults. They travel with database backups and survive History edits; the worker snapshots the database before applying the migration.
+
+### Donkey Calf Raise tracking (v13)
+
+Migration `v13-donkey-calf-raise-weighted` changes the original, unrenamed library row from bodyweight tracking to weight tracking. Set rows and weights are unchanged. The worker takes its usual snapshot before migration.
