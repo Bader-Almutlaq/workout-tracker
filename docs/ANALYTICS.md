@@ -40,8 +40,8 @@ Measure, don't prescribe: every figure describes ("+2.5% vs 4 sessions ago", "no
 
 ### 3. Plan (Analytics tab of a plan)
 
-- Tiles: weeks on the plan (since its first session), sessions per week vs planned workouts ("2.8 of 3"), typical length.
-- **Sets per muscle, per week:** bar = done (average of the last 4 full weeks), tick = planned (from the plan Summary). Tap a muscle → the exercises behind it.
+- Tiles: **Workouts** (total finished sessions), **Per week** (recent window, one decimal, “of 3 planned”), **Typical length**. After more than seven days without a finished session, the Per week detail names the window (“4 wk to 12 Oct”).
+- **Sets per muscle, per week:** bar = done (average over up to four Monday weeks ending with the latest finished session’s week), tick = planned (from the plan Summary). Tap a muscle → the exercises behind it.
 - **Weekly hard sets** and **weekly effort** as two charts on the same weeks (never one chart with two scales).
 - **Progress by workout:** the level-2 exercise rows grouped under each workout of the plan.
 - Removed: session volume. Summary stays the planned view; Analytics is what was done.
@@ -63,8 +63,9 @@ One scrolling page (no Overview / Muscles / Intensity tabs):
 ## Definitions (one implementation each, in WorkoutCore)
 
 - **Estimated 1RM:** report "recommended algorithms" items 1, 2 and 4 (already built: effective reps E = reps + RIR, e1RM = w × (1 + (E − 1)/k), smoothed trend).
-- **Personal curve per lift (item 3, new):** once a lift has ≥ 10 qualifying sets at ≥ 2 rep counts, fit the k that makes sets from the same two weeks agree best, then blend `k = (n × k_yours + 15 × k_start) / (n + 15)`, clamped 8–50. Below that, k_start by lift type. The owner asked for the best method, possibly per exercise; the report's answer is this personalisation. The RTS chart stays as the guide on the Records tab.
+- **Personal curve per lift (item 3, new):** once a lift has ≥ 10 qualifying **near-failure** sets (logged RPE ≥ 8 or failure; self-rated RPE is less accurate further from failure) at ≥ 2 effective-rep counts, fit k using only the best trial e1RM per effective-rep count in each 14-day window (Heuristic: top sets approximate a max and back-offs must not outvote them), then blend `k = (n × k_yours + 15 × k_start) / (n + 15)`, clamped 8–50. Unknown effort never enters fitting but still receives estimates. Below that, k_start by lift type. The owner asked for the best method, possibly per exercise; the report's answer is this personalisation. The RTS chart stays as the guide on the Records tab.
 - **% of 1RM of a set:** weight ÷ the lift's e1RM on that date, where the reference is the larger of the trend and that session's best e1RM, so a set can never exceed 100%. (The old intensity map divided by a lagging trend and showed 133%.)
+- **Recent plan/workout window:** up to four Monday calendar weeks ending with the latest finished session’s week, including that week; fewer weeks since the first session use only available weeks. Sessions per week, done muscle sets and contributions share this denominator. `windowEnd` is the inclusive local ISO Sunday; no history gives null.
 - **Typical length:** median duration of finished sessions in scope, ignoring sessions over `SessionDurationLimits.maximumSeconds` (an imported workout left open made "Time / week" read 87 h).
 - **Change vs 4 sessions ago:** compare the latest non-deload session with the 4th previous non-deload session in the same scope; omitted with fewer sessions.
 - **Effort:** average RIR of completed working sets with logged RPE (RIR = 10 − RPE); sets without RPE are counted as "not logged".

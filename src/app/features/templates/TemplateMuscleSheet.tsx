@@ -24,7 +24,7 @@ export function TemplateMuscleSheet({
   return (
     <BottomSheet title={MUSCLE_DISPLAY_NAMES[row.muscle]} onClose={onClose}>
       <p>
-        {setsText(row.fractional)} · {parts}
+        {setsText(row.fractional)} — {parts}
       </p>
       {row.contributions.map((item) => (
         <div className={styles.contribution} key={item.exerciseId}>

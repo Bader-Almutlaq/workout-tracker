@@ -17,20 +17,18 @@ const summary: TemplateMuscleSummary = {
   ],
 };
 
-test('workout hides untrained muscles and omits zero detail parts', () => {
+test('workout hides untrained muscles and shows separate count columns', () => {
   const html = renderToStaticMarkup(createElement(TemplateMuscleList, { summary, weekly: false }));
   expect(html).not.toContain('Quads');
-  expect(html).toContain('1 direct');
-  expect(html).toContain('1 indirect');
-  expect(html).toContain('2 direct + 1 indirect');
-  expect(html).not.toContain('0 direct');
-  expect(html).not.toContain('0 indirect');
+  expect(html).toContain('>Direct<');
+  expect(html).toContain('>Indirect<');
+  expect(html).toContain('>Triceps</strong> 2.5');
 });
 
-test('plan retains untrained rows and shows only nonzero frequency', () => {
+test('plan hides untrained rows and shows only nonzero frequency', () => {
   const html = renderToStaticMarkup(createElement(TemplateMuscleList, { summary, weekly: true }));
-  expect(html).toContain('Quads');
-  expect(html).toContain('Not trained');
+  expect(html).not.toContain('Quads');
+  expect(html).not.toContain('Not trained');
   expect(html).toContain('1× a week');
   expect(html).toContain('2× a week');
   expect(html).not.toContain('0× a week');

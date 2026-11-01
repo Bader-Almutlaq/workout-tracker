@@ -1,5 +1,5 @@
-// Prints what importing a Strong export would do, without touching any database.
-// Usage: npx tsx tools/import-report.ts [export folder or strong_workouts.csv]   (default: export_data)
+// Prints what importing a Strong export would do; --strength imports into disposable memory only.
+// Usage: npx tsx tools/import-report.ts [export folder or strong_workouts.csv] [--strength "exercise name"]
 //
 // For checking the importer against the owner's real file, which tests must never read (see
 // AGENTS.md). This is the only code that reads `export_data/`.
@@ -17,6 +17,7 @@ import {
 import type { StrongRow } from '../src/core/import/StrongRow';
 import { parseStrongWorkoutsFile } from '../src/core/import/StrongWorkoutsFile';
 import { displayValue } from '../src/core/units/Weight';
+import { printStrengthReport } from './strength-report';
 
 const DEFAULT_EXPORT_FOLDER = 'export_data';
 const EXIT_USAGE = 2;
@@ -50,10 +51,20 @@ function csvFilesIn(path: string): string[] {
     .map((name) => join(path, name));
 }
 
-function main(): void {
-  const [path = DEFAULT_EXPORT_FOLDER, ...extra] = process.argv.slice(2);
-  if (extra.length > 0 || path.startsWith('-')) {
-    process.stderr.write('Usage: npx tsx tools/import-report.ts [export folder or strong_workouts.csv]\n');
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const strengthIndex = args.indexOf('--strength');
+  const strength = strengthIndex < 0 ? undefined : args[strengthIndex + 1];
+  if (strengthIndex >= 0) args.splice(strengthIndex, 2);
+  const [path = DEFAULT_EXPORT_FOLDER, ...extra] = args;
+  if (
+    extra.length > 0 ||
+    path.startsWith('-') ||
+    (strengthIndex >= 0 && (!strength?.trim() || strength.startsWith('-')))
+  ) {
+    process.stderr.write(
+      'Usage: npx tsx tools/import-report.ts [export folder or strong_workouts.csv] [--strength "exercise name"]\n',
+    );
     process.exit(EXIT_USAGE);
   }
 
@@ -114,6 +125,7 @@ function main(): void {
       `  line ${finding.id} ${formatDate(context.workoutStartedAt)} ${context.exerciseName}: ${formatKilograms(context.set.weightKilograms)} kg × ${context.set.reps} — ${finding.issue}, typical ${formatKilograms(finding.typical)}${suggestion}`,
     );
   }
+  if (strength !== undefined) await printStrengthReport(plan, strength);
 }
 
-main();
+await main();

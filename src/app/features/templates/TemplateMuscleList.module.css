@@ -88,3 +88,29 @@
   text-align: right;
   white-space: nowrap;
 }
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4rem 4rem;
+  gap: var(--space-xs);
+  align-items: center;
+  font: var(--font-caption);
+}
+.columns span:not(:first-child) {
+  text-align: right;
+}
+.columns strong {
+  color: var(--color-text-primary);
+}
+.section .compact {
+  font: var(--font-caption);
+  background: transparent;
+}
+.smallerHeading {
+  font: var(--font-caption);
+  color: var(--color-text-secondary);
+}
+.track,
+.bar {
+  display: block;
+}

@@ -1,3 +1,4 @@
+import type { PersonalCurve } from '../analytics/PersonalCurve';
 import { estimatedOneRepMax } from '../analytics/EstimatedOneRepMax';
 import { strengthTrend, type StrengthObservation } from '../analytics/StrengthTrend';
 import type { Database } from '../db/Database';
@@ -36,12 +37,21 @@ export interface ExerciseProgressWorkout {
   readonly weekday: number | null;
 }
 
+/** A qualifying source set and its session date, with load in kilograms. */
+export interface ProgressEstimateSource {
+  readonly date: string;
+  readonly set: Pick<WorkoutSet, 'weightKilograms' | 'reps' | 'rpe' | 'kind'>;
+}
+
 /** Per-session progress in chronological order, one exercise and optional saved workout/machine. All loads in kg. */
 export interface ExerciseProgressReport {
   readonly sessions: readonly ExerciseProgressSession[];
   readonly trendNow: number | null;
   readonly bestEstimate: { readonly value: number; readonly date: string } | null;
   readonly changes: ExerciseProgressChanges | null;
+  readonly bestEstimateSource: ProgressEstimateSource | null;
+  readonly latestEstimateSource: ProgressEstimateSource | null;
+  readonly curve: PersonalCurve | null;
   readonly otherWorkouts: readonly ExerciseProgressWorkout[];
   readonly machineBrands: readonly (string | null)[];
 }
@@ -63,6 +73,8 @@ export function ExerciseProgress(
   const history = machine === undefined ? all : ExerciseSeries.filterMachine(all, machine);
   const observations: StrengthObservation[] = [];
   let bestEstimate: ExerciseProgressReport['bestEstimate'] = null;
+  let bestEstimateSource: ProgressEstimateSource | null = null;
+  const sources: ProgressEstimateSource[] = [];
   const sessions = history.sessions.map((session): ExerciseProgressSession => {
     const work = session.sets.filter((set) => isWorkSetKind(set.kind));
     const topSet = work.reduce<WorkoutSet | null>(
@@ -76,16 +88,32 @@ export function ExerciseProgress(
     );
     const effort = work.flatMap((set) => (set.rpe === null ? [] : [set.rpe]));
     let best: ReturnType<typeof estimatedOneRepMax> = null;
+    let bestSet: WorkoutSet | null = null;
     for (const set of work) {
       const estimate = history.exercise === null ? null : estimatedOneRepMax(set, history.exercise);
-      if (estimate !== null && (best === null || estimate.e1rmKilograms > best.e1rmKilograms)) best = estimate;
+      if (estimate !== null && (best === null || estimate.e1rmKilograms > best.e1rmKilograms)) {
+        best = estimate;
+        bestSet = set;
+      }
     }
     const isDeload = session.deloadEntryIds.length > 0;
     if (best !== null) {
-      if (!isDeload)
+      if (!isDeload) {
         observations.push({ date: session.date, e1rmKilograms: best.e1rmKilograms, trendWeight: best.trendWeight });
-      if (bestEstimate === null || best.e1rmKilograms > bestEstimate.value)
+        if (bestSet !== null)
+          sources.push({
+            date: session.date,
+            set: { weightKilograms: bestSet.weightKilograms, reps: bestSet.reps, rpe: bestSet.rpe, kind: bestSet.kind },
+          });
+      }
+      if (bestEstimate === null || best.e1rmKilograms > bestEstimate.value) {
         bestEstimate = { value: best.e1rmKilograms, date: session.date };
+        if (bestSet !== null)
+          bestEstimateSource = {
+            date: session.date,
+            set: { weightKilograms: bestSet.weightKilograms, reps: bestSet.reps, rpe: bestSet.rpe, kind: bestSet.kind },
+          };
+      }
     }
     return {
       date: session.date,
@@ -120,9 +148,14 @@ export function ExerciseProgress(
   `,
     [templateId ?? null, templateId ?? null, exerciseId],
   );
+  const trend = strengthTrend(observations, now);
+  const acceptedIndex = trend.trend.findLastIndex((point) => !point.isHeld);
   return {
     sessions,
-    trendNow: strengthTrend(observations, now).latest,
+    trendNow: trend.latest,
+    bestEstimateSource,
+    latestEstimateSource: sources[acceptedIndex] ?? null,
+    curve: history.exercise?.strengthCurve ?? null,
     bestEstimate,
     changes,
     otherWorkouts,

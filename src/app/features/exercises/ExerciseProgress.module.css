@@ -40,3 +40,7 @@
   flex-wrap: wrap;
   gap: var(--space-s);
 }
+button.tile {
+  color: var(--color-text-primary);
+  text-align: left;
+}

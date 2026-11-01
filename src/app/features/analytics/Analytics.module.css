@@ -192,7 +192,7 @@
 }
 .lift {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 4rem auto;
+  grid-template-columns: minmax(0, 1fr) 4rem 5rem;
   gap: var(--space-s);
   align-items: center;
   color: var(--color-text-primary);
@@ -222,9 +222,10 @@
   background: var(--color-accent);
 }
 .pins {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: var(--space-s);
+  align-items: start;
+  overflow-x: auto;
 }
 .pin {
   border: var(--hairline) solid var(--color-border);
@@ -257,6 +258,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-s);
+}
+.suggestions {
+  margin-bottom: var(--space-s);
+}
+.suggestions button:disabled {
+  color: var(--color-text-secondary);
 }
 .suggestions button {
   min-height: 44px;
@@ -294,12 +301,42 @@
   white-space: nowrap;
   text-decoration: none;
 }
-.pin details {
+.pin {
   position: relative;
 }
+.pin a {
+  padding-right: 44px;
+}
+.pin details {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 .pin summary {
+  display: grid;
+  place-items: center;
+  width: 44px;
   min-height: 44px;
+  list-style: none;
+  color: var(--color-text-secondary);
   cursor: pointer;
+}
+.pin summary::-webkit-details-marker {
+  display: none;
+}
+.pin details[open] {
+  z-index: 1;
+  border: var(--hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-small);
+  background: var(--color-surface-raised);
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .table tr {
   position: relative;
@@ -324,4 +361,20 @@
   display: block;
   max-width: 100%;
   min-height: 44px;
+}
+
+.liftHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4rem 5rem;
+  gap: var(--space-s);
+  color: var(--color-text-secondary);
+  font: var(--font-caption);
+}
+.liftHeader span:last-child {
+  text-align: right;
+}
+
+.pin {
+  flex: 0 0 calc((100% - var(--space-s)) / 2);
+  min-height: 11rem;
 }

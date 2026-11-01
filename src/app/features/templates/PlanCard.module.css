@@ -77,3 +77,9 @@
   color: var(--color-accent);
   text-decoration: none;
 }
+
+.workouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}

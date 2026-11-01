@@ -109,6 +109,10 @@ Check this first and update it last (see `docs/agents/WORKFLOW.md`). Newest mile
 | [T-079](T-079-workout-and-plan-analytics.md) | Workout and plan Analytics tabs | done (two rounds) | Codex Terra (high), reviewed by lead | merged |
 | [T-080](T-080-analytics-tab-polish.md) | Analytics tab polish | done (lead fixed weekly chart labels) | Codex Terra (high), reviewed by lead | merged |
 | [T-081](T-081-workout-plan-analytics-polish.md) | Workout and plan analytics polish | done | Codex Terra (high), reviewed by lead | merged |
+| [T-082](T-082-estimate-and-data-fixes.md) | e1RM fit uses near-failure sets; lower traps; plan tiles; empty weeks as gaps | done (lead narrowed the fit after checking the real export) | Codex Sol (high), reviewed by lead | merged |
+| [T-083](T-083-chart-system.md) | One chart system: compact, trend line, press-and-drag readout, landscape zoom | in progress | Codex Sol (high) | task/T-083-chart-system |
+| [T-084](T-084-screen-polish.md) | Screen polish: no dot strings, muscles list, progress rows, pins, live boxes | in progress | Codex Terra (high) | task/T-084-screen-polish |
+| [T-085](T-085-richer-workout-and-plan-analytics.md) | Workout cards with three trends; plan muscles and effort | open (after T-083, T-084) | | |
 
 ## Next milestones (tasks are written when the milestone starts)
 

@@ -42,11 +42,17 @@ export function PlanCard({
         <span>
           {folder.templates.length} {folder.templates.length === 1 ? 'workout' : 'workouts'}
         </span>
-        <p>
-          {folder.templates.length === 0
-            ? 'Add your first workout'
-            : folder.templates.map((template) => template.name).join(' · ')}
-        </p>
+        {folder.templates.length === 0 ? (
+          <p>Add your first workout</p>
+        ) : (
+          <div className={styles.workouts}>
+            {folder.templates.map((template) => (
+              <Chip key={template.id} tone="neutral">
+                {template.name}
+              </Chip>
+            ))}
+          </div>
+        )}
         <span>{lastDoneText(folder.lastStartedAt, now)?.replace('Last done ', 'Last: ') ?? 'Last: never'}</span>
       </Link>
       {isActive && today !== undefined && (

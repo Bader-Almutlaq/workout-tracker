@@ -1,8 +1,8 @@
 import type { ExerciseCatalogDetail } from '../../../core/queries/ExerciseCatalog';
+import { Chip } from '../../design/components/Chip';
 import { Section, SectionRow } from '../../design/components/Section';
 import { dayWithYearText } from '../../format/dateText';
 import { weightText } from '../../format/weightText';
-import { setCountsText } from '../history/setCountsText';
 import { ExerciseActions } from './ExerciseActions';
 import { exerciseTraitsText } from './exerciseText';
 import { MuscleChips } from './MuscleChips';
@@ -18,13 +18,33 @@ export function ExerciseSummaryTab({ detail }: { readonly detail: ExerciseCatalo
     <>
       <Section label="Muscles">
         <MuscleChips primary={detail.primaryMuscles} secondary={detail.secondaryMuscles} />
-        {traits !== '' && <p className={styles.traits}>{traits}</p>}
+        {traits !== '' && (
+          <div className={styles.usageTraits}>
+            {traits.split(' · ').map((trait) => (
+              <Chip key={trait} tone="neutral">
+                {trait}
+              </Chip>
+            ))}
+          </div>
+        )}
       </Section>
       <Section label="Usage">
-        <SectionRow
-          label="Logged"
-          value={`${detail.workoutCount} sessions · ${setCountsText(detail.setCount, detail.warmupCount ?? 0)}`}
-        />
+        <div className={styles.usageTiles}>
+          <div>
+            <strong>{detail.workoutCount}</strong>
+            <span>Sessions</span>
+          </div>
+          <div>
+            <strong>{detail.setCount}</strong>
+            <span>Working sets</span>
+          </div>
+          {(detail.warmupCount ?? 0) > 0 && (
+            <div>
+              <strong>{detail.warmupCount}</strong>
+              <span>Warm-ups</span>
+            </div>
+          )}
+        </div>
         {detail.firstUsedAt !== null && (
           <SectionRow label="First" value={dayWithYearText(detail.firstUsedAt.toISOString())} />
         )}

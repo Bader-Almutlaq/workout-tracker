@@ -297,7 +297,7 @@
       "pattern": "shoulder-abduction",
       "mechanic": "isolation",
       "primary": ["side-delt"],
-      "secondary": ["rear-delt"],
+      "secondary": ["rear-delt", "lower-traps"],
       "lengthened": true,
       "aliases": ["y raise", "cable y raise"],
       "variants": ["cable"]
@@ -323,7 +323,7 @@
       "pattern": "rear-delt-fly",
       "mechanic": "isolation",
       "primary": ["rear-delt"],
-      "secondary": ["upper-back"],
+      "secondary": ["upper-back", "lower-traps"],
       "aliases": ["rear delt fly", "rear fly", "reverse flye", "bent over reverse fly"],
       "variants": [
         "dumbbell",
@@ -343,7 +343,7 @@
       "pattern": "rear-delt-fly",
       "mechanic": "isolation",
       "primary": ["rear-delt"],
-      "secondary": ["upper-back"],
+      "secondary": ["upper-back", "lower-traps"],
       "aliases": ["incline reverse fly", "45 degree reverse fly", "prone reverse fly"],
       "variants": ["dumbbell"]
     },
@@ -352,7 +352,7 @@
       "pattern": "rear-delt-fly",
       "mechanic": "compound",
       "primary": ["rear-delt"],
-      "secondary": ["upper-back", "rotator-cuff"],
+      "secondary": ["upper-back", "rotator-cuff", "lower-traps"],
       "variants": ["cable", "band"]
     },
     {
@@ -4425,7 +4425,7 @@
       "movement": "Reverse Fly With External Rotation",
       "pattern": "rear-delt-fly",
       "primary": ["rear-delt"],
-      "secondary": ["rotator-cuff"]
+      "secondary": ["rotator-cuff", "lower-traps"]
     },
     "Reverse_Grip_Bent-Over_Rows": {
       "action": "match",
@@ -4930,6 +4930,7 @@
     "Sled_Reverse_Flye": {
       "action": "new",
       "movement": "Sled Reverse Fly",
+      "secondary": ["lower-traps"],
       "pattern": "rear-delt-fly",
       "equipment": "weighted",
       "reason": "Reviewed implement: Weighted.",

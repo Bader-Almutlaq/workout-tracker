@@ -135,3 +135,23 @@ it('does not claim a custom exercise when an expansion adds the same name', asyn
     db.close();
   }
 });
+
+it('seeds ten direct lower-trap variants without tagging rows or pulldowns', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db);
+    const bundled = ExerciseLibrary.bundled();
+    expect(ExerciseLibrarySeeder.seed(db, bundled, now).inserted).toBe(bundled.exercises.length);
+    expect(db.value(`SELECT COUNT(*) FROM exerciseMuscle WHERE muscleId = 'lower-traps' AND role = 'secondary'`)).toBe(
+      10,
+    );
+    expect(
+      db.value(`
+      SELECT COUNT(*) FROM exerciseMuscle em JOIN exercise e ON e.id = em.exerciseId
+      WHERE em.muscleId = 'lower-traps' AND (e.name LIKE '%Row%' OR e.name LIKE '%Pulldown%')
+    `),
+    ).toBe(0);
+  } finally {
+    db.close();
+  }
+});
