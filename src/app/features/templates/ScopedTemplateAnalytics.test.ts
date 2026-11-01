@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router';
 import { expect, it } from 'vitest';
 import type { TemplateAnalytics } from '../../../core/queries/TemplateAnalytics';
+import layout from './TemplateAnalytics.module.css';
 import { ScopedTemplateAnalyticsContent } from './ScopedTemplateAnalyticsContent';
 
 type Report = ReturnType<typeof TemplateAnalytics>;
@@ -72,4 +73,71 @@ it('orders plan sections and shows done and planned muscle sets', () => {
 });
 it('shows the empty state for either scope', () => {
   for (const plan of [true, false]) expect(render(plan, { ...report, sessionCount: 0 })).toContain('No sessions yet');
+});
+
+it('uses dated axes, short chart headings and a three-tile container', () => {
+  const html = render(false);
+  expect(html).toContain('Jan');
+  expect(html).toContain('sets</text>');
+  expect(html).toContain('RIR</text>');
+  expect(html.match(/Show as table/g)).toHaveLength(2);
+  expect(html).not.toMatch(/<h2>[^<]*[Ee]ach/);
+  expect(html).toContain('role="slider"');
+  for (const plan of [false, true]) {
+    expect(render(plan)).toContain(layout.tiles);
+  }
+});
+
+it('hides muscles with neither done nor planned sets', () => {
+  const html = render(true, {
+    ...report,
+    musclesDoneVsPlanned: [
+      ...report.musclesDoneVsPlanned,
+      { muscle: 'biceps', done: 0, planned: 0, contributions: [] },
+    ],
+  });
+  expect(html).not.toContain('Biceps');
+  expect(html).toContain('Show smaller muscles');
+});
+
+it('uses top-set load and the four-session comparison when an estimate is absent', () => {
+  const group = report.exercises[0];
+  const exercise = group?.exercises[0];
+  if (!group || !exercise) throw new Error('Missing fixture');
+  const topSet = { weightKilograms: 80, reps: 20, rpe: null };
+  const value: Report = {
+    ...report,
+    exercises: [
+      {
+        ...group,
+        exercises: [
+          {
+            ...exercise,
+            sessions: [
+              {
+                ...exercise.sessions[0],
+                date: '2026-01-05',
+                workoutId: 1,
+                isDeload: false,
+                bestEstimatedOneRepMax: null,
+                topSet,
+                workingSetCount: 2,
+                averageRpe: null,
+              },
+            ],
+            latestTopSet: topSet,
+            changes: {
+              estimatedOneRepMaxPercent: null,
+              topSet: { before: { ...topSet, weightKilograms: 70 }, after: topSet },
+              workingSetCount: { before: 2, after: 2 },
+            },
+          },
+        ],
+      },
+    ],
+  };
+  const html = render(false, value);
+  expect(html).toContain('80 kg');
+  expect(html).toContain('top set');
+  expect(html).toContain('70 → 80 kg');
 });

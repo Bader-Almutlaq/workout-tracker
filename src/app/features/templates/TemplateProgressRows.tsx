@@ -11,20 +11,27 @@ export function TemplateProgressRows({ exercises }: { readonly exercises: Group[
         const latest = exercise.sessions.at(-1)?.bestEstimatedOneRepMax ?? null;
         const counts = exercise.changes?.workingSetCount;
         const top = exercise.latestTopSet;
+        const fallback = latest === null && top !== null;
+        const comparison = exercise.changes?.topSet;
+        const before = comparison?.before;
+        const after = comparison?.after;
         return (
           <LiftRow
             key={exercise.exerciseId}
             to={workoutExercisePath(exercise.templateId, exercise.exerciseId)}
             name={exercise.name}
-            value={latest === null ? '—' : `${latest.toFixed(1)} kg`}
-            change={exercise.changes?.estimatedOneRepMaxPercent ?? null}
-            points={exercise.sessions.flatMap((session) =>
-              session.bestEstimatedOneRepMax === null
-                ? []
-                : [{ value: session.bestEstimatedOneRepMax, deload: session.isDeload }],
-            )}
+            value={latest === null ? (top === null ? '—' : `${top.weightKilograms} kg`) : `${latest.toFixed(1)} kg`}
+            change={fallback ? null : (exercise.changes?.estimatedOneRepMaxPercent ?? null)}
+            changeText={
+              fallback && before && after ? `${before.weightKilograms} → ${after.weightKilograms} kg` : undefined
+            }
+            points={exercise.sessions.flatMap((session) => {
+              const value = fallback ? session.topSet?.weightKilograms : session.bestEstimatedOneRepMax;
+              return value === null || value === undefined ? [] : [{ value, deload: session.isDeload }];
+            })}
             detail={
               <>
+                {fallback && <small>top set</small>}
                 <small>
                   {top === null
                     ? 'No top set yet'

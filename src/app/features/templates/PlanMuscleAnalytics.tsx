@@ -10,7 +10,9 @@ type Report = ReturnType<typeof TemplateAnalytics>;
 export function PlanMuscleAnalytics({ report }: { readonly report: Report }) {
   const [smaller, setSmaller] = useState(false);
   const [selected, setSelected] = useState<Report['musclesDoneVsPlanned'][number] | null>(null);
-  const rows = report.musclesDoneVsPlanned.filter((row) => smaller || isMainMuscle(row.muscle));
+  const rows = report.musclesDoneVsPlanned.filter(
+    (row) => ((row.done !== null && row.done !== 0) || row.planned !== 0) && (smaller || isMainMuscle(row.muscle)),
+  );
   const max = Math.max(1, ...rows.map((row) => Math.max(row.done ?? 0, row.planned)));
   const number = (value: number | null) =>
     value === null ? '—' : new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(value);
@@ -18,7 +20,8 @@ export function PlanMuscleAnalytics({ report }: { readonly report: Report }) {
     <section className={styles.chart}>
       <h2>Sets per muscle, per week</h2>
       <p>
-        Done · Planned · last {report.weeksAvailable} full {report.weeksAvailable === 1 ? 'week' : 'weeks'}
+        Done <span className={styles.legendTick} aria-hidden="true" /> Planned · last {report.weeksAvailable} full{' '}
+        {report.weeksAvailable === 1 ? 'week' : 'weeks'}
       </p>
       <button type="button" onClick={() => setSmaller(!smaller)}>
         {smaller ? 'Hide smaller muscles' : 'Show smaller muscles'}

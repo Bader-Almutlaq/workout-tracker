@@ -246,3 +246,5 @@ Weekly sets and effort use the shared dated chart with unit-labelled axes, selec
 ### Workout and plan analytics (T-079)
 
 Workout Analytics shows sessions, median length and last working sets against planned sets, followed by scoped exercise progress, per-session hard sets and logged effort. Plan muscle bars compare average completed fractional sets over available full weeks (up to four) with the planned weekly total; tapping a muscle opens its exercise contributions. Deloads are yellow and excluded from progress changes. Charts retain session or weekly dates, selection and tables.
+
+Workout and plan Analytics use three equal-width, wrapping summary tiles. Session charts use the shared dated axes and touch selection, with a table and yellow deload points. Weekly chart headings stay short; their takeaway explains what each point represents. Plan muscle bars omit muscles with neither completed nor planned sets, and a tall primary-text tick marks planned sets in both the bar and legend. Exercise rows without an estimate show the latest top-set load and the comparison between four non-deload sessions ago and the latest non-deload session.

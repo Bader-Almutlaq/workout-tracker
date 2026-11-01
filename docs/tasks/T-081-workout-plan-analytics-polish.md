@@ -23,4 +23,9 @@ The lead checked the workout and plan Analytics tabs at 430 × 932 with a synthe
 
 ## Handoff
 
-_Fill in at the end of the session._
+- Replaced the workout session plots with the shared dated chart axes and touch rule, including deload points and tables; shortened weekly chart headings and moved mark descriptions into takeaways.
+- Scoped summary tiles to three equal columns, hid 0/0 muscle rows, and made planned ticks and their legend visible. Exercise rows fall back to top-set loads, with the two comparison weights shown directly; a missing comparable pair remains a dash.
+- Updated `docs/DESIGN.md`; changes are in the Analytics shared charts/row and the template Analytics components, styles and tests. The only public API change is the optional `changeText` prop on `LiftRow`.
+- `make format` and `make verify` passed: 198 test files, 1,319 tests; production build completed with the existing large-chunk warning.
+- Visual verification remains outstanding: `make dev` failed with `listen EPERM` on port 5173, and the browser access host was unavailable. Dark/light appearance and horizontal scrolling at 430 × 932 require a follow-up check. A session with no recorded working top set still has no load to display.
+
