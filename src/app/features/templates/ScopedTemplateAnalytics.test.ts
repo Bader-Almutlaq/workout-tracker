@@ -60,8 +60,8 @@ it('orders workout sections, links the scoped exercise and marks deloads', () =>
   expect(html.indexOf('Exercise progress')).toBeLessThan(html.indexOf('Hard sets per session'));
   expect(html.indexOf('Hard sets per session')).toBeLessThan(html.indexOf('Effort per session'));
   expect(html).toContain('/workout/workouts/4/exercises/8');
-  expect(html).toContain('var(--color-deload)');
-  expect(html).toContain('RPE 8.0');
+  expect(html).toContain('Deload');
+  expect(html).toContain('2.0 RIR');
 });
 it('orders plan sections and shows done and planned muscle sets', () => {
   const html = render(true);
@@ -81,9 +81,10 @@ it('uses dated axes, short chart headings and a three-tile container', () => {
   expect(html).toContain('Jan');
   expect(html).toContain('sets</text>');
   expect(html).toContain('RIR</text>');
-  expect(html.match(/Show as table/g)).toHaveLength(2);
+  expect(html.match(/<table/g)?.length).toBeGreaterThanOrEqual(2);
+  expect(html).not.toContain('Show as table');
   expect(html).not.toMatch(/<h2>[^<]*[Ee]ach/);
-  expect(html).toContain('role="slider"');
+  expect(html).toContain('use arrow keys to inspect values');
   for (const plan of [false, true]) {
     expect(render(plan)).toContain(layout.tiles);
   }

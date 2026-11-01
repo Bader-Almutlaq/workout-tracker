@@ -83,4 +83,36 @@ The owner's review on their iPhone (2026-11-02), about every chart in the app:
 
 ## Handoff
 
-_Fill in at the end of the session._
+Implementation is ready for review, with the core-data and device-validation limitations below. Changes are uncommitted. The task board, shared tokens, worker API, schema and existing core files are unchanged.
+
+### Files and public API
+
+- Added `src/app/design/charts/TimeChart.tsx`, `TimeChart.types.ts`, `TimeChartCanvas.tsx`, `TimeChartExpanded.tsx`, `TimeChartMarks.tsx`, `TimeChartLegend.tsx`, `TimeChartCallout.tsx`, `TimeChartTable.tsx`, `timeChartModel.ts`, `timeChartMath.ts`, `chartTimestamp.ts`, `chartPeriodText.ts`, `useTimeChartGesture.ts` and `TimeChart.module.css`, with adjacent tests. Updated `ChartFrame`, `chartScales`, their CSS/tests and `useChartSize`.
+- Retired LongRangeChart/Plot/Sheet and their tests/CSS, TouchRule, the old trend/dot/comparison/classification renderers and the obsolete progress palette. There are no remaining imports of the retired components.
+- Migrated ExerciseProgressChart and its caller, ExerciseChart, ExerciseTimedCharts, the chart in StrengthCard, MeasurementChart, WeeklySetsChart, WeeklyEffortChart, WeeklyCharts, the muscle page chart, SessionEffortChart and the plan chart call site in ScopedTemplateAnalyticsContent. Removed obsolete exercise chart CSS and updated affected chart assertions. List sparklines, tiles and RPE grids are unchanged.
+- Added `src/core/analytics/LinearTrend.ts` and its pure tests. `LinearTrend(points)` returns `{ origin, slopePerDay, intercept }` in caller units, or null with fewer than three finite observations/no time variance. Equation: `value = intercept + slopePerDay × daysSinceOrigin`.
+- `TimeChart` takes the brief's typed inputs. `TimeChartPoint` additionally accepts `sessionId` and `deload`. Optional `loadHistory(): Promise<readonly TimeChartSeries[]>` supports full-history expansion from period-filtered pages; failures are logged and surfaced. `onOpenPoint` receives the original source observation. WeeklyCharts takes `completeHistory` for already-scoped plan data.
+- Rewrote DESIGN.md Charts and removed conflicting LongRange, persistent-readout and takeaway descriptions. The lead should add LinearTrend and TimeChart ownership rows to ARCHITECTURE.md; that shared file is outside this scope.
+
+### Interpretations
+
+- Inline shows all data supplied by the page; expansion loads all history when the page supplied only a period. Expansion starts on the latest six calendar months, double-tap resets to all, and zoom bottoms out at two weeks or the shorter history. At closest zoom individual sessions are preserved even if dense.
+- Inline release/cancel clears immediately. Expanded short taps retain the bubble so its Open control can be used; drags/holds clear on release. Vertical inline movement yields to page scrolling; a winning hold blocks subsequent native touchmove scrolling. Actual Safari arbitration remains to be checked on the phone.
+- Null-only buckets always break paths; up to two absent calendar buckets can be bridged, longer gaps split. No values are zero-filled by the chart. Civil date keys are interpreted in the local calendar.
+- Numeric aggregation delegates to the unchanged TimeBuckets implementation. Quarter boundaries and consecutive-quarter grouping for very long histories live in display math, respecting the restriction on existing core files. Mixed buckets use only their non-deload source observations for regression. The existing categorical colour values are unchanged; the primary series uses accent and yellow is reserved for deload.
+
+### Verification and remaining work
+
+- `make format` and `make verify` passed: 202 test files, 1,346 tests. Checks include lint, strict type checks, all tests and production/PWA build. New tests cover regression's hand-computed example; bucket choice/combination; nulls/gaps; mixed deloads; clipping; calendar dates; nearest marks; zoom clamping; rotated coordinates; bubble clamping; rendering/legends/tables; gesture lifecycle, pan/pinch/reset; and scoped versus full-history loading.
+- **Core-data limitation:** WeeklyEffort currently exposes `hasDeload` (any deload in the week), not whether all sessions were deloads or a separate non-deload aggregate. The shared renderer correctly handles raw session mixtures, but weekly adapters can only preserve the supplied flag: a mixed week can still appear yellow and be wholly excluded from regression. Precise weekly colouring and partial-week regression exclusion require richer core metadata, outside this task's permitted core scope.
+- **T-082 dependency:** current weekly core reports still zero-fill no-session weeks. The chart preserves nulls/omissions and does not infer that a real zero means missing. Merge T-082's missing-week fix before accepting weekly gaps end to end.
+- **Device/visual validation remains:** references were inspected as images, but live 430 × 932 light/dark and portrait/landscape checks could not run. `make dev` failed with sandbox `listen EPERM` (loopback binding is also denied). Computer Use denied access to Zen without a further reason. A synthetic static rendering was generated under `/tmp`, but could not be viewed in the browser. Real iPhone Safari should verify safe-area rotation, hold-versus-scroll arbitration, pinch/pan, transient callouts, Table and Open navigation before sign-off.
+- Build succeeds with the existing large-chunk warning and an ineffective-dynamic-import warning: the deferred database import delays the full-history query, but does not create a separate chunk because other screens already import the database statically.
+
+### Lead review (browser, 430 × 932, dark and light, synthetic 16-week history)
+
+- Inline charts, legend with trend, expand icon, callout above the plot on press-and-drag and clearing on release, and the rotated landscape view all checked.
+- Changed bucket choice: sessions are shown individually whenever they fit the mark budget, however long the span (the expanded view opened weekly even with 49 sessions).
+- Changed gap splitting for day/session marks: a break needs a spacing over three times the series' median spacing, so a lift trained weekly (or a weekly series) is a line, not loose dots. Calendar buckets keep the "two empty buckets" rule.
+- Readout weights round to one decimal. Added the TimeChart and LinearTrend rows to ARCHITECTURE.md.
+- Not checked: real iPhone Safari (hold-versus-scroll, pinch, safe areas when rotated).

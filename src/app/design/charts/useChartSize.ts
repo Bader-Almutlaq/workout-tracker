@@ -7,13 +7,13 @@ import { ChartLayout } from './chartScales';
  */
 export function useChartSize(height?: number) {
   const ref = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState<number>(ChartLayout.minimumWidth);
+  const [width, setWidth] = useState<number>(ChartLayout.fallbackWidth);
   useLayoutEffect(() => {
     const container = ref.current;
     if (container === null) return;
-    setWidth(container.clientWidth);
+    if (container.clientWidth > 0) setWidth(container.clientWidth);
     const observer = new ResizeObserver(([entry]) => {
-      if (entry !== undefined) setWidth(entry.contentRect.width);
+      if (entry !== undefined && entry.contentRect.width > 0) setWidth(entry.contentRect.width);
     });
     observer.observe(container);
     return () => observer.disconnect();

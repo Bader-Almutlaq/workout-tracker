@@ -10,21 +10,18 @@ const points = [
   { date: '2026-01-08', value: 99 },
 ];
 
-test('fewer than two session points hide the chart behind a one-line note', () => {
-  for (const subset of [[], points.slice(0, 1)]) {
+test('empty, single-point and populated charts share the compact accessible frame', () => {
+  for (const subset of [[], points.slice(0, 1), points]) {
     const markup = renderToStaticMarkup(
-      createElement(ExerciseChart, { title: 'Synthetic chart', points: subset, formatValue: String }),
+      createElement(ExerciseChart, { title: 'Synthetic chart', unit: 'kg', points: subset, formatValue: String }),
     );
-    expect(markup).toContain('at least two qualifying sessions');
-    expect(markup).not.toContain('<svg');
+    expect(markup).toContain('Expand Synthetic chart');
+    expect(markup).toContain('<table');
+    expect(markup).not.toContain('Show as table');
     expect(markup).not.toContain('Tap to expand');
+    if (subset.length === 0) expect(markup).toContain('No data in this range.');
+    else expect(markup).toContain('<svg');
   }
-  const markup = renderToStaticMarkup(
-    createElement(ExerciseChart, { title: 'Synthetic chart', points, formatValue: String }),
-  );
-  expect(markup).toContain('<svg');
-  expect(markup).toContain('Open Synthetic chart full screen');
-  expect(markup).toContain('Show as table');
 });
 
 test('predictions remain visible with no performance and use shared kg/lb estimate rounding', () => {

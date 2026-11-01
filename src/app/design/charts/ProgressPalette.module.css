@@ -1,6 +1,0 @@
-/* DESIGN.md categorical slots 1–3, paired by the browser's active color scheme. */
-.colors {
-  --progress-blue: light-dark(#2a78d6, #3987e5);
-  --progress-orange: light-dark(#eb6834, #d95926);
-  --progress-aqua: light-dark(#1baf7a, #199e70);
-}

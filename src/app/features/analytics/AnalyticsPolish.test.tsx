@@ -20,10 +20,11 @@ test('weekly charts show dated axes, units, deload marks and a table', () => {
     const html = renderToStaticMarkup(chart);
     expect(html).toContain(unit);
     expect(html).toContain('Jan');
-    expect(html).toContain('Show as table');
+    expect(html).toContain('<table');
+    expect(html).not.toContain('Show as table');
     expect(html).toContain('Deload');
   }
-  expect(renderToStaticMarkup(<WeeklyEffortChart points={points} />)).toContain('Lower = harder');
+  expect(renderToStaticMarkup(<WeeklyEffortChart points={points} />)).not.toContain('Lower = harder');
 });
 
 test('muscle rows link to detail and group untrained muscles with signed colours', () => {

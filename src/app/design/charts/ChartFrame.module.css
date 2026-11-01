@@ -3,13 +3,6 @@
   width: 100%;
   overflow: hidden;
 }
-.fadeStart {
-  stop-color: var(--color-accent-subtle);
-  stop-opacity: 0;
-}
-.fadeEnd {
-  stop-color: var(--color-accent-subtle);
-}
 .grid {
   stroke: var(--color-border);
   stroke-width: var(--hairline);
@@ -18,28 +11,4 @@
   fill: var(--color-text-tertiary);
   font: var(--font-caption);
   font-variant-numeric: tabular-nums;
-}
-.trend {
-  fill: none;
-  stroke: var(--color-accent);
-  stroke-width: 2;
-}
-.dot {
-  fill: var(--color-accent);
-  opacity: 0.35;
-}
-.ring {
-  fill: var(--color-surface);
-  stroke: var(--color-accent);
-  stroke-width: 2;
-}
-.rule {
-  stroke: var(--color-text-secondary);
-  stroke-width: 1;
-  pointer-events: none;
-}
-.touch {
-  fill: transparent;
-  touch-action: none;
-  cursor: crosshair;
 }
