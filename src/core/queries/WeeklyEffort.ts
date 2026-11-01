@@ -5,7 +5,7 @@ import type { SetKind } from '../models/SetKind';
 import type { TemplateSessionScope } from './TemplateSessions';
 import { localDateKey } from '../support/localDate';
 
-/** One Monday week of hard sets and mean logged RIR; no logged effort yields null. */
+/** One Monday week with a finished session in scope; zero hard sets is real, while no logged effort yields null. */
 export interface WeeklyEffortPoint {
   readonly weekStart: string;
   readonly hardSets: number;
@@ -28,7 +28,7 @@ export function summarizeEffort(rows: readonly { readonly kind: SetKind; readonl
   };
 }
 
-/** Inclusive local date range, zero-filled by Monday week; muscle selects direct exercises. */
+/** Inclusive local date range; unlogged weeks are omitted. Muscle selects direct exercises, retaining zero-set session weeks. */
 export function WeeklyEffort(
   db: Database,
   from: Date,
@@ -39,40 +39,39 @@ export function WeeklyEffort(
   if (!Number.isFinite(from.getTime()) || !Number.isFinite(to.getTime()) || from > to) return [];
   const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
   const end = new Date(to.getFullYear(), to.getMonth(), to.getDate() + 1);
-  const monday = new Date(start);
-  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % Week.days));
   const weeks = new Map<string, { hardSets: number; rir: number; logged: number; hasDeload: boolean }>();
-  for (const cursor = new Date(monday); cursor < end; cursor.setDate(cursor.getDate() + Week.days)) {
-    weeks.set(localDateKey(cursor), { hardSets: 0, rir: 0, logged: 0, hasDeload: false });
-  }
-  const rows = db.all<{ startedAt: string; kind: SetKind; rpe: number | null; deloadStage: number | null }>(
+  const rows = db.all<{ startedAt: string; kind: SetKind | null; rpe: number | null; deloadStage: number | null }>(
     `
     SELECT w.startedAt, s.kind, s.rpe, we.deloadStage FROM workout w
-    JOIN workoutExercise we ON we.workoutId = w.id JOIN workoutSet s ON s.workoutExerciseId = we.id
-    WHERE w.isInProgress = 0 AND s.isCompleted = 1 AND s.kind != 'warmup'
+    LEFT JOIN workoutExercise we ON we.workoutId = w.id
+      AND (? IS NULL OR EXISTS (SELECT 1 FROM exerciseMuscle em WHERE em.exerciseId = we.exerciseId AND em.muscleId = ? AND em.role = 'primary'))
+    LEFT JOIN workoutSet s ON s.workoutExerciseId = we.id AND s.isCompleted = 1 AND s.kind != 'warmup'
+    WHERE w.isInProgress = 0
       AND w.startedAt >= ? AND w.startedAt < ?
       AND (? IS NULL OR w.templateId = ?)
       AND (? IS NULL OR w.templateId IN (SELECT id FROM template WHERE folderId = ?))
-      AND (? IS NULL OR EXISTS (SELECT 1 FROM exerciseMuscle em WHERE em.exerciseId = we.exerciseId AND em.muscleId = ? AND em.role = 'primary'))
+    ORDER BY w.startedAt, w.id, we.position, s.position
   `,
     [
+      muscle ?? null,
+      muscle ?? null,
       start.toISOString(),
       end.toISOString(),
       scope && 'templateId' in scope ? scope.templateId : null,
       scope && 'templateId' in scope ? scope.templateId : null,
       scope && 'folderId' in scope ? scope.folderId : null,
       scope && 'folderId' in scope ? scope.folderId : null,
-      muscle ?? null,
-      muscle ?? null,
     ],
   );
   for (const row of rows) {
     const date = new Date(row.startedAt);
     date.setDate(date.getDate() - ((date.getDay() + 6) % Week.days));
-    const week = weeks.get(localDateKey(date));
-    if (week === undefined) continue;
+    const key = localDateKey(date);
+    const week = weeks.get(key) ?? { hardSets: 0, rir: 0, logged: 0, hasDeload: false };
+    weeks.set(key, week);
     if (row.deloadStage !== null) week.hasDeload = true;
-    const effort = summarizeEffort([row]);
+    if (row.kind === null) continue;
+    const effort = summarizeEffort([{ kind: row.kind, rpe: row.rpe }]);
     week.hardSets += effort.hardSets;
     if (effort.averageRir !== null) {
       week.rir += effort.averageRir;

@@ -7,8 +7,9 @@ import { PinnedExercises } from './PinnedExercises';
 
 test('migration, ordering, backup, merge and cascade preserve pins', async () => {
   const db = await Database.openInMemory();
-  migrate(db, new Date(), MIGRATIONS.slice(0, -1));
-  expect(migrate(db)).toEqual(['v14-pinned-exercises']);
+  // Start at v13 explicitly so later migrations do not move this regression's boundary.
+  migrate(db, new Date(), MIGRATIONS.slice(0, 13));
+  expect(migrate(db)).toEqual(['v14-pinned-exercises', 'v15-lower-traps']);
   for (const name of ['First', 'Second', 'Third']) {
     db.run("INSERT INTO exercise (name, source, createdAt) VALUES (?, 'custom', '2024-01-01')", [name]);
   }

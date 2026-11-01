@@ -4,15 +4,24 @@ import styles from '../analytics/Analytics.module.css';
 import layout from './TemplateAnalytics.module.css';
 
 type Report = ReturnType<typeof TemplateAnalytics>;
+
+function frequencyDetail(report: Report): string {
+  if (!report.windowIsHistorical || report.windowEnd === null) return `of ${report.plannedWorkouts} planned`;
+  const date = new Date(`${report.windowEnd}T12:00:00`);
+  const day = new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(date);
+  const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(date);
+  return `${report.weeksAvailable} wk to ${day} ${month}`;
+}
+
 /** Scoped workout or plan headline figures, using the dashboard tile styling. */
 export function TemplateAnalyticsTiles({ report, plan }: { readonly report: Report; readonly plan: boolean }) {
   const tiles = plan
     ? [
-        { label: 'On this plan', value: `${report.weeksOnPlan ?? 0} wk`, detail: '' },
+        { label: 'Workouts', value: String(report.sessionCount), detail: '' },
         {
-          label: 'Sessions / week',
+          label: 'Per week',
           value: report.sessionsPerWeek?.toFixed(1) ?? '—',
-          detail: `of ${report.plannedWorkouts} planned · ${report.weeksAvailable} full weeks`,
+          detail: frequencyDetail(report),
         },
         {
           label: 'Typical length',

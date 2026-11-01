@@ -311,3 +311,16 @@ panels, intensity-volume map and session-volume overview are removed. Typical se
 median within the existing duration limit. Percentage of maximum uses the greater of the dated trend
 and the session's best estimate, with the set load as a lower bound to keep the percentage at most 100.
 Pins are ordered locally and included in backups; the selected period controls their change figures.
+
+
+## 2026-11-02: Known-effort curve fitting, lower traps and recent plan windows (T-082)
+
+Refines the 2026-11-01 personal-curve decision: only otherwise qualifying sets with logged RPE or kind `failure` enter the fit, its count, effective-rep diversity and anchored 14-day windows. Assumed RIR 2 remains useful for estimating unlogged sets but is not evidence of a maximum. Heuristic: within each window retain only the best trial e1RM at each effective-rep count, because top sets approximate a max and repeated back-offs should not outvote them. The ten-set threshold, 8–50 search, half-step grid, tie rule and fifteen-set prior blend stay unchanged; n counts all qualifying known-effort sets before per-window selection.
+
+The lead then checked the fit on the owner's real history: they log RPE on most sets, yet RPE 7 sets pulled the squat's k to 16.4 and its estimate about 25 kg above their top sets. So fitting is narrowed to failure or RPE ≥ 8 (RIR ≤ 2), where the report says self-rated RIR is most accurate (Halperin 2022). On the owner's export: squat k 31 (e1RM about 148 kg, matching their own sense of ~150), bench 28.5, deadlift 28. RPE ≥ 8.5 left too few sets and k swung to the 48–50 bound.
+
+Lower traps receive a secondary tag on Face Pull, every present Y-Raise and the specified Reverse Fly families (ten variants; no prone trap-raise family is present). Rows and pulldowns keep `upper-back`. Frozen migration v15 adds only missing library-owned rows, preserving custom definitions and existing roles. The bundled library and reviewed source mapping agree without incrementing the seeder version: existing data needs only the targeted addition.
+
+Recent plan/workout averages cover at most four local Monday weeks ending with the latest finished session’s week, including it; the first session limits the denominator when history is shorter. All calendar weeks between those endpoints count toward the average, including unlogged weeks. `windowEnd` is that week’s Sunday, even if the latest session was earlier in the week. The Per week tile uses this endpoint only after the actual latest session is more than seven elapsed days old; otherwise it shows planned workout frequency. Total finished Workouts replaces elapsed weeks on the plan.
+
+Chart occupancy is separate from average denominators: weekly effort and MuscleDetail weekly sets omit weeks with no finished session in scope. A finished session with no hard sets for the selected muscle is a real zero; missing logged effort remains null. The series omits these weeks; shared chart rendering is responsible for drawing the gaps.
