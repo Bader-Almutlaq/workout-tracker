@@ -157,7 +157,7 @@ Visible wording uses **Plan** for a saved template folder, **Workout** for a sav
 
 The Workout tab keeps Start empty workout first. Plans are separate navigation cards with a name, workout count, workout names and latest finished-session date; the card menu keeps rename, reorder and delete. Other workouts follow below. A plan opens `/workout/plans/:folderId`, with a Workout back link and management menu. Unknown/deleted ids return to Workout.
 
-Plan pages use Workouts · History · Analytics. Workouts are ordered cards with an exercise summary, last done and management menu. + Workout opens the existing editor with that plan selected. History links every finished session in the current plan to History. Analytics shows weekly session sums, mean session volume and mean known duration, followed by a per-workout table including never-performed workouts.
+Plan pages use Workouts · History · Analytics. Workouts are ordered cards with an exercise summary, last done and management menu. + Workout opens the existing editor with that plan selected. History links every finished session in the current plan to History. Analytics shows plan duration, completed sessions per week against planned workouts, typical length, done versus planned muscle sets with exercise contributions, weekly hard sets and effort, then exercise progress grouped by workout.
 
 Workout pages show a description, last done date, and Exercises · History · Analytics tabs. A Start this workout button stays above the tab bar and is disabled during an active workout. Exercise rows link to workout-specific Progress (default) and History, with a link to all sessions. Plan workouts appear in a two-column card grid, collapsing below 360px.
 
@@ -242,3 +242,7 @@ charts provide dated readouts and table alternatives.
 ### Analytics polish (T-080)
 
 Weekly sets and effort use the shared dated chart with unit-labelled axes, selection, deload marks and tables. Pinned suggestions wrap as touch-sized chips, and the active plan is a surface row. Signed strength changes use status colours, while zero is muted. Muscle rows link across the full row, with untrained muscles grouped below a divider.
+
+### Workout and plan analytics (T-079)
+
+Workout Analytics shows sessions, median length and last working sets against planned sets, followed by scoped exercise progress, per-session hard sets and logged effort. Plan muscle bars compare average completed fractional sets over available full weeks (up to four) with the planned weekly total; tapping a muscle opens its exercise contributions. Deloads are yellow and excluded from progress changes. Charts retain session or weekly dates, selection and tables.

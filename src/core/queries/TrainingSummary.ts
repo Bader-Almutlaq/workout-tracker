@@ -16,6 +16,27 @@ export interface TrainingSummaryResult {
 /** Heuristic: calendar weeks have seven civil days; duration excludes workouts without an end time. */
 const calendar = Object.freeze({ daysPerWeek: 7, millisecondsPerDay: 86400000, millisecondsPerSecond: 1000 });
 
+/** Median valid finished-session duration in seconds; implausible or missing durations are excluded (ANALYTICS.md). */
+export function typicalDuration(
+  workouts: readonly { readonly startedAt: string; readonly endedAt: string | null }[],
+): number | null {
+  const durations = workouts
+    .flatMap((workout) => {
+      if (workout.endedAt === null) return [];
+      const seconds = (Date.parse(workout.endedAt) - Date.parse(workout.startedAt)) / calendar.millisecondsPerSecond;
+      return Number.isFinite(seconds) && seconds >= 0 && seconds <= SessionDurationLimits.maximumSeconds
+        ? [seconds]
+        : [];
+    })
+    .sort((a, b) => a - b);
+  const middle = Math.floor(durations.length / 2);
+  return durations.length === 0
+    ? null
+    : durations.length % 2 === 1
+      ? (durations[middle] ?? null)
+      : ((durations[middle - 1] ?? 0) + (durations[middle] ?? 0)) / 2;
+}
+
 /** Finished workouts in [from, to), normalized by local weeks. Heuristic: median duration excludes implausibly long sessions; RIR = 10 − RPE (report §12). */
 export function TrainingSummary(db: Database, from: Date, to: Date): TrainingSummaryResult {
   const workouts = db.all<{ id: number; startedAt: string; endedAt: string | null; deload: number }>(
@@ -44,22 +65,7 @@ export function TrainingSummary(db: Database, from: Date, to: Date): TrainingSum
       Date.UTC(from.getFullYear(), from.getMonth(), from.getDate())) /
     calendar.millisecondsPerDay;
   const weeks = Math.max(1, days / calendar.daysPerWeek);
-  const durations = workouts
-    .flatMap((workout) => {
-      if (workout.endedAt === null) return [];
-      const seconds = (Date.parse(workout.endedAt) - Date.parse(workout.startedAt)) / calendar.millisecondsPerSecond;
-      return Number.isFinite(seconds) && seconds >= 0 && seconds <= SessionDurationLimits.maximumSeconds
-        ? [seconds]
-        : [];
-    })
-    .sort((a, b) => a - b);
-  const middle = Math.floor(durations.length / 2);
-  const typicalSessionSeconds =
-    durations.length === 0
-      ? null
-      : durations.length % 2 === 1
-        ? (durations[middle] ?? null)
-        : ((durations[middle - 1] ?? 0) + (durations[middle] ?? 0)) / 2;
+  const typicalSessionSeconds = typicalDuration(workouts);
   const working = sets.filter((set) => set.isCompleted === 1 && set.kind !== 'warmup');
   const logged = working.flatMap((set) => (set.rpe === null ? [] : [10 - set.rpe]));
   return {

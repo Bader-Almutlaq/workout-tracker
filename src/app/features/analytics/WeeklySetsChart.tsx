@@ -9,9 +9,13 @@ export function WeeklySetsChart({
   readonly points: readonly { readonly date: string; readonly value: number | null; readonly deload: boolean }[];
   readonly title?: string;
 }) {
+  const latest = points.at(-1)?.value;
   return (
     <section>
-      <h2>{title}</h2>
+      <h2>{title} · each point is one week</h2>
+      <p>
+        {latest === null || latest === undefined ? 'No weekly sets yet.' : `Latest week: ${latest.toFixed(1)} sets`}
+      </p>
       <LongRangeChart
         title={title}
         series={[

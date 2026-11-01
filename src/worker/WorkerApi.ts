@@ -1,3 +1,4 @@
+import { TemplateAnalytics } from '../core/queries/TemplateAnalytics';
 import { ExerciseProgress } from '../core/queries/ExerciseProgress';
 import { liftRpeChart, rtsRpeChart } from '../core/analytics/RpeChart';
 import { loadProfileFor } from '../core/units/LoadableWeight';
@@ -933,6 +934,13 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
       MuscleDetail((await liveStore()).database, new Date(from), new Date(to), muscle),
     ),
     // End of Analytics tab (T-078)
+
+    // Template analytics (T-079)
+    /** Analytics for a saved workout or plan. */
+    templateAnalytics: serially(async (scope: TemplateSessionScope) =>
+      TemplateAnalytics((await liveStore()).database, scope),
+    ),
+    // End of Template analytics (T-079)
 
     // Strength (T-034)
 
