@@ -177,3 +177,12 @@ describe('ExerciseLibrary.fromJson validation', () => {
     ]);
   });
 });
+
+test('Donkey Calf Raise uses plain weights and retains its details', () => {
+  expect(byName().get('Donkey Calf Raise')).toMatchObject({
+    key: 'donkey-calf-raise',
+    tracking: 'weight-reps',
+    imageKeys: ['Donkey_Calf_Raises/0.jpg', 'Donkey_Calf_Raises/1.jpg'],
+  });
+  expect(byName().get('Donkey Calf Raise')?.instructions).toContain('machine');
+});

@@ -45,4 +45,8 @@ The owner's review (2026-11-01):
 
 ## Handoff
 
-_Fill in at the end of the session._
+- Changed the bare library entry to weight tracking and added v13, preserving stored sets and skipping renamed/custom rows. The library version remains unchanged so reseeding does not overwrite renamed rows; migration updates existing installs.
+- Summary contributions aggregate exercise counts across occurrences and workouts; trained rows open a sheet. Workout names are shown for plans with multiple workouts.
+- The entry keeps its `bodyweight` equipment so its library variant and name stay the same. Since the load ladder follows equipment, the lead added `loadStepKilograms = 2.5` (when unset) to v13 so progression can suggest loads; the owner can change it under Loading.
+- Validation: `make format` and `make verify`; see session report for the final result. No commit or board update.
+

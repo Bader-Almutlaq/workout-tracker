@@ -1053,7 +1053,7 @@
       "mechanic": "isolation",
       "primary": ["calves"],
       "lengthened": true,
-      "variants": ["bodyweight", "machine", "plate-loaded"]
+      "variants": [{ "equipment": "bodyweight", "tracking": "weight-reps" }, "machine", "plate-loaded"]
     },
     {
       "movement": "Calf Press on Leg Press",

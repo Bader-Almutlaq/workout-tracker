@@ -178,7 +178,7 @@ test('v11 to v12 preserves stage and nullable settings through a backup', async 
     migrate(db, new Date(), MIGRATIONS.slice(0, 11));
     DataSafetyFixture.seed(db);
     db.run('UPDATE workoutExercise SET deloadStage = 1');
-    expect(migrate(db)).toEqual(['v12-deload-settings']);
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 12))).toEqual(['v12-deload-settings']);
     expect(db.all('SELECT deloadStage, deloadMode, deloadLoadPercent, deloadSetPercent FROM workoutExercise')).toEqual([
       { deloadStage: 1, deloadMode: null, deloadLoadPercent: null, deloadSetPercent: null },
       { deloadStage: 1, deloadMode: null, deloadLoadPercent: null, deloadSetPercent: null },
@@ -196,5 +196,45 @@ test('v11 to v12 preserves stage and nullable settings through a backup', async 
     }
   } finally {
     db.close();
+  }
+});
+
+test('v12 to v13 changes only the original library exercise and preserves its sets', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db, new Date(), MIGRATIONS.slice(0, 12));
+    DataSafetyFixture.seed(db);
+    db.exec(`
+      UPDATE exercise SET name = 'Donkey Calf Raise', source = 'library', libraryKey = 'donkey-calf-raise', tracking = 'bodyweight-reps' WHERE id = 1;
+      UPDATE exercise SET name = 'Renamed calf', source = 'custom', tracking = 'bodyweight-reps' WHERE id = 2;
+      UPDATE workoutSet SET weightKilograms = 145 WHERE workoutExerciseId = 1;
+    `);
+    const sets = db.all('SELECT * FROM workoutSet');
+    expect(migrate(db)).toEqual(['v13-donkey-calf-raise-weighted']);
+    expect(db.all('SELECT tracking, loadStepKilograms FROM exercise ORDER BY id')).toEqual([
+      { tracking: 'weight-reps', loadStepKilograms: 2.5 },
+      { tracking: 'bodyweight-reps', loadStepKilograms: null },
+    ]);
+    expect(db.all('SELECT * FROM workoutSet')).toEqual(sets);
+    expect(migrate(db)).toEqual([]);
+  } finally {
+    db.close();
+  }
+  const renamed = await Database.openInMemory();
+  try {
+    migrate(renamed, new Date(), MIGRATIONS.slice(0, 12));
+    renamed.run(
+      "INSERT INTO exercise (name, source, libraryKey, tracking, createdAt) VALUES ('Renamed calf', 'library', 'donkey-calf-raise', 'bodyweight-reps', 'a')",
+    );
+    migrate(renamed);
+    expect(renamed.value('SELECT tracking FROM exercise')).toBe('bodyweight-reps');
+  } finally {
+    renamed.close();
+  }
+  const fresh = await Database.openInMemory();
+  try {
+    expect(migrate(fresh)).toContain('v13-donkey-calf-raise-weighted');
+  } finally {
+    fresh.close();
   }
 });

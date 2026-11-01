@@ -5854,7 +5854,8 @@
           "secondary": [],
           "aliases": [
             "Donkey Calf Raises"
-          ]
+          ],
+          "tracking": "weight-reps"
         },
         {
           "equipment": "machine",

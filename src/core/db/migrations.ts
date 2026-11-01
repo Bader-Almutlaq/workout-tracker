@@ -336,6 +336,15 @@ export const MIGRATIONS: readonly Migration[] = [
       ALTER TABLE workoutExercise ADD COLUMN deloadSetPercent REAL CHECK (deloadSetPercent >= 0 AND deloadSetPercent < 100);
     `,
   },
+  {
+    id: 'v13-donkey-calf-raise-weighted',
+    sql: `
+      -- Heuristic: 2.5 kg is the plate-loaded step, so progression can suggest loads; editable under Loading.
+      UPDATE exercise SET tracking = 'weight-reps', loadStepKilograms = COALESCE(loadStepKilograms, 2.5)
+      WHERE libraryKey = 'donkey-calf-raise' AND name = 'Donkey Calf Raise'
+        AND source = 'library' AND tracking = 'bodyweight-reps';
+    `,
+  },
 ];
 
 const CREATE_MIGRATION_TABLE = `
