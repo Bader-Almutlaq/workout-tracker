@@ -156,7 +156,7 @@ test('v10 to v11 preserves rows, defaults weekday to null, and validates backups
     DataSafetyFixture.seed(db);
     const before = DataSafetyFixture.read(db);
     await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
-    expect(migrate(db)).toEqual(['v11-template-weekday']);
+    expect(migrate(db, new Date(), MIGRATIONS.slice(0, 11))).toEqual(['v11-template-weekday']);
     const after = DataSafetyFixture.read(db);
     for (const [table, records] of Object.entries(before)) {
       if (table === 'migration') continue;
@@ -167,6 +167,33 @@ test('v10 to v11 preserves rows, defaults weekday to null, and validates backups
     expect(db.all('SELECT weekday FROM template')).toEqual([{ weekday: null }]);
     expect(() => db.run('UPDATE template SET weekday = 8')).toThrow();
     await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+  } finally {
+    db.close();
+  }
+});
+
+test('v11 to v12 preserves stage and nullable settings through a backup', async () => {
+  const db = await Database.openInMemory();
+  try {
+    migrate(db, new Date(), MIGRATIONS.slice(0, 11));
+    DataSafetyFixture.seed(db);
+    db.run('UPDATE workoutExercise SET deloadStage = 1');
+    expect(migrate(db)).toEqual(['v12-deload-settings']);
+    expect(db.all('SELECT deloadStage, deloadMode, deloadLoadPercent, deloadSetPercent FROM workoutExercise')).toEqual([
+      { deloadStage: 1, deloadMode: null, deloadLoadPercent: null, deloadSetPercent: null },
+      { deloadStage: 1, deloadMode: null, deloadLoadPercent: null, deloadSetPercent: null },
+    ]);
+    db.run("UPDATE workoutExercise SET deloadMode = 'both', deloadLoadPercent = 15, deloadSetPercent = 33");
+    await expect(validateBackup(db.exportBytes())).resolves.toBeUndefined();
+    const restored = await Database.fromBytes(db.exportBytes());
+    try {
+      expect(restored.all('SELECT deloadMode, deloadLoadPercent, deloadSetPercent FROM workoutExercise')).toEqual([
+        { deloadMode: 'both', deloadLoadPercent: 15, deloadSetPercent: 33 },
+        { deloadMode: 'both', deloadLoadPercent: 15, deloadSetPercent: 33 },
+      ]);
+    } finally {
+      restored.close();
+    }
   } finally {
     db.close();
   }

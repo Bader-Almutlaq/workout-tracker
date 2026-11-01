@@ -153,6 +153,9 @@ describe('row conversion', () => {
       notes: 'Pause reps',
       machineBrand: null,
       deloadStage: null,
+      deloadMode: null,
+      deloadLoadPercent: null,
+      deloadSetPercent: null,
     });
   });
 

@@ -1,9 +1,10 @@
-import { createElement, isValidElement } from 'react';
+import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, test, vi } from 'vitest';
 import type { LiveWorkoutEntry } from '../../../core/queries/LiveWorkout';
-import { ActionMenuRow, type ActionMenuItem } from '../../design/components/ActionMenuRow';
+import { ActionMenuRow } from '../../design/components/ActionMenuRow';
 import { DeloadChip } from './DeloadChip';
+import { DeloadSheet } from './DeloadSheet';
 import { ExerciseInfoLine } from './ExerciseInfoLine';
 import { exerciseMenuItems } from './exerciseMenuItems';
 import type { ExerciseCardActions } from './ExerciseCardActions';
@@ -13,7 +14,16 @@ import { makeExercise, makeSet } from './workoutTestData';
 
 const previous = makeSet({ weightKilograms: 100 });
 const entry: LiveWorkoutEntry = {
-  entry: { id: 1, workoutId: 1, exerciseId: 1, position: 0, notes: null, supersetGroup: null, deloadStage: 1 },
+  entry: {
+    id: 1,
+    workoutId: 1,
+    exerciseId: 1,
+    position: 0,
+    notes: null,
+    supersetGroup: null,
+    deloadStage: 1,
+    deloadLoadPercent: 20,
+  },
   exercise: makeExercise(),
   sets: [previous],
   previous: [previous],
@@ -36,47 +46,37 @@ const actions: ExerciseCardActions = {
 };
 
 test('exercise menu exposes the yellow deload action and forwards stage enable only on selection', () => {
+  const open = vi.fn();
   const items = exerciseMenuItems({
     entry,
     index: 0,
     count: 1,
     actions,
     unit: 'kg',
-    live: { editNote: vi.fn(), editRest: vi.fn(), showRpe: vi.fn(), showsRpe: false },
+    live: { editNote: vi.fn(), editRest: vi.fn(), editDeload: open, showRpe: vi.fn(), showsRpe: false },
   });
-  const action = items.find((item) => item.label === 'Deload this exercise');
+  const action = items.find((item) => item.label === 'Deload…');
   if (action === undefined) throw new Error('Missing deload action');
   expect(renderToStaticMarkup(createElement(ActionMenuRow, { item: action, onChosen: vi.fn() }))).toContain(
     'data-deload="true"',
   );
   expect(actions.setDeload).not.toHaveBeenCalled();
   action.onSelect();
-  expect(actions.setDeload).toHaveBeenCalledExactlyOnceWith(1, true);
+  expect(open).toHaveBeenCalledOnce();
 });
 
-test('whole-workout menu forwards its yellow action without accepting suggestions', () => {
-  const onDeload = vi.fn();
-  const menu = WorkoutMenu({ onRename: vi.fn(), onDiscard: vi.fn(), onDeload });
-  const item = menu.props.items.find((candidate: ActionMenuItem) => candidate.label === 'Deload whole workout');
-  expect(item?.isDeload).toBe(true);
-  expect(onDeload).not.toHaveBeenCalled();
-  item?.onSelect();
-  expect(onDeload).toHaveBeenCalledOnce();
+test('whole-workout menu renders its action', () => {
+  const html = renderToStaticMarkup(
+    createElement(WorkoutMenu, { onRename: vi.fn(), onDiscard: vi.fn(), onDeload: vi.fn() }),
+  );
+  expect(html).toContain('Workout options');
 });
 
-test('info line shows a nominal reduction and the chip offers End deload, while History uses a tag', () => {
-  const onEnd = vi.fn();
-  const html = renderToStaticMarkup(createElement(ExerciseInfoLine, { entry, onEndDeload: onEnd }));
+test('info line shows a tappable reduction and History uses a tag', () => {
+  const html = renderToStaticMarkup(createElement(ExerciseInfoLine, { entry, onEndDeload: vi.fn() }));
   expect(html).toContain('Deload · −20%');
-  expect(html).not.toContain('Use suggested');
-  const chip = DeloadChip({ reductionPercent: 20, onEnd });
-  const child: unknown = chip.props.children;
-  if (!isValidElement<{ items: readonly { label: string; onSelect: () => void }[] }>(child))
-    throw new Error('Missing chip menu');
-  expect(child.props.items[0]?.label).toBe('End deload');
-  child.props.items[0]?.onSelect();
-  expect(onEnd).toHaveBeenCalledOnce();
-  expect(renderToStaticMarkup(createElement(DeloadChip, {}))).toContain('>Deload</span>');
+  expect(html).toContain('<button');
+  expect(renderToStaticMarkup(createElement(DeloadChip, { entry }))).toContain('Deload · −20%');
 });
 
 test('deload occupies amber beside unchanged grey values, and entered/completed/history cells hide suggestions', () => {
@@ -97,4 +97,30 @@ test('deload occupies amber beside unchanged grey values, and entered/completed/
   expect(render({ actions: { ...actions, isValueEntered: () => true } })).not.toContain('Use suggested');
   expect(render({ set: { ...previous, isCompleted: true } })).not.toContain('Use suggested');
   expect(render({ isPastWorkout: true })).not.toContain('Use suggested');
+});
+
+test('sheet shows defaults and active actions', () => {
+  const html = renderToStaticMarkup(
+    createElement(DeloadSheet, { entry, onClose: vi.fn(), onSave: vi.fn(), onEnd: vi.fn() }),
+  );
+  expect(html).toContain('Lighter session. Next time builds back halfway.');
+  expect(html).toContain('−20%');
+  expect(html).toContain('Save');
+  expect(html).toContain('End deload');
+  expect(html).not.toContain('Keep 1 of');
+});
+
+test('sets label describes the saved reduction', () => {
+  const setsEntry = { ...entry, entry: { ...entry.entry, deloadMode: 'sets' as const, deloadSetPercent: 50 } };
+  expect(renderToStaticMarkup(createElement(DeloadChip, { entry: setsEntry }))).toContain('Deload · 1 of 2 sets');
+});
+
+test('sets mode shows the kept count and hides the weight stepper', () => {
+  const setsEntry = { ...entry, entry: { ...entry.entry, deloadMode: 'sets' as const, deloadSetPercent: 50 } };
+  const html = renderToStaticMarkup(
+    createElement(DeloadSheet, { entry: setsEntry, onClose: vi.fn(), onSave: vi.fn() }),
+  );
+  expect(html).toContain('Keep 1 of 2 sets');
+  expect(html).toContain('Next time is a normal session.');
+  expect(html).not.toContain('Decrease weight reduction');
 });

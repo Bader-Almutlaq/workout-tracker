@@ -1,5 +1,6 @@
 import { MachineBrandSheet } from './MachineBrandSheet';
 import { DeloadChip } from './DeloadChip';
+import { DeloadSheet } from './DeloadSheet';
 import { useState } from 'react';
 import { ExerciseInfoLine } from './ExerciseInfoLine';
 import { ExerciseNoteDialog } from './ExerciseNoteDialog';
@@ -40,11 +41,12 @@ export function ExerciseCard({
   };
 }) {
   const [showsRpe, setShowsRpe] = useState(false);
-  const [dialog, setDialog] = useState<'note' | 'rest' | 'machine' | undefined>(undefined);
+  const [dialog, setDialog] = useState<'note' | 'rest' | 'machine' | 'deload' | undefined>(undefined);
   const live =
     notes === undefined
       ? {
           editNote: () => setDialog('note'),
+          editDeload: () => setDialog('deload'),
           editRest: () => setDialog('rest'),
           editMachine: () => setDialog('machine'),
           showRpe: () => setShowsRpe(true),
@@ -69,10 +71,10 @@ export function ExerciseCard({
           entry={entry}
           onMachine={() => setDialog('machine')}
           onNote={() => setDialog('note')}
-          onEndDeload={actions.setDeload === undefined ? undefined : () => actions.setDeload?.(entry.entry.id, false)}
+          onEndDeload={actions.setDeload === undefined ? undefined : () => setDialog('deload')}
         />
       ) : (entry.entry.deloadStage ?? null) !== null ? (
-        <DeloadChip />
+        <DeloadChip entry={entry} />
       ) : null}
       {notes === undefined && entry.deload === undefined && <ProgressButton entry={entry} actions={actions} />}
       {suggestions.status === 'failed' && (
@@ -112,6 +114,20 @@ export function ExerciseCard({
           <span>Add warm-up set</span>
         </button>
       </div>
+      {dialog === 'deload' && (
+        <DeloadSheet
+          entry={entry}
+          onClose={() => setDialog(undefined)}
+          onSave={(settings, target) => {
+            actions.setDeload?.(entry.entry.id, entry.entry.deloadStage ?? 1, settings, target);
+            setDialog(undefined);
+          }}
+          onEnd={() => {
+            actions.setDeload?.(entry.entry.id, null);
+            setDialog(undefined);
+          }}
+        />
+      )}
       {dialog === 'machine' && (
         <MachineBrandSheet
           value={entry.entry.machineBrand ?? null}

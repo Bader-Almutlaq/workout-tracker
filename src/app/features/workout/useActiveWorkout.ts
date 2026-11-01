@@ -105,9 +105,9 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
       editor.close();
       actions.setMachineBrand(entryId, brand);
     },
-    setDeload: (entryId, enabled) => {
+    setDeload: (entryId, stage, settings, targetSets) => {
       editor.close();
-      actions.setDeload(entryId, enabled);
+      actions.setDeload(entryId, stage, settings, targetSets);
     },
     toggleWarmups: (entryId, remove) => {
       editor.close();
@@ -158,9 +158,9 @@ export function useActiveWorkout(snapshot: LiveWorkoutSnapshot): ActiveWorkoutMo
       if (trimmed !== '') actions.renameWorkout(workout.id, trimmed, workout.notes);
     },
     cancelRenaming: () => setIsRenaming(false),
-    deloadWorkout: () => {
+    deloadWorkout: (settings) => {
       editor.close();
-      actions.deloadWorkout(workout.id);
+      actions.deloadWorkout(workout.id, settings);
     },
     requestDiscard: () => {
       editor.close();

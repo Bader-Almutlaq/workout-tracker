@@ -276,3 +276,9 @@ Warm-ups are grouped before work when added or changed. Progression is applied o
 ### Plan summaries as a week (2026-11-01)
 
 A plan represents one week for planned set counts. Frequency counts each workout with at least one fractional set for a muscle, matching the muscle coverage threshold; this is a planning count rather than a prediction of completed training.
+
+## 2026-11-01: Configurable deload reductions (T-075)
+
+Refines T-062: the owner chooses weight, sets or both. The default set reduction is 50% (research report §12.9); working, drop and failure sets count, warm-ups do not. The owner chooses an absolute kept count for an exercise, and completed sets are protected. Stage 2 restores the pre-cycle working count for Both and reduces load by half the stage-1 percentage, rounded to half a percentage point; Sets returns directly to normal. Returning to load-only or ending a deload does not recreate removed sets. Nullable settings preserve older rows and original defaults.
+
+The set-percent check includes zero because the required exact kept-count formula yields 0% when all sets are kept; NULL remains the 50% default.

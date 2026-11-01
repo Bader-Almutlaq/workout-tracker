@@ -1,4 +1,4 @@
-import type { DeloadStage } from '../logging/DeloadPlan';
+import type { DeloadMode, DeloadStage } from '../logging/DeloadPlan';
 
 /** An exercise as performed within one workout, at a position in the session. Table `workoutExercise`. */
 export interface WorkoutExercise {
@@ -14,6 +14,10 @@ export interface WorkoutExercise {
   readonly machineBrand?: string | null;
   /** Saved stage; absent only in older in-memory callers, NULL for normal database rows. */
   readonly deloadStage?: DeloadStage | null;
+  /** Owner-selected reduction settings; null uses the original defaults. */
+  readonly deloadMode?: DeloadMode | null;
+  readonly deloadLoadPercent?: number | null;
+  readonly deloadSetPercent?: number | null;
 }
 
 /** A raw `workoutExercise` row as SQLite returns it. */
@@ -30,5 +34,8 @@ export function fromWorkoutExerciseRow(row: WorkoutExerciseRow): WorkoutExercise
     notes: row.notes,
     machineBrand: row.machineBrand ?? null,
     deloadStage: row.deloadStage ?? null,
+    deloadMode: row.deloadMode ?? null,
+    deloadLoadPercent: row.deloadLoadPercent ?? null,
+    deloadSetPercent: row.deloadSetPercent ?? null,
   };
 }

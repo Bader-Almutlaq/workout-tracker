@@ -195,3 +195,90 @@ test('deload prefers the selected machine baseline over a newer heavier machine'
   expect(entry(current).previous[0]?.weightKilograms).toBe(100);
   expect(entry(current).deload?.suggestions[0]?.weightKilograms).toBe(90);
 });
+
+test('set reduction keeps warmups and completed sets and removes trailing uncompleted work', () => {
+  const id = start(2);
+  const entryId = entry(id).entry.id;
+  logger.addSet(entryId, 'warmup');
+  logger.addSet(entryId);
+  logger.addSet(entryId);
+  logger.addSet(entryId);
+  const before = entry(id).sets;
+  const work = before.filter((set) => set.kind !== 'warmup');
+  const completed = work[0];
+  if (completed === undefined) throw new Error('Missing working set');
+  logger.setCompleted(completed.id, true, day(2));
+  logger.setDeloadStage(entryId, 1, { mode: 'both', loadPercent: 15, setPercent: 50 });
+  const after = entry(id);
+  expect(after.sets.filter((set) => set.kind === 'warmup')).toHaveLength(1);
+  expect(after.sets.filter((set) => set.kind !== 'warmup').map((set) => set.id)).toEqual(
+    work.slice(0, 2).map((set) => set.id),
+  );
+  expect(after.entry).toMatchObject({ deloadMode: 'both', deloadLoadPercent: 15, deloadSetPercent: 50 });
+});
+
+test('set reduction leaves every set when completed work exceeds the target', () => {
+  const id = start(2);
+  const entryId = entry(id).entry.id;
+  logger.addSet(entryId);
+  logger.addSet(entryId);
+  for (const set of entry(id).sets) logger.setCompleted(set.id, true, day(2));
+  const before = entry(id).sets;
+  logger.setDeloadStage(entryId, 1, { mode: 'sets', loadPercent: null, setPercent: 50 });
+  expect(entry(id).sets).toEqual(before);
+});
+
+test('saving the same absolute target twice does not remove more sets', () => {
+  const id = start(2);
+  const entryId = entry(id).entry.id;
+  for (let index = 0; index < 3; index += 1) logger.addSet(entryId);
+  const settings = { mode: 'sets' as const, loadPercent: null, setPercent: 50 };
+  logger.setDeloadStage(entryId, 1, settings, 2);
+  const after = entry(id).sets;
+  logger.setDeloadStage(entryId, 1, settings, 2);
+  expect(entry(id).sets).toEqual(after);
+});
+
+test('both restores the pre-cycle count for a new exercise and a template without duplicating sets', () => {
+  db.exec(`
+    INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps)
+    VALUES (1, 1, 'working', 100, 'kg', 8), (1, 2, 'working', 100, 'kg', 8), (1, 3, 'working', 100, 'kg', 8);
+    INSERT INTO template (id, name, position, createdAt, updatedAt) VALUES (1, 'Synthetic', 0, 'a', 'a');
+    INSERT INTO templateExercise (id, templateId, exerciseId, position) VALUES (1, 1, 1, 0);
+    INSERT INTO templateSet (templateExerciseId, position, kind) VALUES (1, 0, 'working'), (1, 1, 'working'), (1, 2, 'working'), (1, 3, 'working');
+  `);
+  const first = start(2);
+  logger.setDeloadStage(entry(first).entry.id, 1, { mode: 'both', loadPercent: 20, setPercent: 50 }, 2);
+  for (const set of entry(first).sets) logger.setCompleted(set.id, true, day(2));
+  logger.finish(first, day(2));
+  const next = start(3);
+  expect(entry(next).sets.filter((set) => set.kind !== 'warmup')).toHaveLength(4);
+  expect(entry(next).entry).toMatchObject({ deloadStage: 2, deloadMode: 'load' });
+  logger.discard(next);
+  const template = logger.startFromTemplate(1, day(3));
+  expect(entry(template).sets.filter((set) => set.kind !== 'warmup')).toHaveLength(4);
+});
+
+test('keeping every set stores a zero reduction without changing its count', () => {
+  const id = start(2);
+  const entryId = entry(id).entry.id;
+  logger.setDeloadStage(entryId, 1, { mode: 'sets', loadPercent: null, setPercent: 0 }, 1);
+  expect(entry(id).entry.deloadSetPercent).toBe(0);
+  expect(entry(id).sets).toHaveLength(1);
+});
+
+test('a sets-only deload is followed by a normal session with the pre-cycle set count', () => {
+  db.exec(`
+    INSERT INTO workoutSet (workoutExerciseId, position, kind, weightKilograms, entryUnit, reps)
+    VALUES (1, 1, 'working', 100, 'kg', 8), (1, 2, 'working', 100, 'kg', 8), (1, 3, 'working', 100, 'kg', 8);
+  `);
+  const first = start(2);
+  logger.setDeloadStage(entry(first).entry.id, 1, { mode: 'sets', loadPercent: null, setPercent: 50 }, 2);
+  for (const set of entry(first).sets) logger.setCompleted(set.id, true, day(2));
+  logger.finish(first, day(2));
+  const next = start(3);
+  expect(entry(next).entry).toMatchObject({ deloadStage: null, deloadMode: null });
+  const work = entry(next).sets.filter((set) => set.kind !== 'warmup');
+  expect(work).toHaveLength(4);
+  expect(work.every((set) => set.rpe === null && !set.isCompleted)).toBe(true);
+});

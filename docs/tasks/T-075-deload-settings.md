@@ -54,4 +54,7 @@ Measure, don't prescribe: the owner chooses; the app only fills suggestions they
 
 ## Handoff
 
-_Fill in at the end of the session._
+- Implemented v12 settings, worker methods, exercise and workout sheets, labels, absolute set targets, and stage-2 restoration. Existing rows retain their original defaults. Changes are uncommitted; the board was not edited.
+- The v12 set-percent check permits zero, a deliberate refinement of the brief’s strictly positive check: the lead’s required exact formula produces zero when all sets are kept, including a one-set exercise. NULL still means the 50% default.
+- The sheet uses static-render coverage for defaults and labels; interactive mode-switch, stepper, and opening flows still need browser-level tests and a phone-size visual check.
+- Run `make format` and `make verify` after any further edits. See the session report for the most recent result.

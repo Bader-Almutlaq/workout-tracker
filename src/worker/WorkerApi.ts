@@ -4,7 +4,7 @@ import { LiftTrends } from '../core/queries/LiftTrends';
 import { muscleCoverage } from '../core/queries/MuscleCoverage';
 import { intensityMix } from '../core/queries/IntensityMix';
 import { usedMachineBrands } from '../core/queries/PreviousPerformance';
-import type { DeloadStage } from '../core/logging/DeloadPlan';
+import type { DeloadSettings, DeloadStage } from '../core/logging/DeloadPlan';
 import { ExerciseSeries } from '../core/queries/ExerciseSeries';
 import { RepMaxTable } from '../core/queries/RepMaxTable';
 import type { WorkoutFileFormat } from '../core/import/formats/detectWorkoutFileFormat';
@@ -679,13 +679,20 @@ export function createWorkerApi(ready: Promise<OnDeviceStore>) {
 
     // Deload (T-062)
     /** Saves/clears an exercise's deload stage; suggestions are calculated separately and sets remain intact. */
-    setDeloadStage: serially(async (entryId: number, stage: DeloadStage | null): Promise<void> => {
-      workoutLogger((await liveStore()).database).setDeloadStage(entryId, stage);
-      notifyListeners();
-    }),
+    setDeloadStage: serially(
+      async (
+        entryId: number,
+        stage: DeloadStage | null,
+        settings?: DeloadSettings,
+        targetSets?: number,
+      ): Promise<void> => {
+        workoutLogger((await liveStore()).database).setDeloadStage(entryId, stage, settings, targetSets);
+        notifyListeners();
+      },
+    ),
     /** Starts stage 1 on all current exercise entries in one transaction. */
-    deloadWorkout: serially(async (workoutId: number): Promise<void> => {
-      workoutLogger((await liveStore()).database).deloadWorkout(workoutId);
+    deloadWorkout: serially(async (workoutId: number, settings?: DeloadSettings): Promise<void> => {
+      workoutLogger((await liveStore()).database).deloadWorkout(workoutId, settings);
       notifyListeners();
     }),
     // End of Deload (T-062)

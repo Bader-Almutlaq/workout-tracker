@@ -25,6 +25,7 @@ export function exerciseMenuItems({
   readonly live?:
     | {
         readonly editNote: () => void;
+        readonly editDeload?: () => void;
         readonly editRest: () => void;
         readonly editMachine?: () => void;
         readonly showRpe: () => void;
@@ -37,9 +38,9 @@ export function exerciseMenuItems({
     ...(live !== undefined && actions.setDeload !== undefined
       ? [
           {
-            label: 'Deload this exercise',
+            label: 'Deload…',
             isDeload: true,
-            onSelect: () => actions.setDeload?.(entryId, true),
+            onSelect: () => live.editDeload?.(),
           },
         ]
       : []),

@@ -24,6 +24,8 @@ export interface LiveWorkoutEntry extends WorkoutDetailEntry {
   /** Ephemeral deload values replace progression; the stored stage remains visible without history. */
   readonly deload?: {
     readonly reductionPercent: number;
+    /** Pre-cycle sets used to preview a custom build-back load. */
+    readonly baseline?: readonly WorkoutSet[];
     readonly suggestions: readonly (DeloadSuggestion & { readonly setId: number })[];
   };
   /** On-the-fly opt-in calculations keyed to live sets; absent when disabled; suggestions are empty without history. */
@@ -70,11 +72,16 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
         // Deload is per exercise across workouts, independent of an opt-in template progression mode.
         const prior = priorEntry === undefined ? [] : completedEntrySets(db, priorEntry.id);
         const baseline = deloadBaseline(db, item.entry.id, item.entry.machineBrand ?? null);
+        const settings = {
+          mode: item.entry.deloadMode ?? null,
+          loadPercent: item.entry.deloadLoadPercent ?? null,
+          setPercent: item.entry.deloadSetPercent ?? null,
+        };
         const units = new Set(item.sets.map((set) => set.entryUnit));
         const calculated = new Map(
           [...units].map((unit) => [
             unit,
-            DeloadPlan.suggestions(prior, item.sets, item.exercise, stage, unit, baseline),
+            DeloadPlan.suggestions(prior, item.sets, item.exercise, stage, unit, baseline, settings),
           ]),
         );
         return {
@@ -83,7 +90,8 @@ export function liveWorkoutSnapshot(db: Database, workoutId: number): LiveWorkou
           previous: (item.entry.machineBrand ?? null) === null ? prior : previous,
           previousOtherMachine: result.otherMachine,
           deload: {
-            reductionPercent: DeloadPlan.reductionPercent(item.exercise, stage),
+            reductionPercent: DeloadPlan.reductionPercent(item.exercise, stage, settings),
+            baseline,
             suggestions: item.sets.flatMap((set, position) => {
               const suggestion = calculated.get(set.entryUnit)?.[position];
               return set.isCompleted || suggestion === undefined || suggestion === null
